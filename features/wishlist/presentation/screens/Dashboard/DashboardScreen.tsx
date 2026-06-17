@@ -4,11 +4,14 @@ import { useState } from "react";
 import { useWishlist } from "../../hooks/useWishlist";
 import { WishlistHeader } from "../../components/Header/WishlistHeader";
 import { WishlistItemCard } from "../../components/Card/WishlistItemCard";
+import { WishlistItemSkeleton } from "../../components/Card/WishlistItemSkeleton";
 import { WishListAddButton } from "../../components/AddButton/WishListAddButton";
 import { WishlistAddItemModal } from "../../components/Modal/WishlistAddItemModal";
 
+const SKELETON_COUNT = 10;
+
 export function DashboardScreen() {
-  const { items, ownedIds, addItem, toggle, pending, totalPrice } = useWishlist();
+  const { items, ownedIds, addItem, toggle, pending, totalPrice, isHydrated } = useWishlist();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -20,14 +23,18 @@ export function DashboardScreen() {
           <WishListAddButton onClick={() => setIsOpen(true)} />
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((item) => (
-            <WishlistItemCard
-              key={item.id}
-              {...item}
-              owned={ownedIds.has(item.id)}
-              onToggle={() => toggle(item.id)}
-            />
-          ))}
+          {!isHydrated
+            ? Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+                <WishlistItemSkeleton key={i} />
+              ))
+            : items.map((item) => (
+                <WishlistItemCard
+                  key={item.id}
+                  {...item}
+                  owned={ownedIds.has(item.id)}
+                  onToggle={() => toggle(item.id)}
+                />
+              ))}
         </div>
       </div>
 

@@ -8,12 +8,14 @@ import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
 export function useWishlist() {
   const [items, setItems] = useState<WishlistItem[]>(WISHLIST_ITEMS);
   const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set());
+  const [isHydrated, setIsHydrated] = useState(false);
   const hydrated = useRef(false);
 
   useEffect(() => {
     setItems(loadItems());
     setOwnedIds(loadOwnedIds());
     hydrated.current = true;
+    setIsHydrated(true);
   }, []);
 
   useEffect(() => {
@@ -40,5 +42,5 @@ export function useWishlist() {
     .filter((i) => !ownedIds.has(i.id) && i.price !== null)
     .reduce((sum, i) => sum + (i.price as number), 0);
 
-  return { items, ownedIds, addItem, toggle, pending, totalPrice };
+  return { items, ownedIds, addItem, toggle, pending, totalPrice, isHydrated };
 }
