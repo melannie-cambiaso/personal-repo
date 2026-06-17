@@ -16,11 +16,12 @@ const SKELETON_COUNT = 10;
 interface Props {
   initialItems: WishlistItem[];
   initialOwnedIds: string[];
+  isOwner: boolean;
   onAdd: (items: WishlistItem[]) => Promise<void> | void;
   onToggle: (ids: string[]) => Promise<void> | void;
 }
 
-export function DashboardScreen({ initialItems, initialOwnedIds, onAdd, onToggle }: Props) {
+export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd, onToggle }: Props) {
   const { items, ownedIds, addItem, toggle, pending, totalPrice } = useWishlist({
     initialItems,
     initialOwnedIds,
@@ -34,9 +35,11 @@ export function DashboardScreen({ initialItems, initialOwnedIds, onAdd, onToggle
       <WishlistHeader total={items.length} pending={pending} totalPrice={totalPrice} />
 
       <div className="mx-auto w-full max-w-[1400px] px-6 py-10">
-        <div className="mb-6 flex justify-end">
-          <WishListAddButton onClick={() => setIsOpen(true)} />
-        </div>
+        {isOwner && (
+          <div className="mb-6 flex justify-end">
+            <WishListAddButton onClick={() => setIsOpen(true)} />
+          </div>
+        )}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((item) => (
             <WishlistItemCard
@@ -49,7 +52,9 @@ export function DashboardScreen({ initialItems, initialOwnedIds, onAdd, onToggle
         </div>
       </div>
 
-      <WishlistAddItemModal isOpen={isOpen} onClose={() => setIsOpen(false)} onAdd={addItem} />
+      {isOwner && (
+        <WishlistAddItemModal isOpen={isOpen} onClose={() => setIsOpen(false)} onAdd={addItem} />
+      )}
     </main>
   );
 }
