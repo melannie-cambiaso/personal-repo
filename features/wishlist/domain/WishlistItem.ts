@@ -10,6 +10,5 @@ export interface WishlistItem {
   description: string;
   tag?: string;
   price: number | null;
-  owned: boolean;
   url?: string;
 }

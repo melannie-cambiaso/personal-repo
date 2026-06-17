@@ -1,39 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { WISHLIST_ITEMS } from "@/features/wishlist/data";
+import { useWishlist } from "../../hooks/useWishlist";
 import { WishlistHeader } from "../../components/Header/WishlistHeader";
 import { WishlistItemCard } from "../../components/Card/WishlistItemCard";
-import { WishListAddButton } from "../../components";
+import { WishListAddButton } from "../../components/AddButton/WishListAddButton";
+import { WishlistAddItemModal } from "../../components/Modal/WishlistAddItemModal";
 
 export function DashboardScreen() {
-  const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set());
+  const { items, ownedIds, addItem, toggle, pending, totalPrice } = useWishlist();
   const [isOpen, setIsOpen] = useState(false);
-
-  const toggle = (id: string) =>
-    setOwnedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-
-  const pending = WISHLIST_ITEMS.filter((i) => !ownedIds.has(i.id)).length;
-  const totalPrice = WISHLIST_ITEMS.filter((i) => !ownedIds.has(i.id) && i.price !== null).reduce(
-    (sum, i) => sum + (i.price as number),
-    0
-  );
-
-  const handleClick = () => {
-    setIsOpen(!isOpen);
-  };
 
   return (
     <main className="flex flex-1 flex-col">
-      <WishlistHeader total={WISHLIST_ITEMS.length} pending={pending} totalPrice={totalPrice} />
-      <WishListAddButton onClick={handleClick} />
+      <WishlistHeader total={items.length} pending={pending} totalPrice={totalPrice} />
+
       <div className="mx-auto w-full max-w-[1400px] px-6 py-10">
+        <div className="mb-6 flex justify-end">
+          <WishListAddButton onClick={() => setIsOpen(true)} />
+        </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {WISHLIST_ITEMS.map((item) => (
+          {items.map((item) => (
             <WishlistItemCard
               key={item.id}
               {...item}
@@ -43,6 +30,12 @@ export function DashboardScreen() {
           ))}
         </div>
       </div>
+
+      <WishlistAddItemModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onAdd={addItem}
+      />
     </main>
   );
 }

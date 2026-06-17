@@ -12,7 +12,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "Dos granos de café de especialidad cada mes, elegidos de tostadurías locales chilenas.",
     tag: "Suscripción mensual",
     price: 23990,
-    owned: false,
     url: "https://tostadoclub.com/products/suscripcion_cafe",
   },
   {
@@ -25,7 +24,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "Pistachos tostados con chocolate blanco sin azúcar añadida. Cremosa, firme y adictiva.",
     tag: "250 grs",
     price: 15500,
-    owned: false,
     url: "https://theholybrand.cl/products/fancy-pistachio-pistacho-con-chocolate-blanco-sin-azucar",
   },
   {
@@ -38,7 +36,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "Máquina multifuncional plegable para entrenamiento de pilates en casa.",
     tag: "Uso en casa",
     price: 99990,
-    owned: false,
     url: "https://lineasport.cl/reformer-pilates-maquina-plegable-multifuncional-para-entrenamiento/",
   },
   {
@@ -51,7 +48,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "Polerón 70% algodón con palazzo de caída amplia. Ideal para días frescos de otoño e invierno.",
     tag: "Café Oscuro",
     price: 45990,
-    owned: false,
     url: "https://camov.cl/products/conjunto-poleron-canguro-y-palazzo-cafe-oscuro",
   },
   {
@@ -64,7 +60,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "Over-ear Bluetooth con ANC híbrida, 55 hrs de batería, drivers 40mm titanio y carga rápida USB-C.",
     tag: "Ivory · BT 5.1",
     price: 49920,
-    owned: false,
     url: "https://www.edifierchile.cl/product/w800bt-pro-ivory",
   },
   {
@@ -77,7 +72,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "Doble estructura de resortes Pocket Advance de vanadio y titanio, topper de látex zonificado y cobertura Lyocell® transpirable.",
     tag: "150×200 cm",
     price: 559990,
-    owned: false,
     url: "https://www.rosen.cl/colchon-bock-2-plazas-150-x-200-cm.html",
   },
   {
@@ -90,7 +84,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "Chip M4 Pro, pantalla Liquid Retina XDR, hasta 24 hrs de batería, Thunderbolt 5 y diseñado para Apple Intelligence.",
     tag: 'M4 Pro · 16"',
     price: 2800000,
-    owned: false,
     url: "https://www.maconline.com/products/macbook-pro-16-m4-pro-m4-max",
   },
   {
@@ -103,7 +96,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "El clásico de Robert C. Martin — principios, patrones y prácticas para escribir código limpio, mantenible y profesional.",
     tag: "Robert C. Martin",
     price: null,
-    owned: false,
     url: "https://www.buscalibre.cl/libro-clean-code-a-handbook-of-agile-software-craftsmanship/9780132350884/p/2045256",
   },
   {
@@ -116,7 +108,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "Bidet inteligente con panel lateral, asiento calefaccionado, secado con aire, luz nocturna y ajuste de presión y temperatura.",
     tag: "Tecnología japonesa",
     price: 159990,
-    owned: false,
     url: "https://cleanbath.cl/products/tapa-de-bano",
   },
   {
@@ -129,7 +120,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     description: "12 botellas artesanales con los 4 sabores: Original, Jengibre, Maracuyá e Hibiscus-Frambuesa. Sin saborizantes ni concentrados.",
     tag: "4 sabores",
     price: 28490,
-    owned: false,
     url: "https://kombuchu.cl/products/caja-kombucha-mixtas-12x330cc",
   },
 ];
