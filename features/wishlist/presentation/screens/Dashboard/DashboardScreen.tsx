@@ -15,13 +15,17 @@ const SKELETON_COUNT = 10;
 
 interface Props {
   initialItems: WishlistItem[];
-  onAdd: (items: WishlistItem[]) => void;
+  initialOwnedIds: string[];
+  onAdd: (items: WishlistItem[]) => Promise<void> | void;
+  onToggle: (ids: string[]) => Promise<void> | void;
 }
 
-export function DashboardScreen({ initialItems, onAdd }: Props) {
+export function DashboardScreen({ initialItems, initialOwnedIds, onAdd, onToggle }: Props) {
   const { items, ownedIds, addItem, toggle, pending, totalPrice } = useWishlist({
     initialItems,
+    initialOwnedIds,
     onAdd,
+    onToggle,
   });
   const [isOpen, setIsOpen] = useState(false);
 
