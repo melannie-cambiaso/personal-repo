@@ -1,34 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { WISHLIST_ITEMS } from "@/features/wishlist/data";
-import { loadItems, loadOwnedIds, saveItems, saveOwnedIds } from "@/features/wishlist/data/localStorage";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
 
-export function useWishlist() {
-  const [items, setItems] = useState<WishlistItem[]>(WISHLIST_ITEMS);
+interface Params {
+  initialItems: WishlistItem[];
+  onAdd: (items: WishlistItem[]) => Promise<void> | void;
+}
+
+export function useWishlist({ initialItems, onAdd }: Params) {
+  const [items, setItems] = useState<WishlistItem[]>(initialItems);
   const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set());
-  const [isHydrated, setIsHydrated] = useState(false);
-  const hydrated = useRef(false);
+  const [isHydrated] = useState(false);
+  const itemsRef = useRef(initialItems);
 
   useEffect(() => {
-    setItems(loadItems());
-    setOwnedIds(loadOwnedIds());
-    hydrated.current = true;
-    setIsHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated.current) return;
-    saveItems(items);
+    itemsRef.current = items;
   }, [items]);
 
-  useEffect(() => {
-    if (!hydrated.current) return;
-    saveOwnedIds(ownedIds);
-  }, [ownedIds]);
-
-  const addItem = (item: WishlistItem) => setItems((prev) => [item, ...prev]);
+  const addItem = (item: WishlistItem) => {
+    const nextItems = [item, ...itemsRef.current];
+    itemsRef.current = nextItems;
+    setItems(nextItems);
+    void onAdd(nextItems);
+  };
 
   const toggle = (id: string) =>
     setOwnedIds((prev) => {

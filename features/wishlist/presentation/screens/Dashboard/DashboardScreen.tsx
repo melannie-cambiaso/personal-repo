@@ -1,17 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import {
+  WishListAddButton,
+  WishlistAddItemModal,
+  WishlistHeader,
+  WishlistItemCard,
+  WishlistItemSkeleton,
+} from "../../components";
 import { useWishlist } from "../../hooks/useWishlist";
-import { WishlistHeader } from "../../components/Header/WishlistHeader";
-import { WishlistItemCard } from "../../components/Card/WishlistItemCard";
-import { WishlistItemSkeleton } from "../../components/Card/WishlistItemSkeleton";
-import { WishListAddButton } from "../../components/AddButton/WishListAddButton";
-import { WishlistAddItemModal } from "../../components/Modal/WishlistAddItemModal";
+import { WishlistItem } from "@/features/wishlist/domain";
 
 const SKELETON_COUNT = 10;
 
-export function DashboardScreen() {
-  const { items, ownedIds, addItem, toggle, pending, totalPrice, isHydrated } = useWishlist();
+interface Props {
+  initialItems: WishlistItem[];
+  onAdd: (items: WishlistItem[]) => void;
+}
+
+export function DashboardScreen({ initialItems, onAdd }: Props) {
+  const { items, ownedIds, addItem, toggle, pending, totalPrice } = useWishlist({
+    initialItems,
+    onAdd,
+  });
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -23,26 +34,18 @@ export function DashboardScreen() {
           <WishListAddButton onClick={() => setIsOpen(true)} />
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {!isHydrated
-            ? Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-                <WishlistItemSkeleton key={i} />
-              ))
-            : items.map((item) => (
-                <WishlistItemCard
-                  key={item.id}
-                  {...item}
-                  owned={ownedIds.has(item.id)}
-                  onToggle={() => toggle(item.id)}
-                />
-              ))}
+          {items.map((item) => (
+            <WishlistItemCard
+              key={item.id}
+              {...item}
+              owned={ownedIds.has(item.id)}
+              onToggle={() => toggle(item.id)}
+            />
+          ))}
         </div>
       </div>
 
-      <WishlistAddItemModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        onAdd={addItem}
-      />
+      <WishlistAddItemModal isOpen={isOpen} onClose={() => setIsOpen(false)} onAdd={addItem} />
     </main>
   );
 }
