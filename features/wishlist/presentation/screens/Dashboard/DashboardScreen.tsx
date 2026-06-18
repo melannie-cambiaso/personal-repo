@@ -38,7 +38,7 @@ export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd,
     onToggle,
   });
   const [isOpen, setIsOpen] = useState(false);
-  const [sortBy, setSortBy] = useState<SortKey>("default");
+  const [sortBy, setSortBy] = useState<SortKey>("price-asc");
 
   return (
     <main className="flex flex-1 flex-col">
