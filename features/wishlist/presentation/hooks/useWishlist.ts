@@ -28,7 +28,8 @@ export function useWishlist({ initialItems, initialOwnedIds, onAdd, onToggle }: 
 
   const toggle = (id: string) => {
     const next = new Set(ownedIds);
-    next.has(id) ? next.delete(id) : next.add(id);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     setOwnedIds(next);
     void onToggle([...next]);
   };
