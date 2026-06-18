@@ -6,12 +6,9 @@ import {
   WishlistAddItemModal,
   WishlistHeader,
   WishlistItemCard,
-  WishlistItemSkeleton,
 } from "../../components";
 import { useWishlist } from "../../hooks/useWishlist";
 import { WishlistItem } from "@/features/wishlist/domain";
-
-const SKELETON_COUNT = 10;
 
 interface Props {
   initialItems: WishlistItem[];

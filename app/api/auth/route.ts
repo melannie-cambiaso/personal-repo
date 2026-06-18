@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { generateToken, isValidToken } from "@/features/wishlist/data/auth";
+import { generateToken } from "@/features/wishlist/data/auth";
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
