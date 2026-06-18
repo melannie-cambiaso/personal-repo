@@ -9,11 +9,11 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (pathname === "/" || pathname === "/login") {
-    return NextResponse.redirect(new URL("/wishlist", request.url));
+  if (pathname === "/login") {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 }
 
 export const config = {
-  matcher: ["/wishlist/:path*", "/login", "/"],
+  matcher: ["/wishlist/:path*", "/todo/:path*", "/login", "/"],
 };
