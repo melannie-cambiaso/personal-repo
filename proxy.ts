@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const auth = request.cookies.get("wishlist_auth");
   const { pathname } = request.nextUrl;
 
