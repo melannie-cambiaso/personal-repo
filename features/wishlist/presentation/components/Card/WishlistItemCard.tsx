@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
+import Image from "next/image";
 
 const categoryBg: Record<CategoryColor, string> = {
   food: "bg-cat-food",
@@ -25,12 +26,12 @@ export function WishlistItemCard({ owned, onToggle, ...props }: Props) {
 
   return (
     <div
-      className={`rounded-2xl shadow-card bg-cream-50 flex flex-col overflow-hidden transition-opacity ${owned ? "opacity-70" : ""}`}
+      className={`shadow-card bg-cream-50 flex flex-col overflow-hidden rounded-2xl transition-opacity ${owned ? "opacity-70" : ""}`}
     >
       {/* Image area */}
-      <div className="bg-cream-300 relative h-[220px] overflow-hidden">
+      <div className="bg-cream-300 relative h-55 overflow-hidden">
         {props.image && !imgError ? (
-          <img
+          <Image
             src={props.image}
             alt={props.title}
             className="h-full w-full object-cover"
@@ -57,7 +58,7 @@ export function WishlistItemCard({ owned, onToggle, ...props }: Props) {
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 flex-col px-5 pt-[18px] pb-5">
+      <div className="pt4.5 flex flex-1 flex-col px-5 pb-5">
         <p className="text-2xs text-brown-400 tracking-store mb-1 font-semibold uppercase">
           {props.brand}
         </p>
