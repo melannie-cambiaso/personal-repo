@@ -1,3 +1,5 @@
+import { PageHeader } from "@/shared/components/PageHeader/PageHeader"
+
 const formatCLP = (n: number) => `$${n.toLocaleString("es-CL")}`;
 
 interface Props {
@@ -8,15 +10,7 @@ interface Props {
 
 export function WishlistHeader({ total, pending, totalPrice }: Props) {
   return (
-    <header
-      className="w-full px-6 py-10 text-center"
-      style={{ background: "var(--gradient-header)" }}
-    >
-      <p className="text-brown-200 text-2xs tracking-eyebrow mb-3 font-semibold uppercase">
-        Mi lista de deseos ✨
-      </p>
-      <h1 className="font-dancing text-cream-100 mb-8 text-6xl font-bold">Wishlist</h1>
-
+    <PageHeader eyebrow="Mi lista de deseos ✨" title="Wishlist">
       <div className="flex items-center justify-center gap-0">
         <Stat value={String(total)} label="Productos" />
         <Divider />
@@ -24,19 +18,19 @@ export function WishlistHeader({ total, pending, totalPrice }: Props) {
         <Divider />
         <Stat value={formatCLP(totalPrice)} label="Aprox." />
       </div>
-    </header>
-  );
+    </PageHeader>
+  )
 }
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="px-8 text-center">
-      <span className="text-cream-100 block text-xl font-bold">{value}</span>
-      <span className="text-brown-300 text-2xs tracking-eyebrow block uppercase">{label}</span>
+      <span className="block text-xl font-bold text-cream-100">{value}</span>
+      <span className="block text-2xs uppercase tracking-eyebrow text-brown-300">{label}</span>
     </div>
   );
 }
 
 function Divider() {
-  return <div className="bg-cream-100/20 h-8 w-px" />;
+  return <div className="h-8 w-px bg-cream-100/20" />;
 }

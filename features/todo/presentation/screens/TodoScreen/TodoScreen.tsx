@@ -3,6 +3,7 @@
 import { useState } from "react"
 import type { TodoHistoryItem } from "@/features/todo/domain/TodoHistoryItem"
 import type { TodoItem } from "@/features/todo/domain/TodoItem"
+import { PageHeader } from "@/shared/components/PageHeader/PageHeader"
 import { TodoAddItemModal, TodoHistory, TodoList } from "../../components"
 import { useTodo } from "../../hooks/useTodo"
 
@@ -20,26 +21,38 @@ export function TodoScreen({ initialItems, history, isOwner, onAdd, onToggle }: 
 
   return (
     <main className="flex flex-1 flex-col">
-      <header className="border-b border-cream-200 bg-cream-50 px-6 py-5">
-        <div className="mx-auto flex max-w-350 items-center justify-between">
-          <div>
-            <h1 className="font-dancing text-3xl font-bold text-brown-900">To-Do</h1>
-            <p className="mt-1 text-sm text-brown-400">
-              {pending} tarea{pending !== 1 ? "s" : ""} pendiente{pending !== 1 ? "s" : ""}
-            </p>
+      <PageHeader eyebrow="Tus tareas del día" title="To-Do">
+        <div className="flex items-center justify-center gap-0">
+          <div className="px-8 text-center">
+            <span className="block text-xl font-bold text-cream-100">{pending}</span>
+            <span className="block text-2xs uppercase tracking-eyebrow text-brown-300">
+              Pendiente{pending !== 1 ? "s" : ""}
+            </span>
           </div>
-          {isOwner && (
-            <button
-              onClick={() => setIsOpen(true)}
-              className="text-2xs cursor-pointer rounded-xl bg-brown-800 px-4 py-2 font-bold text-white transition-colors hover:bg-brown-700"
-            >
-              + Nueva tarea
-            </button>
-          )}
+          <div className="h-8 w-px bg-cream-100/20" />
+          <div className="px-8 text-center">
+            <span className="block text-xl font-bold text-cream-100">
+              {items.filter((i) => i.completed).length}
+            </span>
+            <span className="block text-2xs uppercase tracking-eyebrow text-brown-300">
+              Hecha{items.filter((i) => i.completed).length !== 1 ? "s" : ""}
+            </span>
+          </div>
         </div>
-      </header>
+      </PageHeader>
 
       <div className="mx-auto w-full max-w-350 px-6 py-10">
+        {isOwner && (
+          <div className="mb-6 flex justify-end">
+            <button
+              onClick={() => setIsOpen(true)}
+              className="text-2xs cursor-pointer rounded-full bg-brown-800 p-4 text-2xl font-bold text-cream-100 shadow-card transition-colors hover:bg-brown-700"
+              aria-label="Agregar tarea"
+            >
+              +
+            </button>
+          </div>
+        )}
         <TodoList items={items} onToggle={toggle} />
         <TodoHistory history={history} />
       </div>
