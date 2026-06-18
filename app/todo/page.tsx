@@ -1,4 +1,9 @@
-import { loadTodoItems, saveTodoItems } from "@/features/todo/data"
+import {
+  loadTodoHistory,
+  loadTodoItems,
+  runRolloverIfNeeded,
+  saveTodoItems,
+} from "@/features/todo/data"
 import type { TodoItem } from "@/features/todo/domain"
 import TodoScreen from "@/features/todo/presentation/screens/TodoScreen/TodoScreen"
 import { cookies } from "next/headers"
@@ -18,11 +23,14 @@ async function handleToggle(items: TodoItem[]) {
 export default async function TodoPage() {
   const cookieStore = await cookies()
   const isOwner = !!cookieStore.get("wishlist_auth")?.value
-  const items = await loadTodoItems()
+
+  await runRolloverIfNeeded()
+  const [items, history] = await Promise.all([loadTodoItems(), loadTodoHistory()])
 
   return (
     <TodoScreen
       initialItems={items}
+      history={history}
       isOwner={isOwner}
       onAdd={handleAdd}
       onToggle={handleToggle}

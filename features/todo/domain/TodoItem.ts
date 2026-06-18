@@ -3,4 +3,6 @@ export type TodoItem = {
   title: string
   completed: boolean
   createdAt: string
+  completedAt?: string
+  completedBy?: string
 }

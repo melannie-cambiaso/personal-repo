@@ -24,10 +24,15 @@ export function useTodo({ initialItems, onAdd, onToggle }: Params) {
     void onAdd(next)
   }
 
-  const toggle = (id: string) => {
-    const next = itemsRef.current.map((i) =>
-      i.id === id ? { ...i, completed: !i.completed } : i
-    )
+  const toggle = (id: string, completedBy?: string) => {
+    const now = new Date().toISOString()
+    const next = itemsRef.current.map((i) => {
+      if (i.id !== id) return i
+      if (completedBy) {
+        return { ...i, completed: true, completedAt: now, completedBy }
+      }
+      return { ...i, completed: false, completedAt: undefined, completedBy: undefined }
+    })
     itemsRef.current = next
     setItems(next)
     void onToggle(next)

@@ -1,18 +1,20 @@
 "use client"
 
 import { useState } from "react"
+import type { TodoHistoryItem } from "@/features/todo/domain/TodoHistoryItem"
 import type { TodoItem } from "@/features/todo/domain/TodoItem"
-import { TodoAddItemModal, TodoList } from "../../components"
+import { TodoAddItemModal, TodoHistory, TodoList } from "../../components"
 import { useTodo } from "../../hooks/useTodo"
 
 interface Props {
   initialItems: TodoItem[]
+  history: TodoHistoryItem[]
   isOwner: boolean
   onAdd: (items: TodoItem[]) => Promise<void> | void
   onToggle: (items: TodoItem[]) => Promise<void> | void
 }
 
-export function TodoScreen({ initialItems, isOwner, onAdd, onToggle }: Props) {
+export function TodoScreen({ initialItems, history, isOwner, onAdd, onToggle }: Props) {
   const { items, addItem, toggle, pending } = useTodo({ initialItems, onAdd, onToggle })
   const [isOpen, setIsOpen] = useState(false)
 
@@ -39,6 +41,7 @@ export function TodoScreen({ initialItems, isOwner, onAdd, onToggle }: Props) {
 
       <div className="mx-auto w-full max-w-350 px-6 py-10">
         <TodoList items={items} onToggle={toggle} />
+        <TodoHistory history={history} />
       </div>
 
       {isOwner && (
