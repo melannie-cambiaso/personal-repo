@@ -19,14 +19,16 @@ const formatCLP = (n: number) => `$${n.toLocaleString("es-CL")}`;
 interface Props extends WishlistItem {
   owned: boolean;
   onToggle: () => void;
+  onEdit?: () => void;
 }
 
-export function WishlistItemCard({ owned, onToggle, ...props }: Props) {
+export function WishlistItemCard({ owned, onToggle, onEdit, ...props }: Props) {
   const [imgError, setImgError] = useState(false);
 
   return (
     <div
-      className={`shadow-card bg-cream-50 flex flex-col overflow-hidden rounded-2xl transition-opacity ${owned ? "opacity-70" : ""}`}
+      className={`shadow-card bg-cream-50 flex flex-col overflow-hidden rounded-2xl transition-opacity ${owned ? "opacity-70" : ""} ${onEdit ? "cursor-pointer" : ""}`}
+      onClick={onEdit}
     >
       {/* Image area */}
       <div className="bg-cream-300 relative h-55 overflow-hidden">
@@ -84,13 +86,14 @@ export function WishlistItemCard({ owned, onToggle, ...props }: Props) {
                 href={props.url}
                 target="_blank"
                 rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
                 className="text-2xs text-brown-800 border-brown-800 hover:bg-cream-300 rounded-lg border-[1.5px] px-3.5 py-2 font-bold transition-colors"
               >
                 Ver →
               </a>
             )}
             <button
-              onClick={onToggle}
+              onClick={(e) => { e.stopPropagation(); onToggle(); }}
               className={`text-2xs cursor-pointer rounded-lg px-3.5 py-2 font-bold text-white transition-colors ${
                 owned ? "bg-brown-400" : "bg-brown-800 hover:bg-brown-700"
               }`}

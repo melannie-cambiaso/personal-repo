@@ -9,6 +9,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (item: WishlistItem) => void;
+  editItem?: WishlistItem;
 }
 
 const EMPTY = {
@@ -23,7 +24,7 @@ const EMPTY = {
   categoryKey: "food" as CategoryColor,
 };
 
-export function WishlistAddItemModal({ isOpen, onClose, onAdd }: Props) {
+export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState(EMPTY);
 
@@ -32,6 +33,24 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd }: Props) {
     if (!dialog) return;
     isOpen ? dialog.showModal() : dialog.close();
   }, [isOpen]);
+
+  useEffect(() => {
+    if (editItem) {
+      setForm({
+        title: editItem.title,
+        brand: editItem.brand,
+        description: editItem.description,
+        emoji: editItem.emoji,
+        price: editItem.price?.toString() ?? "",
+        tag: editItem.tag ?? "",
+        url: editItem.url ?? "",
+        image: editItem.image ?? "",
+        categoryKey: editItem.category.color,
+      });
+    } else {
+      setForm(EMPTY);
+    }
+  }, [editItem]);
 
   const set = (field: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -43,7 +62,7 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const item: WishlistItem = {
-      id: crypto.randomUUID(),
+      id: editItem?.id ?? crypto.randomUUID(),
       category: CATEGORIES[form.categoryKey],
       emoji: form.emoji,
       brand: form.brand,
@@ -68,7 +87,9 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd }: Props) {
     >
       <div className="px-6 py-5">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-dancing text-2xl font-bold text-brown-900">Nuevo item</h2>
+          <h2 className="font-dancing text-2xl font-bold text-brown-900">
+            {editItem ? "Editar item" : "Nuevo item"}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -141,7 +162,7 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd }: Props) {
               type="submit"
               className="text-2xs bg-brown-800 hover:bg-brown-700 rounded-lg px-4 py-2 font-bold text-white transition-colors cursor-pointer"
             >
-              Agregar ✓
+              {editItem ? "Guardar ✓" : "Agregar ✓"}
             </button>
           </div>
         </form>

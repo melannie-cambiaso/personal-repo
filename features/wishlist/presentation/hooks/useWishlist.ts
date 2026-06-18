@@ -26,6 +26,13 @@ export function useWishlist({ initialItems, initialOwnedIds, onAdd, onToggle }: 
     void onAdd(nextItems);
   };
 
+  const editItem = (item: WishlistItem) => {
+    const next = itemsRef.current.map((i) => (i.id === item.id ? item : i));
+    itemsRef.current = next;
+    setItems(next);
+    void onAdd(next);
+  };
+
   const toggle = (id: string) => {
     const next = new Set(ownedIds);
     if (next.has(id)) next.delete(id);
@@ -39,5 +46,5 @@ export function useWishlist({ initialItems, initialOwnedIds, onAdd, onToggle }: 
     .filter((i) => !ownedIds.has(i.id) && i.price !== null)
     .reduce((sum, i) => sum + (i.price as number), 0);
 
-  return { items, ownedIds, addItem, toggle, pending, totalPrice };
+  return { items, ownedIds, addItem, editItem, toggle, pending, totalPrice };
 }

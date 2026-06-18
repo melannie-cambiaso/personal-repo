@@ -31,14 +31,20 @@ interface Props {
 }
 
 export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd, onToggle }: Props) {
-  const { items, ownedIds, addItem, toggle, pending, totalPrice } = useWishlist({
+  const { items, ownedIds, addItem, editItem, toggle, pending, totalPrice } = useWishlist({
     initialItems,
     initialOwnedIds,
     onAdd,
     onToggle,
   });
   const [isOpen, setIsOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
   const [sortBy, setSortBy] = useState<SortKey>("price-asc");
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setEditingItem(null);
+  };
 
   return (
     <main className="flex flex-1 flex-col">
@@ -68,13 +74,22 @@ export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd,
               {...item}
               owned={ownedIds.has(item.id)}
               onToggle={() => toggle(item.id)}
+              onEdit={isOwner ? () => setEditingItem(item) : undefined}
             />
           ))}
         </div>
       </div>
 
       {isOwner && (
-        <WishlistAddItemModal isOpen={isOpen} onClose={() => setIsOpen(false)} onAdd={addItem} />
+        <WishlistAddItemModal
+          isOpen={isOpen || editingItem !== null}
+          onClose={handleClose}
+          onAdd={(item) => {
+            if (editingItem) editItem(item);
+            else addItem(item);
+          }}
+          editItem={editingItem ?? undefined}
+        />
       )}
     </main>
   );
