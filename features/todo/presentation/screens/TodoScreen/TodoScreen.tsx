@@ -3,6 +3,7 @@
 import { useState } from "react"
 import type { TodoHistoryItem } from "@/features/todo/domain/TodoHistoryItem"
 import type { TodoItem } from "@/features/todo/domain/TodoItem"
+import { AddButton } from "@/shared/components/AddButton/AddButton"
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader"
 import { TodoAddItemModal, TodoHistory, TodoList } from "../../components"
 import { useTodo } from "../../hooks/useTodo"
@@ -44,13 +45,7 @@ export function TodoScreen({ initialItems, history, isOwner, onAdd, onToggle }: 
       <div className="mx-auto w-full max-w-350 px-6 py-10">
         {isOwner && (
           <div className="mb-6 flex justify-end">
-            <button
-              onClick={() => setIsOpen(true)}
-              className="text-2xs cursor-pointer rounded-full bg-brown-800 p-4 text-2xl font-bold text-cream-100 shadow-card transition-colors hover:bg-brown-700"
-              aria-label="Agregar tarea"
-            >
-              +
-            </button>
+            <AddButton onClick={() => setIsOpen(true)} label="Agregar tarea" />
           </div>
         )}
         <TodoList items={items} onToggle={toggle} />
