@@ -15,7 +15,7 @@ export default function LoginPage() {
     setError(false);
     const res = await fetch(`/api/auth?key=${encodeURIComponent(code)}`);
     if (res.ok) {
-      router.push("/wishlist");
+      router.push("/");
     } else {
       setError(true);
       setLoading(false);
@@ -25,7 +25,7 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-xs">
-        <h1 className="text-2xl font-bold text-center">🎁 Wishlist</h1>
+        <h1 className="text-2xl font-bold text-center">🔐 Acceso</h1>
         <input
           type="password"
           value={code}
