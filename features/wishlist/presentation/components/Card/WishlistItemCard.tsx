@@ -34,7 +34,8 @@ export function WishlistItemCard({ owned, onToggle, ...props }: Props) {
           <Image
             src={props.image}
             alt={props.title}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
             style={owned ? { filter: "grayscale(70%) opacity(0.6)" } : undefined}
             onError={() => setImgError(true)}
           />
@@ -58,7 +59,7 @@ export function WishlistItemCard({ owned, onToggle, ...props }: Props) {
       </div>
 
       {/* Body */}
-      <div className="pt4.5 flex flex-1 flex-col px-5 pb-5">
+      <div className="pt-4.5 flex flex-1 flex-col px-5 pb-5">
         <p className="text-2xs text-brown-400 tracking-store mb-1 font-semibold uppercase">
           {props.brand}
         </p>
