@@ -41,7 +41,7 @@ export function TodoList({ items, onToggle }: Props) {
             className="flex cursor-pointer items-center gap-4 px-5 py-4 transition-colors hover:bg-cream-50"
           >
             <span
-              className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
                 item.completed
                   ? "border-brown-600 bg-brown-600"
                   : "border-cream-400 bg-white"
