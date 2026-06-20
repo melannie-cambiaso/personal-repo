@@ -14,7 +14,7 @@ interface Props {
   onAdd: (item: ImprovementItem) => void;
 }
 
-const EMPTY = { title: "", type: "Otro" as ImprovementType, estimatedCost: "", purchaseUrl: "", description: "", notes: "" };
+const EMPTY = { title: "", type: "Otro" as ImprovementType, estimatedCost: "", quantity: "1", purchaseUrl: "", description: "", notes: "" };
 
 export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -45,6 +45,7 @@ export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd 
       title: form.title.trim(),
       type: form.type,
       estimatedCost: form.estimatedCost.trim() === "" ? null : Number(form.estimatedCost),
+      quantity: form.quantity.trim() === "" ? undefined : Number(form.quantity),
       purchaseUrl: form.purchaseUrl.trim() || undefined,
       description: form.description.trim() || undefined,
       notes: form.notes.trim() || undefined,
@@ -84,10 +85,13 @@ export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd 
                 {zones.map((z) => <option key={z.id} value={z.id}>{z.emoji ? `${z.emoji} ${z.name}` : z.name}</option>)}
               </select>
             </Field>
-            <Field label="Costo estimado ($)">
-              <input className={input} type="number" min="0" value={form.estimatedCost} onChange={set("estimatedCost")} placeholder="15000" />
+            <Field label="Cantidad">
+              <input className={input} type="number" min="1" step="1" value={form.quantity} onChange={set("quantity")} placeholder="1" />
             </Field>
           </div>
+          <Field label="Costo estimado por unidad ($)">
+            <input className={input} type="number" min="0" value={form.estimatedCost} onChange={set("estimatedCost")} placeholder="15000" />
+          </Field>
           <Field label="Dónde comprarlo (URL)">
             <input className={input} type="url" value={form.purchaseUrl} onChange={set("purchaseUrl")} placeholder="https://..." />
           </Field>

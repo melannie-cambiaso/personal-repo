@@ -38,7 +38,11 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
             {item.type}
           </span>
           {item.estimatedCost !== null && (
-            <span className="text-2xs font-bold text-brown-800">{formatCost(item.estimatedCost)}</span>
+            <span className="text-2xs font-bold text-brown-800">
+              {item.quantity && item.quantity > 1
+                ? `${formatCost(item.estimatedCost)} x${item.quantity} = ${formatCost(item.estimatedCost * item.quantity)}`
+                : formatCost(item.estimatedCost)}
+            </span>
           )}
         </div>
         <p className={`text-sm font-semibold leading-snug text-brown-900 ${item.done ? "line-through" : ""}`}>

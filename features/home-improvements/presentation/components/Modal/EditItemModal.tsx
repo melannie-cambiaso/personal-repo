@@ -16,7 +16,7 @@ interface Props {
 
 export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [form, setForm] = useState({ title: "", type: "Otro" as ImprovementType, estimatedCost: "", purchaseUrl: "", description: "", notes: "" });
+  const [form, setForm] = useState({ title: "", type: "Otro" as ImprovementType, estimatedCost: "", quantity: "1", purchaseUrl: "", description: "", notes: "" });
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -26,6 +26,7 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
         title: item.title,
         type: item.type,
         estimatedCost: item.estimatedCost?.toString() ?? "",
+        quantity: item.quantity?.toString() ?? "1",
         purchaseUrl: item.purchaseUrl ?? "",
         description: item.description ?? "",
         notes: item.notes ?? "",
@@ -48,6 +49,7 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
       title: form.title.trim(),
       type: form.type,
       estimatedCost: form.estimatedCost.trim() === "" ? null : Number(form.estimatedCost),
+      quantity: form.quantity.trim() === "" ? undefined : Number(form.quantity),
       purchaseUrl: form.purchaseUrl.trim() || undefined,
       description: form.description.trim() || undefined,
       notes: form.notes.trim() || undefined,
@@ -85,9 +87,14 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
               </select>
             </Field>
           </div>
-          <Field label="Costo estimado ($)">
-            <input className={input} type="number" min="0" value={form.estimatedCost} onChange={set("estimatedCost")} />
-          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Cantidad">
+              <input className={input} type="number" min="1" step="1" value={form.quantity} onChange={set("quantity")} />
+            </Field>
+            <Field label="Costo estimado por unidad ($)">
+              <input className={input} type="number" min="0" value={form.estimatedCost} onChange={set("estimatedCost")} />
+            </Field>
+          </div>
           <Field label="Dónde comprarlo (URL)">
             <input className={input} type="url" value={form.purchaseUrl} onChange={set("purchaseUrl")} placeholder="https://..." />
           </Field>

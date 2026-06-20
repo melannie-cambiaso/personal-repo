@@ -44,6 +44,16 @@ describe("totalCostByZone", () => {
     ];
     expect(totalCostByZone(items).get("z1")).toBe(1000);
   });
+
+  it("multiplies estimatedCost by quantity", () => {
+    const items = [item({ zoneId: "z1", estimatedCost: 50000, quantity: 2 })];
+    expect(totalCostByZone(items).get("z1")).toBe(100000);
+  });
+
+  it("defaults quantity to 1 when undefined", () => {
+    const items = [item({ zoneId: "z1", estimatedCost: 30000 })];
+    expect(totalCostByZone(items).get("z1")).toBe(30000);
+  });
 });
 
 describe("pendingCountByZone", () => {
