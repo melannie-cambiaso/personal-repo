@@ -9,18 +9,7 @@ import {
 } from "../../components";
 import { useWishlist } from "../../hooks/useWishlist";
 import { WishlistItem } from "@/features/wishlist/domain";
-
-type SortKey = "default" | "name-asc" | "name-desc" | "price-asc" | "price-desc";
-
-function sortItems(items: WishlistItem[], key: SortKey): WishlistItem[] {
-  if (key === "default") return items;
-  const sorted = [...items];
-  if (key === "name-asc") return sorted.sort((a, b) => a.title.localeCompare(b.title));
-  if (key === "name-desc") return sorted.sort((a, b) => b.title.localeCompare(a.title));
-  const price = (i: WishlistItem) => (i.price === null ? Infinity : i.price);
-  if (key === "price-asc") return sorted.sort((a, b) => price(a) - price(b));
-  return sorted.sort((a, b) => price(b) - price(a));
-}
+import { sortItems, type SortKey } from "@/features/wishlist/domain/sortItems";
 
 interface Props {
   initialItems: WishlistItem[];
