@@ -26,6 +26,8 @@ export function useSavings({ initialEntries, onSave }: Params) {
 
   const balance = useMemo(() => computeBalance(entries), [entries]);
   const totalToReplenish = useMemo(() => computeTotalToReplenish(entries), [entries]);
+  const totalDepositos = useMemo(() => entries.filter((e) => e.type === "deposito").reduce((s, e) => s + e.amount, 0), [entries]);
+  const totalGastos = useMemo(() => entries.filter((e) => e.type === "gasto").reduce((s, e) => s + e.amount, 0), [entries]);
 
   const addEntry = (entry: SavingsEntry) => {
     const sanitized = entry.type === "deposito" ? { ...entry, toReplenish: false } : entry;
@@ -56,5 +58,5 @@ export function useSavings({ initialEntries, onSave }: Params) {
     editEntry({ ...entry, toReplenish: false });
   };
 
-  return { entries: sortedEntries, balance, totalToReplenish, addEntry, editEntry, deleteEntry, markReplenished };
+  return { entries: sortedEntries, balance, totalToReplenish, totalDepositos, totalGastos, addEntry, editEntry, deleteEntry, markReplenished };
 }

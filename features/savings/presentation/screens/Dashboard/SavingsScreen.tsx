@@ -20,7 +20,7 @@ interface Props {
 }
 
 export function SavingsScreen({ initialEntries, isOwner, onSave }: Props) {
-  const { entries, balance, totalToReplenish, addEntry, editEntry, deleteEntry, markReplenished } =
+  const { entries, balance, totalToReplenish, totalDepositos, totalGastos, addEntry, editEntry, deleteEntry, markReplenished } =
     useSavings({ initialEntries, onSave });
 
   const [addOpen, setAddOpen] = useState(false);
@@ -37,7 +37,7 @@ export function SavingsScreen({ initialEntries, isOwner, onSave }: Props) {
 
       <div className="mx-auto w-full max-w-2xl px-6 py-10">
         <div className="mb-8">
-          <SavingsSummaryCards balance={balance} totalToReplenish={totalToReplenish} />
+          <SavingsSummaryCards balance={balance} totalToReplenish={totalToReplenish} totalDepositos={totalDepositos} totalGastos={totalGastos} />
         </div>
 
         <div className="mb-6 flex justify-end">
