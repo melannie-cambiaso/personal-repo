@@ -59,7 +59,7 @@ export function HomeImprovementsScreen({
         </div>
       </PageHeader>
 
-      <div className="mx-auto w-full max-w-2xl px-6 py-10">
+      <div className="mx-auto w-full max-w-6xl px-6 py-10">
         {isOwner && (
           <div className="mb-8 flex justify-end">
             <AddButton onClick={() => setAddZoneOpen(true)} label="Agregar zona" />
