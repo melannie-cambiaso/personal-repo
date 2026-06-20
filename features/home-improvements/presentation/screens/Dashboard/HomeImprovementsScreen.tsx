@@ -35,6 +35,17 @@ export function HomeImprovementsScreen({
     addZone, editZone, deleteZone, addItem, editItem, toggleDone, deleteItem,
   } = useHomeImprovements({ initialZones, initialItems, onSaveZones, onSaveItems });
 
+  type SortKey = "price-asc" | "price-desc" | "name-asc" | "name-desc";
+  const [sortBy, setSortBy] = useState<SortKey>("price-asc");
+
+  const sortedZones = [...zones].sort((a, b) => {
+    if (sortBy === "name-asc") return a.name.localeCompare(b.name);
+    if (sortBy === "name-desc") return b.name.localeCompare(a.name);
+    const ca = costByZone.get(a.id) ?? 0;
+    const cb = costByZone.get(b.id) ?? 0;
+    return sortBy === "price-asc" ? ca - cb : cb - ca;
+  });
+
   const [addZoneOpen, setAddZoneOpen] = useState(false);
   const [editingZone, setEditingZone] = useState<Zone | null>(null);
   const [pendingDeleteZone, setPendingDeleteZone] = useState<Zone | null>(null);
@@ -60,14 +71,22 @@ export function HomeImprovementsScreen({
       </PageHeader>
 
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
-        {isOwner && (
-          <div className="mb-8 flex justify-end">
-            <AddButton onClick={() => setAddZoneOpen(true)} label="Agregar zona" />
-          </div>
-        )}
+        <div className="mb-8 flex items-center justify-between gap-4">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortKey)}
+            className="cursor-pointer rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
+          >
+            <option value="price-asc">Precio ↑</option>
+            <option value="price-desc">Precio ↓</option>
+            <option value="name-asc">Nombre A→Z</option>
+            <option value="name-desc">Nombre Z→A</option>
+          </select>
+          {isOwner && <AddButton onClick={() => setAddZoneOpen(true)} label="Agregar zona" />}
+        </div>
 
         <ZoneList
-          zones={zones}
+          zones={sortedZones}
           itemsByZone={itemsByZone}
           costByZone={costByZone}
           pendingByZone={pendingByZone}
