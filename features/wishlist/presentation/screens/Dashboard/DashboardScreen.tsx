@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   WishListAddButton,
   WishlistAddItemModal,
+  WishlistDeleteConfirmModal,
   WishlistHeader,
   WishlistItemCard,
 } from "../../components";
@@ -20,7 +21,7 @@ interface Props {
 }
 
 export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd, onToggle }: Props) {
-  const { items, ownedIds, addItem, editItem, toggle, pending, totalPrice } = useWishlist({
+  const { items, ownedIds, addItem, editItem, deleteItem, toggle, pending, totalPrice } = useWishlist({
     initialItems,
     initialOwnedIds,
     onAdd,
@@ -28,6 +29,7 @@ export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd,
   });
   const [isOpen, setIsOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<WishlistItem | null>(null);
   const [sortBy, setSortBy] = useState<SortKey>("price-asc");
 
   const handleClose = () => {
@@ -64,21 +66,29 @@ export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd,
               owned={ownedIds.has(item.id)}
               onToggle={() => toggle(item.id)}
               onEdit={isOwner ? () => setEditingItem(item) : undefined}
+              onDelete={isOwner ? () => setDeletingItem(item) : undefined}
             />
           ))}
         </div>
       </div>
 
       {isOwner && (
-        <WishlistAddItemModal
-          isOpen={isOpen || editingItem !== null}
-          onClose={handleClose}
-          onAdd={(item) => {
-            if (editingItem) editItem(item);
-            else addItem(item);
-          }}
-          editItem={editingItem ?? undefined}
-        />
+        <>
+          <WishlistAddItemModal
+            isOpen={isOpen || editingItem !== null}
+            onClose={handleClose}
+            onAdd={(item) => {
+              if (editingItem) editItem(item);
+              else addItem(item);
+            }}
+            editItem={editingItem ?? undefined}
+          />
+          <WishlistDeleteConfirmModal
+            item={deletingItem}
+            onConfirm={() => { if (deletingItem) deleteItem(deletingItem.id); setDeletingItem(null); }}
+            onCancel={() => setDeletingItem(null)}
+          />
+        </>
       )}
     </main>
   );

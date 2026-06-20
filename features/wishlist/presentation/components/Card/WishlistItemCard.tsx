@@ -20,9 +20,10 @@ interface Props extends WishlistItem {
   owned: boolean;
   onToggle: () => void;
   onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export function WishlistItemCard({ owned, onToggle, onEdit, ...props }: Props) {
+export function WishlistItemCard({ owned, onToggle, onEdit, onDelete, ...props }: Props) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -91,6 +92,16 @@ export function WishlistItemCard({ owned, onToggle, onEdit, ...props }: Props) {
               >
                 Ver →
               </a>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                aria-label="Delete item"
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                className="text-2xs cursor-pointer rounded-lg border border-red-200 px-3.5 py-2 font-bold text-red-500 transition-colors hover:bg-red-50"
+              >
+                ✕
+              </button>
             )}
             <button
               onClick={(e) => { e.stopPropagation(); onToggle(); }}

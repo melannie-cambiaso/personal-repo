@@ -75,4 +75,37 @@ describe("useWishlist", () => {
     )
     expect(result.current.totalPrice).toBe(5000)
   })
+
+  it("deleteItem removes item from items and calls onAdd", () => {
+    const onAdd = vi.fn()
+    const { result } = renderHook(() =>
+      useWishlist({ initialItems: [makeItem("1"), makeItem("2")], initialOwnedIds: [], onAdd, onToggle: vi.fn() })
+    )
+    act(() => result.current.deleteItem("1"))
+    expect(result.current.items).toHaveLength(1)
+    expect(result.current.items[0].id).toBe("2")
+    expect(onAdd).toHaveBeenCalledWith([expect.objectContaining({ id: "2" })])
+  })
+
+  it("deleteItem removes id from ownedIds and calls onToggle", () => {
+    const onToggle = vi.fn()
+    const { result } = renderHook(() =>
+      useWishlist({ initialItems: [makeItem("1"), makeItem("2")], initialOwnedIds: ["1"], onAdd: vi.fn(), onToggle })
+    )
+    act(() => result.current.deleteItem("1"))
+    expect(result.current.ownedIds.has("1")).toBe(false)
+    expect(onToggle).toHaveBeenCalledWith([])
+  })
+
+  it("deleteItem is a no-op when id not found", () => {
+    const onAdd = vi.fn()
+    const onToggle = vi.fn()
+    const { result } = renderHook(() =>
+      useWishlist({ initialItems: [makeItem("1")], initialOwnedIds: [], onAdd, onToggle })
+    )
+    act(() => result.current.deleteItem("Z"))
+    expect(result.current.items).toHaveLength(1)
+    expect(onAdd).not.toHaveBeenCalled()
+    expect(onToggle).not.toHaveBeenCalled()
+  })
 })

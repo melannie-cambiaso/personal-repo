@@ -41,10 +41,22 @@ export function useWishlist({ initialItems, initialOwnedIds, onAdd, onToggle }: 
     void onToggle([...next]);
   };
 
+  const deleteItem = (id: string) => {
+    const nextItems = itemsRef.current.filter((i) => i.id !== id);
+    if (nextItems.length === itemsRef.current.length) return;
+    itemsRef.current = nextItems;
+    setItems(nextItems);
+    const nextOwned = new Set(ownedIds);
+    nextOwned.delete(id);
+    setOwnedIds(nextOwned);
+    void onAdd(nextItems);
+    void onToggle([...nextOwned]);
+  };
+
   const pending = items.filter((i) => !ownedIds.has(i.id)).length;
   const totalPrice = items
     .filter((i) => !ownedIds.has(i.id) && i.price !== null)
     .reduce((sum, i) => sum + (i.price as number), 0);
 
-  return { items, ownedIds, addItem, editItem, toggle, pending, totalPrice };
+  return { items, ownedIds, addItem, editItem, deleteItem, toggle, pending, totalPrice };
 }
