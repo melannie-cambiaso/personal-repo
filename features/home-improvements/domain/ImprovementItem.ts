@@ -11,6 +11,7 @@ export interface ImprovementItem {
   title: string;
   type: ImprovementType;
   estimatedCost: number | null;
+  quantity?: number;
   purchaseUrl?: string;
   done: boolean;
   createdAt: string;
