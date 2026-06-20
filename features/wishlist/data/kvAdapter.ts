@@ -1,12 +1,7 @@
 import "server-only";
-import { Redis } from "@upstash/redis";
 import type { WishlistItem } from "../domain/WishlistItem";
 import { WISHLIST_ITEMS } from "./items";
-
-const redis = new Redis({
-  url: process.env.KV_REST_API_URL!,
-  token: process.env.KV_REST_API_TOKEN!,
-});
+import { redis } from "@/shared/kv";
 
 const ITEMS_KEY = "wishlist-items";
 const OWNED_KEY = "wishlist-owned";

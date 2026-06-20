@@ -1,13 +1,7 @@
 import "server-only"
-import { Redis } from "@upstash/redis"
 import type { TodoItem } from "../domain/TodoItem"
 import type { TodoHistoryItem } from "../domain/TodoHistoryItem"
-
-// ponytail: duplicates Redis setup from wishlist/data/kvAdapter — extract to shared/kv.ts if a third feature needs it
-const redis = new Redis({
-  url: process.env.KV_REST_API_URL!,
-  token: process.env.KV_REST_API_TOKEN!,
-})
+import { redis } from "@/shared/kv"
 
 const ITEMS_KEY = "todo-items"
 const HISTORY_KEY = "todo-history"
@@ -39,7 +33,7 @@ export async function loadTodoHistory(): Promise<TodoHistoryItem[]> {
   }
 }
 
-export async function saveTodoHistory(items: TodoHistoryItem[]): Promise<void> {
+async function saveTodoHistory(items: TodoHistoryItem[]): Promise<void> {
   try {
     await redis.set(HISTORY_KEY, items)
   } catch (e) {
