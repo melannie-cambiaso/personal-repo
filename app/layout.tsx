@@ -14,8 +14,8 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
-  title: "Wishlist",
-  description: "Mi wishlist personal",
+  title: "Personal Repo",
+  description: "Mi repositorio personal",
 };
 
 export default function RootLayout({
