@@ -37,6 +37,11 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
           <span className={`text-2xs rounded-full px-2 py-0.5 font-bold uppercase tracking-badge ${typeBadge[item.type]}`}>
             {item.type}
           </span>
+          {item.plannedMonth && !item.done && (
+            <span className="text-2xs rounded-full bg-cream-300 px-2 py-0.5 font-semibold text-brown-700">
+              📅 {new Date(`${item.plannedMonth}-01T12:00:00`).toLocaleString("es-AR", { month: "short", year: "numeric" })}
+            </span>
+          )}
           {item.estimatedCost !== null && (
             <span className="text-2xs font-bold text-brown-800">
               {item.quantity && item.quantity > 1

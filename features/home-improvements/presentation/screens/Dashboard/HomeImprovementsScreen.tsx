@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { useHomeImprovements } from "../../hooks/useHomeImprovements";
@@ -11,7 +11,9 @@ import {
   AddItemModal,
   EditItemModal,
   DeleteZoneConfirmModal,
+  MonthlyPlanTab,
 } from "../../components";
+import { itemsPlannedForMonth, itemsUnassigned } from "@/features/home-improvements/domain";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
 import { AddButton } from "@/shared/components/AddButton/AddButton";
 
@@ -33,7 +35,23 @@ export function HomeImprovementsScreen({
   const {
     zones, items, itemsByZone, costByZone, pendingByZone,
     addZone, editZone, deleteZone, addItem, editItem, toggleDone, deleteItem,
+    assignToMonth, unassignFromMonth,
   } = useHomeImprovements({ initialZones, initialItems, onSaveZones, onSaveItems });
+
+  const [activeTab, setActiveTab] = useState<"zones" | "monthly">("zones");
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
+
+  const navigateMonth = (dir: 1 | -1) => {
+    const [y, m] = selectedMonth.split("-").map(Number);
+    const d = new Date(y, m - 1 + dir);
+    setSelectedMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  };
+
+  const plannedItems = useMemo(() => itemsPlannedForMonth(items, selectedMonth), [items, selectedMonth]);
+  const unassignedItems = useMemo(() => itemsUnassigned(items), [items]);
 
   type SortKey = "price-asc" | "price-desc" | "name-asc" | "name-desc";
   const [sortBy, setSortBy] = useState<SortKey>("price-asc");
@@ -71,33 +89,69 @@ export function HomeImprovementsScreen({
       </PageHeader>
 
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortKey)}
-            className="cursor-pointer rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
+        {/* Tab toggle */}
+        <div className="mb-8 flex gap-2 border-b border-cream-300">
+          <button
+            type="button"
+            onClick={() => setActiveTab("zones")}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "zones" ? "border-b-2 border-brown-800 text-brown-900" : "text-brown-400 hover:text-brown-700"}`}
           >
-            <option value="price-asc">Precio ↑</option>
-            <option value="price-desc">Precio ↓</option>
-            <option value="name-asc">Nombre A→Z</option>
-            <option value="name-desc">Nombre Z→A</option>
-          </select>
-          {isOwner && <AddButton onClick={() => setAddZoneOpen(true)} label="Agregar zona" />}
+            Zonas
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("monthly")}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "monthly" ? "border-b-2 border-brown-800 text-brown-900" : "text-brown-400 hover:text-brown-700"}`}
+          >
+            Plan mensual
+          </button>
         </div>
 
-        <ZoneList
-          zones={sortedZones}
-          itemsByZone={itemsByZone}
-          costByZone={costByZone}
-          pendingByZone={pendingByZone}
-          isOwner={isOwner}
-          onEditZone={setEditingZone}
-          onDeleteZone={tryDeleteZone}
-          onAddItem={(zoneId) => setAddItemZoneId(zoneId)}
-          onEditItem={setEditingItem}
-          onToggleItem={toggleDone}
-          onDeleteItem={deleteItem}
-        />
+        {activeTab === "zones" ? (
+          <>
+            <div className="mb-8 flex items-center justify-between gap-4">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortKey)}
+                className="cursor-pointer rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
+              >
+                <option value="price-asc">Precio ↑</option>
+                <option value="price-desc">Precio ↓</option>
+                <option value="name-asc">Nombre A→Z</option>
+                <option value="name-desc">Nombre Z→A</option>
+              </select>
+              {isOwner && <AddButton onClick={() => setAddZoneOpen(true)} label="Agregar zona" />}
+            </div>
+            <ZoneList
+              zones={sortedZones}
+              itemsByZone={itemsByZone}
+              costByZone={costByZone}
+              pendingByZone={pendingByZone}
+              isOwner={isOwner}
+              onEditZone={setEditingZone}
+              onDeleteZone={tryDeleteZone}
+              onAddItem={(zoneId) => setAddItemZoneId(zoneId)}
+              onEditItem={setEditingItem}
+              onToggleItem={toggleDone}
+              onDeleteItem={deleteItem}
+            />
+          </>
+        ) : (
+          <MonthlyPlanTab
+            zones={zones}
+            plannedItems={plannedItems}
+            unassignedItems={unassignedItems}
+            selectedMonth={selectedMonth}
+            isOwner={isOwner}
+            onPrevMonth={() => navigateMonth(-1)}
+            onNextMonth={() => navigateMonth(1)}
+            onAssign={assignToMonth}
+            onUnassign={unassignFromMonth}
+            onToggle={toggleDone}
+            onEdit={setEditingItem}
+            onDelete={deleteItem}
+          />
+        )}
       </div>
 
       <AddZoneModal

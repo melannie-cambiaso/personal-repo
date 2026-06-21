@@ -96,6 +96,19 @@ export function useHomeImprovements({
     void onSaveItems(next);
   };
 
+  const assignToMonth = (itemId: string, month: string) => {
+    const item = itemsRef.current.find((i) => i.id === itemId);
+    if (!item) return;
+    editItem({ ...item, plannedMonth: month });
+  };
+
+  const unassignFromMonth = (itemId: string) => {
+    const item = itemsRef.current.find((i) => i.id === itemId);
+    if (!item) return;
+    const { plannedMonth: _, ...rest } = item;
+    editItem(rest as ImprovementItem);
+  };
+
   const deleteItem = (itemId: string) => {
     const next = itemsRef.current.filter((i) => i.id !== itemId);
     itemsRef.current = next;
@@ -116,5 +129,7 @@ export function useHomeImprovements({
     editItem,
     toggleDone,
     deleteItem,
+    assignToMonth,
+    unassignFromMonth,
   };
 }

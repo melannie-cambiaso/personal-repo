@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { totalCostByZone, pendingCountByZone } from "./derivedValues";
+import { totalCostByZone, pendingCountByZone, itemsPlannedForMonth, itemsUnassigned } from "./derivedValues";
 import type { ImprovementItem } from "./ImprovementItem";
 
 const item = (overrides: Partial<ImprovementItem>): ImprovementItem => ({
@@ -53,6 +53,52 @@ describe("totalCostByZone", () => {
   it("defaults quantity to 1 when undefined", () => {
     const items = [item({ zoneId: "z1", estimatedCost: 30000 })];
     expect(totalCostByZone(items).get("z1")).toBe(30000);
+  });
+});
+
+describe("itemsPlannedForMonth", () => {
+  it("returns empty array for empty input", () => {
+    expect(itemsPlannedForMonth([], "2026-06")).toEqual([]);
+  });
+
+  it("returns only non-done items matching the month", () => {
+    const items = [
+      item({ plannedMonth: "2026-06", done: false }),
+      item({ plannedMonth: "2026-06", done: true }),
+      item({ plannedMonth: "2026-07", done: false }),
+    ];
+    const result = itemsPlannedForMonth(items, "2026-06");
+    expect(result).toHaveLength(1);
+    expect(result[0].plannedMonth).toBe("2026-06");
+    expect(result[0].done).toBe(false);
+  });
+
+  it("excludes done items even if plannedMonth matches", () => {
+    const items = [item({ plannedMonth: "2026-06", done: true })];
+    expect(itemsPlannedForMonth(items, "2026-06")).toHaveLength(0);
+  });
+});
+
+describe("itemsUnassigned", () => {
+  it("returns empty array for empty input", () => {
+    expect(itemsUnassigned([])).toEqual([]);
+  });
+
+  it("returns non-done items without plannedMonth", () => {
+    const items = [
+      item({ plannedMonth: undefined, done: false }),
+      item({ plannedMonth: "2026-06", done: false }),
+      item({ plannedMonth: undefined, done: true }),
+    ];
+    const result = itemsUnassigned(items);
+    expect(result).toHaveLength(1);
+    expect(result[0].plannedMonth).toBeUndefined();
+    expect(result[0].done).toBe(false);
+  });
+
+  it("excludes done items regardless of plannedMonth", () => {
+    const items = [item({ done: true }), item({ plannedMonth: "2026-06", done: true })];
+    expect(itemsUnassigned(items)).toHaveLength(0);
   });
 });
 
