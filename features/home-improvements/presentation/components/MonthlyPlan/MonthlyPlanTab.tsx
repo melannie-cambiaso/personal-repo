@@ -41,6 +41,7 @@ export function MonthlyPlanTab({
   const plannedByZone = groupByZone(plannedItems);
   const unassignedByZone = groupByZone(unassignedItems);
   const label = monthLabel(selectedMonth);
+  const totalCost = plannedItems.reduce((sum, i) => sum + (i.estimatedCost ?? 0) * (i.quantity ?? 1), 0);
 
   return (
     <div className="flex flex-col gap-8">
@@ -53,7 +54,12 @@ export function MonthlyPlanTab({
         >
           ← Anterior
         </button>
-        <h2 className="font-dancing text-2xl font-bold capitalize text-brown-900">{label}</h2>
+        <div className="text-center">
+          <h2 className="font-dancing text-2xl font-bold capitalize text-brown-900">{label}</h2>
+          {totalCost > 0 && (
+            <p className="mt-0.5 text-sm font-semibold text-brown-600">${totalCost.toLocaleString("es-AR")} estimado</p>
+          )}
+        </div>
         <button
           type="button"
           onClick={onNextMonth}
