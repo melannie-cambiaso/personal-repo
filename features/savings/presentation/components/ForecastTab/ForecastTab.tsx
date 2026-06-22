@@ -12,9 +12,10 @@ export function ForecastTab({ currentBalance }: ForecastTabProps) {
   const [monthlyExpense, setMonthlyExpense] = useState(0);
   const [extraAmount, setExtraAmount] = useState(0);
   const [months, setMonths] = useState(12);
+  const [annualRate, setAnnualRate] = useState(4.6);
 
   const monthlyNet = monthlyDeposit - monthlyExpense;
-  const forecast = computeForecast(currentBalance + extraAmount, monthlyNet, months);
+  const forecast = computeForecast(currentBalance + extraAmount, monthlyNet, months, annualRate);
 
   return (
     <div className="space-y-6">
@@ -70,6 +71,19 @@ export function ForecastTab({ currentBalance }: ForecastTabProps) {
             className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
           />
         </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
+            Tasa de interés anual (%)
+          </span>
+          <input
+            type="number"
+            min={0}
+            step={0.1}
+            value={annualRate}
+            onChange={(e) => setAnnualRate(Math.max(0, Number(e.target.value)))}
+            className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
+          />
+        </label>
       </div>
 
       <ul className="divide-y divide-cream-300">
@@ -81,7 +95,7 @@ export function ForecastTab({ currentBalance }: ForecastTabProps) {
                 projectedBalance < 0 ? "text-red-500" : "text-brown-900"
               }`}
             >
-              ${projectedBalance.toLocaleString("es-AR")}
+              ${Math.round(projectedBalance).toLocaleString("es-AR")}
             </span>
           </li>
         ))}

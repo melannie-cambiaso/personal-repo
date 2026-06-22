@@ -31,4 +31,19 @@ describe("computeForecast", () => {
     const result = computeForecast(0, 0, 3);
     result.forEach((r) => expect(r.month).toBeTruthy());
   });
+
+  it("annualRate=0 produces same result as no rate argument", () => {
+    expect(computeForecast(1000, 500, 3, 0)).toEqual(computeForecast(1000, 500, 3));
+  });
+
+  it("with annualRate, 12 months of no deposits compounds to balance * (1 + rate/100)", () => {
+    const result = computeForecast(1000, 0, 12, 4.6);
+    expect(result[11].projectedBalance).toBeCloseTo(1046, 0);
+  });
+
+  it("with annualRate, balance grows faster than linear projection", () => {
+    const linear = computeForecast(1000, 100, 12, 0);
+    const compounded = computeForecast(1000, 100, 12, 4.6);
+    expect(compounded[11].projectedBalance).toBeGreaterThan(linear[11].projectedBalance);
+  });
 });
