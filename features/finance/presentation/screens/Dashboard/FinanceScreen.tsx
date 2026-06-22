@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { FinanceEntry } from "@/features/finance/domain/FinanceEntry";
+import { getBudgetForMonth } from "@/features/finance/data/financeActions";
 import { useFinance } from "../../hooks/useFinance";
 import {
   BudgetTab,
@@ -20,7 +21,7 @@ interface Props {
   initialBudget: Record<string, number>;
   isOwner: boolean;
   onSave: (entries: FinanceEntry[]) => Promise<void> | void;
-  onSaveBudget: (budget: Record<string, number>) => Promise<void>;
+  onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
 }
 
 type Tab = "registros" | "presupuesto";
@@ -35,6 +36,17 @@ export function FinanceScreen({ initialEntries, initialBudget, isOwner, onSave, 
     useFinance({ initialEntries, onSave });
 
   const [activeTab, setActiveTab] = useState<Tab>("registros");
+  const [monthBudget, setMonthBudget] = useState<Record<string, number>>(initialBudget);
+  const [budgetLoadedFor, setBudgetLoadedFor] = useState(selectedMonth);
+
+  useEffect(() => {
+    if (budgetLoadedFor === selectedMonth) return;
+    getBudgetForMonth(selectedMonth).then((b) => {
+      setMonthBudget(b);
+      setBudgetLoadedFor(selectedMonth);
+    });
+  }, [selectedMonth, budgetLoadedFor]);
+
   const [addOpen, setAddOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
   const [pendingDelete, setPendingDelete] = useState<FinanceEntry | null>(null);
@@ -83,9 +95,10 @@ export function FinanceScreen({ initialEntries, initialBudget, isOwner, onSave, 
 
         {activeTab === "presupuesto" && (
           <BudgetTab
-            initialBudget={initialBudget}
+            key={budgetLoadedFor}
+            initialBudget={monthBudget}
             byCategory={summary.byCategory}
-            onSave={onSaveBudget}
+            onSave={(b) => onSaveBudget(selectedMonth, b)}
           />
         )}
       </div>

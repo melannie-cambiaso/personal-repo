@@ -9,7 +9,9 @@ export default async function FinancePage() {
   const isOwner = !!cookieStore.get("wishlist_auth")?.value;
   if (!isOwner) redirect("/login");
 
-  const [initialEntries, initialBudget] = await Promise.all([loadEntries(), loadBudget()]);
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const [initialEntries, initialBudget] = await Promise.all([loadEntries(), loadBudget(currentMonth)]);
 
   return (
     <FinanceScreen

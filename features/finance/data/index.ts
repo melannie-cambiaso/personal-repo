@@ -1,2 +1,2 @@
 export { loadEntries, saveEntries, loadBudget, saveBudget } from "./kvAdapter";
-export { handleSave, handleSaveBudget } from "./financeActions";
+export { handleSave, getBudgetForMonth, handleSaveBudget } from "./financeActions";

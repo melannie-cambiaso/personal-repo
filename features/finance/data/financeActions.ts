@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { saveEntries, saveBudget } from "./kvAdapter";
+import { saveEntries, saveBudget, loadBudget } from "./kvAdapter";
 import type { FinanceEntry } from "../domain/FinanceEntry";
 
 export async function handleSave(entries: FinanceEntry[]): Promise<void> {
@@ -10,8 +10,14 @@ export async function handleSave(entries: FinanceEntry[]): Promise<void> {
   await saveEntries(entries);
 }
 
-export async function handleSaveBudget(budget: Record<string, number>): Promise<void> {
+export async function getBudgetForMonth(month: string): Promise<Record<string, number>> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return {};
+  return loadBudget(month);
+}
+
+export async function handleSaveBudget(month: string, budget: Record<string, number>): Promise<void> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;
-  await saveBudget(budget);
+  await saveBudget(month, budget);
 }
