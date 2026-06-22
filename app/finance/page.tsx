@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { loadEntries, loadBudget } from "@/features/finance/data";
-import { handleSave, handleSaveBudget } from "@/features/finance/data/financeActions";
+import { loadBudget, loadActual } from "@/features/finance/data";
+import { handleSaveBudget, handleSaveActual } from "@/features/finance/data/financeActions";
 import { FinanceScreen } from "@/features/finance/presentation/screens/Dashboard/FinanceScreen";
 
 export default async function FinancePage() {
@@ -11,15 +11,17 @@ export default async function FinancePage() {
 
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const [initialEntries, initialBudget] = await Promise.all([loadEntries(), loadBudget(currentMonth)]);
+  const [initialBudget, initialActual] = await Promise.all([
+    loadBudget(currentMonth),
+    loadActual(currentMonth),
+  ]);
 
   return (
     <FinanceScreen
-      initialEntries={initialEntries}
       initialBudget={initialBudget}
-      isOwner={isOwner}
-      onSave={handleSave}
+      initialActual={initialActual}
       onSaveBudget={handleSaveBudget}
+      onSaveActual={handleSaveActual}
     />
   );
 }

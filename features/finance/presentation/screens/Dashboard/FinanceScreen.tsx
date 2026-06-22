@@ -1,124 +1,70 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { FinanceEntry } from "@/features/finance/domain/FinanceEntry";
-import { getBudgetForMonth } from "@/features/finance/data/financeActions";
-import { useFinance } from "../../hooks/useFinance";
-import {
-  BudgetTab,
-  FinanceMonthNav,
-  FinanceMonthlySummary,
-  FinanceEntryList,
-  AddEntryModal,
-  EditEntryModal,
-  DeleteEntryConfirmModal,
-} from "../../components";
+import { getBudgetForMonth, getActualForMonth } from "@/features/finance/data/financeActions";
+import { BudgetTab, FinanceMonthNav } from "../../components";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
-import { AddButton } from "@/shared/components/AddButton/AddButton";
 
 interface Props {
-  initialEntries: FinanceEntry[];
   initialBudget: Record<string, number>;
-  isOwner: boolean;
-  onSave: (entries: FinanceEntry[]) => Promise<void> | void;
+  initialActual: Record<string, number>;
   onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
+  onSaveActual: (month: string, actual: Record<string, number>) => Promise<void>;
 }
 
-type Tab = "registros" | "presupuesto";
+function currentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
 
-const tabClass = (active: boolean) =>
-  active
-    ? "border-b-2 border-brown-800 pb-2 text-sm font-semibold text-brown-900"
-    : "pb-2 text-sm font-semibold text-brown-400 hover:text-brown-700 transition-colors";
+function prevMonth(m: string): string {
+  const [y, mo] = m.split("-").map(Number);
+  return mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, "0")}`;
+}
 
-export function FinanceScreen({ initialEntries, initialBudget, isOwner, onSave, onSaveBudget }: Props) {
-  const { entries, selectedMonth, summary, groupedByDay, goToPrevMonth, goToNextMonth, addEntry, editEntry, deleteEntry } =
-    useFinance({ initialEntries, onSave });
+function nextMonth(m: string): string {
+  const [y, mo] = m.split("-").map(Number);
+  return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, "0")}`;
+}
 
-  const [activeTab, setActiveTab] = useState<Tab>("registros");
+export function FinanceScreen({ initialBudget, initialActual, onSaveBudget, onSaveActual }: Props) {
+  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth());
   const [monthBudget, setMonthBudget] = useState<Record<string, number>>(initialBudget);
+  const [monthActual, setMonthActual] = useState<Record<string, number>>(initialActual);
   const [budgetLoadedFor, setBudgetLoadedFor] = useState(selectedMonth);
 
   useEffect(() => {
     if (budgetLoadedFor === selectedMonth) return;
-    getBudgetForMonth(selectedMonth).then((b) => {
+    Promise.all([
+      getBudgetForMonth(selectedMonth),
+      getActualForMonth(selectedMonth),
+    ]).then(([b, a]) => {
       setMonthBudget(b);
+      setMonthActual(a);
       setBudgetLoadedFor(selectedMonth);
     });
   }, [selectedMonth, budgetLoadedFor]);
 
-  const [addOpen, setAddOpen] = useState(false);
-  const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<FinanceEntry | null>(null);
-
   return (
     <main className="flex flex-1 flex-col">
-      <PageHeader eyebrow="Tus finanzas" title="Finanzas">
-        <div className="flex justify-center gap-6 text-sm text-cream-100/80">
-          <span>{entries.length} registro{entries.length !== 1 ? "s" : ""}</span>
-        </div>
-      </PageHeader>
+      <PageHeader eyebrow="Tus finanzas" title="Finanzas" />
 
       <div className="mx-auto w-full max-w-2xl px-6 py-10">
-        <FinanceMonthNav selectedMonth={selectedMonth} onPrev={goToPrevMonth} onNext={goToNextMonth} />
+        <FinanceMonthNav
+          selectedMonth={selectedMonth}
+          onPrev={() => setSelectedMonth(prevMonth(selectedMonth))}
+          onNext={() => setSelectedMonth(nextMonth(selectedMonth))}
+        />
 
-        <div className="mb-6 flex gap-6 border-b border-cream-300">
-          <button className={tabClass(activeTab === "registros")} onClick={() => setActiveTab("registros")}>
-            Registros
-          </button>
-          <button className={tabClass(activeTab === "presupuesto")} onClick={() => setActiveTab("presupuesto")}>
-            Presupuesto
-          </button>
-        </div>
-
-        {activeTab === "registros" && (
-          <>
-            <div className="mb-8">
-              <FinanceMonthlySummary summary={summary} />
-            </div>
-
-            <div className="mb-6 flex justify-end">
-              {isOwner && <AddButton onClick={() => setAddOpen(true)} label="Agregar registro" />}
-            </div>
-
-            <FinanceEntryList
-              groupedByDay={groupedByDay}
-              isOwner={isOwner}
-              onEdit={setEditingEntry}
-              onDelete={(id) => {
-                const entry = entries.find((e) => e.id === id);
-                if (entry) setPendingDelete(entry);
-              }}
-            />
-          </>
-        )}
-
-        {activeTab === "presupuesto" && (
-          <BudgetTab
-            key={budgetLoadedFor}
-            initialBudget={monthBudget}
-            byCategory={summary.byCategory}
-            selectedMonth={selectedMonth}
-            onSave={(b) => onSaveBudget(selectedMonth, b)}
-          />
-        )}
+        <BudgetTab
+          key={budgetLoadedFor}
+          initialBudget={monthBudget}
+          initialActual={monthActual}
+          selectedMonth={selectedMonth}
+          onSave={(b) => onSaveBudget(selectedMonth, b)}
+          onSaveActual={(a) => onSaveActual(selectedMonth, a)}
+        />
       </div>
-
-      <AddEntryModal
-        isOpen={addOpen}
-        onClose={() => setAddOpen(false)}
-        onAdd={(entry) => { addEntry(entry); setAddOpen(false); }}
-      />
-      <EditEntryModal
-        entry={editingEntry}
-        onClose={() => setEditingEntry(null)}
-        onSave={(entry) => { editEntry(entry); setEditingEntry(null); }}
-      />
-      <DeleteEntryConfirmModal
-        entry={pendingDelete}
-        onConfirm={() => { if (pendingDelete) { deleteEntry(pendingDelete.id); setPendingDelete(null); } }}
-        onCancel={() => setPendingDelete(null)}
-      />
     </main>
   );
 }

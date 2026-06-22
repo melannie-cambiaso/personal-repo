@@ -6,9 +6,10 @@ import { getBudgetForMonth } from "@/features/finance/data/financeActions";
 
 interface Props {
   initialBudget: Record<string, number>;
-  byCategory: Map<string, number>;
+  initialActual: Record<string, number>;
   selectedMonth: string;
   onSave: (budget: Record<string, number>) => Promise<void>;
+  onSaveActual: (actual: Record<string, number>) => Promise<void>;
 }
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
@@ -18,8 +19,9 @@ function prevMonth(month: string): string {
   return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
 }
 
-export function BudgetTab({ initialBudget, byCategory, selectedMonth, onSave }: Props) {
+export function BudgetTab({ initialBudget, initialActual, selectedMonth, onSave, onSaveActual }: Props) {
   const [budget, setBudget] = useState<Record<string, number>>(initialBudget);
+  const [actual, setActual] = useState<Record<string, number>>(initialActual);
   const [inputKey, setInputKey] = useState(0);
   const [refMonth, setRefMonth] = useState(prevMonth(selectedMonth));
   const [copying, setCopying] = useState(false);
@@ -28,6 +30,12 @@ export function BudgetTab({ initialBudget, byCategory, selectedMonth, onSave }: 
     const next = { ...budget, [category]: Math.max(0, Number(raw) || 0) };
     setBudget(next);
     onSave(next);
+  };
+
+  const handleBlurActual = (category: string, raw: string) => {
+    const next = { ...actual, [category]: Math.max(0, Number(raw) || 0) };
+    setActual(next);
+    onSaveActual(next);
   };
 
   const handleCopy = async () => {
@@ -42,16 +50,15 @@ export function BudgetTab({ initialBudget, byCategory, selectedMonth, onSave }: 
   const incomeGroups = GROUPS.filter((g) => g.type === "income");
   const expenseGroups = GROUPS.filter((g) => g.type === "expense");
 
-  const allCategories = (gs: (typeof GROUPS)[number][]) => gs.flatMap((g) => g.categories);
-  const totalBudget = (gs: (typeof GROUPS)[number][]) =>
-    allCategories(gs).reduce((s, c) => s + (budget[c] ?? 0), 0);
-  const totalActual = (gs: (typeof GROUPS)[number][]) =>
-    allCategories(gs).reduce((s, c) => s + (byCategory.get(c) ?? 0), 0);
+  const sumBudget = (gs: (typeof GROUPS)[number][]) =>
+    gs.flatMap((g) => g.categories).reduce((s, c) => s + (budget[c] ?? 0), 0);
+  const sumActual = (gs: (typeof GROUPS)[number][]) =>
+    gs.flatMap((g) => g.categories).reduce((s, c) => s + (actual[c] ?? 0), 0);
 
-  const budgetIncome = totalBudget(incomeGroups);
-  const budgetExpense = totalBudget(expenseGroups);
-  const actualIncome = totalActual(incomeGroups);
-  const actualExpense = totalActual(expenseGroups);
+  const budgetIncome = sumBudget(incomeGroups);
+  const budgetExpense = sumBudget(expenseGroups);
+  const actualIncome = sumActual(incomeGroups);
+  const actualExpense = sumActual(expenseGroups);
 
   return (
     <div className="flex flex-col gap-6">
@@ -84,8 +91,8 @@ export function BudgetTab({ initialBudget, byCategory, selectedMonth, onSave }: 
         </div>
       </div>
 
-      <GroupSection title="Ingresos" groups={incomeGroups} budget={budget} byCategory={byCategory} type="income" inputKey={inputKey} onBlur={handleBlur} />
-      <GroupSection title="Gastos" groups={expenseGroups} budget={budget} byCategory={byCategory} type="expense" inputKey={inputKey} onBlur={handleBlur} />
+      <GroupSection title="Ingresos" groups={incomeGroups} budget={budget} actual={actual} isIncome inputKey={inputKey} onBlur={handleBlur} onBlurActual={handleBlurActual} />
+      <GroupSection title="Gastos" groups={expenseGroups} budget={budget} actual={actual} isIncome={false} inputKey={inputKey} onBlur={handleBlur} onBlurActual={handleBlurActual} />
     </div>
   );
 }
@@ -105,23 +112,24 @@ function SummaryCard({ label, budget, actual, positive }: { label: string; budge
 }
 
 function GroupSection({
-  title, groups, budget, byCategory, type, inputKey, onBlur,
+  title, groups, budget, actual, isIncome, inputKey, onBlur, onBlurActual,
 }: {
   title: string;
   groups: (typeof GROUPS)[number][];
   budget: Record<string, number>;
-  byCategory: Map<string, number>;
-  type: "income" | "expense";
+  actual: Record<string, number>;
+  isIncome: boolean;
   inputKey: number;
   onBlur: (category: string, value: string) => void;
+  onBlurActual: (category: string, value: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
       <h3 className="text-xs font-semibold uppercase tracking-wide text-brown-400">{title}</h3>
       {groups.map((g) => {
         const totalBudget = g.categories.reduce((s, c) => s + (budget[c] ?? 0), 0);
-        const totalActual = g.categories.reduce((s, c) => s + (byCategory.get(c) ?? 0), 0);
-        const totalDiff = type === "income" ? totalActual - totalBudget : totalBudget - totalActual;
+        const totalActual = g.categories.reduce((s, c) => s + (actual[c] ?? 0), 0);
+        const totalDiff = isIncome ? totalActual - totalBudget : totalBudget - totalActual;
 
         return (
           <div key={g.name} className="overflow-hidden rounded-xl border border-cream-300 bg-white">
@@ -137,9 +145,9 @@ function GroupSection({
             </div>
 
             {[...g.categories].sort((a, b) => a.localeCompare(b, "es")).map((cat) => {
-              const actual = byCategory.get(cat) ?? 0;
               const planned = budget[cat] ?? 0;
-              const diff = type === "income" ? actual - planned : planned - actual;
+              const real = actual[cat] ?? 0;
+              const diff = isIncome ? real - planned : planned - real;
               return (
                 <div key={cat} className="grid grid-cols-4 items-center gap-2 border-t border-cream-100 px-4 py-2">
                   <span className="text-sm text-brown-700">{cat}</span>
@@ -147,14 +155,23 @@ function GroupSection({
                     <input
                       type="number"
                       min="0"
-                      key={`${inputKey}-${cat}`}
+                      key={`${inputKey}-b-${cat}`}
                       defaultValue={planned || ""}
                       placeholder="0"
                       onBlur={(e) => onBlur(cat, e.target.value)}
-                      className="w-28 rounded-lg border border-cream-400 bg-cream-50 px-2 py-1 text-right text-sm text-brown-900 outline-none focus:border-brown-600"
+                      className="w-24 rounded-lg border border-cream-400 bg-cream-50 px-2 py-1 text-right text-sm text-brown-900 outline-none focus:border-brown-600"
                     />
                   </div>
-                  <span className="text-right text-sm text-brown-700">{actual > 0 ? fmt(actual) : "—"}</span>
+                  <div className="flex justify-end">
+                    <input
+                      type="number"
+                      min="0"
+                      defaultValue={real || ""}
+                      placeholder="0"
+                      onBlur={(e) => onBlurActual(cat, e.target.value)}
+                      className="w-24 rounded-lg border border-cream-400 bg-cream-50 px-2 py-1 text-right text-sm text-brown-900 outline-none focus:border-brown-600"
+                    />
+                  </div>
                   <span className={`text-right text-sm font-semibold ${diff > 0 ? "text-green-600" : diff < 0 ? "text-red-500" : "text-brown-400"}`}>
                     {diff !== 0 ? `${diff > 0 ? "+" : ""}${fmt(diff)}` : "—"}
                   </span>

@@ -45,7 +45,7 @@ export default function HomePage() {
           >
             <span className="text-4xl">💸</span>
             <span className="font-dancing text-2xl font-bold text-brown-900">Finanzas</span>
-            <span className="text-xs text-brown-400">Ingresos y gastos</span>
+            <span className="text-xs text-brown-400">Presupuesto mensual</span>
           </Link>
         </div>
       </div>
