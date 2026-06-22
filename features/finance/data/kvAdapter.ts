@@ -5,13 +5,6 @@ import type { FinanceEntry } from "../domain/FinanceEntry";
 const ENTRIES_KEY = "finance-entries";
 const budgetKey = (month: string) => `finance-budget:${month}`;
 
-function prevMonth(month: string): string {
-  const [y, m] = month.split("-").map(Number);
-  return m === 1
-    ? `${y - 1}-12`
-    : `${y}-${String(m - 1).padStart(2, "0")}`;
-}
-
 export async function loadEntries(): Promise<FinanceEntry[]> {
   try {
     return (await redis.get<FinanceEntry[]>(ENTRIES_KEY)) ?? [];
@@ -30,9 +23,7 @@ export async function saveEntries(entries: FinanceEntry[]): Promise<void> {
 
 export async function loadBudget(month: string): Promise<Record<string, number>> {
   try {
-    const current = await redis.get<Record<string, number>>(budgetKey(month));
-    if (current) return current;
-    return (await redis.get<Record<string, number>>(budgetKey(prevMonth(month)))) ?? {};
+    return (await redis.get<Record<string, number>>(budgetKey(month))) ?? {};
   } catch {
     return {};
   }

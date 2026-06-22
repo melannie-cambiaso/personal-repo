@@ -98,6 +98,7 @@ export function FinanceScreen({ initialEntries, initialBudget, isOwner, onSave, 
             key={budgetLoadedFor}
             initialBudget={monthBudget}
             byCategory={summary.byCategory}
+            selectedMonth={selectedMonth}
             onSave={(b) => onSaveBudget(selectedMonth, b)}
           />
         )}

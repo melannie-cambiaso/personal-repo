@@ -2,22 +2,41 @@
 
 import { useState } from "react";
 import { GROUPS } from "@/features/finance/domain";
+import { getBudgetForMonth } from "@/features/finance/data/financeActions";
 
 interface Props {
   initialBudget: Record<string, number>;
   byCategory: Map<string, number>;
+  selectedMonth: string;
   onSave: (budget: Record<string, number>) => Promise<void>;
 }
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
 
-export function BudgetTab({ initialBudget, byCategory, onSave }: Props) {
+function prevMonth(month: string): string {
+  const [y, m] = month.split("-").map(Number);
+  return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
+}
+
+export function BudgetTab({ initialBudget, byCategory, selectedMonth, onSave }: Props) {
   const [budget, setBudget] = useState<Record<string, number>>(initialBudget);
+  const [inputKey, setInputKey] = useState(0);
+  const [refMonth, setRefMonth] = useState(prevMonth(selectedMonth));
+  const [copying, setCopying] = useState(false);
 
   const handleBlur = (category: string, raw: string) => {
     const next = { ...budget, [category]: Math.max(0, Number(raw) || 0) };
     setBudget(next);
     onSave(next);
+  };
+
+  const handleCopy = async () => {
+    setCopying(true);
+    const ref = await getBudgetForMonth(refMonth);
+    setBudget(ref);
+    setInputKey((k) => k + 1);
+    onSave(ref);
+    setCopying(false);
   };
 
   const incomeGroups = GROUPS.filter((g) => g.type === "income");
@@ -36,6 +55,24 @@ export function BudgetTab({ initialBudget, byCategory, onSave }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex items-center gap-3 rounded-xl border border-cream-300 bg-white px-4 py-3">
+        <span className="text-xs text-brown-500 whitespace-nowrap">Copiar desde</span>
+        <input
+          type="month"
+          value={refMonth}
+          max={prevMonth(selectedMonth)}
+          onChange={(e) => setRefMonth(e.target.value)}
+          className="flex-1 rounded-lg border border-cream-400 bg-cream-50 px-3 py-1.5 text-sm text-brown-900 outline-none focus:border-brown-600"
+        />
+        <button
+          onClick={handleCopy}
+          disabled={copying || !refMonth}
+          className="cursor-pointer rounded-lg bg-brown-800 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-brown-700 disabled:opacity-50"
+        >
+          {copying ? "Copiando..." : "Copiar"}
+        </button>
+      </div>
+
       <div className="overflow-hidden rounded-xl border border-brown-300 bg-white">
         <div className="border-b border-cream-200 px-4 py-3">
           <span className="text-sm font-semibold text-brown-800">Balance</span>
@@ -47,8 +84,8 @@ export function BudgetTab({ initialBudget, byCategory, onSave }: Props) {
         </div>
       </div>
 
-      <GroupSection title="Ingresos" groups={incomeGroups} budget={budget} byCategory={byCategory} type="income" onBlur={handleBlur} />
-      <GroupSection title="Gastos" groups={expenseGroups} budget={budget} byCategory={byCategory} type="expense" onBlur={handleBlur} />
+      <GroupSection title="Ingresos" groups={incomeGroups} budget={budget} byCategory={byCategory} type="income" inputKey={inputKey} onBlur={handleBlur} />
+      <GroupSection title="Gastos" groups={expenseGroups} budget={budget} byCategory={byCategory} type="expense" inputKey={inputKey} onBlur={handleBlur} />
     </div>
   );
 }
@@ -68,13 +105,14 @@ function SummaryCard({ label, budget, actual, positive }: { label: string; budge
 }
 
 function GroupSection({
-  title, groups, budget, byCategory, type, onBlur,
+  title, groups, budget, byCategory, type, inputKey, onBlur,
 }: {
   title: string;
   groups: (typeof GROUPS)[number][];
   budget: Record<string, number>;
   byCategory: Map<string, number>;
   type: "income" | "expense";
+  inputKey: number;
   onBlur: (category: string, value: string) => void;
 }) {
   return (
@@ -109,6 +147,7 @@ function GroupSection({
                     <input
                       type="number"
                       min="0"
+                      key={`${inputKey}-${cat}`}
                       defaultValue={planned || ""}
                       placeholder="0"
                       onBlur={(e) => onBlur(cat, e.target.value)}
