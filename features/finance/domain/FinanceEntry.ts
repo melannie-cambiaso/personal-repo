@@ -14,4 +14,5 @@ export interface FinanceSummary {
   totalExpenses: number;
   net: number;
   byGroup: Map<string, number>;
+  byCategory: Map<string, number>;
 }

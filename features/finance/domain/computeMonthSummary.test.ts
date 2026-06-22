@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { computeMonthSummary } from "./computeMonthSummary";
 import type { FinanceEntry } from "./FinanceEntry";
 
-const make = (type: FinanceEntry["type"], group: string, amount: number): FinanceEntry => ({
-  id: crypto.randomUUID(), type, group, category: "x",
+const make = (type: FinanceEntry["type"], group: string, amount: number, category = "x"): FinanceEntry => ({
+  id: crypto.randomUUID(), type, group, category,
   amount, date: "2026-06-01", createdAt: new Date().toISOString(),
 });
 
@@ -38,5 +38,16 @@ describe("computeMonthSummary", () => {
   it("net can be negative", () => {
     const entries = [make("income", "Ingresos", 100), make("expense", "Gastos fijos", 500)];
     expect(computeMonthSummary(entries).net).toBe(-400);
+  });
+
+  it("aggregates byCategory correctly", () => {
+    const entries = [
+      make("expense", "Gastos fijos", 200, "Arriendo"),
+      make("expense", "Gastos fijos", 50, "Internet"),
+      make("expense", "Gastos fijos", 30, "Internet"),
+    ];
+    const r = computeMonthSummary(entries);
+    expect(r.byCategory.get("Arriendo")).toBe(200);
+    expect(r.byCategory.get("Internet")).toBe(80);
   });
 });

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { FinanceEntry } from "@/features/finance/domain/FinanceEntry";
 import { useFinance } from "../../hooks/useFinance";
 import {
+  BudgetTab,
   FinanceMonthNav,
   FinanceMonthlySummary,
   FinanceEntryList,
@@ -16,14 +17,24 @@ import { AddButton } from "@/shared/components/AddButton/AddButton";
 
 interface Props {
   initialEntries: FinanceEntry[];
+  initialBudget: Record<string, number>;
   isOwner: boolean;
   onSave: (entries: FinanceEntry[]) => Promise<void> | void;
+  onSaveBudget: (budget: Record<string, number>) => Promise<void>;
 }
 
-export function FinanceScreen({ initialEntries, isOwner, onSave }: Props) {
+type Tab = "registros" | "presupuesto";
+
+const tabClass = (active: boolean) =>
+  active
+    ? "border-b-2 border-brown-800 pb-2 text-sm font-semibold text-brown-900"
+    : "pb-2 text-sm font-semibold text-brown-400 hover:text-brown-700 transition-colors";
+
+export function FinanceScreen({ initialEntries, initialBudget, isOwner, onSave, onSaveBudget }: Props) {
   const { entries, selectedMonth, summary, groupedByDay, goToPrevMonth, goToNextMonth, addEntry, editEntry, deleteEntry } =
     useFinance({ initialEntries, onSave });
 
+  const [activeTab, setActiveTab] = useState<Tab>("registros");
   const [addOpen, setAddOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<FinanceEntry | null>(null);
   const [pendingDelete, setPendingDelete] = useState<FinanceEntry | null>(null);
@@ -39,23 +50,44 @@ export function FinanceScreen({ initialEntries, isOwner, onSave }: Props) {
       <div className="mx-auto w-full max-w-2xl px-6 py-10">
         <FinanceMonthNav selectedMonth={selectedMonth} onPrev={goToPrevMonth} onNext={goToNextMonth} />
 
-        <div className="mb-8">
-          <FinanceMonthlySummary summary={summary} />
+        <div className="mb-6 flex gap-6 border-b border-cream-300">
+          <button className={tabClass(activeTab === "registros")} onClick={() => setActiveTab("registros")}>
+            Registros
+          </button>
+          <button className={tabClass(activeTab === "presupuesto")} onClick={() => setActiveTab("presupuesto")}>
+            Presupuesto
+          </button>
         </div>
 
-        <div className="mb-6 flex justify-end">
-          {isOwner && <AddButton onClick={() => setAddOpen(true)} label="Agregar registro" />}
-        </div>
+        {activeTab === "registros" && (
+          <>
+            <div className="mb-8">
+              <FinanceMonthlySummary summary={summary} />
+            </div>
 
-        <FinanceEntryList
-          groupedByDay={groupedByDay}
-          isOwner={isOwner}
-          onEdit={setEditingEntry}
-          onDelete={(id) => {
-            const entry = entries.find((e) => e.id === id);
-            if (entry) setPendingDelete(entry);
-          }}
-        />
+            <div className="mb-6 flex justify-end">
+              {isOwner && <AddButton onClick={() => setAddOpen(true)} label="Agregar registro" />}
+            </div>
+
+            <FinanceEntryList
+              groupedByDay={groupedByDay}
+              isOwner={isOwner}
+              onEdit={setEditingEntry}
+              onDelete={(id) => {
+                const entry = entries.find((e) => e.id === id);
+                if (entry) setPendingDelete(entry);
+              }}
+            />
+          </>
+        )}
+
+        {activeTab === "presupuesto" && (
+          <BudgetTab
+            initialBudget={initialBudget}
+            byCategory={summary.byCategory}
+            onSave={onSaveBudget}
+          />
+        )}
       </div>
 
       <AddEntryModal

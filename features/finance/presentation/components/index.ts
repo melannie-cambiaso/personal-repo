@@ -1,3 +1,4 @@
+export { BudgetTab } from "./Budget/BudgetTab";
 export { FinanceMonthNav } from "./MonthNav/FinanceMonthNav";
 export { FinanceMonthlySummary } from "./Summary/FinanceMonthlySummary";
 export { FinanceEntryCard } from "./List/FinanceEntryCard";
