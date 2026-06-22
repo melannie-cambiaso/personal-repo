@@ -28,10 +28,8 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
     else dialog.close();
   }, [entry]);
 
-  if (!form) return null;
-
-  const availableGroups = GROUPS.filter((g) => g.type === form.type);
-  const selectedGroup = GROUPS.find((g) => g.name === form.group);
+  const availableGroups = form ? GROUPS.filter((g) => g.type === form.type) : [];
+  const selectedGroup = form ? GROUPS.find((g) => g.name === form.group) : undefined;
 
   const handleTypeChange = (type: FinanceEntry["type"]) => {
     setForm((f) => f ? { ...f, type, group: "", category: "" } : f);
@@ -62,51 +60,53 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
       onCancel={(e) => { e.preventDefault(); onClose(); }}
       onClick={(e) => { if (e.target === dialogRef.current) onClose(); }}
     >
-      <div className="px-6 py-5">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-dancing text-2xl font-bold text-brown-900">Editar registro</h2>
-          <button type="button" onClick={onClose} className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800" aria-label="Cerrar">✕</button>
+      {form && (
+        <div className="px-6 py-5">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="font-dancing text-2xl font-bold text-brown-900">Editar registro</h2>
+            <button type="button" onClick={onClose} className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800" aria-label="Cerrar">✕</button>
+          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <Field label="Tipo *">
+              <select className={input} value={form.type} onChange={(e) => handleTypeChange(e.target.value as FinanceEntry["type"])} required>
+                <option value="income">Ingreso</option>
+                <option value="expense">Gasto</option>
+              </select>
+            </Field>
+            <Field label="Grupo *">
+              <select className={input} value={form.group} onChange={(e) => handleGroupChange(e.target.value)} required>
+                <option value="" disabled>Seleccionar grupo...</option>
+                {availableGroups.map((g) => (
+                  <option key={g.name} value={g.name}>{g.name}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Categoría *">
+              <select className={input} value={form.category} onChange={(e) => setForm((f) => f ? { ...f, category: e.target.value } : f)} required disabled={!selectedGroup}>
+                <option value="" disabled>Seleccionar categoría...</option>
+                {selectedGroup?.categories.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </Field>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Monto * ($)">
+                <input className={input} type="number" min="0.01" step="0.01" value={form.amount} onChange={(e) => setForm((f) => f ? { ...f, amount: e.target.value } : f)} required />
+              </Field>
+              <Field label="Fecha *">
+                <input className={input} type="date" value={form.date} onChange={(e) => setForm((f) => f ? { ...f, date: e.target.value } : f)} required />
+              </Field>
+            </div>
+            <Field label="Descripción">
+              <textarea className={`${input} resize-none`} rows={2} value={form.description} onChange={(e) => setForm((f) => f ? { ...f, description: e.target.value } : f)} />
+            </Field>
+            <div className="mt-2 flex justify-end gap-3">
+              <button type="button" onClick={onClose} className={btnSecondary}>Cancelar</button>
+              <button type="submit" className={btnPrimary}>Guardar ✓</button>
+            </div>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Field label="Tipo *">
-            <select className={input} value={form.type} onChange={(e) => handleTypeChange(e.target.value as FinanceEntry["type"])} required>
-              <option value="income">Ingreso</option>
-              <option value="expense">Gasto</option>
-            </select>
-          </Field>
-          <Field label="Grupo *">
-            <select className={input} value={form.group} onChange={(e) => handleGroupChange(e.target.value)} required>
-              <option value="" disabled>Seleccionar grupo...</option>
-              {availableGroups.map((g) => (
-                <option key={g.name} value={g.name}>{g.name}</option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Categoría *">
-            <select className={input} value={form.category} onChange={(e) => setForm((f) => f ? { ...f, category: e.target.value } : f)} required disabled={!selectedGroup}>
-              <option value="" disabled>Seleccionar categoría...</option>
-              {selectedGroup?.categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </Field>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Monto * ($)">
-              <input className={input} type="number" min="0.01" step="0.01" value={form.amount} onChange={(e) => setForm((f) => f ? { ...f, amount: e.target.value } : f)} required />
-            </Field>
-            <Field label="Fecha *">
-              <input className={input} type="date" value={form.date} onChange={(e) => setForm((f) => f ? { ...f, date: e.target.value } : f)} required />
-            </Field>
-          </div>
-          <Field label="Descripción">
-            <textarea className={`${input} resize-none`} rows={2} value={form.description} onChange={(e) => setForm((f) => f ? { ...f, description: e.target.value } : f)} />
-          </Field>
-          <div className="mt-2 flex justify-end gap-3">
-            <button type="button" onClick={onClose} className={btnSecondary}>Cancelar</button>
-            <button type="submit" className={btnPrimary}>Guardar ✓</button>
-          </div>
-        </form>
-      </div>
+      )}
     </dialog>
   );
 }

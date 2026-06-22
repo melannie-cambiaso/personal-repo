@@ -1,8 +1,13 @@
 export const GROUPS: { name: string; type: "income" | "expense"; categories: string[] }[] = [
   {
-    name: "Ingresos",
+    name: "Sueldo",
     type: "income",
-    categories: ["Sueldo Meme", "Sueldo Peter"],
+    categories: ["Pedro", "Mel"],
+  },
+  {
+    name: "Devolución",
+    type: "income",
+    categories: ["Isapre", "Seguro"],
   },
   {
     name: "Gastos fijos",
