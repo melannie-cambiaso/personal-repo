@@ -98,7 +98,7 @@ function GroupSection({
               <span className="text-right">Diferencia</span>
             </div>
 
-            {g.categories.map((cat) => {
+            {[...g.categories].sort((a, b) => a.localeCompare(b, "es")).map((cat) => {
               const actual = byCategory.get(cat) ?? 0;
               const planned = budget[cat] ?? 0;
               const diff = type === "income" ? actual - planned : planned - actual;
