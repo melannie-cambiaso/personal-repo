@@ -28,13 +28,13 @@ export const GROUPS: { name: string; type: "income" | "expense"; categories: str
       "Planes",
       "Psiquiatra",
       "DBT",
-      "Utiles de aseo"
+      "Utiles de aseo",
     ],
   },
   {
     name: "Remedios",
     type: "expense",
-    categories: ["Jardiance", "Omega 3", "Femalvi", "Duloxetina", "Gabapentina"],
+    categories: ["Jardiance", "Rosuvastatina", "Omega 3", "Femalvi", "Duloxetina", "Gabapentina"],
   },
   {
     name: "Suscripciones",
