@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { GROUPS } from "@/features/finance/domain";
+import { type Group } from "@/features/finance/data/kvAdapter";
 import { getBudgetForMonth } from "@/features/finance/data/financeActions";
 
 interface Props {
+  groups: Group[];
   initialBudget: Record<string, number>;
   initialActual: Record<string, number>;
   selectedMonth: string;
@@ -19,7 +20,7 @@ function prevMonth(month: string): string {
   return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
 }
 
-export function BudgetTab({ initialBudget, initialActual, selectedMonth, onSave, onSaveActual }: Props) {
+export function BudgetTab({ groups, initialBudget, initialActual, selectedMonth, onSave, onSaveActual }: Props) {
   const [budget, setBudget] = useState<Record<string, number>>(initialBudget);
   const [actual, setActual] = useState<Record<string, number>>(initialActual);
   const [inputKey, setInputKey] = useState(0);
@@ -47,12 +48,12 @@ export function BudgetTab({ initialBudget, initialActual, selectedMonth, onSave,
     setCopying(false);
   };
 
-  const incomeGroups = GROUPS.filter((g) => g.type === "income");
-  const expenseGroups = GROUPS.filter((g) => g.type === "expense");
+  const incomeGroups = groups.filter((g) => g.type === "income");
+  const expenseGroups = groups.filter((g) => g.type === "expense");
 
-  const sumBudget = (gs: (typeof GROUPS)[number][]) =>
+  const sumBudget = (gs: Group[]) =>
     gs.flatMap((g) => g.categories).reduce((s, c) => s + (budget[c] ?? 0), 0);
-  const sumActual = (gs: (typeof GROUPS)[number][]) =>
+  const sumActual = (gs: Group[]) =>
     gs.flatMap((g) => g.categories).reduce((s, c) => s + (actual[c] ?? 0), 0);
 
   const budgetIncome = sumBudget(incomeGroups);
@@ -115,7 +116,7 @@ function GroupSection({
   title, groups, budget, actual, isIncome, inputKey, onBlur, onBlurActual,
 }: {
   title: string;
-  groups: (typeof GROUPS)[number][];
+  groups: Group[];
   budget: Record<string, number>;
   actual: Record<string, number>;
   isIncome: boolean;

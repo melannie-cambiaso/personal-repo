@@ -1,5 +1,10 @@
 import "server-only";
 import { redis } from "@/shared/kv";
+import { DEFAULT_GROUPS } from "@/features/finance/domain";
+
+export type Group = { name: string; type: "income" | "expense"; categories: string[] }
+
+const CATEGORIES_KEY = "finance-categories";
 
 const budgetKey = (month: string) => `finance-budget:${month}`;
 
@@ -34,5 +39,25 @@ export async function saveActual(month: string, actual: Record<string, number>):
     await redis.set(actualKey(month), actual);
   } catch (e) {
     console.error("finance.saveActual failed", e);
+  }
+}
+
+export async function loadCategories(): Promise<Group[]> {
+  try {
+    const stored = await redis.get<Group[]>(CATEGORIES_KEY);
+    if (!stored || stored.length === 0) {
+      return DEFAULT_GROUPS;
+    }
+    return stored;
+  } catch {
+    return DEFAULT_GROUPS;
+  }
+}
+
+export async function saveCategories(groups: Group[]): Promise<void> {
+  try {
+    await redis.set(CATEGORIES_KEY, groups);
+  } catch {
+    // ponytail: swallow — caller has no recovery path; categories revert to in-memory state on next load
   }
 }
