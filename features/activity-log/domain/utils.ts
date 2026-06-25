@@ -1,4 +1,4 @@
-import type { ActivityLogEntry } from "./ActivityLogEntry";
+import type { ActivityLogEntry, Person } from "./ActivityLogEntry";
 
 export function groupByDay(
   entries: ActivityLogEntry[],
@@ -11,4 +11,18 @@ export function groupByDay(
   return Object.fromEntries(
     Object.entries(groups).sort(([a], [b]) => b.localeCompare(a)),
   );
+}
+
+export function isToday(dateStr: string): boolean {
+  return new Date().toISOString().slice(0, 10) === dateStr;
+}
+
+export function groupByPerson(
+  entries: ActivityLogEntry[],
+): Partial<Record<Person, ActivityLogEntry[]>> {
+  const groups: Partial<Record<Person, ActivityLogEntry[]>> = {};
+  for (const entry of entries) {
+    (groups[entry.person] ??= []).push(entry);
+  }
+  return groups;
 }

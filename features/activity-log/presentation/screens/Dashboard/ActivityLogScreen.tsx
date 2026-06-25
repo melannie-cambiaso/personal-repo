@@ -31,7 +31,7 @@ export function ActivityLogScreen({ initialEntries }: Props) {
         <div className="mt-8 flex justify-end">
           <AddButton onClick={() => setIsModalOpen(true)} label="Nueva actividad" />
         </div>
-        <ActivityLogList entries={entries} onDelete={handleDelete} />
+        <ActivityLogList entries={entries} onDelete={handleDelete} selectedMonth={selectedMonth} />
       </div>
 
       <AddActivityModal
