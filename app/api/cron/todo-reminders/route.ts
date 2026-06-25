@@ -1,7 +1,7 @@
 import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { loadTodoItems } from "@/features/todo/data/todoItems";
-import { sendWhatsApp } from "@/shared/twilio";
+import { sendDiscordMessage } from "@/shared/discord";
 
 export async function GET(request: NextRequest) {
   const auth = request.headers.get("authorization");
@@ -22,21 +22,12 @@ export async function GET(request: NextRequest) {
   const bullets = pending.map((i) => `• ${i.title}`).join("\n");
   const message = `🗒️ Recordatorio diario — Pendientes\n${bullets}\n\n(${pending.length} tareas pendientes)`;
 
-  const recipients = [
-    process.env.WHATSAPP_PHONE_PEDRO!,
-    process.env.WHATSAPP_PHONE_MEME!,
-  ];
-
   try {
-    await Promise.all(recipients.map((to) => sendWhatsApp(to, message)));
+    await sendDiscordMessage(message);
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
   }
 
-  return NextResponse.json({
-    sent: true,
-    recipients: recipients.length,
-    itemCount: pending.length,
-  });
+  return NextResponse.json({ sent: true, itemCount: pending.length });
 }
