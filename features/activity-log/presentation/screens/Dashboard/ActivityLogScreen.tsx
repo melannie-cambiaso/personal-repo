@@ -31,7 +31,7 @@ export function ActivityLogScreen({ initialEntries }: Props) {
           href="/"
           className="absolute left-4 top-4 flex items-center gap-1 text-sm text-cream-100/70 hover:text-cream-100"
         >
-          ← Volver
+          ← Inicio
         </Link>
         <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-cream-100/60">
           Registro de actividades
@@ -40,7 +40,11 @@ export function ActivityLogScreen({ initialEntries }: Props) {
       </div>
 
       <div className="mx-auto w-full max-w-2xl px-6 py-10">
-        <div className="mb-6 flex justify-end">
+        <ActivityLogMonthNav month={selectedMonth} onChange={setSelectedMonth} />
+
+        <ActivityLogList entries={entries} onDelete={handleDelete} />
+
+        <div className="mt-8 flex justify-end">
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
@@ -49,10 +53,6 @@ export function ActivityLogScreen({ initialEntries }: Props) {
             + Nueva actividad
           </button>
         </div>
-
-        <ActivityLogMonthNav month={selectedMonth} onChange={setSelectedMonth} />
-
-        <ActivityLogList entries={entries} onDelete={handleDelete} />
       </div>
 
       <AddActivityModal
