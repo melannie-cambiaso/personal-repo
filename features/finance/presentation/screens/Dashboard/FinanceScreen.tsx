@@ -56,11 +56,11 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
     setIsTxModalOpen(true);
   };
 
-  const handleAddTransaction = async (category: string, amount: number) => {
-    await addTransaction(selectedMonth, category, amount);
+  const handleAddTransaction = async (category: string, amount: number, note?: string) => {
+    await addTransaction(selectedMonth, category, amount, note);
     setTransactions((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), category, amount, createdAt: new Date().toISOString() },
+      { id: crypto.randomUUID(), category, amount, ...(note?.trim() && { note: note.trim() }), createdAt: new Date().toISOString() },
     ]);
   };
 

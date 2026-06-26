@@ -62,7 +62,7 @@ export async function getTransactionsForMonth(month: string): Promise<FinanceTra
   return loadTransactions(month);
 }
 
-export async function addTransaction(month: string, category: string, amount: number): Promise<void> {
+export async function addTransaction(month: string, category: string, amount: number, note?: string): Promise<void> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;
 
@@ -71,6 +71,7 @@ export async function addTransaction(month: string, category: string, amount: nu
     id: crypto.randomUUID(),
     category,
     amount,
+    ...(note?.trim() && { note: note.trim() }),
     createdAt: new Date().toISOString(),
   });
   await saveTransactions(month, txs);

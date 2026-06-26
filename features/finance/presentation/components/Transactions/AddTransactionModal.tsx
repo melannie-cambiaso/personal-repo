@@ -9,7 +9,7 @@ interface AddTransactionModalProps {
   initialCategory: string;
   allCategories: string[];
   transactions: FinanceTransaction[];
-  onAdd: (category: string, amount: number) => Promise<void>;
+  onAdd: (category: string, amount: number, note?: string) => Promise<void>;
   onDelete: (txId: string) => Promise<void>;
 }
 
@@ -27,6 +27,7 @@ export function AddTransactionModal({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [amount, setAmount] = useState("");
+  const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export function AddTransactionModal({
     if (isOpen) {
       setSelectedCategory(initialCategory);
       setAmount("");
+      setNote("");
       dialog.showModal();
     } else {
       dialog.close();
@@ -47,8 +49,9 @@ export function AddTransactionModal({
     if (!parsed || parsed <= 0) return;
     setSubmitting(true);
     try {
-      await onAdd(selectedCategory, parsed);
+      await onAdd(selectedCategory, parsed, note || undefined);
       setAmount("");
+      setNote("");
     } finally {
       setSubmitting(false);
     }
@@ -109,6 +112,17 @@ export function AddTransactionModal({
             />
           </Field>
 
+          <Field label="Nota (opcional)">
+            <input
+              className={input}
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="ej: super del martes"
+              maxLength={120}
+            />
+          </Field>
+
           <div className="flex justify-end gap-3">
             <button type="button" onClick={onClose} className={btnSecondary}>
               Cancelar
@@ -133,7 +147,10 @@ export function AddTransactionModal({
                   key={tx.id}
                   className="flex items-center justify-between rounded-lg border border-cream-200 bg-white px-3 py-2"
                 >
-                  <span className="text-sm text-brown-700">{fmt(tx.amount)}</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-brown-700">{fmt(tx.amount)}</span>
+                    {tx.note && <span className="text-2xs text-brown-400">{tx.note}</span>}
+                  </div>
                   <button
                     type="button"
                     onClick={() => onDelete(tx.id)}
