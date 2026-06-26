@@ -25,24 +25,6 @@ export async function saveBudget(month: string, budget: Record<string, number>):
   }
 }
 
-const actualKey = (month: string) => `finance-actual:${month}`;
-
-export async function loadActual(month: string): Promise<Record<string, number>> {
-  try {
-    return (await redis.get<Record<string, number>>(actualKey(month))) ?? {};
-  } catch {
-    return {};
-  }
-}
-
-export async function saveActual(month: string, actual: Record<string, number>): Promise<void> {
-  try {
-    await redis.set(actualKey(month), actual);
-  } catch (e) {
-    console.error("finance.saveActual failed", e);
-  }
-}
-
 export async function loadCategories(): Promise<Group[]> {
   try {
     const stored = await redis.get<Group[]>(CATEGORIES_KEY);
