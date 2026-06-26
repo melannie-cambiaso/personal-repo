@@ -1,6 +1,7 @@
 import "server-only";
 import { redis } from "@/shared/kv";
 import { DEFAULT_GROUPS } from "@/features/finance/domain";
+import type { FinanceTransaction } from "@/features/finance/domain";
 
 export type Group = { name: string; type: "income" | "expense"; categories: string[] }
 
@@ -59,5 +60,23 @@ export async function saveCategories(groups: Group[]): Promise<void> {
     await redis.set(CATEGORIES_KEY, groups);
   } catch {
     // ponytail: swallow — caller has no recovery path; categories revert to in-memory state on next load
+  }
+}
+
+const transactionsKey = (month: string) => `finance-transactions:${month}`;
+
+export async function loadTransactions(month: string): Promise<FinanceTransaction[]> {
+  try {
+    return (await redis.get<FinanceTransaction[]>(transactionsKey(month))) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveTransactions(month: string, txs: FinanceTransaction[]): Promise<void> {
+  try {
+    await redis.set(transactionsKey(month), txs);
+  } catch (e) {
+    console.error("finance.saveTransactions failed", e);
   }
 }

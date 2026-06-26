@@ -1,0 +1,121 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { FinanceTransaction } from "@/features/finance/domain";
+
+const cookiesGetMock = vi.hoisted(() => vi.fn());
+const revalidatePathMock = vi.hoisted(() => vi.fn());
+const loadTransactionsMock = vi.hoisted(() => vi.fn());
+const saveTransactionsMock = vi.hoisted(() => vi.fn());
+
+vi.mock("next/headers", () => ({
+  cookies: () => ({ get: cookiesGetMock }),
+}));
+vi.mock("next/cache", () => ({ revalidatePath: revalidatePathMock }));
+vi.mock("./kvAdapter", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./kvAdapter")>();
+  return {
+    ...actual,
+    loadTransactions: loadTransactionsMock,
+    saveTransactions: saveTransactionsMock,
+  };
+});
+
+import { getTransactionsForMonth, addTransaction, deleteTransaction } from "./financeActions";
+
+const tx = (overrides: Partial<FinanceTransaction> = {}): FinanceTransaction => ({
+  id: "abc-1",
+  category: "Comida",
+  amount: 500,
+  createdAt: "2026-06-01T00:00:00Z",
+  ...overrides,
+});
+
+const withAuth = () => cookiesGetMock.mockReturnValue({ value: "token" });
+const withoutAuth = () => cookiesGetMock.mockReturnValue(undefined);
+
+describe("getTransactionsForMonth", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns empty array when not authenticated", async () => {
+    withoutAuth();
+    const result = await getTransactionsForMonth("2026-06");
+    expect(result).toEqual([]);
+    expect(loadTransactionsMock).not.toHaveBeenCalled();
+  });
+
+  it("returns transactions from kvAdapter when authenticated", async () => {
+    withAuth();
+    const stored = [tx()];
+    loadTransactionsMock.mockResolvedValue(stored);
+    const result = await getTransactionsForMonth("2026-06");
+    expect(result).toEqual(stored);
+    expect(loadTransactionsMock).toHaveBeenCalledWith("2026-06");
+  });
+});
+
+describe("addTransaction", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing when not authenticated", async () => {
+    withoutAuth();
+    await addTransaction("2026-06", "Comida", 500);
+    expect(loadTransactionsMock).not.toHaveBeenCalled();
+    expect(saveTransactionsMock).not.toHaveBeenCalled();
+  });
+
+  it("appends a new transaction and saves when authenticated", async () => {
+    withAuth();
+    const existing = [tx()];
+    loadTransactionsMock.mockResolvedValue(existing);
+    saveTransactionsMock.mockResolvedValue(undefined);
+
+    await addTransaction("2026-06", "Planes", 300);
+
+    const savedTxs: FinanceTransaction[] = saveTransactionsMock.mock.calls[0][1];
+    expect(savedTxs).toHaveLength(2);
+    const newTx = savedTxs[1];
+    expect(newTx.category).toBe("Planes");
+    expect(newTx.amount).toBe(300);
+    expect(typeof newTx.id).toBe("string");
+    expect(typeof newTx.createdAt).toBe("string");
+  });
+
+  it("calls revalidatePath('/finance') after saving", async () => {
+    withAuth();
+    loadTransactionsMock.mockResolvedValue([]);
+    saveTransactionsMock.mockResolvedValue(undefined);
+    await addTransaction("2026-06", "Comida", 100);
+    expect(revalidatePathMock).toHaveBeenCalledWith("/finance");
+  });
+});
+
+describe("deleteTransaction", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing when not authenticated", async () => {
+    withoutAuth();
+    await deleteTransaction("2026-06", "abc-1");
+    expect(loadTransactionsMock).not.toHaveBeenCalled();
+    expect(saveTransactionsMock).not.toHaveBeenCalled();
+  });
+
+  it("removes the matching transaction by id and saves", async () => {
+    withAuth();
+    const existing = [tx({ id: "abc-1" }), tx({ id: "abc-2", amount: 200 })];
+    loadTransactionsMock.mockResolvedValue(existing);
+    saveTransactionsMock.mockResolvedValue(undefined);
+
+    await deleteTransaction("2026-06", "abc-1");
+
+    const savedTxs: FinanceTransaction[] = saveTransactionsMock.mock.calls[0][1];
+    expect(savedTxs).toHaveLength(1);
+    expect(savedTxs[0].id).toBe("abc-2");
+  });
+
+  it("calls revalidatePath('/finance') after deleting", async () => {
+    withAuth();
+    loadTransactionsMock.mockResolvedValue([tx()]);
+    saveTransactionsMock.mockResolvedValue(undefined);
+    await deleteTransaction("2026-06", "abc-1");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/finance");
+  });
+});
