@@ -3,14 +3,16 @@
 import { useState } from "react";
 import { type Group } from "@/features/finance/data/kvAdapter";
 import { getBudgetForMonth } from "@/features/finance/data/financeActions";
+import { computeActualFromTransactions } from "@/features/finance/domain";
+import type { FinanceTransaction } from "@/features/finance/domain";
 
 interface Props {
   groups: Group[];
   initialBudget: Record<string, number>;
-  initialActual: Record<string, number>;
+  transactions: FinanceTransaction[];
   selectedMonth: string;
   onSave: (budget: Record<string, number>) => Promise<void>;
-  onSaveActual: (actual: Record<string, number>) => Promise<void>;
+  onOpenTransaction: (category: string) => void;
 }
 
 const fmt = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
@@ -20,23 +22,18 @@ function prevMonth(month: string): string {
   return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
 }
 
-export function BudgetTab({ groups, initialBudget, initialActual, selectedMonth, onSave, onSaveActual }: Props) {
+export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, onSave, onOpenTransaction }: Props) {
   const [budget, setBudget] = useState<Record<string, number>>(initialBudget);
-  const [actual, setActual] = useState<Record<string, number>>(initialActual);
   const [inputKey, setInputKey] = useState(0);
   const [refMonth, setRefMonth] = useState(prevMonth(selectedMonth));
   const [copying, setCopying] = useState(false);
+
+  const actual = computeActualFromTransactions(transactions);
 
   const handleBlur = (category: string, raw: string) => {
     const next = { ...budget, [category]: Math.max(0, Number(raw) || 0) };
     setBudget(next);
     onSave(next);
-  };
-
-  const handleBlurActual = (category: string, raw: string) => {
-    const next = { ...actual, [category]: Math.max(0, Number(raw) || 0) };
-    setActual(next);
-    onSaveActual(next);
   };
 
   const handleCopy = async () => {
@@ -92,8 +89,26 @@ export function BudgetTab({ groups, initialBudget, initialActual, selectedMonth,
         </div>
       </div>
 
-      <GroupSection title="Ingresos" groups={incomeGroups} budget={budget} actual={actual} isIncome inputKey={inputKey} onBlur={handleBlur} onBlurActual={handleBlurActual} />
-      <GroupSection title="Gastos" groups={expenseGroups} budget={budget} actual={actual} isIncome={false} inputKey={inputKey} onBlur={handleBlur} onBlurActual={handleBlurActual} />
+      <GroupSection
+        title="Ingresos"
+        groups={incomeGroups}
+        budget={budget}
+        actual={actual}
+        isIncome
+        inputKey={inputKey}
+        onBlur={handleBlur}
+        onOpenTransaction={onOpenTransaction}
+      />
+      <GroupSection
+        title="Gastos"
+        groups={expenseGroups}
+        budget={budget}
+        actual={actual}
+        isIncome={false}
+        inputKey={inputKey}
+        onBlur={handleBlur}
+        onOpenTransaction={onOpenTransaction}
+      />
     </div>
   );
 }
@@ -113,7 +128,7 @@ function SummaryCard({ label, budget, actual, positive }: { label: string; budge
 }
 
 function GroupSection({
-  title, groups, budget, actual, isIncome, inputKey, onBlur, onBlurActual,
+  title, groups, budget, actual, isIncome, inputKey, onBlur, onOpenTransaction,
 }: {
   title: string;
   groups: Group[];
@@ -122,7 +137,7 @@ function GroupSection({
   isIncome: boolean;
   inputKey: number;
   onBlur: (category: string, value: string) => void;
-  onBlurActual: (category: string, value: string) => void;
+  onOpenTransaction: (category: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -163,15 +178,16 @@ function GroupSection({
                       className="w-24 rounded-lg border border-cream-400 bg-cream-50 px-2 py-1 text-right text-sm text-brown-900 outline-none focus:border-brown-600"
                     />
                   </div>
-                  <div className="flex justify-end">
-                    <input
-                      type="number"
-                      min="0"
-                      defaultValue={real || ""}
-                      placeholder="0"
-                      onBlur={(e) => onBlurActual(cat, e.target.value)}
-                      className="w-24 rounded-lg border border-cream-400 bg-cream-50 px-2 py-1 text-right text-sm text-brown-900 outline-none focus:border-brown-600"
-                    />
+                  <div className="flex items-center justify-end gap-1">
+                    <span className="text-sm text-brown-900">{real > 0 ? fmt(real) : "—"}</span>
+                    <button
+                      type="button"
+                      onClick={() => onOpenTransaction(cat)}
+                      className="cursor-pointer rounded-md border border-cream-400 px-1.5 py-0.5 text-xs text-brown-500 transition-colors hover:border-brown-600 hover:text-brown-800"
+                      aria-label={`Agregar transacción para ${cat}`}
+                    >
+                      +
+                    </button>
                   </div>
                   <span className={`text-right text-sm font-semibold ${diff > 0 ? "text-green-600" : diff < 0 ? "text-red-500" : "text-brown-400"}`}>
                     {diff !== 0 ? `${diff > 0 ? "+" : ""}${fmt(diff)}` : "—"}

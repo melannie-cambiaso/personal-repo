@@ -1,22 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getBudgetForMonth, getActualForMonth, addCategory, deleteCategory } from "@/features/finance/data/financeActions";
+import { getBudgetForMonth, getTransactionsForMonth, addTransaction, deleteTransaction, addCategory, deleteCategory } from "@/features/finance/data/financeActions";
 import { type Group } from "@/features/finance/data/kvAdapter";
-import { BudgetTab, CategoriesTab, FinanceMonthNav } from "../../components";
+import type { FinanceTransaction } from "@/features/finance/domain";
+import { BudgetTab, CategoriesTab, FinanceMonthNav, AddTransactionModal } from "../../components";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
 
 interface Props {
   initialBudget: Record<string, number>;
-  initialActual: Record<string, number>;
+  initialTransactions: FinanceTransaction[];
   initialCategories: Group[];
   onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
-  onSaveActual: (month: string, actual: Record<string, number>) => Promise<void>;
 }
 
 function currentMonth(): string {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "00")}`;
 }
 
 function prevMonth(m: string): string {
@@ -29,28 +29,47 @@ function nextMonth(m: string): string {
   return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, "0")}`;
 }
 
-export function FinanceScreen({ initialBudget, initialActual, initialCategories, onSaveBudget, onSaveActual }: Props) {
+export function FinanceScreen({ initialBudget, initialTransactions, initialCategories, onSaveBudget }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth());
   const [monthBudget, setMonthBudget] = useState<Record<string, number>>(initialBudget);
-  const [monthActual, setMonthActual] = useState<Record<string, number>>(initialActual);
   const [budgetLoadedFor, setBudgetLoadedFor] = useState(selectedMonth);
   const [groups, setGroups] = useState<Group[]>(initialCategories);
   const [activeTab, setActiveTab] = useState<"budget" | "categories">("budget");
+  const [transactions, setTransactions] = useState<FinanceTransaction[]>(initialTransactions);
+  const [isTxModalOpen, setIsTxModalOpen] = useState(false);
+  const [activeTxCategory, setActiveTxCategory] = useState("");
 
   useEffect(() => {
     if (budgetLoadedFor === selectedMonth) return;
     Promise.all([
       getBudgetForMonth(selectedMonth),
-      getActualForMonth(selectedMonth),
-    ]).then(([b, a]) => {
+      getTransactionsForMonth(selectedMonth),
+    ]).then(([b, txs]) => {
       setMonthBudget(b);
-      setMonthActual(a);
+      setTransactions(txs);
       setBudgetLoadedFor(selectedMonth);
     });
   }, [selectedMonth, budgetLoadedFor]);
 
+  const handleOpenTransaction = (category: string) => {
+    setActiveTxCategory(category);
+    setIsTxModalOpen(true);
+  };
+
+  const handleAddTransaction = async (category: string, amount: number) => {
+    await addTransaction(selectedMonth, category, amount);
+    setTransactions((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), category, amount, createdAt: new Date().toISOString() },
+    ]);
+  };
+
+  const handleDeleteTransaction = async (txId: string) => {
+    await deleteTransaction(selectedMonth, txId);
+    setTransactions((prev) => prev.filter((tx) => tx.id !== txId));
+  };
+
   const handleAddCategory = async (groupName: string, category: string): Promise<void> => {
-    // Optimistic update
     setGroups((prev) =>
       prev.map((g) =>
         g.name === groupName ? { ...g, categories: [...g.categories, category] } : g
@@ -59,7 +78,6 @@ export function FinanceScreen({ initialBudget, initialActual, initialCategories,
     try {
       await addCategory(groupName, category);
     } catch (err) {
-      // Revert on failure
       setGroups((prev) =>
         prev.map((g) =>
           g.name === groupName
@@ -72,7 +90,6 @@ export function FinanceScreen({ initialBudget, initialActual, initialCategories,
   };
 
   const handleDeleteCategory = async (groupName: string, category: string): Promise<void> => {
-    // Optimistic update
     setGroups((prev) =>
       prev.map((g) =>
         g.name === groupName ? { ...g, categories: g.categories.filter((c) => c !== category) } : g
@@ -81,7 +98,6 @@ export function FinanceScreen({ initialBudget, initialActual, initialCategories,
     try {
       await deleteCategory(groupName, category);
     } catch (err) {
-      // Revert on failure
       setGroups((prev) =>
         prev.map((g) =>
           g.name === groupName ? { ...g, categories: [...g.categories, category] } : g
@@ -90,6 +106,8 @@ export function FinanceScreen({ initialBudget, initialActual, initialCategories,
       throw err;
     }
   };
+
+  const allCategories = groups.flatMap((g) => g.categories);
 
   return (
     <main className="flex flex-1 flex-col">
@@ -131,10 +149,10 @@ export function FinanceScreen({ initialBudget, initialActual, initialCategories,
               key={budgetLoadedFor}
               groups={groups}
               initialBudget={monthBudget}
-              initialActual={monthActual}
+              transactions={transactions}
               selectedMonth={selectedMonth}
               onSave={(b) => onSaveBudget(selectedMonth, b)}
-              onSaveActual={(a) => onSaveActual(selectedMonth, a)}
+              onOpenTransaction={handleOpenTransaction}
             />
           </>
         )}
@@ -147,6 +165,16 @@ export function FinanceScreen({ initialBudget, initialActual, initialCategories,
           />
         )}
       </div>
+
+      <AddTransactionModal
+        isOpen={isTxModalOpen}
+        onClose={() => setIsTxModalOpen(false)}
+        initialCategory={activeTxCategory}
+        allCategories={allCategories}
+        transactions={transactions}
+        onAdd={handleAddTransaction}
+        onDelete={handleDeleteTransaction}
+      />
     </main>
   );
 }
