@@ -83,9 +83,9 @@ export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, 
           <span className="text-sm font-semibold text-brown-800">Balance</span>
         </div>
         <div className="grid grid-cols-3 gap-3 p-4">
-          <SummaryCard label="Ingresos" budget={budgetIncome} actual={actualIncome} positive />
-          <SummaryCard label="Gastos" budget={budgetExpense} actual={actualExpense} positive={false} />
-          <SummaryCard label="Neto" budget={budgetIncome - budgetExpense} actual={actualIncome - actualExpense} positive />
+          <SummaryCard label="Ingresos" budget={budgetIncome} actual={actualIncome} />
+          <SummaryCard label="Gastos" budget={budgetExpense} actual={actualExpense} pendingAmount={budgetExpense - actualExpense} />
+          <SummaryCard label="Neto" budget={budgetIncome - budgetExpense} actual={actualIncome - actualExpense} />
         </div>
       </div>
 
@@ -113,16 +113,19 @@ export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, 
   );
 }
 
-function SummaryCard({ label, budget, actual, positive }: { label: string; budget: number; actual: number; positive: boolean }) {
-  const diff = positive ? actual - budget : budget - actual;
+export function SummaryCard({ label, budget, actual, pendingAmount }: { label: string; budget: number; actual: number; pendingAmount?: number }) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-cream-200 p-3 text-center">
+    <div className="flex flex-col gap-1 rounded-lg border border-cream-200 p-3 text-center min-h-[6rem]">
       <span className="text-2xs font-semibold uppercase tracking-wide text-brown-400">{label}</span>
       <span className="text-xs text-brown-500">Presup. {fmt(budget)}</span>
       <span className="text-sm font-bold text-brown-900">Real {fmt(actual)}</span>
-      <span className={`text-xs font-semibold ${diff > 0 ? "text-green-600" : diff < 0 ? "text-red-500" : "text-brown-400"}`}>
-        {diff !== 0 ? `${diff > 0 ? "+" : ""}${fmt(diff)}` : "—"}
-      </span>
+      {pendingAmount !== undefined && (
+        <span className={`text-xs font-semibold ${pendingAmount < 0 ? "text-red-500" : "text-brown-400"}`}>
+          {pendingAmount < 0
+            ? `Excedido ${fmt(Math.abs(pendingAmount))}`
+            : `Pendiente ${fmt(pendingAmount)}`}
+        </span>
+      )}
     </div>
   );
 }
