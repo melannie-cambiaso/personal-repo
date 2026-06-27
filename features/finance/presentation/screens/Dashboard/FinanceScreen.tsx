@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { getBudgetForMonth, getTransactionsForMonth, addTransaction, deleteTransaction, addCategory, deleteCategory } from "@/features/finance/data/financeActions";
 import { type Group } from "@/features/finance/data/kvAdapter";
 import type { FinanceTransaction } from "@/features/finance/domain";
-import { BudgetTab, CategoriesTab, FinanceMonthNav, AddTransactionModal } from "../../components";
+import { BudgetTab, CategoriesTab, FinanceMonthNav, AddTransactionModal, TransactionsTab } from "../../components";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
 
 interface Props {
@@ -34,7 +34,7 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
   const [monthBudget, setMonthBudget] = useState<Record<string, number>>(initialBudget);
   const [budgetLoadedFor, setBudgetLoadedFor] = useState(selectedMonth);
   const [groups, setGroups] = useState<Group[]>(initialCategories);
-  const [activeTab, setActiveTab] = useState<"budget" | "categories">("budget");
+  const [activeTab, setActiveTab] = useState<"budget" | "categories" | "transactions">("budget");
   const [transactions, setTransactions] = useState<FinanceTransaction[]>(initialTransactions);
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [activeTxCategory, setActiveTxCategory] = useState("");
@@ -135,6 +135,16 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
           >
             Categorías
           </button>
+          <button
+            onClick={() => setActiveTab("transactions")}
+            className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+              activeTab === "transactions"
+                ? "bg-brown-800 text-white"
+                : "bg-cream-100 text-brown-600 hover:bg-cream-200"
+            }`}
+          >
+            Transacciones
+          </button>
         </div>
 
         {activeTab === "budget" && (
@@ -164,6 +174,14 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
             onDelete={handleDeleteCategory}
           />
         )}
+
+        {activeTab === "transactions" && (
+          <TransactionsTab
+            transactions={transactions}
+            groups={groups}
+            onDelete={handleDeleteTransaction}
+          />
+        )}
       </div>
 
       <AddTransactionModal
@@ -171,9 +189,7 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
         onClose={() => setIsTxModalOpen(false)}
         initialCategory={activeTxCategory}
         allCategories={allCategories}
-        transactions={transactions}
         onAdd={handleAddTransaction}
-        onDelete={handleDeleteTransaction}
       />
     </main>
   );

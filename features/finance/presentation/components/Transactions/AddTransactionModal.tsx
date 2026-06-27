@@ -1,28 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { FinanceTransaction } from "@/features/finance/domain";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialCategory: string;
   allCategories: string[];
-  transactions: FinanceTransaction[];
   onAdd: (category: string, amount: number, note?: string) => Promise<void>;
-  onDelete: (txId: string) => Promise<void>;
 }
-
-const fmt = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
 
 export function AddTransactionModal({
   isOpen,
   onClose,
   initialCategory,
   allCategories,
-  transactions,
   onAdd,
-  onDelete,
 }: AddTransactionModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -56,8 +49,6 @@ export function AddTransactionModal({
       setSubmitting(false);
     }
   };
-
-  const filteredTxs = transactions.filter((tx) => tx.category === selectedCategory);
 
   return (
     <dialog
@@ -133,37 +124,6 @@ export function AddTransactionModal({
           </div>
         </form>
 
-        <div className="mt-6">
-          <span className="mb-3 block text-2xs font-semibold uppercase tracking-wide text-brown-400">
-            Transacciones — {selectedCategory}
-          </span>
-
-          {filteredTxs.length === 0 ? (
-            <p className="text-sm text-brown-400">Sin transacciones para esta categoría</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {filteredTxs.map((tx) => (
-                <li
-                  key={tx.id}
-                  className="flex items-center justify-between rounded-lg border border-cream-200 bg-white px-3 py-2"
-                >
-                  <div className="flex flex-col">
-                    <span className="text-sm text-brown-700">{fmt(tx.amount)}</span>
-                    {tx.note && <span className="text-2xs text-brown-400">{tx.note}</span>}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(tx.id)}
-                    className="cursor-pointer text-xs text-brown-400 transition-colors hover:text-red-500"
-                    aria-label="Eliminar transacción"
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
       </div>
     </dialog>
   );
