@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { SavingsGoal } from "@/features/savings/domain";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button } from "@/shared/components";
@@ -15,15 +15,11 @@ interface Props {
 export function EditGoalModal({ goal, onClose, onSave }: Props) {
   const isOpen = goal !== null;
 
-  const [form, setForm] = useState({ name: "", targetAmount: "" });
+  const [form, setForm] = useState({
+    name: goal?.name ?? "",
+    targetAmount: goal ? String(goal.targetAmount) : "",
+  });
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isOpen && goal) {
-      setForm({ name: goal.name, targetAmount: String(goal.targetAmount) });
-      setError(null);
-    }
-  }, [isOpen, goal]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

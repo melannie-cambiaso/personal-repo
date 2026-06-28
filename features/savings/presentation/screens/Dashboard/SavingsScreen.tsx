@@ -145,6 +145,7 @@ export function SavingsScreen({
         onAdd={(data) => { handleAdd(data); setAddGoalOpen(false); }}
       />
       <EditGoalModal
+        key={editingGoal?.id}
         goal={editingGoal}
         onClose={() => setEditingGoal(null)}
         onSave={(id, data) => { handleEdit(id, data); setEditingGoal(null); }}
