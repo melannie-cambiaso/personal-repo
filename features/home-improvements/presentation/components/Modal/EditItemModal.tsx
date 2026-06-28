@@ -138,10 +138,10 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
           />
         </Field>
         <div className="mt-2 flex justify-end gap-3">
-          <Button type="button" onPress={onClose} className="secondary">
+          <Button type="button" onPress={onClose} variant="secondary">
             Cancelar
           </Button>
-          <Button type="submit" className="primary">
+          <Button type="submit" variant="primary">
             Guardar ✓
           </Button>
         </div>

@@ -65,10 +65,10 @@ export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
         </Field>
         {error && <p className="text-xs text-red-600">{error}</p>}
         <div className="mt-2 flex justify-end gap-3">
-          <Button type="button" onPress={onClose} className="secondary">
+          <Button type="button" onPress={onClose} variant="secondary">
             Cancelar
           </Button>
-          <Button type="submit" className="primary">
+          <Button type="submit" variant="primary">
             Agregar ✓
           </Button>
         </div>

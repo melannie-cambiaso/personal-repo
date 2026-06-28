@@ -9,6 +9,15 @@ export function Textarea({ className, ...props }: React.TextareaHTMLAttributes<H
   return <textarea className={className ? `${inputClass} resize-none ${className}` : `${inputClass} resize-none`} {...props} />;
 }
 
-export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={className ? `${inputClass} ${className}` : inputClass} {...props} />;
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+export function Select({ className, options, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { options?: SelectOption[] }) {
+  return (
+    <select className={className ? `${inputClass} ${className}` : inputClass} {...props}>
+      {options ? options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>) : children}
+    </select>
+  );
 }

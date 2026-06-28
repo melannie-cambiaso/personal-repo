@@ -30,16 +30,13 @@ export function DeleteZoneConfirmModal({ zone, itemCount, onConfirm, onCancel }:
         . Si la eliminás, se borrarán también. Esta acción no se puede deshacer.
       </p>
       <div className="flex justify-end gap-3">
-        <Button type="button" onPress={onCancel} className="secondary">
+        <Button type="button" onPress={onCancel} variant="secondary">
           Cancelar
         </Button>
-        <button type="button" onClick={onConfirm} className={btnDanger}>
+        <Button type="button" onPress={onConfirm} variant="danger">
           Eliminar todo
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );
 }
-
-const btnDanger =
-  "cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-2xs font-bold text-white transition-colors hover:bg-red-700";

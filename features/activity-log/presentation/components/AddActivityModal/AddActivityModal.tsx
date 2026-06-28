@@ -123,10 +123,10 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
         </Field>
 
         <div className="mt-2 flex justify-end gap-3">
-          <Button type="button" onPress={onClose} className="secondary">
+          <Button type="button" onPress={onClose} variant="secondary">
             Cancelar
           </Button>
-          <Button type="submit" disabled={submitting} className="primary">
+          <Button type="submit" disabled={submitting} variant="primary">
             {submitting ? "Guardando..." : "Agregar ✓"}
           </Button>
         </div>

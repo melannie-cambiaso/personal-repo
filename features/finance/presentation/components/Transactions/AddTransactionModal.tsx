@@ -85,10 +85,10 @@ export function AddTransactionModal({
         </Field>
 
         <div className="flex justify-end gap-3">
-          <Button onPress={onClose} type="button" className="secondary">
+          <Button onPress={onClose} type="button" variant="secondary">
             Cancelar
           </Button>
-          <Button type="submit" disabled={submitting} className="primary">
+          <Button type="submit" disabled={submitting} variant="primary">
             {submitting ? "Guardando..." : "Agregar ✓"}
           </Button>
         </div>

@@ -48,10 +48,10 @@ export function EditZoneModal({ isOpen, zone, onClose, onSave }: Props) {
         </Field>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="mt-2 flex justify-end gap-3">
-          <Button type="button" onPress={onClose} className="secondary">
+          <Button type="button" onPress={onClose} variant="secondary">
             Cancelar
           </Button>
-          <Button type="submit" className="secondary">
+          <Button type="submit" variant="secondary">
             Guardar ✓
           </Button>
         </div>

@@ -77,10 +77,10 @@ export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Prop
           </Field>
 
           <div className="mt-2 flex justify-end gap-3">
-            <Button type="button" onPress={onClose} className="secondary">
+            <Button type="button" onPress={onClose} variant="secondary">
               Cancelar
             </Button>
-            <Button type="submit" className="primary">
+            <Button type="submit" variant="primary">
               Agregar ✓
             </Button>
           </div>
