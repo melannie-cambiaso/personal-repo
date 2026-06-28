@@ -5,7 +5,7 @@ import { CATEGORIES } from "@/features/wishlist/data";
 import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, inputClass } from "@/shared/components";
+import { Button, Field, Input, Textarea, Select } from "@/shared/components";
 
 interface Props {
   isOpen: boolean;
@@ -74,29 +74,28 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <Field label="Título *">
-              <input className={inputClass} value={form.title} onChange={set("title")} required />
+              <Input value={form.title} onChange={set("title")} required />
             </Field>
             <Field label="Marca / Tienda *">
-              <input className={inputClass} value={form.brand} onChange={set("brand")} required />
+              <Input value={form.brand} onChange={set("brand")} required />
             </Field>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Categoría *">
-              <select className={inputClass} value={form.categoryKey} onChange={set("categoryKey")} required>
+              <Select value={form.categoryKey} onChange={set("categoryKey")} required>
                 {Object.entries(CATEGORIES).map(([key, cat]) => (
                   <option key={key} value={key}>{cat.name}</option>
                 ))}
-              </select>
+              </Select>
             </Field>
             <Field label="Emoji *">
-              <input className={inputClass} value={form.emoji} onChange={set("emoji")} required placeholder="☕" />
+              <Input value={form.emoji} onChange={set("emoji")} required placeholder="☕" />
             </Field>
           </div>
 
           <Field label="Descripción *">
-            <textarea
-              className={`${inputClass} resize-none`}
+            <Textarea
               rows={3}
               value={form.description}
               onChange={set("description")}
@@ -106,19 +105,19 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Precio (CLP)">
-              <input className={inputClass} type="number" min="0" value={form.price} onChange={set("price")} placeholder="23990" />
+              <Input type="number" min="0" value={form.price} onChange={set("price")} placeholder="23990" />
             </Field>
             <Field label="Tag">
-              <input className={inputClass} value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
+              <Input value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
             </Field>
           </div>
 
           <Field label="URL del producto">
-            <input className={inputClass} type="url" value={form.url} onChange={set("url")} placeholder="https://..." />
+            <Input type="url" value={form.url} onChange={set("url")} placeholder="https://..." />
           </Field>
 
           <Field label="URL de imagen">
-            <input className={inputClass} type="url" value={form.image} onChange={set("image")} placeholder="https://..." />
+            <Input type="url" value={form.image} onChange={set("image")} placeholder="https://..." />
           </Field>
 
           <div className="mt-2 flex justify-end gap-3">

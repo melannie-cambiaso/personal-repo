@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { SavingsGoal } from "@/features/savings/domain";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, inputClass } from "@/shared/components";
+import { Button, Field, Input } from "@/shared/components";
 
 interface Props {
   goal: SavingsGoal | null;
@@ -45,8 +45,7 @@ export function EditGoalModal({ goal, onClose, onSave }: Props) {
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Editar meta">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Nombre *">
-          <input
-            className={inputClass}
+          <Input
             type="text"
             maxLength={60}
             value={form.name}
@@ -55,8 +54,7 @@ export function EditGoalModal({ goal, onClose, onSave }: Props) {
           />
         </Field>
         <Field label="Monto objetivo * ($)">
-          <input
-            className={inputClass}
+          <Input
             type="number"
             min="0.01"
             step="0.01"

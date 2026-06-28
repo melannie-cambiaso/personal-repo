@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, inputClass } from "@/shared/components";
+import { Button, Field, Input, Select } from "@/shared/components";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -50,8 +50,7 @@ export function AddTransactionModal({
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Registrar gasto">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Categoría">
-          <select
-            className={inputClass}
+          <Select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
@@ -60,12 +59,11 @@ export function AddTransactionModal({
                 {cat}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
 
         <Field label="Monto * ($)">
-          <input
-            className={inputClass}
+          <Input
             type="number"
             min="0.01"
             step="0.01"
@@ -77,8 +75,7 @@ export function AddTransactionModal({
         </Field>
 
         <Field label="Nota (opcional)">
-          <input
-            className={inputClass}
+          <Input
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}

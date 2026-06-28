@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, inputClass } from "@/shared/components";
+import { Button, Field, Input, Textarea } from "@/shared/components";
 
 interface Props {
   entry: SavingsEntry | null;
@@ -58,8 +58,7 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <Field label="Monto * ($)">
-            <input
-              className={inputClass}
+            <Input
               type="number"
               min="0.01"
               step="0.01"
@@ -69,8 +68,7 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
             />
           </Field>
           <Field label="Fecha *">
-            <input
-              className={inputClass}
+            <Input
               type="date"
               value={form.date}
               onChange={setField("date")}
@@ -79,8 +77,7 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
           </Field>
         </div>
         <Field label="Notas">
-          <textarea
-            className={`${inputClass} resize-none`}
+          <Textarea
             rows={2}
             value={form.notes}
             onChange={setField("notes")}

@@ -7,7 +7,7 @@ import type {
 } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, inputClass } from "@/shared/components";
+import { Button, Field, Input, Textarea, Select } from "@/shared/components";
 
 const TYPES: ImprovementType[] = [
   "Decoración",
@@ -84,22 +84,21 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <Field label="Título *">
-            <input className={inputClass} value={form.title} onChange={set("title")} required />
+            <Input value={form.title} onChange={set("title")} required />
           </Field>
           <Field label="Tipo *">
-            <select className={inputClass} value={form.type} onChange={set("type")}>
+            <Select value={form.type} onChange={set("type")}>
               {TYPES.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Cantidad">
-            <input
-              className={inputClass}
+            <Input
               type="number"
               min="1"
               step="1"
@@ -108,8 +107,7 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
             />
           </Field>
           <Field label="Costo estimado por unidad ($)">
-            <input
-              className={inputClass}
+            <Input
               type="number"
               min="0"
               value={form.estimatedCost}
@@ -118,8 +116,7 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
           </Field>
         </div>
         <Field label="Dónde comprarlo (URL)">
-          <input
-            className={inputClass}
+          <Input
             type="url"
             value={form.purchaseUrl}
             onChange={set("purchaseUrl")}
@@ -127,16 +124,14 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
           />
         </Field>
         <Field label="Descripción">
-          <textarea
-            className={`${inputClass} resize-none`}
+          <Textarea
             rows={2}
             value={form.description}
             onChange={set("description")}
           />
         </Field>
         <Field label="Notas">
-          <textarea
-            className={`${inputClass} resize-none`}
+          <Textarea
             rows={2}
             value={form.notes}
             onChange={set("notes")}

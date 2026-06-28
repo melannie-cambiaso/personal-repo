@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, inputClass } from "@/shared/components";
+import { Button, Field, Input } from "@/shared/components";
 
 interface Props {
   isOpen: boolean;
@@ -43,8 +43,7 @@ export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Nueva meta">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Nombre *">
-          <input
-            className={inputClass}
+          <Input
             type="text"
             maxLength={60}
             value={form.name}
@@ -54,8 +53,7 @@ export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
           />
         </Field>
         <Field label="Monto objetivo * ($)">
-          <input
-            className={inputClass}
+          <Input
             type="number"
             min="0.01"
             step="0.01"

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Person } from "@/features/activity-log/domain";
 import { PEOPLE } from "@/features/activity-log/domain";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, inputClass } from "@/shared/components";
+import { Button, Field, Input, Textarea } from "@/shared/components";
 
 interface SubmitData {
   date: string;
@@ -68,8 +68,7 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Nueva actividad">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Fecha *">
-          <input
-            className={inputClass}
+          <Input
             type="date"
             value={form.date}
             onChange={(e) => setForm((prev) => ({ ...prev, date: e.target.value }))}
@@ -99,8 +98,8 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
         </Field>
 
         <Field label="Actividad *">
-          <input
-            className={`${inputClass} ${activityError ? "border-red-400" : ""}`}
+          <Input
+            className={activityError ? "border-red-400" : undefined}
             type="text"
             value={form.activity}
             onChange={(e) => {
@@ -115,8 +114,7 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
         </Field>
 
         <Field label="Notas">
-          <textarea
-            className={`${inputClass} resize-none`}
+          <Textarea
             rows={2}
             value={form.notes}
             onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}

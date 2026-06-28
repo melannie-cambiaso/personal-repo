@@ -3,7 +3,7 @@
 import { useState } from "react"
 import type { TodoItem } from "@/features/todo/domain/TodoItem"
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell"
-import { Button } from "@/shared/components"
+import { Button, Field, Input } from "@/shared/components"
 
 interface Props {
   isOpen: boolean
@@ -46,13 +46,9 @@ export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Prop
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Nueva tarea">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <label className="flex flex-col gap-1">
-            <span className="text-2xs font-semibold uppercase tracking-store text-brown-400">
-              Título *
-            </span>
+          <Field label="Título *">
             <div className="relative">
-              <input
-                className="w-full rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
+              <Input
                 value={title}
                 onChange={handleTitleChange}
                 required
@@ -78,7 +74,7 @@ export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Prop
                 </ul>
               )}
             </div>
-          </label>
+          </Field>
 
           <div className="mt-2 flex justify-end gap-3">
             <Button type="button" onPress={onClose} className="secondary">

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, inputClass } from "@/shared/components";
+import { Button, Field, Input } from "@/shared/components";
 
 interface Props {
   isOpen: boolean;
@@ -41,10 +41,10 @@ export function EditZoneModal({ isOpen, zone, onClose, onSave }: Props) {
     <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm" title="Editar zona">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Nombre *">
-          <input className={inputClass} value={form.name} onChange={set("name")} required />
+          <Input value={form.name} onChange={set("name")} required />
         </Field>
         <Field label="Emoji">
-          <input className={inputClass} value={form.emoji} onChange={set("emoji")} />
+          <Input value={form.emoji} onChange={set("emoji")} />
         </Field>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="mt-2 flex justify-end gap-3">
