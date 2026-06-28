@@ -8,6 +8,7 @@ import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
 import type { GoalWithProgress } from "@/features/savings/domain/SavingsGoal";
 import { GoalForecastCard } from "./GoalForecastCard";
 import { formatCLP } from "@/shared/utils/formatCurrency";
+import { Input } from "@/shared/components";
 
 interface ForecastTabProps {
   currentBalance: number;
@@ -64,7 +65,7 @@ export function ForecastTab({
           <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
             Ingreso mensual por defecto
           </span>
-          <input
+          <Input
             type="number"
             min={0}
             value={config.defaultIncome}
@@ -74,14 +75,13 @@ export function ForecastTab({
                 defaultIncome: Math.max(0, Number(e.target.value)),
               }))
             }
-            className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
           />
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
             Gasto mensual estimado
           </span>
-          <input
+          <Input
             type="number"
             min={0}
             value={config.monthlyExpense}
@@ -91,14 +91,13 @@ export function ForecastTab({
                 monthlyExpense: Math.max(0, Number(e.target.value)),
               }))
             }
-            className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
           />
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
             Meses a proyectar
           </span>
-          <input
+          <Input
             type="number"
             min={1}
             max={24}
@@ -106,14 +105,13 @@ export function ForecastTab({
             onChange={(e) =>
               setMonths(Math.max(1, Math.min(24, Math.round(Number(e.target.value)))))
             }
-            className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
           />
         </label>
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
             Tasa de interés anual (%)
           </span>
-          <input
+          <Input
             type="number"
             min={0}
             step={0.1}
@@ -124,7 +122,6 @@ export function ForecastTab({
                 annualRate: Math.max(0, Number(e.target.value)),
               }))
             }
-            className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
           />
         </label>
       </div>

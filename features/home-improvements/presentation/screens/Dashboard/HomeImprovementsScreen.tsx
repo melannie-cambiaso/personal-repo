@@ -16,6 +16,7 @@ import {
 import { itemsPlannedForMonth, itemsUnassigned } from "@/features/home-improvements/domain";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
 import { AddButton } from "@/shared/components/AddButton/AddButton";
+import { Select } from "@/shared/components";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {
@@ -111,16 +112,17 @@ export function HomeImprovementsScreen({
         {activeTab === "zones" ? (
           <>
             <div className="mb-8 flex items-center justify-between gap-4">
-              <select
+              <Select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortKey)}
-                className="cursor-pointer rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
-              >
-                <option value="price-asc">Precio ↑</option>
-                <option value="price-desc">Precio ↓</option>
-                <option value="name-asc">Nombre A→Z</option>
-                <option value="name-desc">Nombre Z→A</option>
-              </select>
+                className="cursor-pointer"
+                options={[
+                  { value: "price-asc", label: "Precio ↑" },
+                  { value: "price-desc", label: "Precio ↓" },
+                  { value: "name-asc", label: "Nombre A→Z" },
+                  { value: "name-desc", label: "Nombre Z→A" },
+                ]}
+              />
               {isOwner && <AddButton onClick={() => setAddZoneOpen(true)} label="Agregar zona" />}
             </div>
             <ZoneList
