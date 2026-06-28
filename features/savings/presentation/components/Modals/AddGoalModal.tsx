@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button } from "@/shared/components";
-import { GoalFormFields } from "./GoalFormFields";
+import { GoalFormFields, validateGoalForm } from "./GoalFormFields";
 
 interface Props {
   isOpen: boolean;
@@ -26,17 +26,9 @@ export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedName = form.name.trim();
-    const amount = Number(form.targetAmount);
-    if (!trimmedName) {
-      setError("El nombre es obligatorio.");
-      return;
-    }
-    if (amount <= 0) {
-      setError("El monto debe ser mayor a 0.");
-      return;
-    }
-    onAdd({ name: trimmedName, targetAmount: amount });
+    const err = validateGoalForm(form);
+    if (err) { setError(err); return; }
+    onAdd({ name: form.name.trim(), targetAmount: Number(form.targetAmount) });
     onClose();
   };
 

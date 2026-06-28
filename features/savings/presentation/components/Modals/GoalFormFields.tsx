@@ -1,5 +1,11 @@
 import { Field, Input } from "@/shared/components";
 
+export function validateGoalForm(form: { name: string; targetAmount: string }): string | null {
+  if (!form.name.trim()) return "El nombre es obligatorio.";
+  if (Number(form.targetAmount) <= 0) return "El monto debe ser mayor a 0.";
+  return null;
+}
+
 type GoalForm = { name: string; targetAmount: string };
 
 interface Props {

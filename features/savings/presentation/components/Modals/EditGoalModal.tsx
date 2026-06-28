@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { SavingsGoal } from "@/features/savings/domain";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button } from "@/shared/components";
-import { GoalFormFields } from "./GoalFormFields";
+import { GoalFormFields, validateGoalForm } from "./GoalFormFields";
 
 interface Props {
   goal: SavingsGoal | null;
@@ -28,17 +28,12 @@ export function EditGoalModal({ goal, onClose, onSave }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!goal) return;
-    const trimmedName = form.name.trim();
-    const amount = Number(form.targetAmount);
-    if (!trimmedName) {
-      setError("El nombre es obligatorio.");
+    const err = validateGoalForm(form);
+    if (err) {
+      setError(err);
       return;
     }
-    if (amount <= 0) {
-      setError("El monto debe ser mayor a 0.");
-      return;
-    }
-    onSave(goal.id, { name: trimmedName, targetAmount: amount });
+    onSave(goal.id, { name: form.name.trim(), targetAmount: Number(form.targetAmount) });
     onClose();
   };
 
