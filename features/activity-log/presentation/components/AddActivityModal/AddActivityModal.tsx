@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Person } from "@/features/activity-log/domain";
 import { PEOPLE } from "@/features/activity-log/domain";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface SubmitData {
   date: string;
@@ -29,20 +30,14 @@ const EMPTY_FORM = {
 };
 
 export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [activityError, setActivityError] = useState(false);
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
     if (isOpen) {
       setForm({ ...EMPTY_FORM, date: today() });
       setActivityError(false);
-      dialog.showModal();
-    } else {
-      dialog.close();
     }
   }, [isOpen]);
 
@@ -69,18 +64,7 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-md rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => {
-        e.preventDefault();
-        onClose();
-      }}
-      onClick={(e) => {
-        if (e.target === dialogRef.current) onClose();
-      }}
-    >
-      <div className="px-6 py-5">
+    <ModalShell isOpen={isOpen} onCancel={onClose}>
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-dancing text-2xl font-bold text-brown-900">
             Nueva actividad
@@ -162,8 +146,7 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
             </button>
           </div>
         </form>
-      </div>
-    </dialog>
+    </ModalShell>
   );
 }
 

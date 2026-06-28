@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ImprovementItem, ImprovementType } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 const TYPES: ImprovementType[] = ["Decoración", "Organización", "Reparación", "Instalación", "Otro"];
 
@@ -17,19 +18,13 @@ interface Props {
 const EMPTY = { title: "", type: "Otro" as ImprovementType, estimatedCost: "", quantity: "1", purchaseUrl: "", description: "", notes: "" };
 
 export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState(EMPTY);
   const [zoneId, setZoneId] = useState(preselectedZoneId ?? zones[0]?.id ?? "");
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
     if (isOpen) {
       setForm(EMPTY);
       setZoneId(preselectedZoneId ?? zones[0]?.id ?? "");
-      dialog.showModal();
-    } else {
-      dialog.close();
     }
   }, [isOpen, preselectedZoneId, zones]);
 
@@ -57,13 +52,7 @@ export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd 
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-lg rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onClose(); }}
-      onClick={(e) => { if (e.target === dialogRef.current) onClose(); }}
-    >
-      <div className="px-6 py-5">
+    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="lg">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-dancing text-2xl font-bold text-brown-900">Nueva mejora</h2>
           <button type="button" onClick={onClose} className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800" aria-label="Cerrar">✕</button>
@@ -106,8 +95,7 @@ export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd 
             <button type="submit" className={btnPrimary}>Agregar ✓</button>
           </div>
         </form>
-      </div>
-    </dialog>
+    </ModalShell>
   );
 }
 

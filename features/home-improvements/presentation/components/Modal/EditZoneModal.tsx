@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface Props {
   isOpen: boolean;
@@ -11,15 +12,11 @@ interface Props {
 }
 
 export function EditZoneModal({ isOpen, zone, onClose, onSave }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState({ name: "", emoji: "" });
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (isOpen && zone) { setForm({ name: zone.name, emoji: zone.emoji ?? "" }); setError(""); dialog.showModal(); }
-    else dialog.close();
+    if (isOpen && zone) { setForm({ name: zone.name, emoji: zone.emoji ?? "" }); setError(""); }
   }, [isOpen, zone]);
 
   const set = (field: "name" | "emoji") =>
@@ -35,13 +32,7 @@ export function EditZoneModal({ isOpen, zone, onClose, onSave }: Props) {
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-sm rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onClose(); }}
-      onClick={(e) => { if (e.target === dialogRef.current) onClose(); }}
-    >
-      <div className="px-6 py-5">
+    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-dancing text-2xl font-bold text-brown-900">Editar zona</h2>
           <button type="button" onClick={onClose} className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800" aria-label="Cerrar">✕</button>
@@ -59,8 +50,7 @@ export function EditZoneModal({ isOpen, zone, onClose, onSave }: Props) {
             <button type="submit" className={btnPrimary}>Guardar ✓</button>
           </div>
         </form>
-      </div>
-    </dialog>
+    </ModalShell>
   );
 }
 

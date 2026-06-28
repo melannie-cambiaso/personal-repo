@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface Props {
   isOpen: boolean;
@@ -11,19 +12,13 @@ interface Props {
 const EMPTY = { name: "", targetAmount: "" };
 
 export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
     if (isOpen) {
       setForm(EMPTY);
       setError(null);
-      dialog.showModal();
-    } else {
-      dialog.close();
     }
   }, [isOpen]);
 
@@ -44,13 +39,7 @@ export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-md rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onClose(); }}
-      onClick={(e) => { if (e.target === dialogRef.current) onClose(); }}
-    >
-      <div className="px-6 py-5">
+    <ModalShell isOpen={isOpen} onCancel={onClose}>
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-dancing text-2xl font-bold text-brown-900">Nueva meta</h2>
           <button
@@ -96,8 +85,7 @@ export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
             </button>
           </div>
         </form>
-      </div>
-    </dialog>
+    </ModalShell>
   );
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface Props {
   entry: SavingsEntry | null;
@@ -10,7 +11,6 @@ interface Props {
 }
 
 export function EditEntryModal({ entry, onClose, onSave }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const isOpen = entry !== null;
 
   const [form, setForm] = useState({
@@ -21,8 +21,6 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
   });
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
     if (isOpen && entry) {
       setForm({
         amount: String(entry.amount),
@@ -30,9 +28,6 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
         notes: entry.notes ?? "",
         toReplenish: entry.toReplenish,
       });
-      dialog.showModal();
-    } else {
-      dialog.close();
     }
   }, [isOpen, entry]);
 
@@ -57,13 +52,7 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-md rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onClose(); }}
-      onClick={(e) => { if (e.target === dialogRef.current) onClose(); }}
-    >
-      <div className="px-6 py-5">
+    <ModalShell isOpen={isOpen} onCancel={onClose}>
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-dancing text-2xl font-bold text-brown-900">Editar registro</h2>
           <button type="button" onClick={onClose} className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800" aria-label="Cerrar">✕</button>
@@ -91,8 +80,7 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
             <button type="submit" className={btnPrimary}>Guardar ✓</button>
           </div>
         </form>
-      </div>
-    </dialog>
+    </ModalShell>
   );
 }
 

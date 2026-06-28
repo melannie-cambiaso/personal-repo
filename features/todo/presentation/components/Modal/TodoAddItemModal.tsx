@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import type { TodoItem } from "@/features/todo/domain/TodoItem"
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell"
 
 interface Props {
   isOpen: boolean
@@ -11,15 +12,8 @@ interface Props {
 }
 
 export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null)
   const [title, setTitle] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
-
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-    isOpen ? dialog.showModal() : dialog.close()
-  }, [isOpen])
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
@@ -32,10 +26,6 @@ export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Prop
             .slice(0, 5)
         : []
     )
-  }
-
-  const handleBackdrop = (e: React.MouseEvent<HTMLDialogElement>) => {
-    if (e.target === dialogRef.current) onClose()
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -53,16 +43,7 @@ export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Prop
   }
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-md rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => {
-        e.preventDefault()
-        onClose()
-      }}
-      onClick={handleBackdrop}
-    >
-      <div className="px-6 py-5">
+    <ModalShell isOpen={isOpen} onCancel={onClose}>
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-dancing text-2xl font-bold text-brown-900">Nueva tarea</h2>
           <button
@@ -126,7 +107,6 @@ export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Prop
             </button>
           </div>
         </form>
-      </div>
-    </dialog>
+    </ModalShell>
   )
 }

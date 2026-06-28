@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ImprovementItem, ImprovementType } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 const TYPES: ImprovementType[] = ["Decoración", "Organización", "Reparación", "Instalación", "Otro"];
 
@@ -15,12 +16,9 @@ interface Props {
 }
 
 export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState({ title: "", type: "Otro" as ImprovementType, estimatedCost: "", quantity: "1", purchaseUrl: "", description: "", notes: "" });
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
     if (isOpen && item) {
       setForm({
         title: item.title,
@@ -31,9 +29,6 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
         description: item.description ?? "",
         notes: item.notes ?? "",
       });
-      dialog.showModal();
-    } else {
-      dialog.close();
     }
   }, [isOpen, item]);
 
@@ -60,13 +55,7 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
   const zone = zones.find((z) => z.id === item?.zoneId);
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-lg rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onClose(); }}
-      onClick={(e) => { if (e.target === dialogRef.current) onClose(); }}
-    >
-      <div className="px-6 py-5">
+    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="lg">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-dancing text-2xl font-bold text-brown-900">Editar mejora</h2>
           <button type="button" onClick={onClose} className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800" aria-label="Cerrar">✕</button>
@@ -109,8 +98,7 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
             <button type="submit" className={btnPrimary}>Guardar ✓</button>
           </div>
         </form>
-      </div>
-    </dialog>
+    </ModalShell>
   );
 }
 

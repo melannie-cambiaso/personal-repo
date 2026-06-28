@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { CATEGORIES } from "@/features/wishlist/data";
 import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface Props {
   isOpen: boolean;
@@ -25,14 +26,7 @@ const EMPTY = {
 };
 
 export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState(EMPTY);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    isOpen ? dialog.showModal() : dialog.close();
-  }, [isOpen]);
 
   useEffect(() => {
     if (editItem) {
@@ -55,10 +49,6 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
   const set = (field: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleBackdrop = (e: React.MouseEvent<HTMLDialogElement>) => {
-    if (e.target === dialogRef.current) onClose();
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const item: WishlistItem = {
@@ -79,13 +69,7 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-lg rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onClose(); }}
-      onClick={handleBackdrop}
-    >
-      <div className="px-6 py-5">
+    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="lg">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-dancing text-2xl font-bold text-brown-900">
             {editItem ? "Editar item" : "Nuevo item"}
@@ -166,8 +150,7 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
             </button>
           </div>
         </form>
-      </div>
-    </dialog>
+    </ModalShell>
   );
 }
 
