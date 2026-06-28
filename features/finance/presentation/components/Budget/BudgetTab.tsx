@@ -6,6 +6,7 @@ import { getBudgetForMonth } from "@/features/finance/data/financeActions";
 import { computeActualFromTransactions } from "@/features/finance/domain";
 import type { FinanceTransaction } from "@/features/finance/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
+import { prevMonth } from "@/shared/utils/monthUtils";
 
 interface Props {
   groups: Group[];
@@ -16,10 +17,6 @@ interface Props {
   onOpenTransaction: (category: string) => void;
 }
 
-function prevMonth(month: string): string {
-  const [y, m] = month.split("-").map(Number);
-  return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
-}
 
 export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, onSave, onOpenTransaction }: Props) {
   const [budget, setBudget] = useState<Record<string, number>>(initialBudget);

@@ -6,6 +6,7 @@ import { type Group } from "@/features/finance/data/kvAdapter";
 import type { FinanceTransaction } from "@/features/finance/domain";
 import { BudgetTab, CategoriesTab, FinanceMonthNav, AddTransactionModal, TransactionsTab } from "../../components";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
+import { currentMonth, prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 
 interface Props {
   initialBudget: Record<string, number>;
@@ -14,20 +15,6 @@ interface Props {
   onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
 }
 
-function currentMonth(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "00")}`;
-}
-
-function prevMonth(m: string): string {
-  const [y, mo] = m.split("-").map(Number);
-  return mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, "0")}`;
-}
-
-function nextMonth(m: string): string {
-  const [y, mo] = m.split("-").map(Number);
-  return mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, "0")}`;
-}
 
 export function FinanceScreen({ initialBudget, initialTransactions, initialCategories, onSaveBudget }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth());
