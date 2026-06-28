@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
 import type { GoalWithProgress } from "@/features/savings/domain";
+import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
 import { useSavings } from "../../hooks/useSavings";
 import { useSavingsGoals } from "../../hooks/useSavingsGoals";
 import {
@@ -27,9 +28,21 @@ interface Props {
   isOwner: boolean;
   onSave: (entries: SavingsEntry[]) => Promise<void> | void;
   onSaveGoals?: (goals: SavingsGoal[]) => Promise<void> | void;
+  initialForecastConfig: ForecastConfig | null;
+  suggestedIncome: number;
+  onSaveForecastConfig: (config: ForecastConfig, months: number) => Promise<void>;
 }
 
-export function SavingsScreen({ initialEntries, initialGoals = [], isOwner, onSave, onSaveGoals }: Props) {
+export function SavingsScreen({
+  initialEntries,
+  initialGoals = [],
+  isOwner,
+  onSave,
+  onSaveGoals,
+  initialForecastConfig,
+  suggestedIncome,
+  onSaveForecastConfig,
+}: Props) {
   const { entries, balance, totalToReplenish, totalDepositos, totalGastos, addEntry, editEntry, deleteEntry, markReplenished } =
     useSavings({ initialEntries, onSave });
 
@@ -107,7 +120,14 @@ export function SavingsScreen({ initialEntries, initialGoals = [], isOwner, onSa
           </>
         )}
 
-        {activeTab === "forecast" && <ForecastTab currentBalance={balance} />}
+        {activeTab === "forecast" && (
+          <ForecastTab
+            currentBalance={balance}
+            initialConfig={initialForecastConfig}
+            suggestedIncome={suggestedIncome}
+            onSaveConfig={onSaveForecastConfig}
+          />
+        )}
 
         {activeTab === "goals" && (
           <>

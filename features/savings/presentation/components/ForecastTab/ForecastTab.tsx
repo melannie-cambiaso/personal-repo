@@ -2,33 +2,71 @@
 
 import { useState } from "react";
 import { computeForecast } from "@/features/savings/domain/computeForecast";
+import { DEFAULT_ANNUAL_RATE } from "@/features/savings/domain/ForecastConfig";
+import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
 
 interface ForecastTabProps {
   currentBalance: number;
+  initialConfig: ForecastConfig | null;
+  suggestedIncome: number;
+  onSaveConfig: (config: ForecastConfig, months: number) => Promise<void>;
 }
 
-export function ForecastTab({ currentBalance }: ForecastTabProps) {
-  const [monthlyDeposit, setMonthlyDeposit] = useState(0);
-  const [monthlyExpense, setMonthlyExpense] = useState(0);
-  const [extraAmount, setExtraAmount] = useState(0);
+export function ForecastTab({
+  currentBalance,
+  initialConfig,
+  suggestedIncome,
+  onSaveConfig,
+}: ForecastTabProps) {
+  const [config, setConfig] = useState<ForecastConfig>(
+    initialConfig ?? {
+      defaultIncome: suggestedIncome,
+      monthlyExpense: 0,
+      annualRate: DEFAULT_ANNUAL_RATE,
+      incomeOverrides: {},
+    }
+  );
   const [months, setMonths] = useState(12);
-  const [annualRate, setAnnualRate] = useState(4.6);
 
-  const monthlyNet = monthlyDeposit - monthlyExpense;
-  const forecast = computeForecast(currentBalance + extraAmount, monthlyNet, months, annualRate);
+  const now = new Date();
+  const forecast = computeForecast(currentBalance, config, months);
+
+  function monthKeyForIndex(i: number): string {
+    const d = new Date(now.getFullYear(), now.getMonth() + i + 1, 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }
+
+  function handleIncomeChange(i: number, raw: string) {
+    const value = Math.max(0, Number(raw));
+    const key = monthKeyForIndex(i);
+    setConfig((prev) => {
+      const overrides = { ...prev.incomeOverrides };
+      if (value === prev.defaultIncome) {
+        delete overrides[key];
+      } else {
+        overrides[key] = value;
+      }
+      return { ...prev, incomeOverrides: overrides };
+    });
+  }
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
-            Depósito mensual estimado
+            Ingreso mensual por defecto
           </span>
           <input
             type="number"
             min={0}
-            value={monthlyDeposit}
-            onChange={(e) => setMonthlyDeposit(Math.max(0, Number(e.target.value)))}
+            value={config.defaultIncome}
+            onChange={(e) =>
+              setConfig((prev) => ({
+                ...prev,
+                defaultIncome: Math.max(0, Number(e.target.value)),
+              }))
+            }
             className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
           />
         </label>
@@ -39,20 +77,13 @@ export function ForecastTab({ currentBalance }: ForecastTabProps) {
           <input
             type="number"
             min={0}
-            value={monthlyExpense}
-            onChange={(e) => setMonthlyExpense(Math.max(0, Number(e.target.value)))}
-            className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
-            Monto extra (único)
-          </span>
-          <input
-            type="number"
-            min={0}
-            value={extraAmount}
-            onChange={(e) => setExtraAmount(Math.max(0, Number(e.target.value)))}
+            value={config.monthlyExpense}
+            onChange={(e) =>
+              setConfig((prev) => ({
+                ...prev,
+                monthlyExpense: Math.max(0, Number(e.target.value)),
+              }))
+            }
             className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
           />
         </label>
@@ -79,27 +110,66 @@ export function ForecastTab({ currentBalance }: ForecastTabProps) {
             type="number"
             min={0}
             step={0.1}
-            value={annualRate}
-            onChange={(e) => setAnnualRate(Math.max(0, Number(e.target.value)))}
+            value={config.annualRate}
+            onChange={(e) =>
+              setConfig((prev) => ({
+                ...prev,
+                annualRate: Math.max(0, Number(e.target.value)),
+              }))
+            }
             className="rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
           />
         </label>
       </div>
 
-      <ul className="divide-y divide-cream-300">
-        {forecast.map(({ month, projectedBalance }) => (
-          <li key={month} className="flex items-center justify-between py-3">
-            <span className="text-sm capitalize text-brown-700">{month}</span>
-            <span
-              className={`text-sm font-semibold ${
-                projectedBalance < 0 ? "text-red-500" : "text-brown-900"
-              }`}
-            >
-              ${Math.round(projectedBalance).toLocaleString("es-AR")}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-cream-300 text-left">
+              <th className="pb-2 font-semibold text-brown-500">Mes</th>
+              <th className="pb-2 font-semibold text-brown-500">Ingreso</th>
+              <th className="pb-2 text-right font-semibold text-brown-500">Saldo proyectado</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-cream-300">
+            {forecast.map(({ month, projectedBalance }, i) => {
+              const key = monthKeyForIndex(i);
+              const income = config.incomeOverrides[key] ?? config.defaultIncome;
+              return (
+                <tr key={month}>
+                  <td className="py-3 capitalize text-brown-700">{month}</td>
+                  <td className="py-3">
+                    <input
+                      type="number"
+                      min={0}
+                      value={income}
+                      onChange={(e) => handleIncomeChange(i, e.target.value)}
+                      className="w-28 rounded border border-cream-400 bg-white px-2 py-1 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
+                    />
+                  </td>
+                  <td
+                    className={`py-3 text-right font-semibold ${
+                      projectedBalance < 0 ? "text-red-500" : "text-brown-900"
+                    }`}
+                  >
+                    ${Math.round(projectedBalance).toLocaleString("es-AR")}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => onSaveConfig(config, months)}
+          className="rounded-lg bg-brown-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brown-700"
+        >
+          Guardar configuración
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import type { ForecastConfig } from "./ForecastConfig";
+
 export interface ForecastMonth {
   month: string;
   projectedBalance: number;
@@ -5,19 +7,22 @@ export interface ForecastMonth {
 
 export function computeForecast(
   currentBalance: number,
-  monthlyNet: number,
-  months: number,
-  annualRate = 0
+  config: ForecastConfig,
+  months: number
 ): ForecastMonth[] {
   const now = new Date();
   const fmt = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" });
-  const monthlyRate = annualRate > 0 ? Math.pow(1 + annualRate / 100, 1 / 12) - 1 : 0;
+  const monthlyRate =
+    config.annualRate > 0 ? Math.pow(1 + config.annualRate / 100, 1 / 12) - 1 : 0;
 
   let balance = currentBalance;
   return Array.from({ length: months }, (_, i) => {
-    balance = (balance + monthlyNet) * (1 + monthlyRate);
+    const d = new Date(now.getFullYear(), now.getMonth() + i + 1, 1);
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const income = config.incomeOverrides[monthKey] ?? config.defaultIncome;
+    balance = (balance + (income - config.monthlyExpense)) * (1 + monthlyRate);
     return {
-      month: fmt.format(new Date(now.getFullYear(), now.getMonth() + i + 1, 1)),
+      month: fmt.format(d),
       projectedBalance: balance,
     };
   });
