@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
+import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
 import { useSavings } from "../../hooks/useSavings";
 import {
   SavingsSummaryCards,
@@ -16,8 +17,10 @@ import { AddButton } from "@/shared/components/AddButton/AddButton";
 
 interface Props {
   initialEntries: SavingsEntry[];
+  initialGoals?: SavingsGoal[];
   isOwner: boolean;
   onSave: (entries: SavingsEntry[]) => Promise<void> | void;
+  onSaveGoals?: (goals: SavingsGoal[]) => Promise<void> | void;
 }
 
 export function SavingsScreen({ initialEntries, isOwner, onSave }: Props) {

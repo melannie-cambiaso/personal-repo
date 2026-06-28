@@ -1,6 +1,7 @@
 import "server-only";
 import { redis } from "@/shared/kv";
 import type { SavingsEntry } from "../domain/SavingsEntry";
+import type { SavingsGoal } from "../domain/SavingsGoal";
 
 const ENTRIES_KEY = "savings-entries";
 
@@ -20,5 +21,23 @@ export async function saveEntries(entries: SavingsEntry[]): Promise<void> {
     await redis.set(ENTRIES_KEY, sanitized);
   } catch (e) {
     console.error("savings.saveEntries failed", e);
+  }
+}
+
+const GOALS_KEY = "savings-goals";
+
+export async function loadGoals(): Promise<SavingsGoal[]> {
+  try {
+    return (await redis.get<SavingsGoal[]>(GOALS_KEY)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveGoals(goals: SavingsGoal[]): Promise<void> {
+  try {
+    await redis.set(GOALS_KEY, goals);
+  } catch (e) {
+    console.error("savings.saveGoals failed", e);
   }
 }
