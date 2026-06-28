@@ -1,8 +1,7 @@
 "use client";
 
 import type { Zone } from "@/features/home-improvements/domain/Zone";
-import { Button } from "@/shared/components";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
+import { ModalShell, Button } from "@/shared/components";
 
 interface Props {
   zone: Zone | null;

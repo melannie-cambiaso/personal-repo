@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import type { TodoItem } from "@/features/todo/domain/TodoItem"
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell"
-import { Button, Field, Input } from "@/shared/components"
+import { ModalShell, Button, Field, Input } from "@/shared/components"
 
 interface Props {
   isOpen: boolean

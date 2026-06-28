@@ -6,7 +6,7 @@ import {
   addActivityEntry,
   deleteActivityEntry,
   getEntriesForMonth,
-} from "@/features/activity-log/data/activityLogActions";
+} from "@/features/activity-log/data";
 
 function currentMonth(): string {
   return new Date().toISOString().slice(0, 7);
@@ -31,9 +31,7 @@ interface UseActivityLogReturn {
   handleDelete: (id: string) => Promise<void>;
 }
 
-export function useActivityLog({
-  initialEntries,
-}: UseActivityLogParams): UseActivityLogReturn {
+export function useActivityLog({ initialEntries }: UseActivityLogParams): UseActivityLogReturn {
   const [entries, setEntries] = useState<ActivityLogEntry[]>(initialEntries);
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth());
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

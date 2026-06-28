@@ -1,8 +1,7 @@
 "use client";
 
 import type { SavingsGoal } from "@/features/savings/domain";
-import { Button } from "@/shared/components";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
+import { ModalShell, Button } from "@/shared/components";
 
 interface Props {
   goal: SavingsGoal | null;

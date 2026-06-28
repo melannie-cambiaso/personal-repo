@@ -1,8 +1,7 @@
 "use client";
 
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
-import { Button } from "@/shared/components";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
+import { ModalShell, Button } from "@/shared/components";
 
 interface Props {
   item: WishlistItem | null;

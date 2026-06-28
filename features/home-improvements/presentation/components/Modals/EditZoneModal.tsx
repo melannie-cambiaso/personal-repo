@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useForm } from "@/shared/hooks/useForm";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, Input } from "@/shared/components";
+import { ModalShell, Button, Field, Input } from "@/shared/components";
 
 interface Props {
   zone: Zone | null;

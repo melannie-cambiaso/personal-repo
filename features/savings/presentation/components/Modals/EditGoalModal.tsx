@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import type { SavingsGoal } from "@/features/savings/domain";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button } from "@/shared/components";
+import { ModalShell, Button } from "@/shared/components";
 import { GoalFormFields, validateGoalForm } from "./GoalFormFields";
 
 interface Props {

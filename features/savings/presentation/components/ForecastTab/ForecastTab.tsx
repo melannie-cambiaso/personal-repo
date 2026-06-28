@@ -8,7 +8,7 @@ import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
 import type { GoalWithProgress } from "@/features/savings/domain/SavingsGoal";
 import { GoalForecastCard } from "./GoalForecastCard";
 import { formatCLP } from "@/shared/utils/formatCurrency";
-import { Input } from "@/shared/components";
+import { ModalShell, Input } from "@/shared/components";
 
 interface ForecastTabProps {
   currentBalance: number;

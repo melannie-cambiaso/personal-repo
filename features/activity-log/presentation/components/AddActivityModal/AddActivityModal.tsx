@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Person } from "@/features/activity-log/domain";
 import { PEOPLE } from "@/features/activity-log/domain";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, Input, Textarea } from "@/shared/components";
+import { ModalShell, Button, Field, Input, Textarea } from "@/shared/components";
 
 interface SubmitData {
   date: string;

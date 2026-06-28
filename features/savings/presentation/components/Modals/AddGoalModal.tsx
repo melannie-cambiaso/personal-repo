@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button } from "@/shared/components";
+import { ModalShell, Button } from "@/shared/components";
 import { GoalFormFields, validateGoalForm } from "./GoalFormFields";
 
 interface Props {

@@ -14,9 +14,7 @@ import {
   MonthlyPlanTab,
 } from "../../components";
 import { itemsPlannedForMonth, itemsUnassigned } from "@/features/home-improvements/domain";
-import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
-import { AddButton } from "@/shared/components/AddButton/AddButton";
-import { Select } from "@/shared/components";
+import { PageHeader, AddButton, ModalShell, Select } from "@/shared/components";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {

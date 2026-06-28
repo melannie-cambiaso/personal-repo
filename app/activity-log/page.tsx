@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { loadEntries } from "@/features/activity-log/data";
+import { loadEntries } from "@/features/activity-log/data/kvAdapter";
 import { ActivityLogScreen } from "@/features/activity-log/presentation/screens/Dashboard/ActivityLogScreen";
 
 export default async function ActivityLogPage() {

@@ -1,41 +1,40 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { TodoHistoryItem } from "@/features/todo/domain/TodoHistoryItem"
-import type { TodoItem } from "@/features/todo/domain/TodoItem"
-import { AddButton } from "@/shared/components/AddButton/AddButton"
-import { PageHeader } from "@/shared/components/PageHeader/PageHeader"
-import { TodoAddItemModal, TodoHistory, TodoList } from "../../components"
-import { useTodo } from "../../hooks/useTodo"
+import { useState } from "react";
+import type { TodoHistoryItem } from "@/features/todo/domain/TodoHistoryItem";
+import type { TodoItem } from "@/features/todo/domain/TodoItem";
+import { AddButton, PageHeader } from "@/shared/components";
+import { TodoAddItemModal, TodoHistory, TodoList } from "../../components";
+import { useTodo } from "../../hooks/useTodo";
 
 interface Props {
-  initialItems: TodoItem[]
-  history: TodoHistoryItem[]
-  isOwner: boolean
-  onAdd: (items: TodoItem[]) => Promise<void> | void
-  onToggle: (items: TodoItem[]) => Promise<void> | void
+  initialItems: TodoItem[];
+  history: TodoHistoryItem[];
+  isOwner: boolean;
+  onAdd: (items: TodoItem[]) => Promise<void> | void;
+  onToggle: (items: TodoItem[]) => Promise<void> | void;
 }
 
 export function TodoScreen({ initialItems, history, isOwner, onAdd, onToggle }: Props) {
-  const { items, addItem, toggle, pending } = useTodo({ initialItems, onAdd, onToggle })
-  const [isOpen, setIsOpen] = useState(false)
+  const { items, addItem, toggle, pending } = useTodo({ initialItems, onAdd, onToggle });
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <main className="flex flex-1 flex-col">
       <PageHeader eyebrow="Tus tareas del día" title="To-Do">
         <div className="flex items-center justify-center gap-0">
           <div className="px-8 text-center">
-            <span className="block text-xl font-bold text-cream-100">{pending}</span>
-            <span className="block text-2xs uppercase tracking-eyebrow text-brown-300">
+            <span className="text-cream-100 block text-xl font-bold">{pending}</span>
+            <span className="text-2xs tracking-eyebrow text-brown-300 block uppercase">
               Pendiente{pending !== 1 ? "s" : ""}
             </span>
           </div>
-          <div className="h-8 w-px bg-cream-100/20" />
+          <div className="bg-cream-100/20 h-8 w-px" />
           <div className="px-8 text-center">
-            <span className="block text-xl font-bold text-cream-100">
+            <span className="text-cream-100 block text-xl font-bold">
               {items.filter((i) => i.completed).length}
             </span>
-            <span className="block text-2xs uppercase tracking-eyebrow text-brown-300">
+            <span className="text-2xs tracking-eyebrow text-brown-300 block uppercase">
               Hecha{items.filter((i) => i.completed).length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -61,7 +60,7 @@ export function TodoScreen({ initialItems, history, isOwner, onAdd, onToggle }: 
         />
       )}
     </main>
-  )
+  );
 }
 
-export default TodoScreen
+export default TodoScreen;

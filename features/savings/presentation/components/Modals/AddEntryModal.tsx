@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import type { SavingsEntry, EntryType } from "@/features/savings/domain/SavingsEntry";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Select, Field } from "@/shared/components";
+import { ModalShell, Button, Select, Field } from "@/shared/components";
 import { EntryFormFields } from "./EntryFormFields";
 
 interface Props {

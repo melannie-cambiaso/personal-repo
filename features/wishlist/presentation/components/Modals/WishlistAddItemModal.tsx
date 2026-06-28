@@ -4,8 +4,7 @@ import { useForm } from "@/shared/hooks/useForm";
 import { CATEGORIES } from "@/features/wishlist/data";
 import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, Input, Textarea, Select } from "@/shared/components";
+import { ModalShell, Button, Field, Input, Textarea, Select } from "@/shared/components";
 
 interface Props {
   isOpen: boolean;

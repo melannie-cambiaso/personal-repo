@@ -12,8 +12,7 @@ import {
 import { type Group } from "@/features/finance/data/kvAdapter";
 import type { FinanceTransaction } from "@/features/finance/domain";
 import { BudgetTab, CategoriesTab, AddTransactionModal, TransactionsTab } from "../../components";
-import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
-import { MonthNav } from "@/shared/components/MonthNav/MonthNav";
+import { PageHeader, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { currentMonth, prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 

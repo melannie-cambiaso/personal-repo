@@ -18,8 +18,7 @@ import {
   EditGoalModal,
   DeleteGoalConfirmModal,
 } from "../../components";
-import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
-import { AddButton } from "@/shared/components/AddButton/AddButton";
+import { PageHeader, AddButton } from "@/shared/components";
 
 interface Props {
   initialEntries: SavingsEntry[];

@@ -1,9 +1,7 @@
 "use client";
 
 import type { ActivityLogEntry } from "@/features/activity-log/domain";
-import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
-import { AddButton } from "@/shared/components/AddButton/AddButton";
-import { MonthNav } from "@/shared/components/MonthNav/MonthNav";
+import { AddButton, PageHeader, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 import { useActivityLog } from "../../hooks/useActivityLog";

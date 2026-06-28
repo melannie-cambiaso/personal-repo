@@ -3,7 +3,7 @@
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { ImprovementItemCard } from "../ItemCard/ImprovementItemCard";
-import { AddButton } from "@/shared/components/AddButton/AddButton";
+import { AddButton } from "@/shared/components";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {

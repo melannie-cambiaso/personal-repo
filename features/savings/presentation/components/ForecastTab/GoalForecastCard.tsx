@@ -1,4 +1,4 @@
-import { ProgressBar } from "@/shared/components/ProgressBar/ProgressBar";
+import { ProgressBar } from "@/shared/components";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 import { formatMonth } from "@/shared/utils/formatMonth";
 

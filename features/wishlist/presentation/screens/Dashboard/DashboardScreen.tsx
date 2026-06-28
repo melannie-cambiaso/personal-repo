@@ -7,8 +7,7 @@ import {
   WishlistHeader,
   WishlistItemCard,
 } from "../../components";
-import { AddButton } from "@/shared/components/AddButton/AddButton";
-import { Select } from "@/shared/components";
+import { AddButton, ModalShell, Select } from "@/shared/components";
 import { useWishlist } from "../../hooks/useWishlist";
 import { WishlistItem } from "@/features/wishlist/domain";
 import { sortItems, type SortKey } from "@/features/wishlist/domain/sortItems";
@@ -21,13 +20,20 @@ interface Props {
   onToggle: (ids: string[]) => Promise<void> | void;
 }
 
-export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd, onToggle }: Props) {
-  const { items, ownedIds, addItem, editItem, deleteItem, toggle, pending, totalPrice } = useWishlist({
-    initialItems,
-    initialOwnedIds,
-    onAdd,
-    onToggle,
-  });
+export function DashboardScreen({
+  initialItems,
+  initialOwnedIds,
+  isOwner,
+  onAdd,
+  onToggle,
+}: Props) {
+  const { items, ownedIds, addItem, editItem, deleteItem, toggle, pending, totalPrice } =
+    useWishlist({
+      initialItems,
+      initialOwnedIds,
+      onAdd,
+      onToggle,
+    });
   const [isOpen, setIsOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<WishlistItem | null>(null);
@@ -88,7 +94,10 @@ export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd,
           />
           <WishlistDeleteConfirmModal
             item={deletingItem}
-            onConfirm={() => { if (deletingItem) deleteItem(deletingItem.id); setDeletingItem(null); }}
+            onConfirm={() => {
+              if (deletingItem) deleteItem(deletingItem.id);
+              setDeletingItem(null);
+            }}
             onCancel={() => setDeletingItem(null)}
           />
         </>

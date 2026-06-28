@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, Input, Select } from "@/shared/components";
+import { ModalShell, Button, Field, Input, Select } from "@/shared/components";
 
 interface AddTransactionModalProps {
   isOpen: boolean;

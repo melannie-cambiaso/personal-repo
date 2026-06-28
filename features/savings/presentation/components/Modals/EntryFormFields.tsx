@@ -1,4 +1,4 @@
-import { Field, Input, Textarea } from "@/shared/components";
+import { ModalShell, Field, Input, Textarea } from "@/shared/components";
 
 type EntryField = "amount" | "date" | "notes" | "toReplenish";
 

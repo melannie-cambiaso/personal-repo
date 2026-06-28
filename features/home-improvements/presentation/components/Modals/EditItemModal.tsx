@@ -4,8 +4,7 @@ import { useForm } from "@/shared/hooks/useForm";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { IMPROVEMENT_TYPES } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, Input, Textarea, Select } from "@/shared/components";
+import { ModalShell, Button, Field, Input, Textarea, Select } from "@/shared/components";
 
 interface Props {
   item: ImprovementItem | null;

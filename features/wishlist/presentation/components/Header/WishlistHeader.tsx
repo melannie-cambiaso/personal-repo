@@ -1,4 +1,4 @@
-import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
+import { PageHeader } from "@/shared/components";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {

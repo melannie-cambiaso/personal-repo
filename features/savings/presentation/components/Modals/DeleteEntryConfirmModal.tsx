@@ -2,8 +2,7 @@
 
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import { formatCLP } from "@/shared/utils/formatCurrency";
-import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button } from "@/shared/components";
+import { ModalShell, Button } from "@/shared/components";
 
 interface Props {
   entry: SavingsEntry | null;
