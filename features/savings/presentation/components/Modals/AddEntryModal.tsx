@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { SavingsEntry, EntryType } from "@/features/savings/domain/SavingsEntry";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button, Select, Field } from "@/shared/components";
@@ -22,13 +22,7 @@ const EMPTY = {
 };
 
 export function AddEntryModal({ isOpen, onClose, onAdd }: Props) {
-  const [form, setForm] = useState(EMPTY);
-
-  useEffect(() => {
-    if (isOpen) {
-      setForm({ ...EMPTY, date: today() });
-    }
-  }, [isOpen]);
+  const [form, setForm] = useState(() => ({ ...EMPTY, date: today() }));
 
   const setField =
     (field: keyof typeof EMPTY) =>

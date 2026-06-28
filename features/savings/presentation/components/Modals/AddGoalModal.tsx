@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button } from "@/shared/components";
 import { GoalFormFields, validateGoalForm } from "./GoalFormFields";
@@ -16,13 +16,6 @@ const EMPTY = { name: "", targetAmount: "" };
 export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setForm(EMPTY);
-      setError(null);
-    }
-  }, [isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

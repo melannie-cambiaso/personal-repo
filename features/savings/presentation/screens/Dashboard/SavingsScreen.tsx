@@ -124,6 +124,7 @@ export function SavingsScreen({
       </div>
 
       <AddEntryModal
+        key={addOpen ? 1 : 0}
         isOpen={addOpen}
         onClose={() => setAddOpen(false)}
         onAdd={(entry) => { addEntry(entry); setAddOpen(false); }}
@@ -140,6 +141,7 @@ export function SavingsScreen({
       />
 
       <AddGoalModal
+        key={addGoalOpen ? 1 : 0}
         isOpen={addGoalOpen}
         onClose={() => setAddGoalOpen(false)}
         onAdd={(data) => { handleAdd(data); setAddGoalOpen(false); }}
