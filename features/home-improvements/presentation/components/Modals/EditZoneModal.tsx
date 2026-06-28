@@ -32,7 +32,13 @@ export function EditZoneModal({ zone, onClose, onSave }: Props) {
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm" title="Editar zona">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <ZoneFormFields form={form} set={set} error={error} submitLabel="Guardar ✓" onClose={onClose} />
+        <ZoneFormFields
+          form={form}
+          set={set}
+          error={error}
+          submitLabel="Guardar ✓"
+          onClose={onClose}
+        />
       </form>
     </ModalShell>
   );

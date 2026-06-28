@@ -36,7 +36,15 @@ export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm" title="Nueva zona">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <ZoneFormFields form={form} set={set} error={error} namePlaceholder="Cocina" emojiPlaceholder="🍳" submitLabel="Agregar ✓" onClose={onClose} />
+        <ZoneFormFields
+          form={form}
+          set={set}
+          error={error}
+          namePlaceholder="Cocina"
+          emojiPlaceholder="🍳"
+          submitLabel="Agregar ✓"
+          onClose={onClose}
+        />
       </form>
     </ModalShell>
   );

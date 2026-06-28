@@ -5,7 +5,9 @@ interface FormSlice {
   emoji: string;
 }
 
-type ChangeHandler = React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+type ChangeHandler = React.ChangeEventHandler<
+  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+>;
 
 interface Props {
   form: FormSlice;
@@ -17,7 +19,15 @@ interface Props {
   onClose: () => void;
 }
 
-export function ZoneFormFields({ form, set, error, namePlaceholder, emojiPlaceholder, submitLabel, onClose }: Props) {
+export function ZoneFormFields({
+  form,
+  set,
+  error,
+  namePlaceholder,
+  emojiPlaceholder,
+  submitLabel,
+  onClose,
+}: Props) {
   return (
     <>
       <Field label="Nombre *">
@@ -28,8 +38,12 @@ export function ZoneFormFields({ form, set, error, namePlaceholder, emojiPlaceho
       </Field>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="mt-2 flex justify-end gap-3">
-        <Button type="button" onPress={onClose} variant="secondary">Cancelar</Button>
-        <Button type="submit" variant="primary">{submitLabel}</Button>
+        <Button type="button" onPress={onClose} variant="secondary">
+          Cancelar
+        </Button>
+        <Button type="submit" variant="primary">
+          {submitLabel}
+        </Button>
       </div>
     </>
   );

@@ -31,7 +31,13 @@ export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd({ id: crypto.randomUUID(), zoneId, ...parseItemForm(form), done: false, createdAt: new Date().toISOString() });
+    onAdd({
+      id: crypto.randomUUID(),
+      zoneId,
+      ...parseItemForm(form),
+      done: false,
+      createdAt: new Date().toISOString(),
+    });
     onClose();
   };
 
