@@ -5,7 +5,7 @@ import { computeForecast } from "@/features/savings/domain/computeForecast";
 import { computeGoalForecast } from "@/features/savings/domain/computeGoalForecast";
 import { DEFAULT_ANNUAL_RATE } from "@/features/savings/domain/ForecastConfig";
 import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
-import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
+import type { GoalWithProgress } from "@/features/savings/domain/SavingsGoal";
 import { GoalForecastCard } from "./GoalForecastCard";
 
 interface ForecastTabProps {
@@ -13,7 +13,7 @@ interface ForecastTabProps {
   initialConfig: ForecastConfig | null;
   suggestedIncome: number;
   onSaveConfig: (config: ForecastConfig, months: number) => Promise<void>;
-  goals?: SavingsGoal[];
+  goals?: GoalWithProgress[];
 }
 
 export function ForecastTab({
@@ -130,15 +130,21 @@ export function ForecastTab({
 
       {goalResults.length > 0 && (
         <div className="space-y-2">
-          {goalResults.map((result) => (
-            <GoalForecastCard
-              key={result.goalId}
-              name={result.name}
-              monthsToCompletion={result.monthsToCompletion}
-              estimatedCompletionMonth={result.estimatedCompletionMonth}
-              outsideWindowLabel={outsideWindowLabel}
-            />
-          ))}
+          {goalResults.map((result) => {
+            const goal = goals!.find((g) => g.id === result.goalId)!;
+            return (
+              <GoalForecastCard
+                key={result.goalId}
+                name={result.name}
+                monthsToCompletion={result.monthsToCompletion}
+                estimatedCompletionMonth={result.estimatedCompletionMonth}
+                outsideWindowLabel={outsideWindowLabel}
+                currentAmount={goal.currentAmount}
+                targetAmount={goal.targetAmount}
+                progress={goal.progress}
+              />
+            );
+          })}
         </div>
       )}
 
