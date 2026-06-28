@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, Input } from "@/shared/components";
+import { Button } from "@/shared/components";
+import { GoalFormFields } from "./GoalFormFields";
 
 interface Props {
   isOpen: boolean;
@@ -42,28 +43,13 @@ export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Nueva meta">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Field label="Nombre *">
-          <Input
-            type="text"
-            maxLength={60}
-            value={form.name}
-            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-            required
-            placeholder="Ej: Fondo de emergencia"
-          />
-        </Field>
-        <Field label="Monto objetivo * ($)">
-          <Input
-            type="number"
-            min="0.01"
-            step="0.01"
-            value={form.targetAmount}
-            onChange={(e) => setForm((prev) => ({ ...prev, targetAmount: e.target.value }))}
-            required
-            placeholder="0"
-          />
-        </Field>
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        <GoalFormFields
+          form={form}
+          error={error}
+          setForm={setForm}
+          namePlaceholder="Ej: Fondo de emergencia"
+          amountPlaceholder="0"
+        />
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" onPress={onClose} variant="secondary">
             Cancelar
