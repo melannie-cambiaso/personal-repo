@@ -3,7 +3,9 @@
 import { useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
+import type { GoalWithProgress } from "@/features/savings/domain";
 import { useSavings } from "../../hooks/useSavings";
+import { useSavingsGoals } from "../../hooks/useSavingsGoals";
 import {
   SavingsSummaryCards,
   SavingsEntryList,
@@ -11,6 +13,10 @@ import {
   EditEntryModal,
   DeleteEntryConfirmModal,
   ForecastTab,
+  SavingsGoalList,
+  AddGoalModal,
+  EditGoalModal,
+  DeleteGoalConfirmModal,
 } from "../../components";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
 import { AddButton } from "@/shared/components/AddButton/AddButton";
@@ -23,14 +29,27 @@ interface Props {
   onSaveGoals?: (goals: SavingsGoal[]) => Promise<void> | void;
 }
 
-export function SavingsScreen({ initialEntries, isOwner, onSave }: Props) {
+export function SavingsScreen({ initialEntries, initialGoals = [], isOwner, onSave, onSaveGoals }: Props) {
   const { entries, balance, totalToReplenish, totalDepositos, totalGastos, addEntry, editEntry, deleteEntry, markReplenished } =
     useSavings({ initialEntries, onSave });
 
-  const [activeTab, setActiveTab] = useState<"history" | "forecast">("history");
+  const { distributed, surplus, handleAdd, handleEdit, handleDelete, handleReorder } = useSavingsGoals({
+    initialGoals,
+    balance,
+    onSave: onSaveGoals ?? (() => {}),
+  });
+
+  const [activeTab, setActiveTab] = useState<"history" | "forecast" | "goals">("history");
+
+  // Entry modal state
   const [addOpen, setAddOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<SavingsEntry | null>(null);
   const [pendingDelete, setPendingDelete] = useState<SavingsEntry | null>(null);
+
+  // Goal modal state
+  const [addGoalOpen, setAddGoalOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<GoalWithProgress | null>(null);
+  const [pendingDeleteGoal, setPendingDeleteGoal] = useState<GoalWithProgress | null>(null);
 
   return (
     <main className="flex flex-1 flex-col">
@@ -56,9 +75,16 @@ export function SavingsScreen({ initialEntries, isOwner, onSave }: Props) {
           >
             Proyección
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("goals")}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "goals" ? "border-b-2 border-brown-800 text-brown-900" : "text-brown-400 hover:text-brown-700"}`}
+          >
+            Metas
+          </button>
         </div>
 
-        {activeTab === "history" ? (
+        {activeTab === "history" && (
           <>
             <div className="mb-8">
               <SavingsSummaryCards balance={balance} totalToReplenish={totalToReplenish} totalDepositos={totalDepositos} totalGastos={totalGastos} />
@@ -79,8 +105,28 @@ export function SavingsScreen({ initialEntries, isOwner, onSave }: Props) {
               }}
             />
           </>
-        ) : (
-          <ForecastTab currentBalance={balance} />
+        )}
+
+        {activeTab === "forecast" && <ForecastTab currentBalance={balance} />}
+
+        {activeTab === "goals" && (
+          <>
+            <div className="mb-6 flex justify-end">
+              {isOwner && <AddButton onClick={() => setAddGoalOpen(true)} label="Agregar meta" />}
+            </div>
+            <SavingsGoalList
+              goals={distributed}
+              surplus={surplus}
+              isOwner={isOwner}
+              onEdit={setEditingGoal}
+              onDelete={(id) => {
+                const g = distributed.find((goal) => goal.id === id);
+                if (g) setPendingDeleteGoal(g);
+              }}
+              onReorder={handleReorder}
+              onAddFirst={() => setAddGoalOpen(true)}
+            />
+          </>
         )}
       </div>
 
@@ -98,6 +144,22 @@ export function SavingsScreen({ initialEntries, isOwner, onSave }: Props) {
         entry={pendingDelete}
         onConfirm={() => { if (pendingDelete) { deleteEntry(pendingDelete.id); setPendingDelete(null); } }}
         onCancel={() => setPendingDelete(null)}
+      />
+
+      <AddGoalModal
+        isOpen={addGoalOpen}
+        onClose={() => setAddGoalOpen(false)}
+        onAdd={(data) => { handleAdd(data); setAddGoalOpen(false); }}
+      />
+      <EditGoalModal
+        goal={editingGoal}
+        onClose={() => setEditingGoal(null)}
+        onSave={(id, data) => { handleEdit(id, data); setEditingGoal(null); }}
+      />
+      <DeleteGoalConfirmModal
+        goal={pendingDeleteGoal}
+        onConfirm={() => { if (pendingDeleteGoal) { handleDelete(pendingDeleteGoal.id); setPendingDeleteGoal(null); } }}
+        onCancel={() => setPendingDeleteGoal(null)}
       />
     </main>
   );
