@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useForm } from "@/shared/hooks/useForm";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
-import { ModalShell, Button, Field, Input } from "@/shared/components";
+import { ModalShell } from "@/shared/components";
+import { ZoneFormFields } from "./ZoneFormFields";
 
 interface Props {
   isOpen: boolean;
@@ -35,21 +36,7 @@ export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm" title="Nueva zona">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Field label="Nombre *">
-          <Input value={form.name} onChange={set("name")} required placeholder="Cocina" />
-        </Field>
-        <Field label="Emoji">
-          <Input value={form.emoji} onChange={set("emoji")} placeholder="🍳" />
-        </Field>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="mt-2 flex justify-end gap-3">
-          <Button type="button" onPress={onClose} variant="secondary">
-            Cancelar
-          </Button>
-          <Button type="submit" variant="primary">
-            Agregar ✓
-          </Button>
-        </div>
+        <ZoneFormFields form={form} set={set} error={error} namePlaceholder="Cocina" emojiPlaceholder="🍳" submitLabel="Agregar ✓" onClose={onClose} />
       </form>
     </ModalShell>
   );

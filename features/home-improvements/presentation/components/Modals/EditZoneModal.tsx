@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useForm } from "@/shared/hooks/useForm";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
-import { ModalShell, Button, Field, Input } from "@/shared/components";
+import { ModalShell } from "@/shared/components";
+import { ZoneFormFields } from "./ZoneFormFields";
 
 interface Props {
   zone: Zone | null;
@@ -31,21 +32,7 @@ export function EditZoneModal({ zone, onClose, onSave }: Props) {
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm" title="Editar zona">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Field label="Nombre *">
-          <Input value={form.name} onChange={set("name")} required />
-        </Field>
-        <Field label="Emoji">
-          <Input value={form.emoji} onChange={set("emoji")} />
-        </Field>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="mt-2 flex justify-end gap-3">
-          <Button type="button" onPress={onClose} variant="secondary">
-            Cancelar
-          </Button>
-          <Button type="submit" variant="primary">
-            Guardar ✓
-          </Button>
-        </div>
+        <ZoneFormFields form={form} set={set} error={error} submitLabel="Guardar ✓" onClose={onClose} />
       </form>
     </ModalShell>
   );
