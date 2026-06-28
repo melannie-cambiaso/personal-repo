@@ -4,7 +4,7 @@ interface Props {
   children: ReactNode;
   onPress?: () => void;
   className: "secondary" | "primary";
-  type: any;
+  type: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
   disabled?: boolean;
 }
 

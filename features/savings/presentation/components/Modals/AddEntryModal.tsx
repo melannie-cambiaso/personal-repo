@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { SavingsEntry, EntryType } from "@/features/savings/domain/SavingsEntry";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button } from "@/shared/components";
+import { Button, Field } from "@/shared/components";
 
 interface Props {
   isOpen: boolean;
