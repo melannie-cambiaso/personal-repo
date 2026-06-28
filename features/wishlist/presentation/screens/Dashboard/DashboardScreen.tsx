@@ -77,6 +77,7 @@ export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd,
       {isOwner && (
         <>
           <WishlistAddItemModal
+            key={editingItem?.id ?? (isOpen ? "add-open" : "closed")}
             isOpen={isOpen || editingItem !== null}
             onClose={handleClose}
             onAdd={(item) => {
