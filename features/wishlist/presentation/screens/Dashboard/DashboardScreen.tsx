@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import {
-  WishListAddButton,
   WishlistAddItemModal,
   WishlistDeleteConfirmModal,
   WishlistHeader,
   WishlistItemCard,
 } from "../../components";
+import { AddButton } from "@/shared/components/AddButton/AddButton";
 import { useWishlist } from "../../hooks/useWishlist";
 import { WishlistItem } from "@/features/wishlist/domain";
 import { sortItems, type SortKey } from "@/features/wishlist/domain/sortItems";
@@ -55,7 +55,7 @@ export function DashboardScreen({ initialItems, initialOwnedIds, isOwner, onAdd,
             <option value="price-desc">Precio ↓</option>
           </select>
 
-          {isOwner && <WishListAddButton onClick={() => setIsOpen(true)} />}
+          {isOwner && <AddButton onClick={() => setIsOpen(true)} />}
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

@@ -12,6 +12,7 @@ interface Props {
   isOpen: boolean;
   onCancel: () => void;
   children: React.ReactNode;
+  title?: string;
   maxWidth?: keyof typeof MAX_WIDTH_CLASS;
   disableBackdropClose?: boolean;
 }
@@ -20,6 +21,7 @@ export function ModalShell({
   isOpen,
   onCancel,
   children,
+  title,
   maxWidth = "md",
   disableBackdropClose = false,
 }: Props) {
@@ -42,7 +44,22 @@ export function ModalShell({
           : (e) => { if (e.target === dialogRef.current) onCancel(); }
       }
     >
-      <div className="px-6 py-5">{children}</div>
+      <div className="px-6 py-5">
+        {title && (
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="font-dancing text-2xl font-bold text-brown-900">{title}</h2>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800"
+              aria-label="Cerrar"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+        {children}
+      </div>
     </dialog>
   );
 }

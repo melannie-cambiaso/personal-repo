@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field } from "@/shared/components";
+import { Button, Field, inputClass } from "@/shared/components";
 
 interface Props {
   isOpen: boolean;
@@ -43,22 +43,11 @@ export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
   };
 
   return (
-    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm">
-      <div className="mb-5 flex items-center justify-between">
-        <h2 className="font-dancing text-brown-900 text-2xl font-bold">Nueva zona</h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-brown-400 hover:text-brown-800 cursor-pointer text-xl transition-colors"
-          aria-label="Cerrar"
-        >
-          ✕
-        </button>
-      </div>
+    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm" title="Nueva zona">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Nombre *">
           <input
-            className={input}
+            className={inputClass}
             value={form.name}
             onChange={set("name")}
             required
@@ -66,7 +55,7 @@ export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
           />
         </Field>
         <Field label="Emoji">
-          <input className={input} value={form.emoji} onChange={set("emoji")} placeholder="🍳" />
+          <input className={inputClass} value={form.emoji} onChange={set("emoji")} placeholder="🍳" />
         </Field>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="mt-2 flex justify-end gap-3">
@@ -81,6 +70,3 @@ export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
     </ModalShell>
   );
 }
-
-const input =
-  "w-full rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600";

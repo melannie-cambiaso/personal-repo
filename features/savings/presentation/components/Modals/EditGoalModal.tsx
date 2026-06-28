@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { SavingsGoal } from "@/features/savings/domain";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field } from "@/shared/components";
+import { Button, Field, inputClass } from "@/shared/components";
 
 interface Props {
   goal: SavingsGoal | null;
@@ -42,22 +42,11 @@ export function EditGoalModal({ goal, onClose, onSave }: Props) {
   };
 
   return (
-    <ModalShell isOpen={isOpen} onCancel={onClose}>
-      <div className="mb-5 flex items-center justify-between">
-        <h2 className="font-dancing text-brown-900 text-2xl font-bold">Editar meta</h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-brown-400 hover:text-brown-800 cursor-pointer text-xl transition-colors"
-          aria-label="Cerrar"
-        >
-          ✕
-        </button>
-      </div>
+    <ModalShell isOpen={isOpen} onCancel={onClose} title="Editar meta">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Nombre *">
           <input
-            className={input}
+            className={inputClass}
             type="text"
             maxLength={60}
             value={form.name}
@@ -67,7 +56,7 @@ export function EditGoalModal({ goal, onClose, onSave }: Props) {
         </Field>
         <Field label="Monto objetivo * ($)">
           <input
-            className={input}
+            className={inputClass}
             type="number"
             min="0.01"
             step="0.01"
@@ -89,6 +78,3 @@ export function EditGoalModal({ goal, onClose, onSave }: Props) {
     </ModalShell>
   );
 }
-
-const input =
-  "w-full rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600";

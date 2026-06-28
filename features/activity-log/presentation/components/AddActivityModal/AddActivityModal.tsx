@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Person } from "@/features/activity-log/domain";
 import { PEOPLE } from "@/features/activity-log/domain";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field } from "@/shared/components";
+import { Button, Field, inputClass } from "@/shared/components";
 
 interface SubmitData {
   date: string;
@@ -65,23 +65,11 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
   };
 
   return (
-    <ModalShell isOpen={isOpen} onCancel={onClose}>
-      <div className="mb-5 flex items-center justify-between">
-        <h2 className="font-dancing text-brown-900 text-2xl font-bold">Nueva actividad</h2>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-brown-400 hover:text-brown-800 cursor-pointer text-xl transition-colors"
-          aria-label="Cerrar"
-        >
-          ✕
-        </button>
-      </div>
-
+    <ModalShell isOpen={isOpen} onCancel={onClose} title="Nueva actividad">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Fecha *">
           <input
-            className={input}
+            className={inputClass}
             type="date"
             value={form.date}
             onChange={(e) => setForm((prev) => ({ ...prev, date: e.target.value }))}
@@ -112,7 +100,7 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
 
         <Field label="Actividad *">
           <input
-            className={`${input} ${activityError ? "border-red-400" : ""}`}
+            className={`${inputClass} ${activityError ? "border-red-400" : ""}`}
             type="text"
             value={form.activity}
             onChange={(e) => {
@@ -128,7 +116,7 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
 
         <Field label="Notas">
           <textarea
-            className={`${input} resize-none`}
+            className={`${inputClass} resize-none`}
             rows={2}
             value={form.notes}
             onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
@@ -148,6 +136,3 @@ export function AddActivityModal({ isOpen, onClose, onSubmit }: Props) {
     </ModalShell>
   );
 }
-
-const input =
-  "w-full rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600";

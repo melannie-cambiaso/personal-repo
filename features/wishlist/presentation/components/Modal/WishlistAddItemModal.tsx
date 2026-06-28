@@ -5,6 +5,7 @@ import { CATEGORIES } from "@/features/wishlist/data";
 import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
+import { Button, Field, inputClass } from "@/shared/components";
 
 interface Props {
   isOpen: boolean;
@@ -69,47 +70,33 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
   };
 
   return (
-    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="lg">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-dancing text-2xl font-bold text-brown-900">
-            {editItem ? "Editar item" : "Nuevo item"}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-brown-400 hover:text-brown-800 cursor-pointer text-xl transition-colors"
-            aria-label="Cerrar"
-          >
-            ✕
-          </button>
-        </div>
-
+    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="lg" title={editItem ? "Editar item" : "Nuevo item"}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Título" required>
-              <input className={input} value={form.title} onChange={set("title")} required />
+            <Field label="Título *">
+              <input className={inputClass} value={form.title} onChange={set("title")} required />
             </Field>
-            <Field label="Marca / Tienda" required>
-              <input className={input} value={form.brand} onChange={set("brand")} required />
+            <Field label="Marca / Tienda *">
+              <input className={inputClass} value={form.brand} onChange={set("brand")} required />
             </Field>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Categoría" required>
-              <select className={input} value={form.categoryKey} onChange={set("categoryKey")} required>
+            <Field label="Categoría *">
+              <select className={inputClass} value={form.categoryKey} onChange={set("categoryKey")} required>
                 {Object.entries(CATEGORIES).map(([key, cat]) => (
                   <option key={key} value={key}>{cat.name}</option>
                 ))}
               </select>
             </Field>
-            <Field label="Emoji" required>
-              <input className={input} value={form.emoji} onChange={set("emoji")} required placeholder="☕" />
+            <Field label="Emoji *">
+              <input className={inputClass} value={form.emoji} onChange={set("emoji")} required placeholder="☕" />
             </Field>
           </div>
 
-          <Field label="Descripción" required>
+          <Field label="Descripción *">
             <textarea
-              className={`${input} resize-none`}
+              className={`${inputClass} resize-none`}
               rows={3}
               value={form.description}
               onChange={set("description")}
@@ -119,50 +106,30 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Precio (CLP)">
-              <input className={input} type="number" min="0" value={form.price} onChange={set("price")} placeholder="23990" />
+              <input className={inputClass} type="number" min="0" value={form.price} onChange={set("price")} placeholder="23990" />
             </Field>
             <Field label="Tag">
-              <input className={input} value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
+              <input className={inputClass} value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
             </Field>
           </div>
 
           <Field label="URL del producto">
-            <input className={input} type="url" value={form.url} onChange={set("url")} placeholder="https://..." />
+            <input className={inputClass} type="url" value={form.url} onChange={set("url")} placeholder="https://..." />
           </Field>
 
           <Field label="URL de imagen">
-            <input className={input} type="url" value={form.image} onChange={set("image")} placeholder="https://..." />
+            <input className={inputClass} type="url" value={form.image} onChange={set("image")} placeholder="https://..." />
           </Field>
 
           <div className="mt-2 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-2xs border-brown-300 text-brown-600 hover:bg-cream-300 rounded-lg border px-4 py-2 font-bold transition-colors cursor-pointer"
-            >
+            <Button type="button" onPress={onClose} className="secondary">
               Cancelar
-            </button>
-            <button
-              type="submit"
-              className="text-2xs bg-brown-800 hover:bg-brown-700 rounded-lg px-4 py-2 font-bold text-white transition-colors cursor-pointer"
-            >
+            </Button>
+            <Button type="submit" className="primary">
               {editItem ? "Guardar ✓" : "Agregar ✓"}
-            </button>
+            </Button>
           </div>
         </form>
     </ModalShell>
   );
 }
-
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="text-2xs text-brown-400 tracking-store font-semibold uppercase">
-        {label}{required && " *"}
-      </span>
-      {children}
-    </label>
-  );
-}
-
-const input = "rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none focus:border-brown-600 transition-colors w-full";

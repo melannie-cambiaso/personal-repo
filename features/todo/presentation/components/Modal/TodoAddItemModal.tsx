@@ -3,6 +3,7 @@
 import { useState } from "react"
 import type { TodoItem } from "@/features/todo/domain/TodoItem"
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell"
+import { Button } from "@/shared/components"
 
 interface Props {
   isOpen: boolean
@@ -43,19 +44,7 @@ export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Prop
   }
 
   return (
-    <ModalShell isOpen={isOpen} onCancel={onClose}>
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-dancing text-2xl font-bold text-brown-900">Nueva tarea</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800"
-            aria-label="Cerrar"
-          >
-            ✕
-          </button>
-        </div>
-
+    <ModalShell isOpen={isOpen} onCancel={onClose} title="Nueva tarea">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1">
             <span className="text-2xs font-semibold uppercase tracking-store text-brown-400">
@@ -92,19 +81,12 @@ export function TodoAddItemModal({ isOpen, onClose, onAdd, existingItems }: Prop
           </label>
 
           <div className="mt-2 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-2xs cursor-pointer rounded-lg border border-brown-300 px-4 py-2 font-bold text-brown-600 transition-colors hover:bg-cream-300"
-            >
+            <Button type="button" onPress={onClose} className="secondary">
               Cancelar
-            </button>
-            <button
-              type="submit"
-              className="text-2xs cursor-pointer rounded-lg bg-brown-800 px-4 py-2 font-bold text-white transition-colors hover:bg-brown-700"
-            >
+            </Button>
+            <Button type="submit" className="primary">
               Agregar ✓
-            </button>
+            </Button>
           </div>
         </form>
     </ModalShell>
