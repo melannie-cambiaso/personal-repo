@@ -1,14 +1,11 @@
 import type { SavingsGoal, GoalWithProgress } from "./SavingsGoal";
+import { sortGoalsByPriority } from "./SavingsGoal";
 
 export function distributeToGoals(
   balance: number,
   goals: SavingsGoal[],
 ): { goals: GoalWithProgress[]; surplus: number } {
-  const sorted = [...goals].sort((a, b) =>
-    a.priority !== b.priority
-      ? a.priority - b.priority
-      : a.createdAt.localeCompare(b.createdAt),
-  );
+  const sorted = sortGoalsByPriority(goals);
 
   let remaining = balance;
   const out = sorted.map((g) => {

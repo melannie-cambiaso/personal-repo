@@ -1,4 +1,4 @@
-export const inputClass =
+const inputClass =
   "w-full rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600";
 
 export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {

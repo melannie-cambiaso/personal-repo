@@ -1,5 +1,5 @@
 export { Field } from "./Field/Field";
-export { Input, Textarea, Select, inputClass } from "./Input/Input";
+export { Input, Textarea, Select } from "./Input/Input";
 export { Button } from "./Button/Button";
 export { ModalShell } from "./ModalShell/ModalShell";
 export { AddButton } from "./AddButton/AddButton";

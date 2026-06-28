@@ -1,4 +1,5 @@
 import type { SavingsGoal } from "./SavingsGoal";
+import { sortGoalsByPriority } from "./SavingsGoal";
 import type { ForecastMonth } from "./computeForecast";
 
 export interface GoalForecastResult {
@@ -15,12 +16,7 @@ export function computeGoalForecast(
 ): GoalForecastResult[] {
   if (goals.length === 0) return [];
 
-  // Sort by priority ASC, ties broken by createdAt ASC — mirrors distributeToGoals
-  const sorted = [...goals].sort((a, b) =>
-    a.priority !== b.priority
-      ? a.priority - b.priority
-      : a.createdAt.localeCompare(b.createdAt)
-  );
+  const sorted = sortGoalsByPriority(goals);
 
   let cumulativeTarget = 0;
 

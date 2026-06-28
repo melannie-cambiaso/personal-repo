@@ -11,3 +11,11 @@ export interface GoalWithProgress extends SavingsGoal {
   progress: number;
   isCompleted: boolean;
 }
+
+export function sortGoalsByPriority(goals: SavingsGoal[]): SavingsGoal[] {
+  return [...goals].sort((a, b) =>
+    a.priority !== b.priority
+      ? a.priority - b.priority
+      : a.createdAt.localeCompare(b.createdAt),
+  );
+}
