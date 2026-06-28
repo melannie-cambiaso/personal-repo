@@ -4,6 +4,7 @@ import type { Zone } from "@/features/home-improvements/domain/Zone";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { ImprovementItemCard } from "../ItemCard/ImprovementItemCard";
 import { formatMonth } from "@/shared/utils/formatMonth";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {
   zones: Zone[];
@@ -51,7 +52,7 @@ export function MonthlyPlanTab({
         <div className="text-center">
           <h2 className="font-dancing text-2xl font-bold capitalize text-brown-900">{label}</h2>
           {totalCost > 0 && (
-            <p className="mt-0.5 text-sm font-semibold text-brown-600">${totalCost.toLocaleString("es-AR")} estimado</p>
+            <p className="mt-0.5 text-sm font-semibold text-brown-600">{formatCLP(totalCost)} estimado</p>
           )}
         </div>
         <button

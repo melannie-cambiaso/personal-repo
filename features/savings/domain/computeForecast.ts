@@ -12,7 +12,7 @@ export function computeForecast(
   months: number
 ): ForecastMonth[] {
   const now = new Date();
-  const fmt = new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" });
+  const fmt = new Intl.DateTimeFormat("es-CL", { month: "long", year: "numeric" });
   const monthlyRate =
     config.annualRate > 0 ? Math.pow(1 + config.annualRate / 100, 1 / 12) - 1 : 0;
 

@@ -1,6 +1,5 @@
-import { PageHeader } from "@/shared/components/PageHeader/PageHeader"
-
-const formatCLP = (n: number) => `$${n.toLocaleString("es-CL")}`;
+import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {
   total: number;

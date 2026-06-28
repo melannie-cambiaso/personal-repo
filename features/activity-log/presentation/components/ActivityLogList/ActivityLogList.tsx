@@ -15,7 +15,7 @@ interface Props {
   selectedMonth: string;
 }
 
-const dateFormatter = new Intl.DateTimeFormat("es", {
+const dateFormatter = new Intl.DateTimeFormat("es-CL", {
   weekday: "long",
   day: "numeric",
   month: "long",

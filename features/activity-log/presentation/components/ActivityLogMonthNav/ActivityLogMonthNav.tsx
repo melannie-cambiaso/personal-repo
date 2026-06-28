@@ -20,7 +20,7 @@ function nextMonth(month: string): string {
 }
 
 export function ActivityLogMonthNav({ month, onChange }: Props) {
-  const label = new Intl.DateTimeFormat("es", {
+  const label = new Intl.DateTimeFormat("es-CL", {
     month: "long",
     year: "numeric",
   }).format(new Date(`${month}-01T12:00:00`));

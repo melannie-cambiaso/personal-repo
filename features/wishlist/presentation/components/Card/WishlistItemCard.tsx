@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
 import Image from "next/image";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 
 const categoryBg: Record<CategoryColor, string> = {
   food: "bg-cat-food",
@@ -13,8 +14,6 @@ const categoryBg: Record<CategoryColor, string> = {
   cloth: "bg-cat-cloth",
   tech: "bg-cat-tech",
 };
-
-const formatCLP = (n: number) => `$${n.toLocaleString("es-CL")}`;
 
 interface Props extends WishlistItem {
   owned: boolean;

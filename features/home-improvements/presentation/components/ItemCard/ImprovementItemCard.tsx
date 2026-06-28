@@ -38,7 +38,7 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
           </span>
           {item.plannedMonth && !item.done && (
             <span className="text-2xs rounded-full bg-cream-300 px-2 py-0.5 font-semibold text-brown-700">
-              📅 {new Date(`${item.plannedMonth}-01T12:00:00`).toLocaleString("es-AR", { month: "short", year: "numeric" })}
+              📅 {new Date(`${item.plannedMonth}-01T12:00:00`).toLocaleString("es-CL", { month: "short", year: "numeric" })}
             </span>
           )}
           {item.estimatedCost !== null && (
