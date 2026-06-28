@@ -85,7 +85,7 @@ export function TransactionsTab({ transactions, groups, onDelete }: Props) {
           <section key={dayGroup.date}>
             <div className="mb-2">
               <span className="text-sm font-semibold text-brown-800">
-                {new Date(dayGroup.date + "T00:00:00").toLocaleDateString("es-AR", {
+                {new Date(dayGroup.date + "T00:00:00").toLocaleDateString("es-CL", {
                   day: "numeric",
                   month: "short",
                   year: "numeric",

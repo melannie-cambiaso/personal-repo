@@ -1,6 +1,7 @@
 "use client";
 
 import { formatMonth } from "@/shared/utils/formatMonth";
+import { MonthNav } from "@/shared/components/MonthNav/MonthNav";
 
 interface Props {
   selectedMonth: string;
@@ -9,25 +10,5 @@ interface Props {
 }
 
 export function FinanceMonthNav({ selectedMonth, onPrev, onNext }: Props) {
-  const label = formatMonth(selectedMonth);
-
-  return (
-    <div className="mb-6 flex items-center justify-between">
-      <button
-        type="button"
-        onClick={onPrev}
-        className="cursor-pointer rounded-lg border border-cream-400 px-3 py-1.5 text-sm text-brown-600 transition-colors hover:border-brown-400 hover:text-brown-900"
-      >
-        ← Anterior
-      </button>
-      <span className="font-dancing text-xl font-bold capitalize text-brown-900">{label}</span>
-      <button
-        type="button"
-        onClick={onNext}
-        className="cursor-pointer rounded-lg border border-cream-400 px-3 py-1.5 text-sm text-brown-600 transition-colors hover:border-brown-400 hover:text-brown-900"
-      >
-        Siguiente →
-      </button>
-    </div>
-  );
+  return <MonthNav label={formatMonth(selectedMonth)} onPrev={onPrev} onNext={onNext} />;
 }

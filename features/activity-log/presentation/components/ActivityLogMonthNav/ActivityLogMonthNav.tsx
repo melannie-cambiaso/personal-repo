@@ -1,5 +1,8 @@
 "use client";
 
+import { formatMonth } from "@/shared/utils/formatMonth";
+import { MonthNav } from "@/shared/components/MonthNav/MonthNav";
+
 interface Props {
   month: string;
   onChange: (month: string) => void;
@@ -20,28 +23,11 @@ function nextMonth(month: string): string {
 }
 
 export function ActivityLogMonthNav({ month, onChange }: Props) {
-  const label = new Intl.DateTimeFormat("es-CL", {
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${month}-01T12:00:00`));
-
   return (
-    <div className="mb-6 flex items-center justify-between">
-      <button
-        type="button"
-        onClick={() => onChange(prevMonth(month))}
-        className="cursor-pointer rounded-lg border border-cream-400 px-3 py-1.5 text-sm text-brown-600 transition-colors hover:border-brown-400 hover:text-brown-900"
-      >
-        ← Anterior
-      </button>
-      <span className="font-dancing text-xl font-bold capitalize text-brown-900">{label}</span>
-      <button
-        type="button"
-        onClick={() => onChange(nextMonth(month))}
-        className="cursor-pointer rounded-lg border border-cream-400 px-3 py-1.5 text-sm text-brown-600 transition-colors hover:border-brown-400 hover:text-brown-900"
-      >
-        Siguiente →
-      </button>
-    </div>
+    <MonthNav
+      label={formatMonth(month)}
+      onPrev={() => onChange(prevMonth(month))}
+      onNext={() => onChange(nextMonth(month))}
+    />
   );
 }
