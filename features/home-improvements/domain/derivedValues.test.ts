@@ -37,12 +37,12 @@ describe("totalCostByZone", () => {
     expect(totalCostByZone(items).get("z1")).toBe(2000);
   });
 
-  it("includes done items in total", () => {
+  it("excludes done items from total", () => {
     const items = [
       item({ zoneId: "z1", estimatedCost: 500, done: true }),
       item({ zoneId: "z1", estimatedCost: 500, done: false }),
     ];
-    expect(totalCostByZone(items).get("z1")).toBe(1000);
+    expect(totalCostByZone(items).get("z1")).toBe(500);
   });
 
   it("multiplies estimatedCost by quantity", () => {

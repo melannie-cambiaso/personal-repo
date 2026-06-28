@@ -77,7 +77,9 @@ export function HomeImprovementsScreen({
   };
 
   const totalPending = items.filter((i) => !i.done).length;
-  const totalCost = items.reduce((sum, i) => sum + (i.estimatedCost ?? 0), 0);
+  const totalCost = items
+    .filter((i) => !i.done)
+    .reduce((sum, i) => sum + (i.estimatedCost ?? 0) * (i.quantity ?? 1), 0);
 
   return (
     <main className="flex flex-1 flex-col">
