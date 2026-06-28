@@ -5,6 +5,14 @@ export type ImprovementType =
   | "Instalación"
   | "Otro";
 
+export const IMPROVEMENT_TYPES: ImprovementType[] = [
+  "Decoración",
+  "Organización",
+  "Reparación",
+  "Instalación",
+  "Otro",
+];
+
 export interface ImprovementItem {
   id: string;
   zoneId: string;

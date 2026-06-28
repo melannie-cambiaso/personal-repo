@@ -1,54 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type {
-  ImprovementItem,
-  ImprovementType,
-} from "@/features/home-improvements/domain/ImprovementItem";
+import { useState } from "react";
+import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
+import { IMPROVEMENT_TYPES } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button, Field, Input, Textarea, Select } from "@/shared/components";
 
-const TYPES: ImprovementType[] = [
-  "Decoración",
-  "Organización",
-  "Reparación",
-  "Instalación",
-  "Otro",
-];
-
 interface Props {
-  isOpen: boolean;
   item: ImprovementItem | null;
   zones: Zone[];
   onClose: () => void;
   onSave: (item: ImprovementItem) => void;
 }
 
-export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
-  const [form, setForm] = useState({
-    title: "",
-    type: "Otro" as ImprovementType,
-    estimatedCost: "",
-    quantity: "1",
-    purchaseUrl: "",
-    description: "",
-    notes: "",
-  });
+export function EditItemModal({ item, zones, onClose, onSave }: Props) {
+  const isOpen = item !== null;
 
-  useEffect(() => {
-    if (isOpen && item) {
-      setForm({
-        title: item.title,
-        type: item.type,
-        estimatedCost: item.estimatedCost?.toString() ?? "",
-        quantity: item.quantity?.toString() ?? "1",
-        purchaseUrl: item.purchaseUrl ?? "",
-        description: item.description ?? "",
-        notes: item.notes ?? "",
-      });
-    }
-  }, [isOpen, item]);
+  const [form, setForm] = useState({
+    title: item?.title ?? "",
+    type: item?.type ?? ("Otro" as ImprovementItem["type"]),
+    estimatedCost: item?.estimatedCost?.toString() ?? "",
+    quantity: item?.quantity?.toString() ?? "1",
+    purchaseUrl: item?.purchaseUrl ?? "",
+    description: item?.description ?? "",
+    notes: item?.notes ?? "",
+  });
 
   const set =
     (field: keyof typeof form) =>
@@ -88,7 +65,7 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
           </Field>
           <Field label="Tipo *">
             <Select value={form.type} onChange={set("type")}>
-              {TYPES.map((t) => (
+              {IMPROVEMENT_TYPES.map((t) => (
                 <option key={t} value={t}>
                   {t}
                 </option>
@@ -124,18 +101,10 @@ export function EditItemModal({ isOpen, item, zones, onClose, onSave }: Props) {
           />
         </Field>
         <Field label="Descripción">
-          <Textarea
-            rows={2}
-            value={form.description}
-            onChange={set("description")}
-          />
+          <Textarea rows={2} value={form.description} onChange={set("description")} />
         </Field>
         <Field label="Notas">
-          <Textarea
-            rows={2}
-            value={form.notes}
-            onChange={set("notes")}
-          />
+          <Textarea rows={2} value={form.notes} onChange={set("notes")} />
         </Field>
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" onPress={onClose} variant="secondary">

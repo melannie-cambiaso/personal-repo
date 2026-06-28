@@ -1,27 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button, Field, Input } from "@/shared/components";
 
 interface Props {
-  isOpen: boolean;
   zone: Zone | null;
   onClose: () => void;
   onSave: (zone: Zone) => boolean;
 }
 
-export function EditZoneModal({ isOpen, zone, onClose, onSave }: Props) {
-  const [form, setForm] = useState({ name: "", emoji: "" });
-  const [error, setError] = useState("");
+export function EditZoneModal({ zone, onClose, onSave }: Props) {
+  const isOpen = zone !== null;
 
-  useEffect(() => {
-    if (isOpen && zone) {
-      setForm({ name: zone.name, emoji: zone.emoji ?? "" });
-      setError("");
-    }
-  }, [isOpen, zone]);
+  const [form, setForm] = useState({
+    name: zone?.name ?? "",
+    emoji: zone?.emoji ?? "",
+  });
+  const [error, setError] = useState("");
 
   const set = (field: "name" | "emoji") => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -51,7 +48,7 @@ export function EditZoneModal({ isOpen, zone, onClose, onSave }: Props) {
           <Button type="button" onPress={onClose} variant="secondary">
             Cancelar
           </Button>
-          <Button type="submit" variant="secondary">
+          <Button type="submit" variant="primary">
             Guardar ✓
           </Button>
         </div>

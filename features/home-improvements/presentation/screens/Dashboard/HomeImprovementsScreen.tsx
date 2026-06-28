@@ -158,17 +158,19 @@ export function HomeImprovementsScreen({
       </div>
 
       <AddZoneModal
+        key={addZoneOpen ? 1 : 0}
         isOpen={addZoneOpen}
         onClose={() => setAddZoneOpen(false)}
         onAdd={addZone}
       />
       <EditZoneModal
-        isOpen={editingZone !== null}
+        key={editingZone?.id}
         zone={editingZone}
         onClose={() => setEditingZone(null)}
         onSave={editZone}
       />
       <AddItemModal
+        key={addItemZoneId ?? "closed"}
         isOpen={addItemZoneId !== undefined}
         zones={zones}
         preselectedZoneId={addItemZoneId}
@@ -176,7 +178,7 @@ export function HomeImprovementsScreen({
         onAdd={(item) => { addItem(item); setAddItemZoneId(undefined); }}
       />
       <EditItemModal
-        isOpen={editingItem !== null}
+        key={editingItem?.id}
         item={editingItem}
         zones={zones}
         onClose={() => setEditingItem(null)}

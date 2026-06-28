@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button, Field, Input } from "@/shared/components";
@@ -16,13 +16,6 @@ const EMPTY = { name: "", emoji: "" };
 export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (isOpen) {
-      setForm(EMPTY);
-      setError("");
-    }
-  }, [isOpen]);
 
   const set = (field: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
