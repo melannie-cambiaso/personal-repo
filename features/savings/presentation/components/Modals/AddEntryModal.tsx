@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import type { SavingsEntry, EntryType } from "@/features/savings/domain/SavingsEntry";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, Input, Textarea, Select } from "@/shared/components";
+import { Button, Select, Field } from "@/shared/components";
+import { EntryFormFields } from "./EntryFormFields";
 
 interface Props {
   isOpen: boolean;
@@ -65,45 +66,12 @@ export function AddEntryModal({ isOpen, onClose, onAdd }: Props) {
             <option value="gasto">Gasto</option>
           </Select>
         </Field>
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Monto * ($)">
-            <Input
-              type="number"
-              min="0.01"
-              step="0.01"
-              value={form.amount}
-              onChange={setField("amount")}
-              required
-              placeholder="0"
-            />
-          </Field>
-          <Field label="Fecha *">
-            <Input
-              type="date"
-              value={form.date}
-              onChange={setField("date")}
-              required
-            />
-          </Field>
-        </div>
-        <Field label="Notas">
-          <Textarea
-            rows={2}
-            value={form.notes}
-            onChange={setField("notes")}
-          />
-        </Field>
-        {form.type === "gasto" && (
-          <label className="text-brown-700 flex cursor-pointer items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.toReplenish}
-              onChange={setField("toReplenish")}
-              className="accent-brown-700 h-4 w-4"
-            />
-            A reponer este mes
-          </label>
-        )}
+        <EntryFormFields
+          form={form}
+          showReplenish={form.type === "gasto"}
+          setField={setField}
+          amountPlaceholder="0"
+        />
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" onPress={onClose} variant="secondary">
             Cancelar

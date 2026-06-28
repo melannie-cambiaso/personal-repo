@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
-import { Button, Field, Input, Textarea } from "@/shared/components";
+import { Button } from "@/shared/components";
+import { EntryFormFields } from "./EntryFormFields";
 
 interface Props {
   entry: SavingsEntry | null;
@@ -56,44 +57,11 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Editar registro">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Monto * ($)">
-            <Input
-              type="number"
-              min="0.01"
-              step="0.01"
-              value={form.amount}
-              onChange={setField("amount")}
-              required
-            />
-          </Field>
-          <Field label="Fecha *">
-            <Input
-              type="date"
-              value={form.date}
-              onChange={setField("date")}
-              required
-            />
-          </Field>
-        </div>
-        <Field label="Notas">
-          <Textarea
-            rows={2}
-            value={form.notes}
-            onChange={setField("notes")}
-          />
-        </Field>
-        {entry?.type === "gasto" && (
-          <label className="text-brown-700 flex cursor-pointer items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.toReplenish}
-              onChange={setField("toReplenish")}
-              className="accent-brown-700 h-4 w-4"
-            />
-            A reponer este mes
-          </label>
-        )}
+        <EntryFormFields
+          form={form}
+          showReplenish={entry?.type === "gasto"}
+          setField={setField}
+        />
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" onPress={onClose} variant="secondary">
             Cancelar
