@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface Props {
   isOpen: boolean;
@@ -12,15 +13,11 @@ interface Props {
 const EMPTY = { name: "", emoji: "" };
 
 export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (isOpen) { setForm(EMPTY); setError(""); dialog.showModal(); }
-    else dialog.close();
+    if (isOpen) { setForm(EMPTY); setError(""); }
   }, [isOpen]);
 
   const set = (field: keyof typeof EMPTY) =>
@@ -36,32 +33,25 @@ export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
   };
 
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-sm rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onClose(); }}
-      onClick={(e) => { if (e.target === dialogRef.current) onClose(); }}
-    >
-      <div className="px-6 py-5">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-dancing text-2xl font-bold text-brown-900">Nueva zona</h2>
-          <button type="button" onClick={onClose} className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800" aria-label="Cerrar">✕</button>
-        </div>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Field label="Nombre *">
-            <input className={input} value={form.name} onChange={set("name")} required placeholder="Cocina" />
-          </Field>
-          <Field label="Emoji">
-            <input className={input} value={form.emoji} onChange={set("emoji")} placeholder="🍳" />
-          </Field>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="mt-2 flex justify-end gap-3">
-            <button type="button" onClick={onClose} className={btnSecondary}>Cancelar</button>
-            <button type="submit" className={btnPrimary}>Agregar ✓</button>
-          </div>
-        </form>
+    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm">
+      <div className="mb-5 flex items-center justify-between">
+        <h2 className="font-dancing text-2xl font-bold text-brown-900">Nueva zona</h2>
+        <button type="button" onClick={onClose} className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800" aria-label="Cerrar">✕</button>
       </div>
-    </dialog>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Field label="Nombre *">
+          <input className={input} value={form.name} onChange={set("name")} required placeholder="Cocina" />
+        </Field>
+        <Field label="Emoji">
+          <input className={input} value={form.emoji} onChange={set("emoji")} placeholder="🍳" />
+        </Field>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <div className="mt-2 flex justify-end gap-3">
+          <button type="button" onClick={onClose} className={btnSecondary}>Cancelar</button>
+          <button type="submit" className={btnPrimary}>Agregar ✓</button>
+        </div>
+      </form>
+    </ModalShell>
   );
 }
 

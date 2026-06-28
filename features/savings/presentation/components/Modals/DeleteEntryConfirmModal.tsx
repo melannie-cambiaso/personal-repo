@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import { formatCLP } from "@/shared/utils/formatCurrency";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface Props {
   entry: SavingsEntry | null;
@@ -11,38 +11,25 @@ interface Props {
 }
 
 export function DeleteEntryConfirmModal({ entry, onConfirm, onCancel }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const isOpen = entry !== null;
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    isOpen ? dialog.showModal() : dialog.close();
-  }, [isOpen]);
-
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-sm rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onCancel(); }}
-    >
-      <div className="px-6 py-5">
-        <h2 className="font-dancing mb-3 text-2xl font-bold text-brown-900">¿Eliminar registro?</h2>
-        <p className="mb-5 text-sm leading-relaxed text-brown-600">
-          {entry && (
-            <>
-              {entry.type === "deposito" ? "Depósito" : "Gasto"} de{" "}
-              <strong>{formatCLP(entry.amount)}</strong> del{" "}
-              <strong>{entry.date}</strong>. Esta acción no se puede deshacer.
-            </>
-          )}
-        </p>
-        <div className="flex justify-end gap-3">
-          <button type="button" onClick={onCancel} className={btnSecondary}>Cancelar</button>
-          <button type="button" onClick={onConfirm} className={btnDanger}>Eliminar</button>
-        </div>
+    <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
+      <h2 className="font-dancing mb-3 text-2xl font-bold text-brown-900">¿Eliminar registro?</h2>
+      <p className="mb-5 text-sm leading-relaxed text-brown-600">
+        {entry && (
+          <>
+            {entry.type === "deposito" ? "Depósito" : "Gasto"} de{" "}
+            <strong>{formatCLP(entry.amount)}</strong> del{" "}
+            <strong>{entry.date}</strong>. Esta acción no se puede deshacer.
+          </>
+        )}
+      </p>
+      <div className="flex justify-end gap-3">
+        <button type="button" onClick={onCancel} className={btnSecondary}>Cancelar</button>
+        <button type="button" onClick={onConfirm} className={btnDanger}>Eliminar</button>
       </div>
-    </dialog>
+    </ModalShell>
   );
 }
 

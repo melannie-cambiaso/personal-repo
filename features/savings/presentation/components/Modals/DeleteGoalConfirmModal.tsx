@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import type { SavingsGoal } from "@/features/savings/domain";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface Props {
   goal: SavingsGoal | null;
@@ -10,40 +10,27 @@ interface Props {
 }
 
 export function DeleteGoalConfirmModal({ goal, onConfirm, onCancel }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const isOpen = goal !== null;
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    isOpen ? dialog.showModal() : dialog.close();
-  }, [isOpen]);
-
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-sm rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onCancel(); }}
-    >
-      <div className="px-6 py-5">
-        <h2 className="font-dancing mb-3 text-2xl font-bold text-brown-900">¿Eliminar meta?</h2>
-        <p className="mb-5 text-sm leading-relaxed text-brown-600">
-          {goal && (
-            <>
-              Vas a eliminar <strong>{goal.name}</strong>. Esta acción no se puede deshacer.
-            </>
-          )}
-        </p>
-        <div className="flex justify-end gap-3">
-          <button type="button" onClick={onCancel} className={btnSecondary}>
-            Cancelar
-          </button>
-          <button type="button" onClick={onConfirm} className={btnDanger}>
-            Eliminar
-          </button>
-        </div>
+    <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
+      <h2 className="font-dancing mb-3 text-2xl font-bold text-brown-900">¿Eliminar meta?</h2>
+      <p className="mb-5 text-sm leading-relaxed text-brown-600">
+        {goal && (
+          <>
+            Vas a eliminar <strong>{goal.name}</strong>. Esta acción no se puede deshacer.
+          </>
+        )}
+      </p>
+      <div className="flex justify-end gap-3">
+        <button type="button" onClick={onCancel} className={btnSecondary}>
+          Cancelar
+        </button>
+        <button type="button" onClick={onConfirm} className={btnDanger}>
+          Eliminar
+        </button>
       </div>
-    </dialog>
+    </ModalShell>
   );
 }
 

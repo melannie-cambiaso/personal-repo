@@ -1,3 +1,3 @@
-export { DEFAULT_GROUPS, getGroupForCategory } from "./categories";
+export { DEFAULT_GROUPS } from "./categories";
 export type { FinanceTransaction } from "./FinanceTransaction";
 export { computeActualFromTransactions } from "./computeActualFromTransactions";

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
+import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 
 interface Props {
   item: WishlistItem | null;
@@ -10,23 +10,12 @@ interface Props {
 }
 
 export function WishlistDeleteConfirmModal({ item, onConfirm, onCancel }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const isOpen = item !== null;
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    isOpen ? dialog.showModal() : dialog.close();
-  }, [isOpen]);
-
   return (
-    <dialog
-      ref={dialogRef}
-      className="m-auto w-full max-w-sm rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40"
-      onCancel={(e) => { e.preventDefault(); onCancel(); }}
-    >
+    <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
       {item && (
-        <div className="px-6 py-5">
+        <>
           <h2 className="font-dancing mb-3 text-2xl font-bold text-brown-900">¿Eliminar item?</h2>
           <p className="mb-5 text-sm leading-relaxed text-brown-600">
             ¿Seguro que querés eliminar <strong>{item.title}</strong>? Esta acción no se puede deshacer.
@@ -35,9 +24,9 @@ export function WishlistDeleteConfirmModal({ item, onConfirm, onCancel }: Props)
             <button type="button" onClick={onCancel} className={btnSecondary}>Cancelar</button>
             <button type="button" onClick={onConfirm} className={btnDanger}>Eliminar</button>
           </div>
-        </div>
+        </>
       )}
-    </dialog>
+    </ModalShell>
   );
 }
 

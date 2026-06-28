@@ -62,7 +62,3 @@ export const DEFAULT_GROUPS: { name: string; type: "income" | "expense"; categor
       ],
     },
   ];
-
-export function getGroupForCategory(category: string): string {
-  return DEFAULT_GROUPS.find((g) => g.categories.includes(category))?.name ?? "Otro";
-}
