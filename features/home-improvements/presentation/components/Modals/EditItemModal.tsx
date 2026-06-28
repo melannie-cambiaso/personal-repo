@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "@/shared/hooks/useForm";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { IMPROVEMENT_TYPES } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
@@ -17,7 +17,7 @@ interface Props {
 export function EditItemModal({ item, zones, onClose, onSave }: Props) {
   const isOpen = item !== null;
 
-  const [form, setForm] = useState({
+  const { form, set } = useForm({
     title: item?.title ?? "",
     type: item?.type ?? ("Otro" as ImprovementItem["type"]),
     estimatedCost: item?.estimatedCost?.toString() ?? "",
@@ -26,11 +26,6 @@ export function EditItemModal({ item, zones, onClose, onSave }: Props) {
     description: item?.description ?? "",
     notes: item?.notes ?? "",
   });
-
-  const set =
-    (field: keyof typeof form) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

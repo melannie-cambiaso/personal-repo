@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "@/shared/hooks/useForm";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell } from "@/shared/components/ModalShell/ModalShell";
 import { Button, Field, Input } from "@/shared/components";
@@ -14,14 +15,8 @@ interface Props {
 export function EditZoneModal({ zone, onClose, onSave }: Props) {
   const isOpen = zone !== null;
 
-  const [form, setForm] = useState({
-    name: zone?.name ?? "",
-    emoji: zone?.emoji ?? "",
-  });
+  const { form, set } = useForm({ name: zone?.name ?? "", emoji: zone?.emoji ?? "" });
   const [error, setError] = useState("");
-
-  const set = (field: "name" | "emoji") => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "@/shared/hooks/useForm";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { IMPROVEMENT_TYPES } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
@@ -26,13 +27,8 @@ const EMPTY = {
 };
 
 export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd }: Props) {
-  const [form, setForm] = useState(EMPTY);
+  const { form, set } = useForm(EMPTY);
   const [zoneId, setZoneId] = useState(() => preselectedZoneId ?? zones[0]?.id ?? "");
-
-  const set =
-    (field: keyof typeof EMPTY) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

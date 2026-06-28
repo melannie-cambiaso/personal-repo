@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "@/shared/hooks/useForm";
 import { CATEGORIES } from "@/features/wishlist/data";
 import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
@@ -41,10 +41,7 @@ function formFromItem(item: WishlistItem) {
 }
 
 export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props) {
-  const [form, setForm] = useState(() => (editItem ? formFromItem(editItem) : EMPTY));
-
-  const set = (field: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const { form, set } = useForm(editItem ? formFromItem(editItem) : EMPTY);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +62,12 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
   };
 
   return (
-    <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="lg" title={editItem ? "Editar item" : "Nuevo item"}>
+    <ModalShell
+      isOpen={isOpen}
+      onCancel={onClose}
+      maxWidth="lg"
+      title={editItem ? "Editar item" : "Nuevo item"}
+    >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <Field label="Título *">
@@ -80,7 +82,9 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           <Field label="Categoría *">
             <Select value={form.categoryKey} onChange={set("categoryKey")} required>
               {Object.entries(CATEGORIES).map(([key, cat]) => (
-                <option key={key} value={key}>{cat.name}</option>
+                <option key={key} value={key}>
+                  {cat.name}
+                </option>
               ))}
             </Select>
           </Field>
@@ -95,7 +99,13 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="Precio (CLP)">
-            <Input type="number" min="0" value={form.price} onChange={set("price")} placeholder="23990" />
+            <Input
+              type="number"
+              min="0"
+              value={form.price}
+              onChange={set("price")}
+              placeholder="23990"
+            />
           </Field>
           <Field label="Tag">
             <Input value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
