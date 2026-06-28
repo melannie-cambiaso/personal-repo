@@ -1,5 +1,5 @@
 import { ProgressBar } from "@/shared/components/ProgressBar/ProgressBar";
-import { fmt } from "@/shared/utils/formatCurrency";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 import { formatMonth } from "@/shared/utils/formatMonth";
 
 interface GoalForecastCardProps {
@@ -39,7 +39,7 @@ export function GoalForecastCard({
       </div>
       <ProgressBar value={progress} />
       <span className="text-xs text-brown-400">
-        {fmt(currentAmount)} / {fmt(targetAmount)}
+        {formatCLP(currentAmount)} / {formatCLP(targetAmount)}
       </span>
     </div>
   );

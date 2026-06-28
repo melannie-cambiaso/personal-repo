@@ -5,7 +5,7 @@ import type { FinanceTransaction } from "@/features/finance/domain";
 import { TransactionCard } from "./TransactionCard";
 import { groupTransactionsByCategory } from "@/features/finance/domain/groupTransactionsByCategory";
 import { groupTransactionsByDay } from "@/features/finance/domain/groupTransactionsByDay";
-import { fmt } from "@/shared/utils/formatCurrency";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 
 type Group = { name: string; categories: string[] };
 
@@ -63,7 +63,7 @@ export function TransactionsTab({ transactions, groups, onDelete }: Props) {
           <section key={group.category}>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-semibold text-brown-800">{group.category}</span>
-              <span className="text-sm text-brown-500">{fmt(group.total)}</span>
+              <span className="text-sm text-brown-500">{formatCLP(group.total)}</span>
             </div>
             <ul className="flex flex-col gap-2">
               {group.transactions.map((tx) => (

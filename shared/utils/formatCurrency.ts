@@ -1,1 +1,1 @@
-export const fmt = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
+export const formatCLP = (n: number) => "$" + Math.round(n).toLocaleString("es-CL");

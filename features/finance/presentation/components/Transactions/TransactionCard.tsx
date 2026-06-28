@@ -1,7 +1,7 @@
 "use client";
 
 import type { FinanceTransaction } from "@/features/finance/domain";
-import { fmt } from "@/shared/utils/formatCurrency";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {
   transaction: FinanceTransaction;
@@ -19,7 +19,7 @@ export function TransactionCard({
   return (
     <li className="flex items-center justify-between rounded-lg border border-cream-200 bg-white px-3 py-2">
       <div className="flex flex-col">
-        <span className="text-sm text-brown-700">{fmt(transaction.amount)}</span>
+        <span className="text-sm text-brown-700">{formatCLP(transaction.amount)}</span>
         {showCategory && (
           <span className="text-2xs font-medium text-brown-600">{transaction.category}</span>
         )}

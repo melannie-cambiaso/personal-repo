@@ -5,7 +5,7 @@ import { type Group } from "@/features/finance/data/kvAdapter";
 import { getBudgetForMonth } from "@/features/finance/data/financeActions";
 import { computeActualFromTransactions } from "@/features/finance/domain";
 import type { FinanceTransaction } from "@/features/finance/domain";
-import { fmt } from "@/shared/utils/formatCurrency";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {
   groups: Group[];
@@ -116,13 +116,13 @@ export function SummaryCard({ label, budget, actual, pendingAmount }: { label: s
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-cream-200 p-3 text-center min-h-[6rem]">
       <span className="text-2xs font-semibold uppercase tracking-wide text-brown-400">{label}</span>
-      <span className="text-xs text-brown-500">Presup. {fmt(budget)}</span>
-      <span className="text-sm font-bold text-brown-900">Real {fmt(actual)}</span>
+      <span className="text-xs text-brown-500">Presup. {formatCLP(budget)}</span>
+      <span className="text-sm font-bold text-brown-900">Real {formatCLP(actual)}</span>
       {pendingAmount !== undefined && (
         <span className={`text-xs font-semibold ${pendingAmount < 0 ? "text-red-500" : "text-brown-400"}`}>
           {pendingAmount < 0
-            ? `Excedido ${fmt(Math.abs(pendingAmount))}`
-            : `Pendiente ${fmt(pendingAmount)}`}
+            ? `Excedido ${formatCLP(Math.abs(pendingAmount))}`
+            : `Pendiente ${formatCLP(pendingAmount)}`}
         </span>
       )}
     </div>
@@ -181,7 +181,7 @@ function GroupSection({
                     />
                   </div>
                   <div className="flex items-center justify-end gap-1">
-                    <span className="text-sm text-brown-900">{real > 0 ? fmt(real) : "—"}</span>
+                    <span className="text-sm text-brown-900">{real > 0 ? formatCLP(real) : "—"}</span>
                     <button
                       type="button"
                       onClick={() => onOpenTransaction(cat)}
@@ -192,7 +192,7 @@ function GroupSection({
                     </button>
                   </div>
                   <span className={`text-right text-sm font-semibold ${diff > 0 ? "text-green-600" : diff < 0 ? "text-red-500" : "text-brown-400"}`}>
-                    {diff !== 0 ? `${diff > 0 ? "+" : ""}${fmt(diff)}` : "—"}
+                    {diff !== 0 ? `${diff > 0 ? "+" : ""}${formatCLP(diff)}` : "—"}
                   </span>
                 </div>
               );
@@ -200,10 +200,10 @@ function GroupSection({
 
             <div className="grid grid-cols-4 items-center gap-2 border-t border-cream-300 bg-cream-50 px-4 py-3">
               <span className="text-2xs font-semibold uppercase tracking-wide text-brown-500">Total {g.name}</span>
-              <span className="text-right text-sm font-bold text-brown-900">{fmt(totalBudget)}</span>
-              <span className="text-right text-sm font-bold text-brown-900">{fmt(totalActual)}</span>
+              <span className="text-right text-sm font-bold text-brown-900">{formatCLP(totalBudget)}</span>
+              <span className="text-right text-sm font-bold text-brown-900">{formatCLP(totalActual)}</span>
               <span className={`text-right text-sm font-bold ${totalDiff > 0 ? "text-green-600" : totalDiff < 0 ? "text-red-500" : "text-brown-400"}`}>
-                {totalDiff !== 0 ? `${totalDiff > 0 ? "+" : ""}${fmt(totalDiff)}` : "—"}
+                {totalDiff !== 0 ? `${totalDiff > 0 ? "+" : ""}${formatCLP(totalDiff)}` : "—"}
               </span>
             </div>
           </div>

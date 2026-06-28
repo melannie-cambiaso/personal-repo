@@ -4,7 +4,7 @@ import type { Zone } from "@/features/home-improvements/domain/Zone";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { ImprovementItemCard } from "../ItemCard/ImprovementItemCard";
 import { AddButton } from "@/shared/components/AddButton/AddButton";
-import { fmt } from "@/shared/utils/formatCurrency";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {
   zone: Zone;
@@ -33,7 +33,7 @@ export function ZoneCard({
           <h2 className="font-dancing text-xl font-bold text-brown-900">{zone.name}</h2>
           <div className="mt-0.5 flex gap-3 text-xs text-brown-400">
             <span>{pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}</span>
-            {totalCost > 0 && <span>· {fmt(totalCost)} estimado</span>}
+            {totalCost > 0 && <span>· {formatCLP(totalCost)} estimado</span>}
           </div>
         </div>
         {isOwner && (

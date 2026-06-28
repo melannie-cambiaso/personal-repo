@@ -1,7 +1,7 @@
 "use client";
 
 import type { ImprovementItem, ImprovementType } from "@/features/home-improvements/domain/ImprovementItem";
-import { fmt } from "@/shared/utils/formatCurrency";
+import { formatCLP } from "@/shared/utils/formatCurrency";
 
 const typeBadge: Record<ImprovementType, string> = {
   "Decoración":   "bg-cat-cloth text-white",
@@ -44,8 +44,8 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
           {item.estimatedCost !== null && (
             <span className="text-2xs font-bold text-brown-800">
               {item.quantity && item.quantity > 1
-                ? `${fmt(item.estimatedCost)} x${item.quantity} = ${fmt(item.estimatedCost * item.quantity)}`
-                : fmt(item.estimatedCost)}
+                ? `${formatCLP(item.estimatedCost)} x${item.quantity} = ${formatCLP(item.estimatedCost * item.quantity)}`
+                : formatCLP(item.estimatedCost)}
             </span>
           )}
         </div>
