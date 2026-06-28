@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { getBudgetForMonth, getTransactionsForMonth, addTransaction, deleteTransaction, addCategory, deleteCategory } from "@/features/finance/data/financeActions";
 import { type Group } from "@/features/finance/data/kvAdapter";
 import type { FinanceTransaction } from "@/features/finance/domain";
-import { BudgetTab, CategoriesTab, FinanceMonthNav, AddTransactionModal, TransactionsTab } from "../../components";
+import { BudgetTab, CategoriesTab, AddTransactionModal, TransactionsTab } from "../../components";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
+import { MonthNav } from "@/shared/components/MonthNav/MonthNav";
+import { formatMonth } from "@/shared/utils/formatMonth";
 import { currentMonth, prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 
 interface Props {
@@ -136,8 +138,8 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
 
         {activeTab === "budget" && (
           <>
-            <FinanceMonthNav
-              selectedMonth={selectedMonth}
+            <MonthNav
+              label={formatMonth(selectedMonth)}
               onPrev={() => setSelectedMonth(prevMonth(selectedMonth))}
               onNext={() => setSelectedMonth(nextMonth(selectedMonth))}
             />
