@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getBudgetForMonth, getTransactionsForMonth, addTransaction, deleteTransaction, addCategory, deleteCategory } from "@/features/finance/data/financeActions";
+import {
+  getBudgetForMonth,
+  getTransactionsForMonth,
+  addTransaction,
+  deleteTransaction,
+  addCategory,
+  deleteCategory,
+} from "@/features/finance/data/financeActions";
 import { type Group } from "@/features/finance/data/kvAdapter";
 import type { FinanceTransaction } from "@/features/finance/domain";
 import { BudgetTab, CategoriesTab, AddTransactionModal, TransactionsTab } from "../../components";
@@ -17,8 +24,12 @@ interface Props {
   onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
 }
 
-
-export function FinanceScreen({ initialBudget, initialTransactions, initialCategories, onSaveBudget }: Props) {
+export function FinanceScreen({
+  initialBudget,
+  initialTransactions,
+  initialCategories,
+  onSaveBudget,
+}: Props) {
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth());
   const [monthBudget, setMonthBudget] = useState<Record<string, number>>(initialBudget);
   const [budgetLoadedFor, setBudgetLoadedFor] = useState(selectedMonth);
@@ -30,14 +41,13 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
 
   useEffect(() => {
     if (budgetLoadedFor === selectedMonth) return;
-    Promise.all([
-      getBudgetForMonth(selectedMonth),
-      getTransactionsForMonth(selectedMonth),
-    ]).then(([b, txs]) => {
-      setMonthBudget(b);
-      setTransactions(txs);
-      setBudgetLoadedFor(selectedMonth);
-    });
+    Promise.all([getBudgetForMonth(selectedMonth), getTransactionsForMonth(selectedMonth)]).then(
+      ([b, txs]) => {
+        setMonthBudget(b);
+        setTransactions(txs);
+        setBudgetLoadedFor(selectedMonth);
+      }
+    );
   }, [selectedMonth, budgetLoadedFor]);
 
   const handleOpenTransaction = (category: string) => {
@@ -49,13 +59,27 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
     await addTransaction(selectedMonth, category, amount, note);
     setTransactions((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), category, amount, ...(note?.trim() && { note: note.trim() }), createdAt: new Date().toISOString() },
+      {
+        id: crypto.randomUUID(),
+        category,
+        amount,
+        ...(note?.trim() && { note: note.trim() }),
+        createdAt: new Date().toISOString(),
+      },
     ]);
   };
 
   const handleDeleteTransaction = async (txId: string) => {
     await deleteTransaction(selectedMonth, txId);
     setTransactions((prev) => prev.filter((tx) => tx.id !== txId));
+  };
+
+  const saveGroups = (groupName: string, category: string) => {
+    setGroups((prev) =>
+      prev.map((g) =>
+        g.name === groupName ? { ...g, categories: g.categories.filter((c) => c !== category) } : g
+      )
+    );
   };
 
   const handleAddCategory = async (groupName: string, category: string): Promise<void> => {
@@ -67,23 +91,14 @@ export function FinanceScreen({ initialBudget, initialTransactions, initialCateg
     try {
       await addCategory(groupName, category);
     } catch (err) {
-      setGroups((prev) =>
-        prev.map((g) =>
-          g.name === groupName
-            ? { ...g, categories: g.categories.filter((c) => c !== category) }
-            : g
-        )
-      );
+      saveGroups(groupName, category);
       throw err;
     }
   };
 
   const handleDeleteCategory = async (groupName: string, category: string): Promise<void> => {
-    setGroups((prev) =>
-      prev.map((g) =>
-        g.name === groupName ? { ...g, categories: g.categories.filter((c) => c !== category) } : g
-      )
-    );
+    saveGroups(groupName, category);
+
     try {
       await deleteCategory(groupName, category);
     } catch (err) {
