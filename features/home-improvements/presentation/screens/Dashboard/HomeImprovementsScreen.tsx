@@ -156,7 +156,7 @@ export function HomeImprovementsScreen({
       </div>
 
       <AddZoneModal
-        key={addZoneOpen ? 1 : 0}
+        key={addZoneOpen ? "zone-open" : "zone-closed"}
         isOpen={addZoneOpen}
         onClose={() => setAddZoneOpen(false)}
         onAdd={addZone}
