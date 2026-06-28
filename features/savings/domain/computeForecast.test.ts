@@ -125,4 +125,18 @@ describe("computeForecast", () => {
     expect(result[0].projectedBalance).toBe(400); // uses defaultIncome
     expect(result[2].projectedBalance).toBe(1200);
   });
+
+  it("every entry has a monthKey in YYYY-MM format", () => {
+    const result = computeForecast(0, flatConfig, 3);
+    result.forEach((r) => {
+      expect(r.monthKey).toMatch(/^\d{4}-\d{2}$/);
+    });
+  });
+
+  it("monthKey matches the expected calendar month for each entry", () => {
+    const result = computeForecast(0, flatConfig, 3);
+    result.forEach((r, i) => {
+      expect(r.monthKey).toBe(mkMonthKey(i));
+    });
+  });
 });

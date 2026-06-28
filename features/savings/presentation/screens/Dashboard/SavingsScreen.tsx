@@ -14,7 +14,6 @@ import {
   EditEntryModal,
   DeleteEntryConfirmModal,
   ForecastTab,
-  SavingsGoalList,
   AddGoalModal,
   EditGoalModal,
   DeleteGoalConfirmModal,
@@ -46,13 +45,13 @@ export function SavingsScreen({
   const { entries, balance, totalToReplenish, totalDepositos, totalGastos, addEntry, editEntry, deleteEntry, markReplenished } =
     useSavings({ initialEntries, onSave });
 
-  const { distributed, surplus, handleAdd, handleEdit, handleDelete, handleReorder } = useSavingsGoals({
+  const { distributed, handleAdd, handleEdit, handleDelete } = useSavingsGoals({
     initialGoals,
     balance,
     onSave: onSaveGoals ?? (() => {}),
   });
 
-  const [activeTab, setActiveTab] = useState<"history" | "forecast" | "goals">("history");
+  const [activeTab, setActiveTab] = useState<"history" | "forecast">("history");
 
   // Entry modal state
   const [addOpen, setAddOpen] = useState(false);
@@ -88,13 +87,6 @@ export function SavingsScreen({
           >
             Proyección
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("goals")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "goals" ? "border-b-2 border-brown-800 text-brown-900" : "text-brown-400 hover:text-brown-700"}`}
-          >
-            Metas
-          </button>
         </div>
 
         {activeTab === "history" && (
@@ -126,27 +118,8 @@ export function SavingsScreen({
             initialConfig={initialForecastConfig}
             suggestedIncome={suggestedIncome}
             onSaveConfig={onSaveForecastConfig}
+            goals={distributed}
           />
-        )}
-
-        {activeTab === "goals" && (
-          <>
-            <div className="mb-6 flex justify-end">
-              {isOwner && <AddButton onClick={() => setAddGoalOpen(true)} label="Agregar meta" />}
-            </div>
-            <SavingsGoalList
-              goals={distributed}
-              surplus={surplus}
-              isOwner={isOwner}
-              onEdit={setEditingGoal}
-              onDelete={(id) => {
-                const g = distributed.find((goal) => goal.id === id);
-                if (g) setPendingDeleteGoal(g);
-              }}
-              onReorder={handleReorder}
-              onAddFirst={() => setAddGoalOpen(true)}
-            />
-          </>
         )}
       </div>
 

@@ -1,6 +1,7 @@
 import type { ForecastConfig } from "./ForecastConfig";
 
 export interface ForecastMonth {
+  monthKey: string;
   month: string;
   projectedBalance: number;
 }
@@ -22,6 +23,7 @@ export function computeForecast(
     const income = config.incomeOverrides[monthKey] ?? config.defaultIncome;
     balance = (balance + (income - config.monthlyExpense)) * (1 + monthlyRate);
     return {
+      monthKey,
       month: fmt.format(d),
       projectedBalance: balance,
     };

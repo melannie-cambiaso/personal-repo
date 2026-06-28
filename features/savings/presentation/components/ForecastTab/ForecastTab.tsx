@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import { computeForecast } from "@/features/savings/domain/computeForecast";
+import { computeGoalForecast } from "@/features/savings/domain/computeGoalForecast";
 import { DEFAULT_ANNUAL_RATE } from "@/features/savings/domain/ForecastConfig";
 import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
+import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
+import { GoalForecastCard } from "./GoalForecastCard";
 
 interface ForecastTabProps {
   currentBalance: number;
   initialConfig: ForecastConfig | null;
   suggestedIncome: number;
   onSaveConfig: (config: ForecastConfig, months: number) => Promise<void>;
+  goals?: SavingsGoal[];
 }
 
 export function ForecastTab({
@@ -17,6 +21,7 @@ export function ForecastTab({
   initialConfig,
   suggestedIncome,
   onSaveConfig,
+  goals,
 }: ForecastTabProps) {
   const [config, setConfig] = useState<ForecastConfig>(
     initialConfig ?? {
@@ -28,17 +33,18 @@ export function ForecastTab({
   );
   const [months, setMonths] = useState(12);
 
-  const now = new Date();
   const forecast = computeForecast(currentBalance, config, months);
 
-  function monthKeyForIndex(i: number): string {
-    const d = new Date(now.getFullYear(), now.getMonth() + i + 1, 1);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-  }
+  const goalResults =
+    goals && goals.length > 0
+      ? computeGoalForecast(goals, currentBalance, forecast)
+      : [];
+
+  const outsideWindowLabel = `más de ${months} meses`;
 
   function handleIncomeChange(i: number, raw: string) {
     const value = Math.max(0, Number(raw));
-    const key = monthKeyForIndex(i);
+    const key = forecast[i].monthKey;
     setConfig((prev) => {
       const overrides = { ...prev.incomeOverrides };
       if (value === prev.defaultIncome) {
@@ -122,6 +128,20 @@ export function ForecastTab({
         </label>
       </div>
 
+      {goalResults.length > 0 && (
+        <div className="space-y-2">
+          {goalResults.map((result) => (
+            <GoalForecastCard
+              key={result.goalId}
+              name={result.name}
+              monthsToCompletion={result.monthsToCompletion}
+              estimatedCompletionMonth={result.estimatedCompletionMonth}
+              outsideWindowLabel={outsideWindowLabel}
+            />
+          ))}
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -132,9 +152,8 @@ export function ForecastTab({
             </tr>
           </thead>
           <tbody className="divide-y divide-cream-300">
-            {forecast.map(({ month, projectedBalance }, i) => {
-              const key = monthKeyForIndex(i);
-              const income = config.incomeOverrides[key] ?? config.defaultIncome;
+            {forecast.map(({ monthKey, month, projectedBalance }, i) => {
+              const income = config.incomeOverrides[monthKey] ?? config.defaultIncome;
               return (
                 <tr key={month}>
                   <td className="py-3 capitalize text-brown-700">{month}</td>
