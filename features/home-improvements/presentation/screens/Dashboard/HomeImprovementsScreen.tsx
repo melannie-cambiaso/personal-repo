@@ -16,6 +16,7 @@ import {
 import { itemsPlannedForMonth, itemsUnassigned } from "@/features/home-improvements/domain";
 import { PageHeader } from "@/shared/components/PageHeader/PageHeader";
 import { AddButton } from "@/shared/components/AddButton/AddButton";
+import { fmt } from "@/shared/utils/formatCurrency";
 
 interface Props {
   initialZones: Zone[];
@@ -84,7 +85,7 @@ export function HomeImprovementsScreen({
       <PageHeader eyebrow="Tu hogar" title="Mejoras">
         <div className="flex justify-center gap-6 text-sm text-cream-100/80">
           <span>{totalPending} pendiente{totalPending !== 1 ? "s" : ""}</span>
-          {totalCost > 0 && <span>· ${totalCost.toLocaleString("es-AR")} estimado</span>}
+          {totalCost > 0 && <span>· {fmt(totalCost)} estimado</span>}
         </div>
       </PageHeader>
 

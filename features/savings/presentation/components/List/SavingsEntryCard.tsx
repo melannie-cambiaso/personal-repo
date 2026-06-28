@@ -1,6 +1,7 @@
 "use client";
 
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
+import { fmt } from "@/shared/utils/formatCurrency";
 
 interface Props {
   entry: SavingsEntry;
@@ -35,7 +36,7 @@ export function SavingsEntryCard({ entry, isOwner, onEdit, onMarkReplenished, on
           )}
         </div>
         <p className={`text-lg font-bold ${isDeposito ? "text-green-700" : "text-red-700"}`}>
-          {isDeposito ? "+" : "-"}${entry.amount.toLocaleString("es-AR")}
+          {isDeposito ? "+" : "-"}{fmt(entry.amount)}
         </p>
         {entry.notes && <p className="text-xs text-brown-400">{entry.notes}</p>}
       </div>

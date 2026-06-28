@@ -1,8 +1,7 @@
 "use client";
 
 import type { FinanceTransaction } from "@/features/finance/domain";
-
-const fmt = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
+import { fmt } from "@/shared/utils/formatCurrency";
 
 interface Props {
   transaction: FinanceTransaction;

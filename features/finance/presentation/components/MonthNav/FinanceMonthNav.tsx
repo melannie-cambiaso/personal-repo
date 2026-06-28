@@ -1,5 +1,7 @@
 "use client";
 
+import { formatMonth } from "@/shared/utils/formatMonth";
+
 interface Props {
   selectedMonth: string;
   onPrev: () => void;
@@ -7,10 +9,7 @@ interface Props {
 }
 
 export function FinanceMonthNav({ selectedMonth, onPrev, onNext }: Props) {
-  const label = new Date(`${selectedMonth}-01T12:00:00`).toLocaleString("es-AR", {
-    month: "long",
-    year: "numeric",
-  });
+  const label = formatMonth(selectedMonth);
 
   return (
     <div className="mb-6 flex items-center justify-between">

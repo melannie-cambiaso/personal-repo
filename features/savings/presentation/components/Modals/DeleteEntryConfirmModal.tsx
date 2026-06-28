@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
+import { fmt } from "@/shared/utils/formatCurrency";
 
 interface Props {
   entry: SavingsEntry | null;
@@ -31,7 +32,7 @@ export function DeleteEntryConfirmModal({ entry, onConfirm, onCancel }: Props) {
           {entry && (
             <>
               {entry.type === "deposito" ? "Depósito" : "Gasto"} de{" "}
-              <strong>${entry.amount.toLocaleString("es-AR")}</strong> del{" "}
+              <strong>{fmt(entry.amount)}</strong> del{" "}
               <strong>{entry.date}</strong>. Esta acción no se puede deshacer.
             </>
           )}

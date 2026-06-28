@@ -3,6 +3,7 @@
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { ImprovementItemCard } from "../ItemCard/ImprovementItemCard";
+import { formatMonth } from "@/shared/utils/formatMonth";
 
 interface Props {
   zones: Zone[];
@@ -26,13 +27,6 @@ function groupByZone(items: ImprovementItem[]): Map<string, ImprovementItem[]> {
   }, new Map<string, ImprovementItem[]>());
 }
 
-function monthLabel(yyyyMm: string): string {
-  return new Date(`${yyyyMm}-01T12:00:00`).toLocaleString("es-AR", {
-    month: "long",
-    year: "numeric",
-  });
-}
-
 export function MonthlyPlanTab({
   zones, plannedItems, unassignedItems, selectedMonth, isOwner,
   onPrevMonth, onNextMonth, onAssign, onUnassign, onToggle, onEdit, onDelete,
@@ -40,7 +34,7 @@ export function MonthlyPlanTab({
   const zoneNameById = new Map(zones.map((z) => [z.id, z.emoji ? `${z.emoji} ${z.name}` : z.name]));
   const plannedByZone = groupByZone(plannedItems);
   const unassignedByZone = groupByZone(unassignedItems);
-  const label = monthLabel(selectedMonth);
+  const label = formatMonth(selectedMonth);
   const totalCost = plannedItems.reduce((sum, i) => sum + (i.estimatedCost ?? 0) * (i.quantity ?? 1), 0);
 
   return (

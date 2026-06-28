@@ -7,6 +7,7 @@ import { DEFAULT_ANNUAL_RATE } from "@/features/savings/domain/ForecastConfig";
 import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
 import type { GoalWithProgress } from "@/features/savings/domain/SavingsGoal";
 import { GoalForecastCard } from "./GoalForecastCard";
+import { fmt } from "@/shared/utils/formatCurrency";
 
 interface ForecastTabProps {
   currentBalance: number;
@@ -177,7 +178,7 @@ export function ForecastTab({
                       projectedBalance < 0 ? "text-red-500" : "text-brown-900"
                     }`}
                   >
-                    ${Math.round(projectedBalance).toLocaleString("es-AR")}
+                    {fmt(projectedBalance)}
                   </td>
                 </tr>
               );

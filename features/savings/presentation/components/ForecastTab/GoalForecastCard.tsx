@@ -1,6 +1,6 @@
 import { ProgressBar } from "@/shared/components/ProgressBar/ProgressBar";
-
-const fmt = (n: number) => "$" + Math.round(n).toLocaleString("es-AR");
+import { fmt } from "@/shared/utils/formatCurrency";
+import { formatMonth } from "@/shared/utils/formatMonth";
 
 interface GoalForecastCardProps {
   name: string;
@@ -21,14 +21,6 @@ export function GoalForecastCard({
   targetAmount,
   progress,
 }: GoalForecastCardProps) {
-  function formatCompletionMonth(monthKey: string): string {
-    const [year, month] = monthKey.split("-").map(Number);
-    return new Date(year, month - 1).toLocaleDateString("es-AR", {
-      month: "long",
-      year: "numeric",
-    });
-  }
-
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-cream-300 bg-white px-4 py-3">
       <div className="flex items-center justify-between">
@@ -39,7 +31,7 @@ export function GoalForecastCard({
           <span className="text-sm text-brown-400">{outsideWindowLabel}</span>
         ) : (
           <span className="text-sm text-brown-700">
-            <span className="capitalize">{formatCompletionMonth(estimatedCompletionMonth!)}</span>
+            <span className="capitalize">{formatMonth(estimatedCompletionMonth!)}</span>
             {" · "}
             <span className="text-brown-400">en {monthsToCompletion} meses</span>
           </span>

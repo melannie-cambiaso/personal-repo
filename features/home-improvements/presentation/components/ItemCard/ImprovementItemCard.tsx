@@ -1,6 +1,7 @@
 "use client";
 
 import type { ImprovementItem, ImprovementType } from "@/features/home-improvements/domain/ImprovementItem";
+import { fmt } from "@/shared/utils/formatCurrency";
 
 const typeBadge: Record<ImprovementType, string> = {
   "Decoración":   "bg-cat-cloth text-white",
@@ -9,8 +10,6 @@ const typeBadge: Record<ImprovementType, string> = {
   "Instalación":  "bg-cat-tech text-white",
   "Otro":         "bg-cat-home text-white",
 };
-
-const formatCost = (n: number) => `$${n.toLocaleString("es-AR")}`;
 
 interface Props {
   item: ImprovementItem;
@@ -45,8 +44,8 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
           {item.estimatedCost !== null && (
             <span className="text-2xs font-bold text-brown-800">
               {item.quantity && item.quantity > 1
-                ? `${formatCost(item.estimatedCost)} x${item.quantity} = ${formatCost(item.estimatedCost * item.quantity)}`
-                : formatCost(item.estimatedCost)}
+                ? `${fmt(item.estimatedCost)} x${item.quantity} = ${fmt(item.estimatedCost * item.quantity)}`
+                : fmt(item.estimatedCost)}
             </span>
           )}
         </div>

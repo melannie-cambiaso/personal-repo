@@ -5,10 +5,9 @@ import type { FinanceTransaction } from "@/features/finance/domain";
 import { TransactionCard } from "./TransactionCard";
 import { groupTransactionsByCategory } from "@/features/finance/domain/groupTransactionsByCategory";
 import { groupTransactionsByDay } from "@/features/finance/domain/groupTransactionsByDay";
+import { fmt } from "@/shared/utils/formatCurrency";
 
 type Group = { name: string; categories: string[] };
-
-const fmt = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
 
 interface Props {
   transactions: FinanceTransaction[];

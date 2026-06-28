@@ -5,6 +5,7 @@ import { type Group } from "@/features/finance/data/kvAdapter";
 import { getBudgetForMonth } from "@/features/finance/data/financeActions";
 import { computeActualFromTransactions } from "@/features/finance/domain";
 import type { FinanceTransaction } from "@/features/finance/domain";
+import { fmt } from "@/shared/utils/formatCurrency";
 
 interface Props {
   groups: Group[];
@@ -14,8 +15,6 @@ interface Props {
   onSave: (budget: Record<string, number>) => Promise<void>;
   onOpenTransaction: (category: string) => void;
 }
-
-const fmt = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
 
 function prevMonth(month: string): string {
   const [y, m] = month.split("-").map(Number);

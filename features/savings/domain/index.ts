@@ -9,5 +9,4 @@ export { computeSuggestedIncome } from "./computeSuggestedIncome";
 export type { SavingsGoal, GoalWithProgress } from "./SavingsGoal";
 export { distributeToGoals } from "./distributeToGoals";
 export { normalizePriorities } from "./normalizePriorities";
-export type { GoalForecastResult } from "./computeGoalForecast";
 export { computeGoalForecast } from "./computeGoalForecast";
