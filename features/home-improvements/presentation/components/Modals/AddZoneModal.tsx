@@ -36,12 +36,7 @@ export function AddZoneModal({ isOpen, onClose, onAdd }: Props) {
     <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="sm" title="Nueva zona">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Nombre *">
-          <Input
-            value={form.name}
-            onChange={set("name")}
-            required
-            placeholder="Cocina"
-          />
+          <Input value={form.name} onChange={set("name")} required placeholder="Cocina" />
         </Field>
         <Field label="Emoji">
           <Input value={form.emoji} onChange={set("emoji")} placeholder="🍳" />

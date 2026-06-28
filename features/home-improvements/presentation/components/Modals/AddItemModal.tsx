@@ -5,7 +5,7 @@ import { useForm } from "@/shared/hooks/useForm";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell, Field, Input, Select } from "@/shared/components";
-import { ItemFormFields } from "./ItemFormFields";
+import { ItemFormFields, parseItemForm } from "./ItemFormFields";
 
 interface Props {
   isOpen: boolean;
@@ -31,20 +31,7 @@ export function AddItemModal({ isOpen, zones, preselectedZoneId, onClose, onAdd 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const item: ImprovementItem = {
-      id: crypto.randomUUID(),
-      zoneId,
-      title: form.title.trim(),
-      type: form.type as ImprovementItem["type"],
-      estimatedCost: form.estimatedCost.trim() === "" ? null : Number(form.estimatedCost),
-      quantity: form.quantity.trim() === "" ? undefined : Number(form.quantity),
-      purchaseUrl: form.purchaseUrl.trim() || undefined,
-      description: form.description.trim() || undefined,
-      notes: form.notes.trim() || undefined,
-      done: false,
-      createdAt: new Date().toISOString(),
-    };
-    onAdd(item);
+    onAdd({ id: crypto.randomUUID(), zoneId, ...parseItemForm(form), done: false, createdAt: new Date().toISOString() });
     onClose();
   };
 

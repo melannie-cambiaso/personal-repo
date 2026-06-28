@@ -1,19 +1,34 @@
+import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { IMPROVEMENT_TYPES } from "@/features/home-improvements/domain/ImprovementItem";
 import { Button, Field, Input, Select, Textarea } from "@/shared/components";
 
-interface FormSlice {
+export interface ItemFormSlice {
   title: string;
   type: string;
+  quantity: string;
+  estimatedCost: string;
   purchaseUrl: string;
   description: string;
   notes: string;
 }
 
+export function parseItemForm(form: ItemFormSlice) {
+  return {
+    title: form.title.trim(),
+    type: form.type as ImprovementItem["type"],
+    estimatedCost: form.estimatedCost.trim() === "" ? null : Number(form.estimatedCost),
+    quantity: form.quantity.trim() === "" ? undefined : Number(form.quantity),
+    purchaseUrl: form.purchaseUrl.trim() || undefined,
+    description: form.description.trim() || undefined,
+    notes: form.notes.trim() || undefined,
+  };
+}
+
 type ChangeHandler = React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
 interface Props {
-  form: FormSlice;
-  set: (field: keyof FormSlice) => ChangeHandler;
+  form: ItemFormSlice;
+  set: (field: keyof ItemFormSlice) => ChangeHandler;
   titlePlaceholder?: string;
   submitLabel: string;
   onClose: () => void;

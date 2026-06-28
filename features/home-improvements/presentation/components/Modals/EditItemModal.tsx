@@ -4,7 +4,7 @@ import { useForm } from "@/shared/hooks/useForm";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import type { Zone } from "@/features/home-improvements/domain/Zone";
 import { ModalShell, Field, Input } from "@/shared/components";
-import { ItemFormFields } from "./ItemFormFields";
+import { ItemFormFields, parseItemForm } from "./ItemFormFields";
 
 interface Props {
   item: ImprovementItem | null;
@@ -29,16 +29,7 @@ export function EditItemModal({ item, zones, onClose, onSave }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!item) return;
-    onSave({
-      ...item,
-      title: form.title.trim(),
-      type: form.type as ImprovementItem["type"],
-      estimatedCost: form.estimatedCost.trim() === "" ? null : Number(form.estimatedCost),
-      quantity: form.quantity.trim() === "" ? undefined : Number(form.quantity),
-      purchaseUrl: form.purchaseUrl.trim() || undefined,
-      description: form.description.trim() || undefined,
-      notes: form.notes.trim() || undefined,
-    });
+    onSave({ ...item, ...parseItemForm(form) });
     onClose();
   };
 
