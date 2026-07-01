@@ -10,6 +10,7 @@ import { useSavingsGoals } from "../../hooks/useSavingsGoals";
 import {
   SavingsSummaryCards,
   SavingsEntryList,
+  SavingsGoalList,
   AddEntryModal,
   EditEntryModal,
   DeleteEntryConfirmModal,
@@ -53,11 +54,12 @@ export function SavingsScreen({
     markReplenished,
   } = useSavings({ initialEntries, onSave });
 
-  const { distributed, handleAdd, handleEdit, handleDelete } = useSavingsGoals({
-    initialGoals,
-    balance,
-    onSave: onSaveGoals ?? (() => {}),
-  });
+  const { distributed, handleAdd, handleEdit, handleDelete, handleReorder, handleToggleDone } =
+    useSavingsGoals({
+      initialGoals,
+      balance,
+      onSave: onSaveGoals ?? (() => {}),
+    });
 
   const [activeTab, setActiveTab] = useState<"history" | "forecast">("history");
 
@@ -123,6 +125,25 @@ export function SavingsScreen({
                 const entry = entries.find((e) => e.id === id);
                 if (entry) setPendingDelete(entry);
               }}
+            />
+
+            <div className="mt-10 mb-6 flex items-center justify-between">
+              <h2 className="text-brown-800 text-sm font-semibold tracking-wide uppercase">
+                Metas
+              </h2>
+              {isOwner && <AddButton onClick={() => setAddGoalOpen(true)} label="Agregar meta" />}
+            </div>
+
+            <SavingsGoalList
+              goals={distributed}
+              isOwner={isOwner}
+              onEdit={setEditingGoal}
+              onDelete={(id) => {
+                const goal = distributed.find((g) => g.id === id);
+                if (goal) setPendingDeleteGoal(goal);
+              }}
+              onReorder={handleReorder}
+              onToggleDone={handleToggleDone}
             />
           </>
         )}

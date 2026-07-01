@@ -1,5 +1,6 @@
 export { SavingsSummaryCards } from "./SavingsSummaryCards/SavingsSummaryCards";
 export { SavingsEntryList } from "./List/SavingsEntryList";
+export { SavingsGoalList } from "./List/SavingsGoalList";
 export { AddEntryModal } from "./Modals/AddEntryModal";
 export { EditEntryModal } from "./Modals/EditEntryModal";
 export { DeleteEntryConfirmModal } from "./Modals/DeleteEntryConfirmModal";
