@@ -4,6 +4,7 @@ export interface SavingsGoal {
   targetAmount: number;
   priority: number;
   createdAt: string;
+  isDone?: boolean;
 }
 
 export interface GoalWithProgress extends SavingsGoal {

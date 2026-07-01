@@ -130,4 +130,48 @@ describe("distributeToGoals", () => {
     const result = distributeToGoals(499, goals);
     expect(result.goals[0].isCompleted).toBe(false);
   });
+
+  it("done goal is skipped, freeing balance for the next goal", () => {
+    const goals = [
+      goal({ id: "1", priority: 1, targetAmount: 1000, isDone: true }),
+      goal({ id: "2", priority: 2, targetAmount: 500, isDone: false }),
+    ];
+    const result = distributeToGoals(500, goals);
+    const a = result.goals.find((g) => g.id === "1")!;
+    const b = result.goals.find((g) => g.id === "2")!;
+    expect(a.currentAmount).toBe(1000);
+    expect(a.progress).toBe(1);
+    expect(a.isCompleted).toBe(true);
+    expect(b.currentAmount).toBe(500);
+    expect(b.progress).toBe(1);
+    expect(b.isCompleted).toBe(true);
+  });
+
+  it("done goal excluded from totalTarget used for surplus", () => {
+    const goals = [goal({ id: "1", priority: 1, targetAmount: 1000, isDone: true })];
+    const result = distributeToGoals(1000, goals);
+    expect(result.surplus).toBe(1000);
+  });
+
+  it("done goal preserves its priority slot in the output array", () => {
+    const goals = [
+      goal({ id: "1", priority: 1, targetAmount: 1000, isDone: true }),
+      goal({ id: "2", priority: 2, targetAmount: 500, isDone: false }),
+    ];
+    const result = distributeToGoals(500, goals);
+    expect(result.goals.map((g) => g.id)).toEqual(["1", "2"]);
+  });
+
+  it("no done goals — behavior unchanged (regression guard)", () => {
+    const goals = [
+      goal({ id: "1", targetAmount: 1000, priority: 1 }),
+      goal({ id: "2", targetAmount: 800, priority: 2 }),
+      goal({ id: "3", targetAmount: 2000, priority: 3 }),
+    ];
+    const result = distributeToGoals(1500, goals);
+    expect(result.surplus).toBe(0);
+    expect(result.goals[0].currentAmount).toBe(1000);
+    expect(result.goals[1].currentAmount).toBe(500);
+    expect(result.goals[2].currentAmount).toBe(0);
+  });
 });

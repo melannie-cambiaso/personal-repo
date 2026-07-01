@@ -84,4 +84,26 @@ describe("computeGoalForecast", () => {
     const result = computeGoalForecast([GOAL_A], 0, forecast);
     expect(result[0].name).toBe("Emergency Fund");
   });
+
+  it("done goal does not inflate the next goal's threshold and is omitted from output", () => {
+    // GOAL_A (target 1000, priority 1, done) should not contribute to cumulativeTarget
+    const forecast = makeForecast([200, 500, 1000]);
+    const result = computeGoalForecast([{ ...GOAL_A, isDone: true }, GOAL_B], 0, forecast);
+    expect(result).toHaveLength(1);
+    expect(result[0].goalId).toBe("goal-b");
+    expect(result[0].monthsToCompletion).toBe(2); // cumulative=500, reached at index 1
+  });
+
+  it("all goals done returns an empty forecast", () => {
+    const forecast = makeForecast([500, 1000, 1500]);
+    const result = computeGoalForecast(
+      [
+        { ...GOAL_A, isDone: true },
+        { ...GOAL_B, isDone: true },
+      ],
+      0,
+      forecast
+    );
+    expect(result).toEqual([]);
+  });
 });

@@ -16,7 +16,7 @@ export function computeGoalForecast(
 ): GoalForecastResult[] {
   if (goals.length === 0) return [];
 
-  const sorted = sortGoalsByPriority(goals);
+  const sorted = sortGoalsByPriority(goals).filter((goal) => !goal.isDone);
 
   let cumulativeTarget = 0;
 

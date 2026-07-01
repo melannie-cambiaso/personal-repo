@@ -29,7 +29,8 @@ const GOALS_KEY = "savings-goals";
 
 export async function loadGoals(): Promise<SavingsGoal[]> {
   try {
-    return (await redis.get<SavingsGoal[]>(GOALS_KEY)) ?? [];
+    const goals = (await redis.get<SavingsGoal[]>(GOALS_KEY)) ?? [];
+    return goals.map((g) => ({ ...g, isDone: g.isDone ?? false }));
   } catch {
     return [];
   }
