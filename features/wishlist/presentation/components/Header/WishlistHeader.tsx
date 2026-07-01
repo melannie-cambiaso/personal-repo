@@ -18,18 +18,18 @@ export function WishlistHeader({ total, pending, totalPrice }: Props) {
         <Stat value={formatCLP(totalPrice)} label="Aprox." />
       </div>
     </PageHeader>
-  )
+  );
 }
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="px-8 text-center">
-      <span className="block text-xl font-bold text-cream-100">{value}</span>
-      <span className="block text-2xs uppercase tracking-eyebrow text-brown-300">{label}</span>
+      <span className="text-cream-100 block text-xl font-bold">{value}</span>
+      <span className="text-2xs tracking-eyebrow text-brown-300 block uppercase">{label}</span>
     </div>
   );
 }
 
 function Divider() {
-  return <div className="h-8 w-px bg-cream-100/20" />;
+  return <div className="bg-cream-100/20 h-8 w-px" />;
 }

@@ -20,7 +20,7 @@ export function useSavingsGoals({ initialGoals, balance, onSave }: Params) {
 
   const { goals: distributed, surplus } = useMemo(
     () => distributeToGoals(balance, goals),
-    [balance, goals],
+    [balance, goals]
   );
 
   const persist = (next: SavingsGoal[]) => {
@@ -41,7 +41,10 @@ export function useSavingsGoals({ initialGoals, balance, onSave }: Params) {
     persist(normalizePriorities([...goalsRef.current, newGoal]));
   };
 
-  const handleEdit = (id: string, { name, targetAmount }: { name: string; targetAmount: number }) => {
+  const handleEdit = (
+    id: string,
+    { name, targetAmount }: { name: string; targetAmount: number }
+  ) => {
     if (targetAmount <= 0) return;
     const next = goalsRef.current.map((g) => (g.id === id ? { ...g, name, targetAmount } : g));
     persist(normalizePriorities(next));

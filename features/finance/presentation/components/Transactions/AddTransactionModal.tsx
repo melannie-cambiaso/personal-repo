@@ -49,10 +49,7 @@ export function AddTransactionModal({
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Registrar gasto">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Field label="Categoría">
-          <Select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
+          <Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
             {allCategories.map((cat) => (
               <option key={cat} value={cat}>
                 {cat}

@@ -52,15 +52,15 @@ function GroupSection({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-cream-300 bg-white">
-      <div className="border-b border-cream-200 px-4 py-3">
-        <span className="text-sm font-semibold text-brown-800">{group.name}</span>
+    <div className="border-cream-300 overflow-hidden rounded-xl border bg-white">
+      <div className="border-cream-200 border-b px-4 py-3">
+        <span className="text-brown-800 text-sm font-semibold">{group.name}</span>
       </div>
 
-      <div className="flex flex-col divide-y divide-cream-100">
+      <div className="divide-cream-100 flex flex-col divide-y">
         {group.categories.map((category) => (
           <div key={category} className="flex items-center justify-between px-4 py-2">
-            <span className="text-sm text-brown-700">{category}</span>
+            <span className="text-brown-700 text-sm">{category}</span>
             <button
               onClick={() => handleDelete(category)}
               className="cursor-pointer rounded-lg px-2 py-1 text-xs font-semibold text-red-500 transition-colors hover:bg-red-50"
@@ -71,7 +71,7 @@ function GroupSection({
         ))}
       </div>
 
-      <div className="flex items-center gap-2 border-t border-cream-200 px-4 py-3">
+      <div className="border-cream-200 flex items-center gap-2 border-t px-4 py-3">
         <input
           type="text"
           value={inputValue}
@@ -80,12 +80,12 @@ function GroupSection({
             if (e.key === "Enter") void handleAdd();
           }}
           placeholder="Nueva categoría..."
-          className="flex-1 rounded-lg border border-cream-400 bg-cream-50 px-3 py-1.5 text-sm text-brown-900 outline-none focus:border-brown-600"
+          className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none"
         />
         <button
           onClick={() => void handleAdd()}
           disabled={adding || !inputValue.trim()}
-          className="cursor-pointer rounded-lg bg-brown-800 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-brown-700 disabled:opacity-50"
+          className="bg-brown-800 hover:bg-brown-700 cursor-pointer rounded-lg px-4 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-50"
         >
           {adding ? "Agregando..." : "Agregar"}
         </button>

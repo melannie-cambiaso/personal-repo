@@ -24,26 +24,14 @@ const fiveEntries = [entry("1"), entry("2"), entry("3"), entry("4"), entry("5")]
 
 describe("ActivityLogPersonGroup — ≤3 entries", () => {
   it("renders all entries when there are 3 or fewer", () => {
-    render(
-      <ActivityLogPersonGroup
-        person="Meme"
-        entries={threeEntries}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<ActivityLogPersonGroup person="Meme" entries={threeEntries} onDelete={vi.fn()} />);
     expect(screen.getByText("Activity 1")).toBeDefined();
     expect(screen.getByText("Activity 2")).toBeDefined();
     expect(screen.getByText("Activity 3")).toBeDefined();
   });
 
   it("does not render a toggle button when entries.length <= 3", () => {
-    render(
-      <ActivityLogPersonGroup
-        person="Meme"
-        entries={threeEntries}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<ActivityLogPersonGroup person="Meme" entries={threeEntries} onDelete={vi.fn()} />);
     expect(screen.queryByRole("button", { name: /ver más/i })).toBeNull();
     expect(screen.queryByRole("button", { name: /ver menos/i })).toBeNull();
   });
@@ -55,13 +43,7 @@ describe("ActivityLogPersonGroup — ≤3 entries", () => {
 
 describe("ActivityLogPersonGroup — >3 entries (collapsed)", () => {
   it("renders exactly 3 entries on first render", () => {
-    render(
-      <ActivityLogPersonGroup
-        person="Meme"
-        entries={fiveEntries}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<ActivityLogPersonGroup person="Meme" entries={fiveEntries} onDelete={vi.fn()} />);
     expect(screen.getByText("Activity 1")).toBeDefined();
     expect(screen.getByText("Activity 2")).toBeDefined();
     expect(screen.getByText("Activity 3")).toBeDefined();
@@ -70,13 +52,7 @@ describe("ActivityLogPersonGroup — >3 entries (collapsed)", () => {
   });
 
   it("shows 'Ver más (N)' button where N = entries.length - 3", () => {
-    render(
-      <ActivityLogPersonGroup
-        person="Meme"
-        entries={fiveEntries}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<ActivityLogPersonGroup person="Meme" entries={fiveEntries} onDelete={vi.fn()} />);
     // N = 5 - 3 = 2
     expect(screen.getByText("Ver más (2)")).toBeDefined();
   });
@@ -88,26 +64,14 @@ describe("ActivityLogPersonGroup — >3 entries (collapsed)", () => {
 
 describe("ActivityLogPersonGroup — expand on click", () => {
   it("shows all entries after clicking 'Ver más'", () => {
-    render(
-      <ActivityLogPersonGroup
-        person="Meme"
-        entries={fiveEntries}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<ActivityLogPersonGroup person="Meme" entries={fiveEntries} onDelete={vi.fn()} />);
     fireEvent.click(screen.getByText("Ver más (2)"));
     expect(screen.getByText("Activity 4")).toBeDefined();
     expect(screen.getByText("Activity 5")).toBeDefined();
   });
 
   it("changes toggle text to 'Ver menos' after expanding", () => {
-    render(
-      <ActivityLogPersonGroup
-        person="Meme"
-        entries={fiveEntries}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<ActivityLogPersonGroup person="Meme" entries={fiveEntries} onDelete={vi.fn()} />);
     fireEvent.click(screen.getByText("Ver más (2)"));
     expect(screen.getByText("Ver menos")).toBeDefined();
     expect(screen.queryByText("Ver más (2)")).toBeNull();
@@ -120,13 +84,7 @@ describe("ActivityLogPersonGroup — expand on click", () => {
 
 describe("ActivityLogPersonGroup — collapse on second click", () => {
   it("hides extra entries and restores 'Ver más (N)' after collapsing", () => {
-    render(
-      <ActivityLogPersonGroup
-        person="Meme"
-        entries={fiveEntries}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<ActivityLogPersonGroup person="Meme" entries={fiveEntries} onDelete={vi.fn()} />);
     fireEvent.click(screen.getByText("Ver más (2)"));
     fireEvent.click(screen.getByText("Ver menos"));
     expect(screen.queryByText("Activity 4")).toBeNull();
@@ -141,13 +99,7 @@ describe("ActivityLogPersonGroup — collapse on second click", () => {
 
 describe("ActivityLogPersonGroup — count badge", () => {
   it("shows total entry count in badge (not visible count)", () => {
-    render(
-      <ActivityLogPersonGroup
-        person="Meme"
-        entries={fiveEntries}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<ActivityLogPersonGroup person="Meme" entries={fiveEntries} onDelete={vi.fn()} />);
     // Collapsed: only 3 visible, but badge must show 5
     expect(screen.getByText("5")).toBeDefined();
   });

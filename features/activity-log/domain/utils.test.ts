@@ -7,7 +7,7 @@ import type { ActivityLogEntry } from "./ActivityLogEntry";
 // ---------------------------------------------------------------------------
 
 const entry = (
-  overrides: Partial<ActivityLogEntry> & { person: ActivityLogEntry["person"] },
+  overrides: Partial<ActivityLogEntry> & { person: ActivityLogEntry["person"] }
 ): ActivityLogEntry => ({
   id: "1",
   date: "2026-06-20",
@@ -26,10 +26,7 @@ describe("groupByPerson", () => {
   });
 
   it("groups entries for a single person", () => {
-    const entries = [
-      entry({ id: "1", person: "Meme" }),
-      entry({ id: "2", person: "Meme" }),
-    ];
+    const entries = [entry({ id: "1", person: "Meme" }), entry({ id: "2", person: "Meme" })];
     const result = groupByPerson(entries);
     expect(Object.keys(result)).toEqual(["Meme"]);
     expect(result["Meme"]).toHaveLength(2);

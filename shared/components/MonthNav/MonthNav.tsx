@@ -12,15 +12,15 @@ export function MonthNav({ label, onPrev, onNext }: Props) {
       <button
         type="button"
         onClick={onPrev}
-        className="cursor-pointer rounded-lg border border-cream-400 px-3 py-1.5 text-sm text-brown-600 transition-colors hover:border-brown-400 hover:text-brown-900"
+        className="border-cream-400 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors"
       >
         ← Anterior
       </button>
-      <span className="font-dancing text-xl font-bold capitalize text-brown-900">{label}</span>
+      <span className="font-dancing text-brown-900 text-xl font-bold capitalize">{label}</span>
       <button
         type="button"
         onClick={onNext}
-        className="cursor-pointer rounded-lg border border-cream-400 px-3 py-1.5 text-sm text-brown-600 transition-colors hover:border-brown-400 hover:text-brown-900"
+        className="border-cream-400 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors"
       >
         Siguiente →
       </button>

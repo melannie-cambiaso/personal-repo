@@ -25,26 +25,14 @@ const transactions: FinanceTransaction[] = [
 
 describe("TransactionsTab", () => {
   it("default mode is category: renders category group headers on first render", () => {
-    render(
-      <TransactionsTab
-        transactions={transactions}
-        groups={groups}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<TransactionsTab transactions={transactions} groups={groups} onDelete={vi.fn()} />);
     // "Comida" and "Colectivo" are category section headers
     expect(screen.getByText("Comida")).toBeTruthy();
     expect(screen.getByText("Colectivo")).toBeTruthy();
   });
 
   it("clicking 'Por día' toggle switches to day grouping", () => {
-    render(
-      <TransactionsTab
-        transactions={transactions}
-        groups={groups}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<TransactionsTab transactions={transactions} groups={groups} onDelete={vi.fn()} />);
     const dayBtn = screen.getByRole("button", { name: "Por día" });
     fireEvent.click(dayBtn);
     // In day mode, formatted date headers should appear (category headers vanish as standalone)
@@ -53,13 +41,7 @@ describe("TransactionsTab", () => {
   });
 
   it("clicking 'Por categoría' after switching to day restores category mode", () => {
-    render(
-      <TransactionsTab
-        transactions={transactions}
-        groups={groups}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<TransactionsTab transactions={transactions} groups={groups} onDelete={vi.fn()} />);
     fireEvent.click(screen.getByRole("button", { name: "Por día" }));
     fireEvent.click(screen.getByRole("button", { name: "Por categoría" }));
     // Category headers restored
@@ -67,24 +49,12 @@ describe("TransactionsTab", () => {
   });
 
   it("renders empty state message when transactions is empty", () => {
-    render(
-      <TransactionsTab
-        transactions={[]}
-        groups={groups}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<TransactionsTab transactions={[]} groups={groups} onDelete={vi.fn()} />);
     expect(screen.getByText(/No hay transacciones este mes/i)).toBeTruthy();
   });
 
   it("does NOT render the toggle when transactions is empty", () => {
-    render(
-      <TransactionsTab
-        transactions={[]}
-        groups={groups}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<TransactionsTab transactions={[]} groups={groups} onDelete={vi.fn()} />);
     expect(screen.queryByRole("button", { name: "Por categoría" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Por día" })).toBeNull();
   });

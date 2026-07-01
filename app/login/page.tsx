@@ -24,23 +24,21 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-xs">
-        <h1 className="text-2xl font-bold text-center">🔐 Acceso</h1>
+      <form onSubmit={handleSubmit} className="flex w-full max-w-xs flex-col gap-4">
+        <h1 className="text-center text-2xl font-bold">🔐 Acceso</h1>
         <input
           type="password"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="Enter code"
-          className="border rounded-lg px-4 py-2 text-center text-lg tracking-widest"
+          className="rounded-lg border px-4 py-2 text-center text-lg tracking-widest"
           autoFocus
         />
-        {error && (
-          <p className="text-red-500 text-sm text-center">Wrong code, try again</p>
-        )}
+        {error && <p className="text-center text-sm text-red-500">Wrong code, try again</p>}
         <button
           type="submit"
           disabled={loading || !code}
-          className="bg-black text-white rounded-lg px-4 py-2 disabled:opacity-50"
+          className="rounded-lg bg-black px-4 py-2 text-white disabled:opacity-50"
         >
           {loading ? "..." : "Enter"}
         </button>

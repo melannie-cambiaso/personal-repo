@@ -1,9 +1,4 @@
-export type ImprovementType =
-  | "Decoración"
-  | "Organización"
-  | "Reparación"
-  | "Instalación"
-  | "Otro";
+export type ImprovementType = "Decoración" | "Organización" | "Reparación" | "Instalación" | "Otro";
 
 export const IMPROVEMENT_TYPES: ImprovementType[] = [
   "Decoración",

@@ -19,9 +19,9 @@ export function ActivityLogPersonGroup({ person, entries, onDelete }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 mb-2">
-        <h4 className="text-sm font-semibold text-brown-700">{person}</h4>
-        <span className="rounded-full bg-cream-100 px-2 py-0.5 text-2xs font-semibold text-brown-600">
+      <div className="mb-2 flex items-center gap-2">
+        <h4 className="text-brown-700 text-sm font-semibold">{person}</h4>
+        <span className="bg-cream-100 text-2xs text-brown-600 rounded-full px-2 py-0.5 font-semibold">
           {entries.length}
         </span>
       </div>
@@ -36,7 +36,7 @@ export function ActivityLogPersonGroup({ person, entries, onDelete }: Props) {
         <button
           type="button"
           onClick={() => setIsExpanded((prev) => !prev)}
-          className="mt-1 text-xs text-brown-400 hover:text-brown-700 transition-colors cursor-pointer text-left"
+          className="text-brown-400 hover:text-brown-700 mt-1 cursor-pointer text-left text-xs transition-colors"
         >
           {isExpanded ? "Ver menos" : `Ver más (${hiddenCount})`}
         </button>

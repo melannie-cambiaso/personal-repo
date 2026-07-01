@@ -1,9 +1,9 @@
-import Link from "next/link"
+import Link from "next/link";
 
 interface Props {
-  eyebrow?: string
-  title: string
-  children?: React.ReactNode
+  eyebrow?: string;
+  title: string;
+  children?: React.ReactNode;
 }
 
 export function PageHeader({ eyebrow, title, children }: Props) {
@@ -12,10 +12,10 @@ export function PageHeader({ eyebrow, title, children }: Props) {
       className="relative w-full px-6 py-10 text-center"
       style={{ background: "var(--gradient-header)" }}
     >
-      <div className="absolute left-6 top-6">
+      <div className="absolute top-6 left-6">
         <Link
           href="/"
-          className="flex items-center gap-1.5 text-sm font-medium text-cream-100/70 transition-colors hover:text-cream-100"
+          className="text-cream-100/70 hover:text-cream-100 flex items-center gap-1.5 text-sm font-medium transition-colors"
         >
           <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
             <path
@@ -31,12 +31,12 @@ export function PageHeader({ eyebrow, title, children }: Props) {
       </div>
 
       {eyebrow && (
-        <p className="text-2xs mb-3 font-semibold uppercase tracking-eyebrow text-brown-200">
+        <p className="text-2xs tracking-eyebrow text-brown-200 mb-3 font-semibold uppercase">
           {eyebrow}
         </p>
       )}
-      <h1 className="font-dancing mb-8 text-6xl font-bold text-cream-100">{title}</h1>
+      <h1 className="font-dancing text-cream-100 mb-8 text-6xl font-bold">{title}</h1>
       {children}
     </header>
-  )
+  );
 }

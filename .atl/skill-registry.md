@@ -17,20 +17,20 @@ Last updated: 2026-06-28
 
 ## Skills
 
-| Skill | Trigger / description | Scope | Path |
-| --- | --- | --- | --- |
-| `branch-pr` | Create Gentle AI pull requests with issue-first checks. Trigger: creating, opening, or preparing PRs for review. | user | `/Users/cambiasomelannie/.agents/skills/branch-pr/SKILL.md` |
-| `chained-pr` | Trigger: PRs over 400 lines, stacked PRs, review slices. Split oversized changes into chained PRs that protect review focus. | user | `/Users/cambiasomelannie/.agents/skills/chained-pr/SKILL.md` |
-| `cognitive-doc-design` | Design docs that reduce cognitive load. Trigger: writing guides, READMEs, RFCs, onboarding, architecture, or review-facing docs. | user | `/Users/cambiasomelannie/.agents/skills/cognitive-doc-design/SKILL.md` |
-| `comment-writer` | Write warm, direct collaboration comments. Trigger: PR feedback, issue replies, reviews, Slack messages, or GitHub comments. | user | `/Users/cambiasomelannie/.agents/skills/comment-writer/SKILL.md` |
-| `go-testing` | Trigger: Go tests, go test coverage, Bubbletea teatest, golden files. Apply focused Go testing patterns. | user | `/Users/cambiasomelannie/.agents/skills/go-testing/SKILL.md` |
-| `issue-creation` | Create Gentle AI issues with issue-first checks. Trigger: creating GitHub issues, bug reports, or feature requests. | user | `/Users/cambiasomelannie/.agents/skills/issue-creation/SKILL.md` |
-| `judgment-day` | Trigger: judgment day, dual review, adversarial review, juzgar. Run blind dual review, fix confirmed issues, then re-judge. | user | `/Users/cambiasomelannie/.agents/skills/judgment-day/SKILL.md` |
-| `skill-creator` | Trigger: new skills, agent instructions, documenting AI usage patterns. Create LLM-first skills with valid frontmatter. | user | `/Users/cambiasomelannie/.agents/skills/skill-creator/SKILL.md` |
-| `skill-improver` | Trigger: improve skills, audit skills, refactor skills, skill quality. Audit and upgrade existing LLM-first skills. | user | `/Users/cambiasomelannie/.agents/skills/skill-improver/SKILL.md` |
-| `source-command-sdd-init` | Initialize SDD context — detects project stack and bootstraps persistence backend | user | `/Users/cambiasomelannie/.agents/skills/source-command-sdd-init/SKILL.md` |
-| `source-command-sdd-onboard` | Guided SDD walkthrough — onboard a user through the full SDD cycle using their real codebase | user | `/Users/cambiasomelannie/.agents/skills/source-command-sdd-onboard/SKILL.md` |
-| `work-unit-commits` | Plan commits as reviewable work units. Trigger: implementation, commit splitting, chained PRs, or keeping tests and docs with code. | user | `/Users/cambiasomelannie/.agents/skills/work-unit-commits/SKILL.md` |
+| Skill                        | Trigger / description                                                                                                               | Scope | Path                                                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----- | ---------------------------------------------------------------------------- |
+| `branch-pr`                  | Create Gentle AI pull requests with issue-first checks. Trigger: creating, opening, or preparing PRs for review.                    | user  | `/Users/cambiasomelannie/.agents/skills/branch-pr/SKILL.md`                  |
+| `chained-pr`                 | Trigger: PRs over 400 lines, stacked PRs, review slices. Split oversized changes into chained PRs that protect review focus.        | user  | `/Users/cambiasomelannie/.agents/skills/chained-pr/SKILL.md`                 |
+| `cognitive-doc-design`       | Design docs that reduce cognitive load. Trigger: writing guides, READMEs, RFCs, onboarding, architecture, or review-facing docs.    | user  | `/Users/cambiasomelannie/.agents/skills/cognitive-doc-design/SKILL.md`       |
+| `comment-writer`             | Write warm, direct collaboration comments. Trigger: PR feedback, issue replies, reviews, Slack messages, or GitHub comments.        | user  | `/Users/cambiasomelannie/.agents/skills/comment-writer/SKILL.md`             |
+| `go-testing`                 | Trigger: Go tests, go test coverage, Bubbletea teatest, golden files. Apply focused Go testing patterns.                            | user  | `/Users/cambiasomelannie/.agents/skills/go-testing/SKILL.md`                 |
+| `issue-creation`             | Create Gentle AI issues with issue-first checks. Trigger: creating GitHub issues, bug reports, or feature requests.                 | user  | `/Users/cambiasomelannie/.agents/skills/issue-creation/SKILL.md`             |
+| `judgment-day`               | Trigger: judgment day, dual review, adversarial review, juzgar. Run blind dual review, fix confirmed issues, then re-judge.         | user  | `/Users/cambiasomelannie/.agents/skills/judgment-day/SKILL.md`               |
+| `skill-creator`              | Trigger: new skills, agent instructions, documenting AI usage patterns. Create LLM-first skills with valid frontmatter.             | user  | `/Users/cambiasomelannie/.agents/skills/skill-creator/SKILL.md`              |
+| `skill-improver`             | Trigger: improve skills, audit skills, refactor skills, skill quality. Audit and upgrade existing LLM-first skills.                 | user  | `/Users/cambiasomelannie/.agents/skills/skill-improver/SKILL.md`             |
+| `source-command-sdd-init`    | Initialize SDD context — detects project stack and bootstraps persistence backend                                                   | user  | `/Users/cambiasomelannie/.agents/skills/source-command-sdd-init/SKILL.md`    |
+| `source-command-sdd-onboard` | Guided SDD walkthrough — onboard a user through the full SDD cycle using their real codebase                                        | user  | `/Users/cambiasomelannie/.agents/skills/source-command-sdd-onboard/SKILL.md` |
+| `work-unit-commits`          | Plan commits as reviewable work units. Trigger: implementation, commit splitting, chained PRs, or keeping tests and docs with code. | user  | `/Users/cambiasomelannie/.agents/skills/work-unit-commits/SKILL.md`          |
 
 ## Loading protocol
 

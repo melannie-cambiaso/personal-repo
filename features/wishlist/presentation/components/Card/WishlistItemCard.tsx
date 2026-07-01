@@ -61,7 +61,7 @@ export function WishlistItemCard({ owned, onToggle, onEdit, onDelete, ...props }
       </div>
 
       {/* Body */}
-      <div className="pt-4.5 flex flex-1 flex-col px-5 pb-5">
+      <div className="flex flex-1 flex-col px-5 pt-4.5 pb-5">
         <p className="text-2xs text-brown-400 tracking-store mb-1 font-semibold uppercase">
           {props.brand}
         </p>
@@ -96,14 +96,20 @@ export function WishlistItemCard({ owned, onToggle, onEdit, onDelete, ...props }
               <button
                 type="button"
                 aria-label="Delete item"
-                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
                 className="text-2xs cursor-pointer rounded-lg border border-red-200 px-3.5 py-2 font-bold text-red-500 transition-colors hover:bg-red-50"
               >
                 ✕
               </button>
             )}
             <button
-              onClick={(e) => { e.stopPropagation(); onToggle(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle();
+              }}
               className={`text-2xs cursor-pointer rounded-lg px-3.5 py-2 font-bold text-white transition-colors ${
                 owned ? "bg-brown-400" : "bg-brown-800 hover:bg-brown-700"
               }`}

@@ -6,10 +6,12 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     id: "1",
     category: CATEGORIES.food,
     emoji: "☕",
-    image: "https://tostadoclub.com/cdn/shop/files/Cafe_Especialidad_-_Junio_2026_-_LAMA.png?v=1780513684&width=600",
+    image:
+      "https://tostadoclub.com/cdn/shop/files/Cafe_Especialidad_-_Junio_2026_-_LAMA.png?v=1780513684&width=600",
     brand: "Tostado Club",
     title: "Suscripción Café Especialidad",
-    description: "Dos granos de café de especialidad cada mes, elegidos de tostadurías locales chilenas.",
+    description:
+      "Dos granos de café de especialidad cada mes, elegidos de tostadurías locales chilenas.",
     tag: "Suscripción mensual",
     price: 23990,
     url: "https://tostadoclub.com/products/suscripcion_cafe",
@@ -18,10 +20,12 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     id: "2",
     category: CATEGORIES.food,
     emoji: "🍫",
-    image: "https://theholybrand.cl/cdn/shop/files/pistakio_250_36280fe3-0690-4a6d-ac85-0ff607e5433c.png?v=1764095221&width=600",
+    image:
+      "https://theholybrand.cl/cdn/shop/files/pistakio_250_36280fe3-0690-4a6d-ac85-0ff607e5433c.png?v=1764095221&width=600",
     brand: "The Holy Brand",
     title: "Fancy Pistachio",
-    description: "Pistachos tostados con chocolate blanco sin azúcar añadida. Cremosa, firme y adictiva.",
+    description:
+      "Pistachos tostados con chocolate blanco sin azúcar añadida. Cremosa, firme y adictiva.",
     tag: "250 grs",
     price: 15500,
     url: "https://theholybrand.cl/products/fancy-pistachio-pistacho-con-chocolate-blanco-sin-azucar",
@@ -42,10 +46,12 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     id: "4",
     category: CATEGORIES.cloth,
     emoji: "🧥",
-    image: "https://camov.cl/cdn/shop/files/ImagenesdeProductos_6fbccf49-9ff8-4d93-b827-f7b583b709a0.jpg?crop=center&height=600&v=1781618812&width=600",
+    image:
+      "https://camov.cl/cdn/shop/files/ImagenesdeProductos_6fbccf49-9ff8-4d93-b827-f7b583b709a0.jpg?crop=center&height=600&v=1781618812&width=600",
     brand: "CAMOV",
     title: "Conjunto Polerón Canguro y Palazzo",
-    description: "Polerón 70% algodón con palazzo de caída amplia. Ideal para días frescos de otoño e invierno.",
+    description:
+      "Polerón 70% algodón con palazzo de caída amplia. Ideal para días frescos de otoño e invierno.",
     tag: "Café Oscuro",
     price: 45990,
     url: "https://camov.cl/products/conjunto-poleron-canguro-y-palazzo-cafe-oscuro",
@@ -57,7 +63,8 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     image: "https://www.edifier.com/pub/media/catalog/product/W800BT_PRO_ivory_01.jpg",
     brand: "Edifier Chile",
     title: "Audífonos W800BT Pro",
-    description: "Over-ear Bluetooth con ANC híbrida, 55 hrs de batería, drivers 40mm titanio y carga rápida USB-C.",
+    description:
+      "Over-ear Bluetooth con ANC híbrida, 55 hrs de batería, drivers 40mm titanio y carga rápida USB-C.",
     tag: "Ivory · BT 5.1",
     price: 49920,
     url: "https://www.edifierchile.cl/product/w800bt-pro-ivory",
@@ -66,10 +73,12 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     id: "6",
     category: CATEGORIES.home,
     emoji: "🛏️",
-    image: "https://www.rosen.cl/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/b/o/bock_2p_2024.jpg",
+    image:
+      "https://www.rosen.cl/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/b/o/bock_2p_2024.jpg",
     brand: "Rosen",
     title: "Colchón Bock 2 Plazas",
-    description: "Doble estructura de resortes Pocket Advance de vanadio y titanio, topper de látex zonificado y cobertura Lyocell® transpirable.",
+    description:
+      "Doble estructura de resortes Pocket Advance de vanadio y titanio, topper de látex zonificado y cobertura Lyocell® transpirable.",
     tag: "150×200 cm",
     price: 559990,
     url: "https://www.rosen.cl/colchon-bock-2-plazas-150-x-200-cm.html",
@@ -78,10 +87,12 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     id: "7",
     category: CATEGORIES.tech,
     emoji: "💻",
-    image: "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mbp16-spaceblack-select-202410?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1728916322194",
+    image:
+      "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mbp16-spaceblack-select-202410?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1728916322194",
     brand: "MacOnline",
     title: 'MacBook Pro 16" M4 Pro',
-    description: "Chip M4 Pro, pantalla Liquid Retina XDR, hasta 24 hrs de batería, Thunderbolt 5 y diseñado para Apple Intelligence.",
+    description:
+      "Chip M4 Pro, pantalla Liquid Retina XDR, hasta 24 hrs de batería, Thunderbolt 5 y diseñado para Apple Intelligence.",
     tag: 'M4 Pro · 16"',
     price: 2800000,
     url: "https://www.maconline.com/products/macbook-pro-16-m4-pro-m4-max",
@@ -90,10 +101,12 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     id: "8",
     category: CATEGORIES.books,
     emoji: "📚",
-    image: "https://images-na.ssl-images-amazon.com/images/I/41jEbK-jG+L._SX376_BO1,204,203,200_.jpg",
+    image:
+      "https://images-na.ssl-images-amazon.com/images/I/41jEbK-jG+L._SX376_BO1,204,203,200_.jpg",
     brand: "Buscalibre",
     title: "Clean Code",
-    description: "El clásico de Robert C. Martin — principios, patrones y prácticas para escribir código limpio, mantenible y profesional.",
+    description:
+      "El clásico de Robert C. Martin — principios, patrones y prácticas para escribir código limpio, mantenible y profesional.",
     tag: "Robert C. Martin",
     price: null,
     url: "https://www.buscalibre.cl/libro-clean-code-a-handbook-of-agile-software-craftsmanship/9780132350884/p/2045256",
@@ -102,10 +115,12 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     id: "9",
     category: CATEGORIES.home,
     emoji: "🚿",
-    image: "https://cleanbath.cl/cdn/shop/files/Captura_de_pantalla_2024-10-01_173545.png?v=1744135199",
+    image:
+      "https://cleanbath.cl/cdn/shop/files/Captura_de_pantalla_2024-10-01_173545.png?v=1744135199",
     brand: "Clean Bath",
     title: "Tapa de Baño Japonés",
-    description: "Bidet inteligente con panel lateral, asiento calefaccionado, secado con aire, luz nocturna y ajuste de presión y temperatura.",
+    description:
+      "Bidet inteligente con panel lateral, asiento calefaccionado, secado con aire, luz nocturna y ajuste de presión y temperatura.",
     tag: "Tecnología japonesa",
     price: 159990,
     url: "https://cleanbath.cl/products/tapa-de-bano",
@@ -114,10 +129,12 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
     id: "10",
     category: CATEGORIES.food,
     emoji: "🍵",
-    image: "https://kombuchu.cl/cdn/shop/files/6_70352b27-32b5-43ce-abe2-9ac40315e314.jpg?v=1781534830",
+    image:
+      "https://kombuchu.cl/cdn/shop/files/6_70352b27-32b5-43ce-abe2-9ac40315e314.jpg?v=1781534830",
     brand: "Kombuchu",
     title: "Caja Kombucha Mix (12x333cc)",
-    description: "12 botellas artesanales con los 4 sabores: Original, Jengibre, Maracuyá e Hibiscus-Frambuesa. Sin saborizantes ni concentrados.",
+    description:
+      "12 botellas artesanales con los 4 sabores: Original, Jengibre, Maracuyá e Hibiscus-Frambuesa. Sin saborizantes ni concentrados.",
     tag: "4 sabores",
     price: 28490,
     url: "https://kombuchu.cl/products/caja-kombucha-mixtas-12x330cc",

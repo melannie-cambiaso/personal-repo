@@ -25,20 +25,11 @@ export function EntryFormFields({ form, showReplenish, setField, amountPlacehold
           />
         </Field>
         <Field label="Fecha *">
-          <Input
-            type="date"
-            value={form.date}
-            onChange={setField("date")}
-            required
-          />
+          <Input type="date" value={form.date} onChange={setField("date")} required />
         </Field>
       </div>
       <Field label="Notas">
-        <Textarea
-          rows={2}
-          value={form.notes}
-          onChange={setField("notes")}
-        />
+        <Textarea rows={2} value={form.notes} onChange={setField("notes")} />
       </Field>
       {showReplenish && (
         <label className="text-brown-700 flex cursor-pointer items-center gap-2 text-sm">

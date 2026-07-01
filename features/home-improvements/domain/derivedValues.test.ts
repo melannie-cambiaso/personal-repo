@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { totalCostByZone, pendingCountByZone, itemsPlannedForMonth, itemsUnassigned } from "./derivedValues";
+import {
+  totalCostByZone,
+  pendingCountByZone,
+  itemsPlannedForMonth,
+  itemsUnassigned,
+} from "./derivedValues";
 import type { ImprovementItem } from "./ImprovementItem";
 
 const item = (overrides: Partial<ImprovementItem>): ImprovementItem => ({

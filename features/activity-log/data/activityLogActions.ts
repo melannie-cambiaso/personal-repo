@@ -16,7 +16,7 @@ export async function addActivityEntry(data: {
   activity: string;
   notes?: string;
 }): Promise<void> {
-  if (!await requireAuth()) return;
+  if (!(await requireAuth())) return;
 
   if (!data.activity.trim()) {
     throw new Error("Activity must not be empty");
@@ -38,11 +38,8 @@ export async function addActivityEntry(data: {
   revalidatePath("/activity-log");
 }
 
-export async function deleteActivityEntry(
-  id: string,
-  month: string,
-): Promise<void> {
-  if (!await requireAuth()) return;
+export async function deleteActivityEntry(id: string, month: string): Promise<void> {
+  if (!(await requireAuth())) return;
 
   const entries = await loadEntries(month);
   const filtered = entries.filter((e) => e.id !== id);
@@ -50,9 +47,7 @@ export async function deleteActivityEntry(
   revalidatePath("/activity-log");
 }
 
-export async function getEntriesForMonth(
-  month: string,
-): Promise<ActivityLogEntry[]> {
-  if (!await requireAuth()) return [];
+export async function getEntriesForMonth(month: string): Promise<ActivityLogEntry[]> {
+  if (!(await requireAuth())) return [];
   return loadEntries(month);
 }

@@ -38,9 +38,7 @@ export function ForecastTab({
   const forecast = computeForecast(currentBalance, config, months);
 
   const goalResults =
-    goals && goals.length > 0
-      ? computeGoalForecast(goals, currentBalance, forecast)
-      : [];
+    goals && goals.length > 0 ? computeGoalForecast(goals, currentBalance, forecast) : [];
 
   const outsideWindowLabel = `más de ${months} meses`;
 
@@ -62,7 +60,7 @@ export function ForecastTab({
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-1">
-          <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
+          <span className="text-brown-500 text-xs font-semibold tracking-wide uppercase">
             Ingreso mensual por defecto
           </span>
           <Input
@@ -78,7 +76,7 @@ export function ForecastTab({
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
+          <span className="text-brown-500 text-xs font-semibold tracking-wide uppercase">
             Gasto mensual estimado
           </span>
           <Input
@@ -94,7 +92,7 @@ export function ForecastTab({
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
+          <span className="text-brown-500 text-xs font-semibold tracking-wide uppercase">
             Meses a proyectar
           </span>
           <Input
@@ -108,7 +106,7 @@ export function ForecastTab({
           />
         </label>
         <label className="flex flex-col gap-1">
-          <span className="text-xs font-semibold uppercase tracking-wide text-brown-500">
+          <span className="text-brown-500 text-xs font-semibold tracking-wide uppercase">
             Tasa de interés anual (%)
           </span>
           <Input
@@ -149,25 +147,25 @@ export function ForecastTab({
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-cream-300 text-left">
-              <th className="pb-2 font-semibold text-brown-500">Mes</th>
-              <th className="pb-2 font-semibold text-brown-500">Ingreso</th>
-              <th className="pb-2 text-right font-semibold text-brown-500">Saldo proyectado</th>
+            <tr className="border-cream-300 border-b text-left">
+              <th className="text-brown-500 pb-2 font-semibold">Mes</th>
+              <th className="text-brown-500 pb-2 font-semibold">Ingreso</th>
+              <th className="text-brown-500 pb-2 text-right font-semibold">Saldo proyectado</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-cream-300">
+          <tbody className="divide-cream-300 divide-y">
             {forecast.map(({ monthKey, month, projectedBalance }, i) => {
               const income = config.incomeOverrides[monthKey] ?? config.defaultIncome;
               return (
                 <tr key={month}>
-                  <td className="py-3 capitalize text-brown-700">{month}</td>
+                  <td className="text-brown-700 py-3 capitalize">{month}</td>
                   <td className="py-3">
                     <input
                       type="number"
                       min={0}
                       value={income}
                       onChange={(e) => handleIncomeChange(i, e.target.value)}
-                      className="w-28 rounded border border-cream-400 bg-white px-2 py-1 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600"
+                      className="border-cream-400 text-brown-900 focus:border-brown-600 w-28 rounded border bg-white px-2 py-1 text-sm transition-colors outline-none"
                     />
                   </td>
                   <td
@@ -188,7 +186,7 @@ export function ForecastTab({
         <button
           type="button"
           onClick={() => onSaveConfig(config, months)}
-          className="rounded-lg bg-brown-800 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brown-700"
+          className="bg-brown-800 hover:bg-brown-700 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors"
         >
           Guardar configuración
         </button>

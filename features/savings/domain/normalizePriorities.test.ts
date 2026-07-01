@@ -72,10 +72,7 @@ describe("normalizePriorities", () => {
   });
 
   it("does not mutate the input array", () => {
-    const goals = [
-      goal({ id: "1", priority: 3 }),
-      goal({ id: "2", priority: 1 }),
-    ];
+    const goals = [goal({ id: "1", priority: 3 }), goal({ id: "2", priority: 1 })];
     normalizePriorities(goals);
     expect(goals[0].priority).toBe(3);
     expect(goals[1].priority).toBe(1);

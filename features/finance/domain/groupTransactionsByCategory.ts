@@ -12,7 +12,7 @@ export interface CategoryGroup {
 
 export function groupTransactionsByCategory(
   transactions: FinanceTransaction[],
-  groups: Group[],
+  groups: Group[]
 ): CategoryGroup[] {
   const buckets = new Map<
     string,

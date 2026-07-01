@@ -29,7 +29,16 @@ function groupByZone(items: ImprovementItem[]): Map<string, ImprovementItem[]> {
 }
 
 function ZoneGroupedItemList({
-  title, items, byZone, zoneNameById, emptyText, isOwner, onToggle, onEdit, onDelete, renderAction,
+  title,
+  items,
+  byZone,
+  zoneNameById,
+  emptyText,
+  isOwner,
+  onToggle,
+  onEdit,
+  onDelete,
+  renderAction,
 }: {
   title: string;
   items: ImprovementItem[];
@@ -44,14 +53,16 @@ function ZoneGroupedItemList({
 }) {
   return (
     <section>
-      <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-brown-400">{title}</h3>
+      <h3 className="text-brown-400 mb-4 text-sm font-bold tracking-wide uppercase">{title}</h3>
       {items.length === 0 ? (
-        <p className="text-sm text-brown-400">{emptyText}</p>
+        <p className="text-brown-400 text-sm">{emptyText}</p>
       ) : (
         <div className="flex flex-col gap-4">
           {[...byZone.entries()].map(([zoneId, zoneItems]) => (
             <div key={zoneId}>
-              <p className="mb-2 text-xs font-semibold text-brown-500">{zoneNameById.get(zoneId) ?? zoneId}</p>
+              <p className="text-brown-500 mb-2 text-xs font-semibold">
+                {zoneNameById.get(zoneId) ?? zoneId}
+              </p>
               <div className="flex flex-col gap-2">
                 {zoneItems.map((item) => (
                   <div key={item.id} className="flex items-center gap-2">
@@ -77,14 +88,27 @@ function ZoneGroupedItemList({
 }
 
 export function MonthlyPlanTab({
-  zones, plannedItems, unassignedItems, selectedMonth, isOwner,
-  onPrevMonth, onNextMonth, onAssign, onUnassign, onToggle, onEdit, onDelete,
+  zones,
+  plannedItems,
+  unassignedItems,
+  selectedMonth,
+  isOwner,
+  onPrevMonth,
+  onNextMonth,
+  onAssign,
+  onUnassign,
+  onToggle,
+  onEdit,
+  onDelete,
 }: Props) {
   const zoneNameById = new Map(zones.map((z) => [z.id, z.emoji ? `${z.emoji} ${z.name}` : z.name]));
   const plannedByZone = groupByZone(plannedItems);
   const unassignedByZone = groupByZone(unassignedItems);
   const label = formatMonth(selectedMonth);
-  const totalCost = plannedItems.reduce((sum, i) => sum + (i.estimatedCost ?? 0) * (i.quantity ?? 1), 0);
+  const totalCost = plannedItems.reduce(
+    (sum, i) => sum + (i.estimatedCost ?? 0) * (i.quantity ?? 1),
+    0
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -92,20 +116,22 @@ export function MonthlyPlanTab({
         <button
           type="button"
           onClick={onPrevMonth}
-          className="cursor-pointer rounded-lg border border-cream-400 px-3 py-2 text-sm text-brown-600 transition-colors hover:bg-cream-300"
+          className="border-cream-400 text-brown-600 hover:bg-cream-300 cursor-pointer rounded-lg border px-3 py-2 text-sm transition-colors"
         >
           ← Anterior
         </button>
         <div className="text-center">
-          <h2 className="font-dancing text-2xl font-bold capitalize text-brown-900">{label}</h2>
+          <h2 className="font-dancing text-brown-900 text-2xl font-bold capitalize">{label}</h2>
           {totalCost > 0 && (
-            <p className="mt-0.5 text-sm font-semibold text-brown-600">{formatCLP(totalCost)} estimado</p>
+            <p className="text-brown-600 mt-0.5 text-sm font-semibold">
+              {formatCLP(totalCost)} estimado
+            </p>
           )}
         </div>
         <button
           type="button"
           onClick={onNextMonth}
-          className="cursor-pointer rounded-lg border border-cream-400 px-3 py-2 text-sm text-brown-600 transition-colors hover:bg-cream-300"
+          className="border-cream-400 text-brown-600 hover:bg-cream-300 cursor-pointer rounded-lg border px-3 py-2 text-sm transition-colors"
         >
           Siguiente →
         </button>
@@ -125,7 +151,7 @@ export function MonthlyPlanTab({
           <button
             type="button"
             onClick={() => onUnassign(item.id)}
-            className="shrink-0 cursor-pointer rounded-lg border border-cream-400 px-3 py-2 text-2xs font-bold text-brown-500 transition-colors hover:bg-cream-300"
+            className="border-cream-400 text-2xs text-brown-500 hover:bg-cream-300 shrink-0 cursor-pointer rounded-lg border px-3 py-2 font-bold transition-colors"
           >
             Quitar
           </button>
@@ -146,7 +172,7 @@ export function MonthlyPlanTab({
           <button
             type="button"
             onClick={() => onAssign(item.id, selectedMonth)}
-            className="shrink-0 cursor-pointer rounded-lg bg-brown-800 px-3 py-2 text-2xs font-bold text-white transition-colors hover:bg-brown-700"
+            className="bg-brown-800 text-2xs hover:bg-brown-700 shrink-0 cursor-pointer rounded-lg px-3 py-2 font-bold text-white transition-colors"
           >
             Agregar
           </button>

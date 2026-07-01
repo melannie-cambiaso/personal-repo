@@ -16,7 +16,13 @@ interface Props {
   amountPlaceholder?: string;
 }
 
-export function GoalFormFields({ form, error, setForm, namePlaceholder, amountPlaceholder }: Props) {
+export function GoalFormFields({
+  form,
+  error,
+  setForm,
+  namePlaceholder,
+  amountPlaceholder,
+}: Props) {
   return (
     <>
       <Field label="Nombre *">

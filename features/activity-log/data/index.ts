@@ -1,5 +1,1 @@
-export {
-  addActivityEntry,
-  deleteActivityEntry,
-  getEntriesForMonth,
-} from "./activityLogActions";
+export { addActivityEntry, deleteActivityEntry, getEntriesForMonth } from "./activityLogActions";

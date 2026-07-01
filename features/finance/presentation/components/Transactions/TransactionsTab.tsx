@@ -15,8 +15,7 @@ interface Props {
   onDelete: (id: string) => void;
 }
 
-const pillBase =
-  "cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors";
+const pillBase = "cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors";
 const pillActive = "bg-brown-800 text-white";
 const pillInactive = "bg-cream-100 text-brown-600 hover:bg-cream-200";
 
@@ -24,11 +23,7 @@ export function TransactionsTab({ transactions, groups, onDelete }: Props) {
   const [groupBy, setGroupBy] = useState<"category" | "day">("category");
 
   if (transactions.length === 0) {
-    return (
-      <p className="mt-8 text-center text-sm text-brown-400">
-        No hay transacciones este mes
-      </p>
-    );
+    return <p className="text-brown-400 mt-8 text-center text-sm">No hay transacciones este mes</p>;
   }
 
   // Build category → groupName map once for day mode
@@ -62,8 +57,8 @@ export function TransactionsTab({ transactions, groups, onDelete }: Props) {
         groupTransactionsByCategory(transactions, groups).map((group) => (
           <section key={group.category}>
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-semibold text-brown-800">{group.category}</span>
-              <span className="text-sm text-brown-500">{formatCLP(group.total)}</span>
+              <span className="text-brown-800 text-sm font-semibold">{group.category}</span>
+              <span className="text-brown-500 text-sm">{formatCLP(group.total)}</span>
             </div>
             <ul className="flex flex-col gap-2">
               {group.transactions.map((tx) => (
@@ -84,7 +79,7 @@ export function TransactionsTab({ transactions, groups, onDelete }: Props) {
         groupTransactionsByDay(transactions).map((dayGroup) => (
           <section key={dayGroup.date}>
             <div className="mb-2">
-              <span className="text-sm font-semibold text-brown-800">
+              <span className="text-brown-800 text-sm font-semibold">
                 {new Date(dayGroup.date + "T00:00:00").toLocaleDateString("es-CL", {
                   day: "numeric",
                   month: "short",

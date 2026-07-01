@@ -33,9 +33,20 @@ export function HomeImprovementsScreen({
   onSaveItems,
 }: Props) {
   const {
-    zones, items, itemsByZone, costByZone, pendingByZone,
-    addZone, editZone, deleteZone, addItem, editItem, toggleDone, deleteItem,
-    assignToMonth, unassignFromMonth,
+    zones,
+    items,
+    itemsByZone,
+    costByZone,
+    pendingByZone,
+    addZone,
+    editZone,
+    deleteZone,
+    addItem,
+    editItem,
+    toggleDone,
+    deleteItem,
+    assignToMonth,
+    unassignFromMonth,
   } = useHomeImprovements({ initialZones, initialItems, onSaveZones, onSaveItems });
 
   const [activeTab, setActiveTab] = useState<"zones" | "monthly">("zones");
@@ -50,7 +61,10 @@ export function HomeImprovementsScreen({
     setSelectedMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
   };
 
-  const plannedItems = useMemo(() => itemsPlannedForMonth(items, selectedMonth), [items, selectedMonth]);
+  const plannedItems = useMemo(
+    () => itemsPlannedForMonth(items, selectedMonth),
+    [items, selectedMonth]
+  );
   const unassignedItems = useMemo(() => itemsUnassigned(items), [items]);
 
   type SortKey = "price-asc" | "price-desc" | "name-asc" | "name-desc";
@@ -84,26 +98,28 @@ export function HomeImprovementsScreen({
   return (
     <main className="flex flex-1 flex-col">
       <PageHeader eyebrow="Tu hogar" title="Mejoras">
-        <div className="flex justify-center gap-6 text-sm text-cream-100/80">
-          <span>{totalPending} pendiente{totalPending !== 1 ? "s" : ""}</span>
+        <div className="text-cream-100/80 flex justify-center gap-6 text-sm">
+          <span>
+            {totalPending} pendiente{totalPending !== 1 ? "s" : ""}
+          </span>
           {totalCost > 0 && <span>· {formatCLP(totalCost)} estimado</span>}
         </div>
       </PageHeader>
 
       <div className="mx-auto w-full max-w-6xl px-6 py-10">
         {/* Tab toggle */}
-        <div className="mb-8 flex gap-2 border-b border-cream-300">
+        <div className="border-cream-300 mb-8 flex gap-2 border-b">
           <button
             type="button"
             onClick={() => setActiveTab("zones")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "zones" ? "border-b-2 border-brown-800 text-brown-900" : "text-brown-400 hover:text-brown-700"}`}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "zones" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
           >
             Zonas
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("monthly")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "monthly" ? "border-b-2 border-brown-800 text-brown-900" : "text-brown-400 hover:text-brown-700"}`}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "monthly" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
           >
             Plan mensual
           </button>
@@ -175,19 +191,28 @@ export function HomeImprovementsScreen({
         zones={zones}
         preselectedZoneId={addItemZoneId}
         onClose={() => setAddItemZoneId(undefined)}
-        onAdd={(item) => { addItem(item); setAddItemZoneId(undefined); }}
+        onAdd={(item) => {
+          addItem(item);
+          setAddItemZoneId(undefined);
+        }}
       />
       <EditItemModal
         key={editingItem?.id}
         item={editingItem}
         zones={zones}
         onClose={() => setEditingItem(null)}
-        onSave={(item) => { editItem(item); setEditingItem(null); }}
+        onSave={(item) => {
+          editItem(item);
+          setEditingItem(null);
+        }}
       />
       <DeleteZoneConfirmModal
         zone={pendingDeleteZone}
         itemCount={itemsByZone.get(pendingDeleteZone?.id ?? "")?.length ?? 0}
-        onConfirm={() => { deleteZone(pendingDeleteZone!.id); setPendingDeleteZone(null); }}
+        onConfirm={() => {
+          deleteZone(pendingDeleteZone!.id);
+          setPendingDeleteZone(null);
+        }}
         onCancel={() => setPendingDeleteZone(null)}
       />
     </main>

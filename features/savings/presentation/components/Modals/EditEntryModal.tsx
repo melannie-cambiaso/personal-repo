@@ -56,11 +56,7 @@ export function EditEntryModal({ entry, onClose, onSave }: Props) {
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Editar registro">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <EntryFormFields
-          form={form}
-          showReplenish={entry?.type === "gasto"}
-          setField={setField}
-        />
+        <EntryFormFields form={form} showReplenish={entry?.type === "gasto"} setField={setField} />
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" onPress={onClose} variant="secondary">
             Cancelar

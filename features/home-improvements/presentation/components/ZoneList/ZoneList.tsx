@@ -19,12 +19,21 @@ interface Props {
 }
 
 export function ZoneList({
-  zones, itemsByZone, costByZone, pendingByZone, isOwner,
-  onEditZone, onDeleteZone, onAddItem, onEditItem, onToggleItem, onDeleteItem,
+  zones,
+  itemsByZone,
+  costByZone,
+  pendingByZone,
+  isOwner,
+  onEditZone,
+  onDeleteZone,
+  onAddItem,
+  onEditItem,
+  onToggleItem,
+  onDeleteItem,
 }: Props) {
   if (zones.length === 0) {
     return (
-      <div className="py-16 text-center text-brown-400">
+      <div className="text-brown-400 py-16 text-center">
         <p className="mb-1 text-4xl">🏠</p>
         <p className="text-sm">Todavía no hay zonas. ¡Agregá la primera!</p>
       </div>

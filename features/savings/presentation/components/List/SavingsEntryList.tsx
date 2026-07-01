@@ -14,7 +14,7 @@ interface Props {
 export function SavingsEntryList({ entries, isOwner, onEdit, onMarkReplenished, onDelete }: Props) {
   if (entries.length === 0) {
     return (
-      <div className="py-16 text-center text-brown-400">
+      <div className="text-brown-400 py-16 text-center">
         <p className="mb-1 text-4xl">💰</p>
         <p className="text-sm">Todavía no hay registros. ¡Agregá el primero!</p>
       </div>

@@ -84,7 +84,7 @@ describe("groupTransactionsByDay", () => {
     const result1 = groupTransactionsByDay([t1, t2]);
     const result2 = groupTransactionsByDay([t1, t2]);
     expect(result1[0].transactions.map((t) => t.id)).toEqual(
-      result2[0].transactions.map((t) => t.id),
+      result2[0].transactions.map((t) => t.id)
     );
   });
 });

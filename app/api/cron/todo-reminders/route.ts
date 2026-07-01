@@ -13,10 +13,7 @@ export async function GET(request: NextRequest) {
   const pending = items.filter((item) => !item.completed);
 
   if (pending.length === 0) {
-    return NextResponse.json(
-      { sent: false, reason: "no pending items" },
-      { status: 200 }
-    );
+    return NextResponse.json({ sent: false, reason: "no pending items" }, { status: 200 });
   }
 
   const bullets = pending.map((i) => `• ${i.title}`).join("\n");

@@ -55,7 +55,11 @@ describe("useSavings", () => {
 
   it("addEntry forces toReplenish=false for depósito", () => {
     const { result } = renderHook(() => useSavings({ initialEntries: [], onSave }));
-    act(() => result.current.addEntry(makeEntry({ type: "deposito", toReplenish: true as unknown as boolean })));
+    act(() =>
+      result.current.addEntry(
+        makeEntry({ type: "deposito", toReplenish: true as unknown as boolean })
+      )
+    );
     expect(result.current.entries[0].toReplenish).toBe(false);
   });
 

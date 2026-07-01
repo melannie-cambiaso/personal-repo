@@ -23,8 +23,12 @@ export function useHomeImprovements({
   const zonesRef = useRef(initialZones);
   const itemsRef = useRef(initialItems);
 
-  useEffect(() => { zonesRef.current = zones; }, [zones]);
-  useEffect(() => { itemsRef.current = items; }, [items]);
+  useEffect(() => {
+    zonesRef.current = zones;
+  }, [zones]);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const itemsByZone = useMemo(
     () =>
@@ -32,7 +36,7 @@ export function useHomeImprovements({
         map.set(item.zoneId, [...(map.get(item.zoneId) ?? []), item]);
         return map;
       }, new Map<string, ImprovementItem[]>()),
-    [items],
+    [items]
   );
 
   const costByZone = useMemo(() => totalCostByZone(items), [items]);
@@ -52,7 +56,8 @@ export function useHomeImprovements({
 
   const editZone = (zone: Zone): boolean => {
     const name = zone.name.trim().toLowerCase();
-    if (zonesRef.current.some((z) => z.id !== zone.id && z.name.trim().toLowerCase() === name)) return false;
+    if (zonesRef.current.some((z) => z.id !== zone.id && z.name.trim().toLowerCase() === name))
+      return false;
     const next = zonesRef.current.map((z) => (z.id === zone.id ? zone : z));
     zonesRef.current = next;
     setZones(next);
@@ -88,9 +93,7 @@ export function useHomeImprovements({
   };
 
   const toggleDone = (itemId: string) => {
-    const next = itemsRef.current.map((i) =>
-      i.id === itemId ? { ...i, done: !i.done } : i,
-    );
+    const next = itemsRef.current.map((i) => (i.id === itemId ? { ...i, done: !i.done } : i));
     itemsRef.current = next;
     setItems(next);
     void onSaveItems(next);

@@ -1,62 +1,62 @@
-import Link from "next/link"
+import Link from "next/link";
 
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center">
       <div className="px-6 py-12 text-center">
-        <h1 className="font-dancing mb-2 text-5xl font-bold text-brown-900">Hola 👋</h1>
-        <p className="mb-12 text-sm text-brown-400">¿Qué querés ver hoy?</p>
+        <h1 className="font-dancing text-brown-900 mb-2 text-5xl font-bold">Hola 👋</h1>
+        <p className="text-brown-400 mb-12 text-sm">¿Qué querés ver hoy?</p>
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/wishlist"
-            className="flex flex-col items-center gap-3 rounded-2xl border border-cream-300 bg-white px-8 py-10 shadow-sm transition-all hover:border-brown-300 hover:shadow-card-hover"
+            className="border-cream-300 hover:border-brown-300 hover:shadow-card-hover flex flex-col items-center gap-3 rounded-2xl border bg-white px-8 py-10 shadow-sm transition-all"
           >
             <span className="text-4xl">🛍️</span>
-            <span className="font-dancing text-2xl font-bold text-brown-900">Wishlist</span>
-            <span className="text-xs text-brown-400">Tus cosas deseadas</span>
+            <span className="font-dancing text-brown-900 text-2xl font-bold">Wishlist</span>
+            <span className="text-brown-400 text-xs">Tus cosas deseadas</span>
           </Link>
           <Link
             href="/todo"
-            className="flex flex-col items-center gap-3 rounded-2xl border border-cream-300 bg-white px-8 py-10 shadow-sm transition-all hover:border-brown-300 hover:shadow-card-hover"
+            className="border-cream-300 hover:border-brown-300 hover:shadow-card-hover flex flex-col items-center gap-3 rounded-2xl border bg-white px-8 py-10 shadow-sm transition-all"
           >
             <span className="text-4xl">✅</span>
-            <span className="font-dancing text-2xl font-bold text-brown-900">To-Do</span>
-            <span className="text-xs text-brown-400">Tus tareas pendientes</span>
+            <span className="font-dancing text-brown-900 text-2xl font-bold">To-Do</span>
+            <span className="text-brown-400 text-xs">Tus tareas pendientes</span>
           </Link>
           <Link
             href="/home-improvements"
-            className="flex flex-col items-center gap-3 rounded-2xl border border-cream-300 bg-white px-8 py-10 shadow-sm transition-all hover:border-brown-300 hover:shadow-card-hover"
+            className="border-cream-300 hover:border-brown-300 hover:shadow-card-hover flex flex-col items-center gap-3 rounded-2xl border bg-white px-8 py-10 shadow-sm transition-all"
           >
             <span className="text-4xl">🏠</span>
-            <span className="font-dancing text-2xl font-bold text-brown-900">Casa</span>
-            <span className="text-xs text-brown-400">Mejoras del hogar</span>
+            <span className="font-dancing text-brown-900 text-2xl font-bold">Casa</span>
+            <span className="text-brown-400 text-xs">Mejoras del hogar</span>
           </Link>
           <Link
             href="/savings"
-            className="flex flex-col items-center gap-3 rounded-2xl border border-cream-300 bg-white px-8 py-10 shadow-sm transition-all hover:border-brown-300 hover:shadow-card-hover"
+            className="border-cream-300 hover:border-brown-300 hover:shadow-card-hover flex flex-col items-center gap-3 rounded-2xl border bg-white px-8 py-10 shadow-sm transition-all"
           >
             <span className="text-4xl">💰</span>
-            <span className="font-dancing text-2xl font-bold text-brown-900">Ahorros</span>
-            <span className="text-xs text-brown-400">Tu registro financiero</span>
+            <span className="font-dancing text-brown-900 text-2xl font-bold">Ahorros</span>
+            <span className="text-brown-400 text-xs">Tu registro financiero</span>
           </Link>
           <Link
             href="/finance"
-            className="flex flex-col items-center gap-3 rounded-2xl border border-cream-300 bg-white px-8 py-10 shadow-sm transition-all hover:border-brown-300 hover:shadow-card-hover"
+            className="border-cream-300 hover:border-brown-300 hover:shadow-card-hover flex flex-col items-center gap-3 rounded-2xl border bg-white px-8 py-10 shadow-sm transition-all"
           >
             <span className="text-4xl">💸</span>
-            <span className="font-dancing text-2xl font-bold text-brown-900">Finanzas</span>
-            <span className="text-xs text-brown-400">Presupuesto mensual</span>
+            <span className="font-dancing text-brown-900 text-2xl font-bold">Finanzas</span>
+            <span className="text-brown-400 text-xs">Presupuesto mensual</span>
           </Link>
           <Link
             href="/activity-log"
-            className="flex flex-col items-center gap-3 rounded-2xl border border-cream-300 bg-white px-8 py-10 shadow-sm transition-all hover:border-brown-300 hover:shadow-card-hover"
+            className="border-cream-300 hover:border-brown-300 hover:shadow-card-hover flex flex-col items-center gap-3 rounded-2xl border bg-white px-8 py-10 shadow-sm transition-all"
           >
             <span className="text-4xl">📋</span>
-            <span className="font-dancing text-2xl font-bold text-brown-900">Actividades</span>
-            <span className="text-xs text-brown-400">Registro de actividades</span>
+            <span className="font-dancing text-brown-900 text-2xl font-bold">Actividades</span>
+            <span className="text-brown-400 text-xs">Registro de actividades</span>
           </Link>
         </div>
       </div>
     </main>
-  )
+  );
 }

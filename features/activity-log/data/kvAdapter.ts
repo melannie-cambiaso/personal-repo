@@ -12,10 +12,7 @@ export async function loadEntries(month: string): Promise<ActivityLogEntry[]> {
   }
 }
 
-export async function saveEntries(
-  month: string,
-  entries: ActivityLogEntry[],
-): Promise<void> {
+export async function saveEntries(month: string, entries: ActivityLogEntry[]): Promise<void> {
   try {
     await redis.set(entryKey(month), entries);
   } catch (e) {

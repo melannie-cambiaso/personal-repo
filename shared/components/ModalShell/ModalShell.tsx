@@ -36,22 +36,27 @@ export function ModalShell({
   return (
     <dialog
       ref={dialogRef}
-      className={`m-auto w-full ${MAX_WIDTH_CLASS[maxWidth]} rounded-2xl bg-cream-50 p-0 shadow-card-hover backdrop:bg-brown-900/40`}
-      onCancel={(e) => { e.preventDefault(); onCancel(); }}
+      className={`m-auto w-full ${MAX_WIDTH_CLASS[maxWidth]} bg-cream-50 shadow-card-hover backdrop:bg-brown-900/40 rounded-2xl p-0`}
+      onCancel={(e) => {
+        e.preventDefault();
+        onCancel();
+      }}
       onClick={
         disableBackdropClose
           ? undefined
-          : (e) => { if (e.target === dialogRef.current) onCancel(); }
+          : (e) => {
+              if (e.target === dialogRef.current) onCancel();
+            }
       }
     >
       <div className="px-6 py-5">
         {title && (
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-dancing text-2xl font-bold text-brown-900">{title}</h2>
+            <h2 className="font-dancing text-brown-900 text-2xl font-bold">{title}</h2>
             <button
               type="button"
               onClick={onCancel}
-              className="cursor-pointer text-xl text-brown-400 transition-colors hover:text-brown-800"
+              className="text-brown-400 hover:text-brown-800 cursor-pointer text-xl transition-colors"
               aria-label="Cerrar"
             >
               ✕

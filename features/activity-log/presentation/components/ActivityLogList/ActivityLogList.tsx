@@ -1,11 +1,7 @@
 "use client";
 
 import type { ActivityLogEntry } from "@/features/activity-log/domain";
-import {
-  groupByDay,
-  groupByPerson,
-  isToday,
-} from "@/features/activity-log/domain";
+import { groupByDay, groupByPerson, isToday } from "@/features/activity-log/domain";
 import { ActivityLogEntryCard } from "../ActivityLogEntryCard/ActivityLogEntryCard";
 import { ActivityLogPersonGroup } from "../ActivityLogPersonGroup/ActivityLogPersonGroup";
 
@@ -34,9 +30,7 @@ export function ActivityLogList({ entries, onDelete, selectedMonth }: Props) {
 
   if (days.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-brown-400">
-        No hay actividades para este mes.
-      </p>
+      <p className="text-brown-400 py-12 text-center text-sm">No hay actividades para este mes.</p>
     );
   }
 
@@ -44,18 +38,14 @@ export function ActivityLogList({ entries, onDelete, selectedMonth }: Props) {
     <div key={selectedMonth} className="flex flex-col gap-8">
       {days.map((day) => (
         <section key={day}>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-brown-400 capitalize">
+          <h3 className="text-brown-400 mb-3 text-xs font-semibold tracking-wider capitalize uppercase">
             {formatDateHeader(day)}
           </h3>
 
           {isToday(day) ? (
             <div className="flex flex-col gap-3">
               {grouped[day]!.map((entry) => (
-                <ActivityLogEntryCard
-                  key={entry.id}
-                  entry={entry}
-                  onDelete={onDelete}
-                />
+                <ActivityLogEntryCard key={entry.id} entry={entry} onDelete={onDelete} />
               ))}
             </div>
           ) : (

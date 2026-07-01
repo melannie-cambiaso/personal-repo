@@ -10,9 +10,7 @@ function localDateKey(createdAt: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export function groupTransactionsByDay(
-  transactions: FinanceTransaction[],
-): DayGroup[] {
+export function groupTransactionsByDay(transactions: FinanceTransaction[]): DayGroup[] {
   const buckets = new Map<string, FinanceTransaction[]>();
 
   for (const tx of transactions) {

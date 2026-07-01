@@ -5,8 +5,16 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
   return <input className={className ? `${inputClass} ${className}` : inputClass} {...props} />;
 }
 
-export function Textarea({ className, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={className ? `${inputClass} resize-none ${className}` : `${inputClass} resize-none`} {...props} />;
+export function Textarea({
+  className,
+  ...props
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      className={className ? `${inputClass} resize-none ${className}` : `${inputClass} resize-none`}
+      {...props}
+    />
+  );
 }
 
 interface SelectOption {
@@ -14,10 +22,21 @@ interface SelectOption {
   label: string;
 }
 
-export function Select({ className, options, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { options?: SelectOption[] }) {
+export function Select({
+  className,
+  options,
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement> & { options?: SelectOption[] }) {
   return (
     <select className={className ? `${inputClass} ${className}` : inputClass} {...props}>
-      {options ? options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>) : children}
+      {options
+        ? options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))
+        : children}
     </select>
   );
 }

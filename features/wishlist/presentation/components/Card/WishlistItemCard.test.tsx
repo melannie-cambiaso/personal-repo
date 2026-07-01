@@ -28,7 +28,15 @@ describe("WishlistItemCard", () => {
   it("clicking trash calls onDelete and not onEdit", () => {
     const onDelete = vi.fn();
     const onEdit = vi.fn();
-    render(<WishlistItemCard {...item} owned={false} onToggle={vi.fn()} onDelete={onDelete} onEdit={onEdit} />);
+    render(
+      <WishlistItemCard
+        {...item}
+        owned={false}
+        onToggle={vi.fn()}
+        onDelete={onDelete}
+        onEdit={onEdit}
+      />
+    );
     fireEvent.click(screen.getByLabelText("Delete item"));
     expect(onDelete).toHaveBeenCalledTimes(1);
     expect(onEdit).not.toHaveBeenCalled();

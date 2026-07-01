@@ -41,8 +41,17 @@ export function SavingsScreen({
   suggestedIncome,
   onSaveForecastConfig,
 }: Props) {
-  const { entries, balance, totalToReplenish, totalDepositos, totalGastos, addEntry, editEntry, deleteEntry, markReplenished } =
-    useSavings({ initialEntries, onSave });
+  const {
+    entries,
+    balance,
+    totalToReplenish,
+    totalDepositos,
+    totalGastos,
+    addEntry,
+    editEntry,
+    deleteEntry,
+    markReplenished,
+  } = useSavings({ initialEntries, onSave });
 
   const { distributed, handleAdd, handleEdit, handleDelete } = useSavingsGoals({
     initialGoals,
@@ -65,24 +74,26 @@ export function SavingsScreen({
   return (
     <main className="flex flex-1 flex-col">
       <PageHeader eyebrow="Tu bolsillo" title="Ahorros">
-        <div className="flex justify-center gap-6 text-sm text-cream-100/80">
-          <span>{entries.length} registro{entries.length !== 1 ? "s" : ""}</span>
+        <div className="text-cream-100/80 flex justify-center gap-6 text-sm">
+          <span>
+            {entries.length} registro{entries.length !== 1 ? "s" : ""}
+          </span>
         </div>
       </PageHeader>
 
       <div className="mx-auto w-full max-w-2xl px-6 py-10">
-        <div className="mb-8 flex gap-2 border-b border-cream-300">
+        <div className="border-cream-300 mb-8 flex gap-2 border-b">
           <button
             type="button"
             onClick={() => setActiveTab("history")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "history" ? "border-b-2 border-brown-800 text-brown-900" : "text-brown-400 hover:text-brown-700"}`}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "history" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
           >
             Historial
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("forecast")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "forecast" ? "border-b-2 border-brown-800 text-brown-900" : "text-brown-400 hover:text-brown-700"}`}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "forecast" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
           >
             Proyección
           </button>
@@ -91,7 +102,12 @@ export function SavingsScreen({
         {activeTab === "history" && (
           <>
             <div className="mb-8">
-              <SavingsSummaryCards balance={balance} totalToReplenish={totalToReplenish} totalDepositos={totalDepositos} totalGastos={totalGastos} />
+              <SavingsSummaryCards
+                balance={balance}
+                totalToReplenish={totalToReplenish}
+                totalDepositos={totalDepositos}
+                totalGastos={totalGastos}
+              />
             </div>
 
             <div className="mb-6 flex justify-end">
@@ -126,16 +142,27 @@ export function SavingsScreen({
         key={addOpen ? "entry-open" : "entry-closed"}
         isOpen={addOpen}
         onClose={() => setAddOpen(false)}
-        onAdd={(entry) => { addEntry(entry); setAddOpen(false); }}
+        onAdd={(entry) => {
+          addEntry(entry);
+          setAddOpen(false);
+        }}
       />
       <EditEntryModal
         entry={editingEntry}
         onClose={() => setEditingEntry(null)}
-        onSave={(entry) => { editEntry(entry); setEditingEntry(null); }}
+        onSave={(entry) => {
+          editEntry(entry);
+          setEditingEntry(null);
+        }}
       />
       <DeleteEntryConfirmModal
         entry={pendingDelete}
-        onConfirm={() => { if (pendingDelete) { deleteEntry(pendingDelete.id); setPendingDelete(null); } }}
+        onConfirm={() => {
+          if (pendingDelete) {
+            deleteEntry(pendingDelete.id);
+            setPendingDelete(null);
+          }
+        }}
         onCancel={() => setPendingDelete(null)}
       />
 
@@ -143,17 +170,28 @@ export function SavingsScreen({
         key={addGoalOpen ? "goal-open" : "goal-closed"}
         isOpen={addGoalOpen}
         onClose={() => setAddGoalOpen(false)}
-        onAdd={(data) => { handleAdd(data); setAddGoalOpen(false); }}
+        onAdd={(data) => {
+          handleAdd(data);
+          setAddGoalOpen(false);
+        }}
       />
       <EditGoalModal
         key={editingGoal?.id}
         goal={editingGoal}
         onClose={() => setEditingGoal(null)}
-        onSave={(id, data) => { handleEdit(id, data); setEditingGoal(null); }}
+        onSave={(id, data) => {
+          handleEdit(id, data);
+          setEditingGoal(null);
+        }}
       />
       <DeleteGoalConfirmModal
         goal={pendingDeleteGoal}
-        onConfirm={() => { if (pendingDeleteGoal) { handleDelete(pendingDeleteGoal.id); setPendingDeleteGoal(null); } }}
+        onConfirm={() => {
+          if (pendingDeleteGoal) {
+            handleDelete(pendingDeleteGoal.id);
+            setPendingDeleteGoal(null);
+          }
+        }}
         onCancel={() => setPendingDeleteGoal(null)}
       />
     </main>

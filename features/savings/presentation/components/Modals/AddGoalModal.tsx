@@ -19,7 +19,10 @@ export function AddGoalModal({ isOpen, onClose, onAdd }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const err = validateGoalForm(form);
-    if (err) { setError(err); return; }
+    if (err) {
+      setError(err);
+      return;
+    }
     onAdd({ name: form.name.trim(), targetAmount: Number(form.targetAmount) });
     onClose();
   };

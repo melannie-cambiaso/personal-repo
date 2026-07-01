@@ -2,7 +2,11 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { loadEntries, loadGoals } from "@/features/savings/data";
 import { loadForecastConfig } from "@/features/savings/data/kvAdapter";
-import { handleSave, handleSaveGoals, handleSaveForecastConfig } from "@/features/savings/data/savingsActions";
+import {
+  handleSave,
+  handleSaveGoals,
+  handleSaveForecastConfig,
+} from "@/features/savings/data/savingsActions";
 import { computeSuggestedIncome } from "@/features/savings/domain/computeSuggestedIncome";
 import { SavingsScreen } from "@/features/savings/presentation/screens/Dashboard/SavingsScreen";
 

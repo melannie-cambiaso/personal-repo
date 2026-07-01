@@ -3,7 +3,7 @@ import { sortGoalsByPriority } from "./SavingsGoal";
 
 export function distributeToGoals(
   balance: number,
-  goals: SavingsGoal[],
+  goals: SavingsGoal[]
 ): { goals: GoalWithProgress[]; surplus: number } {
   const sorted = sortGoalsByPriority(goals);
 

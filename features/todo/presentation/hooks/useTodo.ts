@@ -1,44 +1,44 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import type { TodoItem } from "@/features/todo/domain/TodoItem"
+import { useEffect, useRef, useState } from "react";
+import type { TodoItem } from "@/features/todo/domain/TodoItem";
 
 interface Params {
-  initialItems: TodoItem[]
-  onAdd: (items: TodoItem[]) => Promise<void> | void
-  onToggle: (items: TodoItem[]) => Promise<void> | void
+  initialItems: TodoItem[];
+  onAdd: (items: TodoItem[]) => Promise<void> | void;
+  onToggle: (items: TodoItem[]) => Promise<void> | void;
 }
 
 export function useTodo({ initialItems, onAdd, onToggle }: Params) {
-  const [items, setItems] = useState<TodoItem[]>(initialItems)
-  const itemsRef = useRef(initialItems)
+  const [items, setItems] = useState<TodoItem[]>(initialItems);
+  const itemsRef = useRef(initialItems);
 
   useEffect(() => {
-    itemsRef.current = items
-  }, [items])
+    itemsRef.current = items;
+  }, [items]);
 
   const addItem = (item: TodoItem) => {
-    const next = [item, ...itemsRef.current]
-    itemsRef.current = next
-    setItems(next)
-    void onAdd(next)
-  }
+    const next = [item, ...itemsRef.current];
+    itemsRef.current = next;
+    setItems(next);
+    void onAdd(next);
+  };
 
   const toggle = (id: string, completedBy?: string) => {
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
     const next = itemsRef.current.map((i) => {
-      if (i.id !== id) return i
+      if (i.id !== id) return i;
       if (completedBy) {
-        return { ...i, completed: true, completedAt: now, completedBy }
+        return { ...i, completed: true, completedAt: now, completedBy };
       }
-      return { ...i, completed: false, completedAt: undefined, completedBy: undefined }
-    })
-    itemsRef.current = next
-    setItems(next)
-    void onToggle(next)
-  }
+      return { ...i, completed: false, completedAt: undefined, completedBy: undefined };
+    });
+    itemsRef.current = next;
+    setItems(next);
+    void onToggle(next);
+  };
 
-  const pending = items.filter((i) => !i.completed).length
+  const pending = items.filter((i) => !i.completed).length;
 
-  return { items, addItem, toggle, pending }
+  return { items, addItem, toggle, pending };
 }

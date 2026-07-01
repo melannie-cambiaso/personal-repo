@@ -4,11 +4,7 @@ import type { SavingsEntry } from "./SavingsEntry";
 
 const NOW = new Date(2026, 5, 28); // June 28, 2026
 
-function entry(
-  type: "deposito" | "gasto",
-  date: string,
-  amount: number
-): SavingsEntry {
+function entry(type: "deposito" | "gasto", date: string, amount: number): SavingsEntry {
   return { id: date + type, type, amount, date, toReplenish: false, createdAt: date };
 }
 
@@ -32,7 +28,7 @@ describe("computeSuggestedIncome", () => {
     const entries: SavingsEntry[] = [
       entry("deposito", "2026-03-15", 1000), // March — 3 months ago
       entry("deposito", "2026-04-20", 1200), // April — 2 months ago
-      entry("deposito", "2026-05-01", 800),  // May   — 1 month ago
+      entry("deposito", "2026-05-01", 800), // May   — 1 month ago
     ];
     // sum = 3000, 3000 / 3 = 1000
     expect(computeSuggestedIncome(entries, NOW)).toBe(1000);
@@ -50,7 +46,7 @@ describe("computeSuggestedIncome", () => {
       entry("deposito", "2026-02-10", 6000), // Feb — 4 months ago, too old
       entry("deposito", "2026-03-15", 1000), // March — still qualifies
       entry("deposito", "2026-04-20", 1200), // April — still qualifies
-      entry("deposito", "2026-05-01", 800),  // May   — still qualifies
+      entry("deposito", "2026-05-01", 800), // May   — still qualifies
     ];
     // Feb is ignored; sum = 3000, 3000 / 3 = 1000
     expect(computeSuggestedIncome(entries, NOW)).toBe(1000);

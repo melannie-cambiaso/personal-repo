@@ -32,10 +32,7 @@ describe("groupTransactionsByCategory", () => {
 
   it("does not return a category that is in groups but has zero transactions", () => {
     // "Colectivo" is in groups but not in any transaction
-    const result = groupTransactionsByCategory(
-      [tx({ id: "1", category: "Comida" })],
-      groups,
-    );
+    const result = groupTransactionsByCategory([tx({ id: "1", category: "Comida" })], groups);
     const categories = result.map((g) => g.category);
     expect(categories).not.toContain("Colectivo");
   });
@@ -46,7 +43,7 @@ describe("groupTransactionsByCategory", () => {
         tx({ id: "1", category: "Comida", amount: 300 }),
         tx({ id: "2", category: "Comida", amount: 200 }),
       ],
-      groups,
+      groups
     );
     const comida = result.find((g) => g.category === "Comida");
     expect(comida?.total).toBe(500);
@@ -65,20 +62,15 @@ describe("groupTransactionsByCategory", () => {
     // "Comida" is in the passed groups under "Alimentación".
     // If the function fell back to DEFAULT_GROUPS it might resolve differently or to "Otro".
     // The only groups that matter are the ones passed as the second argument.
-    const customGroups: Group[] = [
-      { name: "Mi Grupo Personalizado", categories: ["Comida"] },
-    ];
-    const result = groupTransactionsByCategory(
-      [tx({ id: "1", category: "Comida" })],
-      customGroups,
-    );
+    const customGroups: Group[] = [{ name: "Mi Grupo Personalizado", categories: ["Comida"] }];
+    const result = groupTransactionsByCategory([tx({ id: "1", category: "Comida" })], customGroups);
     expect(result[0].groupName).toBe("Mi Grupo Personalizado");
   });
 
   it("resolves groupName to Otro when category is absent from all groups", () => {
     const result = groupTransactionsByCategory(
       [tx({ id: "1", category: "CategoriaDesconocida" })],
-      groups,
+      groups
     );
     expect(result[0].groupName).toBe("Otro");
   });
@@ -90,7 +82,7 @@ describe("groupTransactionsByCategory", () => {
         tx({ id: "2", category: "Comida", amount: 100 }),
         tx({ id: "3", category: "Colectivo", amount: 30 }),
       ],
-      groups,
+      groups
     );
     const categoryNames = result.map((g) => g.category);
     const sorted = [...categoryNames].sort((a, b) => a.localeCompare(b, "es"));
