@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { type Group } from "@/features/finance/data/kvAdapter";
 import { getBudgetForMonth } from "@/features/finance/data/financeActions";
-import { computeActualFromTransactions } from "@/features/finance/domain";
+import { computeActualFromTransactions, computePendingExpenses } from "@/features/finance/domain";
 import type { FinanceTransaction } from "@/features/finance/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 import { prevMonth } from "@/shared/utils/monthUtils";
@@ -54,6 +54,11 @@ export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, 
   const actualIncome = sumActual(incomeGroups);
   const actualExpense = sumActual(expenseGroups);
 
+  const allExpenseCategories = expenseGroups.flatMap((g) => g.categories);
+  const pendingExpenses = computePendingExpenses(budget, actual, allExpenseCategories);
+  const pendingAmount =
+    actualExpense > budgetExpense ? -(actualExpense - budgetExpense) : pendingExpenses;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3 rounded-xl border border-cream-300 bg-white px-4 py-3">
@@ -80,7 +85,7 @@ export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, 
         </div>
         <div className="grid grid-cols-3 gap-3 p-4">
           <SummaryCard label="Ingresos" budget={budgetIncome} actual={actualIncome} />
-          <SummaryCard label="Gastos" budget={budgetExpense} actual={actualExpense} pendingAmount={budgetExpense - actualExpense} />
+          <SummaryCard label="Gastos" budget={budgetExpense} actual={actualExpense} pendingAmount={pendingAmount} />
           <SummaryCard label="Neto" budget={budgetIncome - budgetExpense} actual={actualIncome - actualExpense} />
         </div>
       </div>
