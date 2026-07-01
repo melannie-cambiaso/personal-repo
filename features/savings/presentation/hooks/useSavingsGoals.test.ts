@@ -10,6 +10,7 @@ const makeGoal = (overrides: Partial<SavingsGoal> = {}): SavingsGoal => ({
   targetAmount: 1000,
   priority: 1,
   createdAt: "2026-01-01T00:00:00Z",
+  isDone: false,
   ...overrides,
 });
 
@@ -162,5 +163,59 @@ describe("useSavingsGoals", () => {
     act(() => result.current.handleDelete(addedId));
     expect(result.current.distributed).toHaveLength(0);
     expect(onSave).toHaveBeenCalledTimes(2);
+  });
+
+  it("handleAdd persists new goal with isDone: false", () => {
+    const { result } = renderHook(() => useSavingsGoals({ initialGoals: [], balance: 0, onSave }));
+    act(() => result.current.handleAdd({ name: "New Goal", targetAmount: 500 }));
+    expect(onSave).toHaveBeenCalledOnce();
+    const saved = onSave.mock.calls[0][0] as SavingsGoal[];
+    expect(saved[0].isDone).toBe(false);
+  });
+
+  it("handleToggleDone flips isDone true<->false without changing priority, calls onSave", () => {
+    const other = makeGoal({
+      id: "other",
+      name: "Other",
+      priority: 1,
+      createdAt: "2026-01-01T00:00:00Z",
+    });
+    const goal = makeGoal({
+      id: "abc",
+      name: "Goal",
+      priority: 2,
+      isDone: false,
+      createdAt: "2026-01-02T00:00:00Z",
+    });
+    const { result } = renderHook(() =>
+      useSavingsGoals({ initialGoals: [other, goal], balance: 0, onSave })
+    );
+    act(() => result.current.handleToggleDone("abc"));
+    expect(onSave).toHaveBeenCalledOnce();
+    let saved = onSave.mock.calls[0][0] as SavingsGoal[];
+    expect(saved.find((g) => g.id === "abc")?.isDone).toBe(true);
+    expect(saved.find((g) => g.id === "abc")?.priority).toBe(2);
+
+    act(() => result.current.handleToggleDone("abc"));
+    expect(onSave).toHaveBeenCalledTimes(2);
+    saved = onSave.mock.calls[1][0] as SavingsGoal[];
+    expect(saved.find((g) => g.id === "abc")?.isDone).toBe(false);
+    expect(saved.find((g) => g.id === "abc")?.priority).toBe(2);
+  });
+
+  it("handleToggleDone persists via normalizePriorities + onSave, mirroring handleEdit's path", () => {
+    const goals = [
+      makeGoal({ id: "1", name: "A", priority: 1, createdAt: "2026-01-01T00:00:00Z" }),
+      makeGoal({ id: "2", name: "B", priority: 2, createdAt: "2026-01-02T00:00:00Z" }),
+    ];
+    const { result } = renderHook(() =>
+      useSavingsGoals({ initialGoals: goals, balance: 0, onSave })
+    );
+    act(() => result.current.handleToggleDone("2"));
+    expect(onSave).toHaveBeenCalledOnce();
+    const saved = onSave.mock.calls[0][0] as SavingsGoal[];
+    expect(saved).toHaveLength(2);
+    expect(saved.find((g) => g.id === "2")?.isDone).toBe(true);
+    expect(saved.find((g) => g.id === "1")?.isDone).toBe(false);
   });
 });

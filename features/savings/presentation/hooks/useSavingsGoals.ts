@@ -37,6 +37,7 @@ export function useSavingsGoals({ initialGoals, balance, onSave }: Params) {
       targetAmount,
       priority: goalsRef.current.length + 1,
       createdAt: new Date().toISOString(),
+      isDone: false,
     };
     persist(normalizePriorities([...goalsRef.current, newGoal]));
   };
@@ -64,5 +65,18 @@ export function useSavingsGoals({ initialGoals, balance, onSave }: Params) {
     persist(normalizePriorities(reordered));
   };
 
-  return { distributed, surplus, handleAdd, handleEdit, handleDelete, handleReorder };
+  const handleToggleDone = (id: string) => {
+    const next = goalsRef.current.map((g) => (g.id === id ? { ...g, isDone: !g.isDone } : g));
+    persist(normalizePriorities(next));
+  };
+
+  return {
+    distributed,
+    surplus,
+    handleAdd,
+    handleEdit,
+    handleDelete,
+    handleReorder,
+    handleToggleDone,
+  };
 }
