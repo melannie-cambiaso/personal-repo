@@ -42,6 +42,7 @@ export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, 
   };
 
   const incomeGroups = groups.filter((g) => g.type === "income");
+  const refundGroups = groups.filter((g) => g.type === "refund");
   const expenseGroups = groups.filter((g) => g.type === "expense");
 
   const sumBudget = (gs: Group[]) =>
@@ -50,8 +51,10 @@ export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, 
     gs.flatMap((g) => g.categories).reduce((s, c) => s + (actual[c] ?? 0), 0);
 
   const budgetIncome = sumBudget(incomeGroups);
+  const budgetRefund = sumBudget(refundGroups);
   const budgetExpense = sumBudget(expenseGroups);
   const actualIncome = sumActual(incomeGroups);
+  const actualRefund = sumActual(refundGroups);
   const actualExpense = sumActual(expenseGroups);
 
   const allExpenseCategories = expenseGroups.flatMap((g) => g.categories);
@@ -83,8 +86,9 @@ export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, 
         <div className="border-b border-cream-200 px-4 py-3">
           <span className="text-sm font-semibold text-brown-800">Balance</span>
         </div>
-        <div className="grid grid-cols-3 gap-3 p-4">
+        <div className="grid grid-cols-4 gap-3 p-4">
           <SummaryCard label="Ingresos" budget={budgetIncome} actual={actualIncome} />
+          <SummaryCard label="Devoluciones" budget={budgetRefund} actual={actualRefund} />
           <SummaryCard label="Gastos" budget={budgetExpense} actual={actualExpense} pendingAmount={pendingAmount} />
           <SummaryCard label="Neto" budget={budgetIncome - budgetExpense} actual={actualIncome - actualExpense} />
         </div>
@@ -106,6 +110,16 @@ export function BudgetTab({ groups, initialBudget, transactions, selectedMonth, 
         budget={budget}
         actual={actual}
         isIncome={false}
+        inputKey={inputKey}
+        onBlur={handleBlur}
+        onOpenTransaction={onOpenTransaction}
+      />
+      <GroupSection
+        title="Devoluciones"
+        groups={refundGroups}
+        budget={budget}
+        actual={actual}
+        isIncome={true}
         inputKey={inputKey}
         onBlur={handleBlur}
         onOpenTransaction={onOpenTransaction}

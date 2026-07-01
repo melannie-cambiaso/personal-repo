@@ -3,7 +3,7 @@ import { redis } from "@/shared/kv";
 import { DEFAULT_GROUPS } from "@/features/finance/domain";
 import type { FinanceTransaction } from "@/features/finance/domain";
 
-export type Group = { name: string; type: "income" | "expense"; categories: string[] }
+export type Group = { name: string; type: "income" | "expense" | "refund"; categories: string[] }
 
 const CATEGORIES_KEY = "finance-categories";
 
@@ -31,7 +31,9 @@ export async function loadCategories(): Promise<Group[]> {
     if (!stored || stored.length === 0) {
       return DEFAULT_GROUPS;
     }
-    return stored;
+    return stored.map((g) =>
+      g.name === "Devolución" && g.type === "income" ? { ...g, type: "refund" as const } : g
+    );
   } catch {
     return DEFAULT_GROUPS;
   }

@@ -1,4 +1,4 @@
-export const DEFAULT_GROUPS: { name: string; type: "income" | "expense"; categories: string[] }[] =
+export const DEFAULT_GROUPS: { name: string; type: "income" | "expense" | "refund"; categories: string[] }[] =
   [
     {
       name: "Sueldo",
@@ -7,7 +7,7 @@ export const DEFAULT_GROUPS: { name: string; type: "income" | "expense"; categor
     },
     {
       name: "Devolución",
-      type: "income",
+      type: "refund",
       categories: ["Isapre", "Seguro"],
     },
     {
