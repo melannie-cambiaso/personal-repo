@@ -61,7 +61,7 @@ export function SavingsScreen({
       onSave: onSaveGoals ?? (() => {}),
     });
 
-  const [activeTab, setActiveTab] = useState<"history" | "forecast">("history");
+  const [activeTab, setActiveTab] = useState<"history" | "goals" | "forecast">("history");
 
   // Entry modal state
   const [addOpen, setAddOpen] = useState(false);
@@ -91,6 +91,13 @@ export function SavingsScreen({
             className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "history" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
           >
             Historial
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("goals")}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "goals" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
+          >
+            Metas
           </button>
           <button
             type="button"
@@ -126,11 +133,12 @@ export function SavingsScreen({
                 if (entry) setPendingDelete(entry);
               }}
             />
+          </>
+        )}
 
-            <div className="mt-10 mb-6 flex items-center justify-between">
-              <h2 className="text-brown-800 text-sm font-semibold tracking-wide uppercase">
-                Metas
-              </h2>
+        {activeTab === "goals" && (
+          <>
+            <div className="mb-6 flex justify-end">
               {isOwner && <AddButton onClick={() => setAddGoalOpen(true)} label="Agregar meta" />}
             </div>
 
@@ -154,7 +162,6 @@ export function SavingsScreen({
             initialConfig={initialForecastConfig}
             suggestedIncome={suggestedIncome}
             onSaveConfig={onSaveForecastConfig}
-            goals={distributed}
           />
         )}
       </div>

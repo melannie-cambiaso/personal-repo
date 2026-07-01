@@ -2,11 +2,8 @@
 
 import { useState } from "react";
 import { computeForecast } from "@/features/savings/domain/computeForecast";
-import { computeGoalForecast } from "@/features/savings/domain/computeGoalForecast";
 import { DEFAULT_ANNUAL_RATE } from "@/features/savings/domain/ForecastConfig";
 import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
-import type { GoalWithProgress } from "@/features/savings/domain/SavingsGoal";
-import { GoalForecastCard } from "./GoalForecastCard";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 import { ModalShell, Input } from "@/shared/components";
 
@@ -15,7 +12,6 @@ interface ForecastTabProps {
   initialConfig: ForecastConfig | null;
   suggestedIncome: number;
   onSaveConfig: (config: ForecastConfig, months: number) => Promise<void>;
-  goals?: GoalWithProgress[];
 }
 
 export function ForecastTab({
@@ -23,7 +19,6 @@ export function ForecastTab({
   initialConfig,
   suggestedIncome,
   onSaveConfig,
-  goals,
 }: ForecastTabProps) {
   const [config, setConfig] = useState<ForecastConfig>(
     initialConfig ?? {
@@ -36,11 +31,6 @@ export function ForecastTab({
   const [months, setMonths] = useState(12);
 
   const forecast = computeForecast(currentBalance, config, months);
-
-  const goalResults =
-    goals && goals.length > 0 ? computeGoalForecast(goals, currentBalance, forecast) : [];
-
-  const outsideWindowLabel = `más de ${months} meses`;
 
   function handleIncomeChange(i: number, raw: string) {
     const value = Math.max(0, Number(raw));
@@ -123,26 +113,6 @@ export function ForecastTab({
           />
         </label>
       </div>
-
-      {goalResults.length > 0 && (
-        <div className="space-y-2">
-          {goalResults.map((result) => {
-            const goal = goals!.find((g) => g.id === result.goalId)!;
-            return (
-              <GoalForecastCard
-                key={result.goalId}
-                name={result.name}
-                monthsToCompletion={result.monthsToCompletion}
-                estimatedCompletionMonth={result.estimatedCompletionMonth}
-                outsideWindowLabel={outsideWindowLabel}
-                currentAmount={goal.currentAmount}
-                targetAmount={goal.targetAmount}
-                progress={goal.progress}
-              />
-            );
-          })}
-        </div>
-      )}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
