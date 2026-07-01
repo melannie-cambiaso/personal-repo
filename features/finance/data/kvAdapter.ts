@@ -3,7 +3,7 @@ import { redis } from "@/shared/kv";
 import { DEFAULT_GROUPS } from "@/features/finance/domain";
 import type { FinanceTransaction } from "@/features/finance/domain";
 
-export type Group = { name: string; type: "income" | "expense" | "refund"; categories: string[] }
+export type Group = { name: string; type: "income" | "expense" | "refund"; categories: string[] };
 
 const CATEGORIES_KEY = "finance-categories";
 
@@ -62,5 +62,23 @@ export async function saveTransactions(month: string, txs: FinanceTransaction[])
     await redis.set(transactionsKey(month), txs);
   } catch (e) {
     console.error("finance.saveTransactions failed", e);
+  }
+}
+
+const closedCategoriesKey = (month: string) => `finance-closed-categories:${month}`;
+
+export async function loadClosedCategories(month: string): Promise<string[]> {
+  try {
+    return (await redis.get<string[]>(closedCategoriesKey(month))) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveClosedCategories(month: string, categories: string[]): Promise<void> {
+  try {
+    await redis.set(closedCategoriesKey(month), categories);
+  } catch (e) {
+    console.error("finance.saveClosedCategories failed", e);
   }
 }

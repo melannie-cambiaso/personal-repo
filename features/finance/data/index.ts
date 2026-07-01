@@ -1,1 +1,1 @@
-export { loadBudget, loadCategories, loadTransactions } from "./kvAdapter";
+export { loadBudget, loadCategories, loadTransactions, loadClosedCategories } from "./kvAdapter";

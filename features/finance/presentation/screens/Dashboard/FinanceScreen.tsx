@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {
   getBudgetForMonth,
   getTransactionsForMonth,
+  getClosedCategoriesForMonth,
   addTransaction,
   deleteTransaction,
   addCategory,
@@ -20,6 +21,7 @@ interface Props {
   initialBudget: Record<string, number>;
   initialTransactions: FinanceTransaction[];
   initialCategories: Group[];
+  initialClosedCategories: string[];
   onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
 }
 
@@ -27,6 +29,7 @@ export function FinanceScreen({
   initialBudget,
   initialTransactions,
   initialCategories,
+  initialClosedCategories,
   onSaveBudget,
 }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth());
@@ -35,18 +38,22 @@ export function FinanceScreen({
   const [groups, setGroups] = useState<Group[]>(initialCategories);
   const [activeTab, setActiveTab] = useState<"budget" | "categories" | "transactions">("budget");
   const [transactions, setTransactions] = useState<FinanceTransaction[]>(initialTransactions);
+  const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [activeTxCategory, setActiveTxCategory] = useState("");
 
   useEffect(() => {
     if (budgetLoadedFor === selectedMonth) return;
-    Promise.all([getBudgetForMonth(selectedMonth), getTransactionsForMonth(selectedMonth)]).then(
-      ([b, txs]) => {
-        setMonthBudget(b);
-        setTransactions(txs);
-        setBudgetLoadedFor(selectedMonth);
-      }
-    );
+    Promise.all([
+      getBudgetForMonth(selectedMonth),
+      getTransactionsForMonth(selectedMonth),
+      getClosedCategoriesForMonth(selectedMonth),
+    ]).then(([b, txs, closed]) => {
+      setMonthBudget(b);
+      setTransactions(txs);
+      setClosedCategories(closed);
+      setBudgetLoadedFor(selectedMonth);
+    });
   }, [selectedMonth, budgetLoadedFor]);
 
   const handleOpenTransaction = (category: string) => {
@@ -164,6 +171,7 @@ export function FinanceScreen({
               initialBudget={monthBudget}
               transactions={transactions}
               selectedMonth={selectedMonth}
+              initialClosedCategories={closedCategories}
               onSave={(b) => onSaveBudget(selectedMonth, b)}
               onOpenTransaction={handleOpenTransaction}
             />

@@ -5,6 +5,8 @@ const cookiesGetMock = vi.hoisted(() => vi.fn());
 const revalidatePathMock = vi.hoisted(() => vi.fn());
 const loadTransactionsMock = vi.hoisted(() => vi.fn());
 const saveTransactionsMock = vi.hoisted(() => vi.fn());
+const loadClosedCategoriesMock = vi.hoisted(() => vi.fn());
+const saveClosedCategoriesMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -16,10 +18,18 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     ...actual,
     loadTransactions: loadTransactionsMock,
     saveTransactions: saveTransactionsMock,
+    loadClosedCategories: loadClosedCategoriesMock,
+    saveClosedCategories: saveClosedCategoriesMock,
   };
 });
 
-import { getTransactionsForMonth, addTransaction, deleteTransaction } from "./financeActions";
+import {
+  getTransactionsForMonth,
+  addTransaction,
+  deleteTransaction,
+  getClosedCategoriesForMonth,
+  toggleClosedCategory,
+} from "./financeActions";
 
 const tx = (overrides: Partial<FinanceTransaction> = {}): FinanceTransaction => ({
   id: "abc-1",
@@ -117,5 +127,56 @@ describe("deleteTransaction", () => {
     saveTransactionsMock.mockResolvedValue(undefined);
     await deleteTransaction("2026-06", "abc-1");
     expect(revalidatePathMock).toHaveBeenCalledWith("/finance");
+  });
+});
+
+describe("getClosedCategoriesForMonth", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns [] without auth and does not read Redis", async () => {
+    withoutAuth();
+    const result = await getClosedCategoriesForMonth("2026-06");
+    expect(result).toEqual([]);
+    expect(loadClosedCategoriesMock).not.toHaveBeenCalled();
+  });
+
+  it("returns the stored array from kvAdapter when authenticated", async () => {
+    withAuth();
+    loadClosedCategoriesMock.mockResolvedValue(["Alquiler"]);
+    const result = await getClosedCategoriesForMonth("2026-06");
+    expect(result).toEqual(["Alquiler"]);
+    expect(loadClosedCategoriesMock).toHaveBeenCalledWith("2026-06");
+  });
+});
+
+describe("toggleClosedCategory", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing without auth", async () => {
+    withoutAuth();
+    await toggleClosedCategory("2026-06", "Alquiler");
+    expect(loadClosedCategoriesMock).not.toHaveBeenCalled();
+    expect(saveClosedCategoriesMock).not.toHaveBeenCalled();
+  });
+
+  it("adds the category when it is not currently closed", async () => {
+    withAuth();
+    loadClosedCategoriesMock.mockResolvedValue(["Internet"]);
+    await toggleClosedCategory("2026-06", "Alquiler");
+    expect(saveClosedCategoriesMock).toHaveBeenCalledWith("2026-06", ["Internet", "Alquiler"]);
+  });
+
+  it("removes the category when it is already closed", async () => {
+    withAuth();
+    loadClosedCategoriesMock.mockResolvedValue(["Alquiler", "Internet"]);
+    await toggleClosedCategory("2026-06", "Alquiler");
+    expect(saveClosedCategoriesMock).toHaveBeenCalledWith("2026-06", ["Internet"]);
+  });
+
+  it("does NOT call revalidatePath", async () => {
+    withAuth();
+    loadClosedCategoriesMock.mockResolvedValue([]);
+    await toggleClosedCategory("2026-06", "Alquiler");
+    expect(revalidatePathMock).not.toHaveBeenCalled();
   });
 });

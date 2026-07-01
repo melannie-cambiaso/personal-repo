@@ -10,6 +10,8 @@ import {
   saveCategories,
   loadTransactions,
   saveTransactions,
+  loadClosedCategories,
+  saveClosedCategories,
 } from "./kvAdapter";
 
 export async function getBudgetForMonth(month: string): Promise<Record<string, number>> {
@@ -18,7 +20,10 @@ export async function getBudgetForMonth(month: string): Promise<Record<string, n
   return loadBudget(month);
 }
 
-export async function handleSaveBudget(month: string, budget: Record<string, number>): Promise<void> {
+export async function handleSaveBudget(
+  month: string,
+  budget: Record<string, number>
+): Promise<void> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;
   await saveBudget(month, budget);
@@ -62,7 +67,12 @@ export async function getTransactionsForMonth(month: string): Promise<FinanceTra
   return loadTransactions(month);
 }
 
-export async function addTransaction(month: string, category: string, amount: number, note?: string): Promise<void> {
+export async function addTransaction(
+  month: string,
+  category: string,
+  amount: number,
+  note?: string
+): Promise<void> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;
 
@@ -88,4 +98,21 @@ export async function deleteTransaction(month: string, txId: string): Promise<vo
     txs.filter((tx) => tx.id !== txId)
   );
   revalidatePath("/finance");
+}
+
+export async function getClosedCategoriesForMonth(month: string): Promise<string[]> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return [];
+  return loadClosedCategories(month);
+}
+
+export async function toggleClosedCategory(month: string, category: string): Promise<void> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return;
+
+  const current = await loadClosedCategories(month);
+  const next = current.includes(category)
+    ? current.filter((c) => c !== category)
+    : [...current, category];
+  await saveClosedCategories(month, next);
 }
