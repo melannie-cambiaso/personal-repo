@@ -2,7 +2,6 @@ import "server-only";
 import { redis } from "@/shared/kv";
 import type { SavingsEntry } from "../domain/SavingsEntry";
 import type { SavingsGoal } from "../domain/SavingsGoal";
-import type { ForecastConfig } from "../domain/ForecastConfig";
 
 const ENTRIES_KEY = "savings-entries";
 
@@ -41,23 +40,5 @@ export async function saveGoals(goals: SavingsGoal[]): Promise<void> {
     await redis.set(GOALS_KEY, goals);
   } catch (e) {
     console.error("savings.saveGoals failed", e);
-  }
-}
-
-const FORECAST_CONFIG_KEY = "savings-forecast-config";
-
-export async function loadForecastConfig(): Promise<ForecastConfig | null> {
-  try {
-    return (await redis.get<ForecastConfig>(FORECAST_CONFIG_KEY)) ?? null;
-  } catch {
-    return null;
-  }
-}
-
-export async function saveForecastConfig(config: ForecastConfig): Promise<void> {
-  try {
-    await redis.set(FORECAST_CONFIG_KEY, config);
-  } catch (e) {
-    console.error("savings.saveForecastConfig failed", e);
   }
 }

@@ -4,7 +4,6 @@ import { useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
 import type { GoalWithProgress } from "@/features/savings/domain";
-import type { ForecastConfig } from "@/features/savings/domain/ForecastConfig";
 import { useSavings } from "../../hooks/useSavings";
 import { useSavingsGoals } from "../../hooks/useSavingsGoals";
 import {
@@ -14,7 +13,6 @@ import {
   AddEntryModal,
   EditEntryModal,
   DeleteEntryConfirmModal,
-  ForecastTab,
   AddGoalModal,
   EditGoalModal,
   DeleteGoalConfirmModal,
@@ -27,9 +25,6 @@ interface Props {
   isOwner: boolean;
   onSave: (entries: SavingsEntry[]) => Promise<void> | void;
   onSaveGoals?: (goals: SavingsGoal[]) => Promise<void> | void;
-  initialForecastConfig: ForecastConfig | null;
-  suggestedIncome: number;
-  onSaveForecastConfig: (config: ForecastConfig, months: number) => Promise<void>;
 }
 
 export function SavingsScreen({
@@ -38,9 +33,6 @@ export function SavingsScreen({
   isOwner,
   onSave,
   onSaveGoals,
-  initialForecastConfig,
-  suggestedIncome,
-  onSaveForecastConfig,
 }: Props) {
   const {
     entries,
@@ -61,7 +53,7 @@ export function SavingsScreen({
       onSave: onSaveGoals ?? (() => {}),
     });
 
-  const [activeTab, setActiveTab] = useState<"history" | "goals" | "forecast">("history");
+  const [activeTab, setActiveTab] = useState<"history" | "goals">("history");
 
   // Entry modal state
   const [addOpen, setAddOpen] = useState(false);
@@ -98,13 +90,6 @@ export function SavingsScreen({
             className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "goals" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
           >
             Metas
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("forecast")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "forecast" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
-          >
-            Proyección
           </button>
         </div>
 
@@ -154,15 +139,6 @@ export function SavingsScreen({
               onToggleDone={handleToggleDone}
             />
           </>
-        )}
-
-        {activeTab === "forecast" && (
-          <ForecastTab
-            currentBalance={balance}
-            initialConfig={initialForecastConfig}
-            suggestedIncome={suggestedIncome}
-            onSaveConfig={onSaveForecastConfig}
-          />
         )}
       </div>
 

@@ -4,7 +4,6 @@ export { SavingsGoalList } from "./List/SavingsGoalList";
 export { AddEntryModal } from "./Modals/AddEntryModal";
 export { EditEntryModal } from "./Modals/EditEntryModal";
 export { DeleteEntryConfirmModal } from "./Modals/DeleteEntryConfirmModal";
-export { ForecastTab } from "./ForecastTab/ForecastTab";
 export { AddGoalModal } from "./Modals/AddGoalModal";
 export { EditGoalModal } from "./Modals/EditGoalModal";
 export { DeleteGoalConfirmModal } from "./Modals/DeleteGoalConfirmModal";
