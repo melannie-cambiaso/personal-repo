@@ -106,6 +106,12 @@ export function BudgetTab({
         >
           {copying ? "Copiando..." : "Copiar"}
         </button>
+        <a
+          href={`/api/finance/budget/export?month=${selectedMonth}`}
+          className="border-brown-800 text-brown-800 hover:bg-brown-800 cursor-pointer rounded-lg border px-4 py-1.5 text-xs font-bold whitespace-nowrap transition-colors hover:text-white"
+        >
+          Exportar a Excel
+        </a>
       </div>
 
       <div className="border-brown-300 overflow-hidden rounded-xl border bg-white">
@@ -273,9 +279,7 @@ function GroupSection({
                     aria-disabled={isIncome ? undefined : isClosed}
                     className={`border-cream-100 grid grid-cols-4 items-center gap-2 border-t px-4 py-2 ${isClosed ? "opacity-50" : ""}`}
                   >
-                    <span
-                      className={`text-brown-700 text-sm ${isClosed ? "line-through" : ""}`}
-                    >
+                    <span className={`text-brown-700 text-sm ${isClosed ? "line-through" : ""}`}>
                       {cat}
                     </span>
                     <div className="flex justify-end">
