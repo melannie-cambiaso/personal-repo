@@ -8,14 +8,16 @@ import { ItemFormFields, validateItemForm } from "./ItemFormFields";
 interface Props {
   isOpen: boolean;
   categories: ShoppingCategory[];
+  defaultCategoryId?: string;
   onClose: () => void;
   onAdd: (data: { name: string; categoryId: string }) => void;
 }
 
-const EMPTY = { name: "", categoryId: "" };
-
-export function AddItemModal({ isOpen, categories, onClose, onAdd }: Props) {
-  const [form, setForm] = useState(EMPTY);
+export function AddItemModal({ isOpen, categories, defaultCategoryId, onClose, onAdd }: Props) {
+  const [form, setForm] = useState({
+    name: "",
+    categoryId: defaultCategoryId ?? categories[0]?.id ?? "",
+  });
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {

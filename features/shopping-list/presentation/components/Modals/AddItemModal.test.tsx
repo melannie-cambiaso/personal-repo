@@ -31,6 +31,36 @@ describe("AddItemModal", () => {
     expect(onAdd).not.toHaveBeenCalled();
   });
 
+  it("defaults categoryId to the first category so submitting with only a name succeeds", () => {
+    const onAdd = vi.fn();
+    const { container } = render(
+      <AddItemModal isOpen categories={categories} onClose={vi.fn()} onAdd={onAdd} />
+    );
+    fireEvent.change(screen.getByPlaceholderText(/detergente/i), {
+      target: { value: "Detergente" },
+    });
+    fireEvent.submit(container.querySelector("form")!);
+    expect(onAdd).toHaveBeenCalledWith({ name: "Detergente", categoryId: "cat-1" });
+  });
+
+  it("defaults categoryId to the currently active category when provided", () => {
+    const onAdd = vi.fn();
+    const { container } = render(
+      <AddItemModal
+        isOpen
+        categories={categories}
+        defaultCategoryId="cat-2"
+        onClose={vi.fn()}
+        onAdd={onAdd}
+      />
+    );
+    fireEvent.change(screen.getByPlaceholderText(/detergente/i), {
+      target: { value: "Papel" },
+    });
+    fireEvent.submit(container.querySelector("form")!);
+    expect(onAdd).toHaveBeenCalledWith({ name: "Papel", categoryId: "cat-2" });
+  });
+
   it("calls onAdd with the trimmed name and selected categoryId, then closes", () => {
     const onAdd = vi.fn();
     const onClose = vi.fn();

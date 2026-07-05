@@ -143,6 +143,7 @@ export function ShoppingListScreen({
         key={addItemOpen ? "item-open" : "item-closed"}
         isOpen={addItemOpen}
         categories={categories}
+        defaultCategoryId={activeCategoryId ?? undefined}
         onClose={() => setAddItemOpen(false)}
         onAdd={(data) => {
           handleAddItem(data);
