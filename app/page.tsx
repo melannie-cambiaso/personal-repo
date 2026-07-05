@@ -55,14 +55,6 @@ export default function HomePage() {
             <span className="font-dancing text-brown-900 text-2xl font-bold">Compras</span>
             <span className="text-brown-400 text-xs">Listas por categoría</span>
           </Link>
-          <Link
-            href="/activity-log"
-            className="border-cream-300 hover:border-brown-300 hover:shadow-card-hover flex flex-col items-center gap-3 rounded-2xl border bg-white px-8 py-10 shadow-sm transition-all"
-          >
-            <span className="text-4xl">📋</span>
-            <span className="font-dancing text-brown-900 text-2xl font-bold">Actividades</span>
-            <span className="text-brown-400 text-xs">Registro de actividades</span>
-          </Link>
         </div>
       </div>
     </main>
