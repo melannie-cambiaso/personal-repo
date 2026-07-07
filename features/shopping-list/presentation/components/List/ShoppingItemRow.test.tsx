@@ -60,4 +60,26 @@ describe("ShoppingItemRow", () => {
     fireEvent.click(screen.getByRole("button", { name: /eliminar leche/i }));
     expect(onDelete).toHaveBeenCalledWith(item);
   });
+
+  // 3.1 — satisfies: responsive-layout / Adjacent icon controls remain distinguishable.
+  // Approval test: locks the current independent-hit-area behavior BEFORE the tap-target
+  // size refactor (3.2), then must still pass unchanged AFTER it.
+  it("keeps edit and delete as independent controls — clicking one never triggers the other", () => {
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
+    const item = makeItem({ name: "Leche" });
+    render(<ShoppingItemRow {...baseProps} item={item} onEdit={onEdit} onDelete={onDelete} />);
+
+    const editButton = screen.getByRole("button", { name: /editar leche/i });
+    const deleteButton = screen.getByRole("button", { name: /eliminar leche/i });
+    expect(editButton).not.toBe(deleteButton);
+
+    fireEvent.click(editButton);
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onDelete).not.toHaveBeenCalled();
+
+    fireEvent.click(deleteButton);
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(onEdit).toHaveBeenCalledTimes(1);
+  });
 });

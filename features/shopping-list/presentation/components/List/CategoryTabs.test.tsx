@@ -88,6 +88,36 @@ describe("CategoryTabs", () => {
     expect(onDeleteCategory).toHaveBeenCalledWith(category);
   });
 
+  // 3.1 — satisfies: responsive-layout / Adjacent icon controls remain distinguishable.
+  // Approval test: locks the current independent-hit-area behavior BEFORE the tap-target
+  // size refactor (3.2), then must still pass unchanged AFTER it.
+  it("keeps rename and delete as independent controls — clicking one never triggers the other", () => {
+    const onRenameCategory = vi.fn();
+    const onDeleteCategory = vi.fn();
+    const category = makeCategory({ id: "1", name: "Limpieza" });
+    render(
+      <CategoryTabs
+        {...baseProps}
+        categories={[category]}
+        activeCategoryId="1"
+        onRenameCategory={onRenameCategory}
+        onDeleteCategory={onDeleteCategory}
+      />
+    );
+
+    const renameButton = screen.getByRole("button", { name: /renombrar limpieza/i });
+    const deleteButton = screen.getByRole("button", { name: /eliminar limpieza/i });
+    expect(renameButton).not.toBe(deleteButton);
+
+    fireEvent.click(renameButton);
+    expect(onRenameCategory).toHaveBeenCalledTimes(1);
+    expect(onDeleteCategory).not.toHaveBeenCalled();
+
+    fireEvent.click(deleteButton);
+    expect(onDeleteCategory).toHaveBeenCalledTimes(1);
+    expect(onRenameCategory).toHaveBeenCalledTimes(1);
+  });
+
   it("shows the add-category control for the owner and calls onAddCategory when clicked", () => {
     const onAddCategory = vi.fn();
     render(

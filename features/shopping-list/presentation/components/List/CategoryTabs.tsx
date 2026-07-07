@@ -49,7 +49,7 @@ export function CategoryTabs({
                   type="button"
                   onClick={() => onRenameCategory(category)}
                   aria-label={`Renombrar ${category.name}`}
-                  className="text-brown-400 hover:text-brown-800 cursor-pointer text-xs transition-colors"
+                  className="text-brown-400 hover:text-brown-800 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center text-xs transition-colors"
                 >
                   ✎
                 </button>
@@ -57,7 +57,7 @@ export function CategoryTabs({
                   type="button"
                   onClick={() => onDeleteCategory(category)}
                   aria-label={`Eliminar ${category.name}`}
-                  className="text-brown-300 cursor-pointer text-xs transition-colors hover:text-red-500"
+                  className="text-brown-300 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center text-xs transition-colors hover:text-red-500"
                 >
                   ✕
                 </button>

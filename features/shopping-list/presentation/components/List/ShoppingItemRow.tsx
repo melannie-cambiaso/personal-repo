@@ -32,7 +32,7 @@ export function ShoppingItemRow({ item, isOwner, onCheck, onEdit, onDelete }: Pr
             type="button"
             onClick={() => onEdit(item)}
             aria-label={`Editar ${item.name}`}
-            className="text-brown-500 hover:text-brown-800 cursor-pointer text-xs transition-colors"
+            className="text-brown-500 hover:text-brown-800 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center text-xs transition-colors"
           >
             ✎
           </button>
@@ -40,7 +40,7 @@ export function ShoppingItemRow({ item, isOwner, onCheck, onEdit, onDelete }: Pr
             type="button"
             onClick={() => onDelete(item)}
             aria-label={`Eliminar ${item.name}`}
-            className="text-brown-300 cursor-pointer text-sm transition-colors hover:text-red-500"
+            className="text-brown-300 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center text-sm transition-colors hover:text-red-500"
           >
             ✕
           </button>

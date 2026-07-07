@@ -45,8 +45,24 @@ phases:
       design.md's Testing Strategy. Full suite green: 334/335, same 1
       pre-existing unrelated BudgetTab B3 failure (Ahorro potencial rounding
       bug) present before and after — confirmed unrelated, not a regression.
-      Phase 3 (tap targets: ShoppingItemRow/CategoryTabs), Phase 4 (modal
-      grids) still pending.
+      Phase 3 / PR 3 (Tap-Target Fixes, tasks 3.1-3.3) done — ShoppingItemRow's
+      edit/delete icon buttons and CategoryTabs' rename/delete icon buttons
+      bumped to min-h-11 min-w-11 inline-flex items-center justify-center.
+      Deviation: did NOT add literal className/min-h-11 assertions in tests —
+      strict-tdd.md's Implementation Detail Coupling Rule bans CSS class-name
+      assertions outright, and jsdom cannot compute real box-model pixels, so
+      true tap-target/overlap verification remains the Manual release gate per
+      design.md's Testing Strategy. Since this task is a pure style refactor
+      of already-existing, already-tested behavior (no new observable
+      behavior introduced), used the Approval Testing pattern from
+      strict-tdd.md instead of a fresh RED test: added one new behavioral
+      test per file (edit/delete resp. rename/delete are distinct elements,
+      clicking one never triggers the other's handler), ran it green BEFORE
+      the class change (baseline/safety net), then ran it green again AFTER
+      (regression proof). Full suite: 336/337, same 1 pre-existing unrelated
+      BudgetTab B3 failure (Ahorro potencial rounding bug) present before and
+      after — confirmed unrelated, not a regression.
+      Phase 4 (modal grids) still pending.
   verify:
     status: pending
   archive:
