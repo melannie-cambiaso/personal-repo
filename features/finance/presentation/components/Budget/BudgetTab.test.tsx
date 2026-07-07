@@ -103,8 +103,9 @@ describe("BudgetTab — refund group separation", () => {
         onOpenTransaction={onOpenTransaction}
       />
     );
-    expect(screen.getByRole("heading", { name: "Devoluciones" })).toBeTruthy();
-    expect(screen.getByText("Isapre")).toBeTruthy();
+    const tableView = screen.getByTestId("budget-table");
+    expect(within(tableView).getByRole("heading", { name: "Devoluciones" })).toBeTruthy();
+    expect(within(tableView).getByText("Isapre")).toBeTruthy();
   });
 
   // T3 — satisfies: Filter isolation scenario
@@ -124,12 +125,13 @@ describe("BudgetTab — refund group separation", () => {
         onOpenTransaction={onOpenTransaction}
       />
     );
-    expect(screen.getByRole("heading", { name: "Ingresos" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Devoluciones" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Gastos" })).toBeTruthy();
-    expect(screen.getByText("Peter")).toBeTruthy();
-    expect(screen.getByText("Isapre")).toBeTruthy();
-    expect(screen.getByText("Arriendo")).toBeTruthy();
+    const tableView = screen.getByTestId("budget-table");
+    expect(within(tableView).getByRole("heading", { name: "Ingresos" })).toBeTruthy();
+    expect(within(tableView).getByRole("heading", { name: "Devoluciones" })).toBeTruthy();
+    expect(within(tableView).getByRole("heading", { name: "Gastos" })).toBeTruthy();
+    expect(within(tableView).getByText("Peter")).toBeTruthy();
+    expect(within(tableView).getByText("Isapre")).toBeTruthy();
+    expect(within(tableView).getByText("Arriendo")).toBeTruthy();
   });
 
   // T4 — satisfies: Neto Excludes Refunds + Devoluciones SummaryCard
@@ -150,12 +152,94 @@ describe("BudgetTab — refund group separation", () => {
         onOpenTransaction={onOpenTransaction}
       />
     );
-    // Devoluciones GroupSection must be present (RED until implemented)
-    expect(screen.getByRole("heading", { name: "Devoluciones" })).toBeTruthy();
+    // Devoluciones view must be present (scoped to the unchanged table view)
+    const tableView = screen.getByTestId("budget-table");
+    expect(within(tableView).getByRole("heading", { name: "Devoluciones" })).toBeTruthy();
     // Neto = income − expense only; refund amounts must not inflate income
     const netoLabel = screen.getByText("Neto");
     const netoCard = netoLabel.closest("div")!;
     expect(within(netoCard).getByText(/\$400\.000/)).toBeTruthy();
+  });
+});
+
+describe("BudgetTab — responsive view split (mobile cards / desktop table)", () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const onOpenTransaction = vi.fn();
+
+  const groups = [
+    { name: "Gastos fijos", type: "expense" as const, categories: ["Arriendo"] },
+  ];
+
+  // 2.1 — satisfies: responsive-layout / BudgetTab mobile card layout — both views render
+  it("renders both a budget-table container and a budget-cards container", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-06"
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+      />
+    );
+    expect(screen.getByTestId("budget-table")).toBeTruthy();
+    expect(screen.getByTestId("budget-cards")).toBeTruthy();
+  });
+
+  // 2.1/2.3 — satisfies: No information loss on mobile — same category data present in cards view
+  it("cards view renders the same category name, budget, real, and diff values as the table view", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-06"
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    const cardsView = screen.getByTestId("budget-cards");
+
+    expect(within(tableView).getByText("Arriendo")).toBeTruthy();
+    expect(within(cardsView).getByText("Arriendo")).toBeTruthy();
+
+    // both views show the same "no actual spend yet" placeholder for Real
+    expect(within(tableView).getByText("—")).toBeTruthy();
+    expect(within(cardsView).getByText("—")).toBeTruthy();
+
+    // both views expose a budget input pre-filled with the same planned amount
+    const tableInput = within(tableView).getByPlaceholderText("0") as HTMLInputElement;
+    const cardsInput = within(cardsView).getByPlaceholderText("0") as HTMLInputElement;
+    expect(tableInput.value).toBe("400000");
+    expect(cardsInput.value).toBe("400000");
+  });
+
+  // 2.1/2.3 — satisfies: shared computed model — toggling in one view is reflected consistently
+  it("closing a category via the cards view toggle calls the same handler as the table view", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-06"
+        initialClosedCategories={[]}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+      />
+    );
+    const cardsView = screen.getByTestId("budget-cards");
+    const toggleButton = within(cardsView).getByRole("button", { name: "Cerrar Arriendo" });
+    expect(toggleButton.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.click(toggleButton);
+
+    expect(toggleClosedCategoryMock).toHaveBeenCalledWith("2026-06", "Arriendo");
+    // the table view (same shared state) reflects the change too
+    const tableView = screen.getByTestId("budget-table");
+    expect(
+      within(tableView).getByRole("button", { name: "Reabrir Arriendo" }).getAttribute("aria-pressed")
+    ).toBe("true");
   });
 });
 
@@ -281,15 +365,16 @@ describe("BudgetTab — closed expense categories", () => {
         onOpenTransaction={onOpenTransaction}
       />
     );
-    const toggleButton = screen.getByRole("button", { name: "Cerrar Arriendo" });
+    const tableView = screen.getByTestId("budget-table");
+    const toggleButton = within(tableView).getByRole("button", { name: "Cerrar Arriendo" });
     expect(toggleButton.getAttribute("aria-pressed")).toBe("false");
 
     fireEvent.click(toggleButton);
 
     expect(toggleClosedCategoryMock).toHaveBeenCalledWith("2026-06", "Arriendo");
-    expect(screen.getByRole("button", { name: "Reabrir Arriendo" }).getAttribute("aria-pressed")).toBe(
-      "true"
-    );
+    expect(
+      within(tableView).getByRole("button", { name: "Reabrir Arriendo" }).getAttribute("aria-pressed")
+    ).toBe("true");
   });
 
   it("toggle reopens an already-closed category on click", () => {
@@ -304,14 +389,15 @@ describe("BudgetTab — closed expense categories", () => {
         onOpenTransaction={onOpenTransaction}
       />
     );
-    const toggleButton = screen.getByRole("button", { name: "Reabrir Arriendo" });
+    const tableView = screen.getByTestId("budget-table");
+    const toggleButton = within(tableView).getByRole("button", { name: "Reabrir Arriendo" });
 
     fireEvent.click(toggleButton);
 
     expect(toggleClosedCategoryMock).toHaveBeenCalledWith("2026-06", "Arriendo");
-    expect(screen.getByRole("button", { name: "Cerrar Arriendo" }).getAttribute("aria-pressed")).toBe(
-      "false"
-    );
+    expect(
+      within(tableView).getByRole("button", { name: "Cerrar Arriendo" }).getAttribute("aria-pressed")
+    ).toBe("false");
   });
 
   it("a closed row marks itself aria-disabled and disables the budget input", () => {
@@ -326,7 +412,8 @@ describe("BudgetTab — closed expense categories", () => {
         onOpenTransaction={onOpenTransaction}
       />
     );
-    const categoryName = screen.getByText("Arriendo");
+    const tableView = screen.getByTestId("budget-table");
+    const categoryName = within(tableView).getByText("Arriendo");
     const row = categoryName.closest("[aria-disabled]");
     expect(row?.getAttribute("aria-disabled")).toBe("true");
     const budgetInput = within(row as HTMLElement).getByPlaceholderText("0") as HTMLInputElement;
@@ -345,14 +432,15 @@ describe("BudgetTab — closed expense categories", () => {
         onOpenTransaction={onOpenTransaction}
       />
     );
-    const categoryName = screen.getByText("Arriendo");
+    const tableView = screen.getByTestId("budget-table");
+    const categoryName = within(tableView).getByText("Arriendo");
     const row = categoryName.closest("[aria-disabled]");
     expect(row?.getAttribute("aria-disabled")).toBe("false");
     const budgetInput = within(row as HTMLElement).getByPlaceholderText("0") as HTMLInputElement;
     expect(budgetInput.disabled).toBe(false);
   });
 
-  it("does not render the close toggle button on income rows", () => {
+  it("does not render the close toggle button on income rows, in either view", () => {
     render(
       <BudgetTab
         groups={incomeGroups}
@@ -364,6 +452,9 @@ describe("BudgetTab — closed expense categories", () => {
         onOpenTransaction={onOpenTransaction}
       />
     );
-    expect(screen.queryByRole("button", { name: /Cerrar|Reabrir/ })).toBeNull();
+    const tableView = screen.getByTestId("budget-table");
+    const cardsView = screen.getByTestId("budget-cards");
+    expect(within(tableView).queryByRole("button", { name: /Cerrar|Reabrir/ })).toBeNull();
+    expect(within(cardsView).queryByRole("button", { name: /Cerrar|Reabrir/ })).toBeNull();
   });
 });

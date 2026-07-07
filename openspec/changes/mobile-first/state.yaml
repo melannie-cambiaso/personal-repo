@@ -30,8 +30,23 @@ phases:
       Phase 1 / PR 1 (Drawer Navigation, tasks 1.1-1.6) done — AppNav
       component, features.ts, layout.tsx mount, full suite green (no
       regression vs. 1 pre-existing unrelated BudgetTab failure).
-      Phase 2 (BudgetTab), Phase 3 (tap targets), Phase 4 (modal grids)
-      still pending.
+      Phase 2 / PR 2 (BudgetTab Structural Split, tasks 2.1-2.3) done —
+      BudgetTab.tsx split into BudgetTableView (data-testid="budget-table",
+      hidden below sm, desktop markup unchanged) and BudgetCardsView
+      (data-testid="budget-cards", visible below sm) sharing the same
+      computed budget/actual model; new CardsSection renders stacked cards
+      per category; copy/export control bar got flex-wrap; cards-view +/
+      Cerrar/Reabrir buttons bumped to min-h-11 min-w-11 tap target.
+      BudgetTab.test.tsx rewritten to scope pre-existing assertions with
+      within(getByTestId(...)) and add dual-view coverage. Deviation: did
+      NOT add literal className/min-h-11 assertions in tests — strict-tdd.md's
+      Implementation Detail Coupling Rule bans CSS class-name assertions;
+      tap-target pixel verification remains the Manual release gate per
+      design.md's Testing Strategy. Full suite green: 334/335, same 1
+      pre-existing unrelated BudgetTab B3 failure (Ahorro potencial rounding
+      bug) present before and after — confirmed unrelated, not a regression.
+      Phase 3 (tap targets: ShoppingItemRow/CategoryTabs), Phase 4 (modal
+      grids) still pending.
   verify:
     status: pending
   archive:

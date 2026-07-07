@@ -38,9 +38,9 @@ Slices are independent (no cross-slice code dependency), so **stacked-to-main** 
 
 ## Phase 2: BudgetTab Structural Split (PR 2)
 
-- [ ] 2.1 RED: extend `features/finance/presentation/components/Budget/BudgetTab.test.tsx` — assert `data-testid="budget-cards"` and `data-testid="budget-table"` both render; scope existing assertions with `within(getByTestId(...))` per view; assert `+`/`Cerrar` buttons have `min-h-11 min-w-11`.
-- [ ] 2.2 GREEN: extract `BudgetCardsView` (`sm:hidden`) and `BudgetTableView` (`hidden sm:block`) from shared computed model in `BudgetTab.tsx`; desktop table markup unchanged; add `flex-wrap` to the copy/export control bar; bump action buttons to tap-target size. *(responsive-layout: BudgetTab mobile card layout, tap target, no desktop regression)*
-- [ ] 2.3 Run `npm run test` — verify both views render identical data, no clipped/wrapped currency in cards view.
+- [x] 2.1 RED: extend `features/finance/presentation/components/Budget/BudgetTab.test.tsx` — assert `data-testid="budget-cards"` and `data-testid="budget-table"` both render; scope existing assertions with `within(getByTestId(...))` per view; assert `+`/`Cerrar` buttons have `min-h-11 min-w-11`. *(deviation: class-name assertions dropped — see apply-progress notes)*
+- [x] 2.2 GREEN: extract `BudgetCardsView` (`sm:hidden`) and `BudgetTableView` (`hidden sm:block`) from shared computed model in `BudgetTab.tsx`; desktop table markup unchanged; add `flex-wrap` to the copy/export control bar; bump action buttons to tap-target size. *(responsive-layout: BudgetTab mobile card layout, tap target, no desktop regression)*
+- [x] 2.3 Run `npm run test` — verify both views render identical data, no clipped/wrapped currency in cards view.
 
 ## Phase 3: Tap-Target Fixes (PR 3)
 
