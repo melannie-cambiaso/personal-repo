@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { type Group } from "@/features/finance/data/kvAdapter";
 import { getBudgetForMonth, toggleClosedCategory } from "@/features/finance/data/financeActions";
-import { computeActualFromTransactions, computePendingExpenses } from "@/features/finance/domain";
+import {
+  computeActualFromTransactions,
+  computeBudgetSummary,
+  computePendingExpenses,
+} from "@/features/finance/domain";
 import type { FinanceTransaction } from "@/features/finance/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 import { prevMonth } from "@/shared/utils/monthUtils";
@@ -84,9 +88,13 @@ export function BudgetTab({
   const pendingAmount =
     actualExpense > budgetExpense ? -(actualExpense - budgetExpense) : pendingExpenses;
 
-  const actualNet = actualIncome - actualExpense;
-  const available = actualNet - pendingExpenses;
-  const ahorroPotencial = available + budgetRefund;
+  const { actualNet, available, potentialSavings } = computeBudgetSummary({
+    actualIncome,
+    actualExpense,
+    actualRefund,
+    budgetRefund,
+    pendingExpenses,
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -131,7 +139,7 @@ export function BudgetTab({
             budget={budgetIncome - budgetExpense}
             actual={actualNet}
             disponible={available}
-            ahorroPotencial={ahorroPotencial}
+            ahorroPotencial={potentialSavings}
           />
           <SummaryCard label="Devoluciones" budget={budgetRefund} actual={actualRefund} />
         </div>

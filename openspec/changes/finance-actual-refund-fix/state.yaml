@@ -1,0 +1,101 @@
+change: finance-actual-refund-fix
+created: 2026-07-07
+artifact_store: openspec
+execution_mode: interactive
+delivery_strategy: ask-on-risk
+
+phases:
+  explore:
+    status: done
+    artifact: >
+      engram topic_key sdd/explore/devoluciones-remaining-balance
+      (project personal-repo) — saved to engram, NOT a file. Future phases
+      must recover exploration findings from engram, not from openspec/.
+  propose:
+    status: done
+    revision: v2
+    artifact: openspec/changes/finance-actual-refund-fix/proposal.md
+    notes: >
+      REVISED (v2) after user clarification. Scope grew from a one-line swap
+      into a small domain redesign of the Neto card figures. New concept
+      realBalance = actualNet + actualRefund; available redefined to
+      realBalance - pendingExpenses (the "monto restante real"); ahorroPotencial
+      renamed/redefined to potentialSavings = budgetRefund - actualRefund.
+      actualNet/budgetRefund/actualRefund unchanged (consumed differently).
+      Approach: extract pure domain function computeBudgetSummary() under
+      features/finance/domain/ (old one-line-vs-extraction fork is now moot).
+      Includes a Domain Glossary table. Test impact: only B3 changes assertions
+      (700000 moves to Disponible; Ahorro potencial becomes $100.000 red) — a
+      deliberate behavior change, not a regression; B1/B2/B4/B5/T4/A1-A7 verified
+      unaffected. Baseline verified: 26 pass, B3 fails before change.
+      No open question — ready for user approval, then spec/design.
+  spec:
+    status: done
+    artifacts:
+      - openspec/changes/finance-actual-refund-fix/specs/finance-budget-summary/spec.md
+    notes: >
+      Delta spec for capability "finance-budget-summary" (new capability; no
+      prior spec existed under openspec/specs/ for finance). Domain Glossary
+      carried forward verbatim from the approved proposal (v2). B3 fixture
+      math independently re-derived from BudgetTab.tsx source (not just
+      proposal prose) and matches exactly: actualNet=1000000,
+      realBalance=1100000, available=700000, potentialSavings=-100000. No
+      discrepancy found. 6 requirements added: reactive update on refund add,
+      available formula (B3 scenario), potentialSavings formula (B3 scenario),
+      actualNet regression guard (ties to T4), budgetRefund other-consumers
+      non-regression (Presup. field + table/cards views), and explicit
+      statement that rewriting B3's assertions is an intended in-scope change,
+      not a regression. Non-goals carried forward from proposal.
+  design:
+    status: done
+    artifact: openspec/changes/finance-actual-refund-fix/design.md
+    notes: >
+      Technical design for extracting pure computeBudgetSummary() under
+      features/finance/domain/. Signature: object param
+      { actualIncome, actualExpense, actualRefund, budgetRefund, pendingExpenses }
+      -> BudgetSummary { actualNet, realBalance, potentialSavings, available,
+      pendingExpenses }. Object param (not positional like siblings) justified by
+      5 same-typed number args + swap ambiguity; pre-approved in proposal.
+      Integration: BudgetTab.tsx replaces inline lines 87-89 with one call +
+      destructure of { actualNet, available, potentialSavings }; keeps
+      SummaryCard ahorroPotencial prop NAME as-is, feeds potentialSavings VALUE
+      (keeps A1-A7 green verbatim). Two RED->GREEN cycles: (1) domain unit tests
+      -> implement fn + barrel exports; (2) rewrite B3 assertions
+      (Disponible $700.000 + Ahorro potencial $100.000) -> apply BudgetTab edit.
+      Regression guards: T4/B1/B2/B4/B5/A1-A7 + budgetRefund other consumers
+      untouched. Review workload ~80 lines, single PR, no chaining (ask-on-risk
+      guard does not trip). Mirrors archived mobile-first design.md structure.
+  tasks:
+    status: done
+    artifact: openspec/changes/finance-actual-refund-fix/tasks.md
+    notes: >
+      Single-PR task breakdown, ~80 estimated changed lines, well under the
+      400-line budget guard — no chaining, no user decision needed
+      (delivery_strategy ask-on-risk does not trip). Phase 1: domain function
+      computeBudgetSummary() RED (5 cases: B3 fixture, no-refund parity,
+      negative available, positive potentialSavings, actualNet-excludes-
+      refunds guard) -> GREEN (implement fn) -> barrel export in index.ts.
+      Phase 2: B3 rewrite RED (Disponible $700.000 + Ahorro potencial
+      $100.000) -> GREEN (BudgetTab.tsx integration edit, keeps
+      ahorroPotencial prop name). Phase 3: full suite run with explicit
+      regression guard list (T4/B1/B2/B4/B5/A1-A7 + budgetRefund other
+      consumers).
+  apply:
+    status: done
+    notes: >
+      Single-batch apply, Strict TDD (RED->GREEN per cycle). Phase 1:
+      computeBudgetSummary.test.ts RED (5 cases: B3 fixture, no-refund
+      parity, negative available, positive potentialSavings, actualNet-
+      excludes-refunds guard) -> computeBudgetSummary.ts GREEN -> barrel
+      export in domain/index.ts. Phase 2: BudgetTab.test.tsx B3 (:292)
+      rewritten RED (Disponible $700.000 + Ahorro potencial $100.000,
+      confirmed failing against old inline math: Disponible $600.000 +
+      Ahorro potencial $600.000) -> BudgetTab.tsx integration GREEN
+      (computeBudgetSummary() call replaces inline lines 87-89; SummaryCard
+      keeps ahorroPotencial prop name, now fed potentialSavings). Phase 3:
+      full suite green - 358/358 tests, 52 files; tsc --noEmit clean.
+      No deviations from design.
+  verify:
+    status: pending
+  archive:
+    status: pending
