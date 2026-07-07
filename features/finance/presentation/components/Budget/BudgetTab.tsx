@@ -88,7 +88,7 @@ export function BudgetTab({
   const pendingAmount =
     actualExpense > budgetExpense ? -(actualExpense - budgetExpense) : pendingExpenses;
 
-  const { actualNet, available, potentialSavings } = computeBudgetSummary({
+  const { realBalance, available, potentialSavings } = computeBudgetSummary({
     actualIncome,
     actualExpense,
     actualRefund,
@@ -137,7 +137,7 @@ export function BudgetTab({
           <SummaryCard
             label="Neto"
             budget={budgetIncome - budgetExpense}
-            actual={actualNet}
+            actual={realBalance}
             disponible={available}
             ahorroPotencial={potentialSavings}
           />

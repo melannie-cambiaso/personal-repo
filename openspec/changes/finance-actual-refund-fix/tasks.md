@@ -106,3 +106,36 @@ a single PR.**
     confirm untouched and passing.
   *(finance-budget-summary: budgetRefund's other consumers are unaffected — Devoluciones card
   "Presup." is unaffected; Budget table and cards views are unaffected)*
+
+## Phase 4: Real includes refunds (v3 — post-apply, live user review)
+
+Phases 1–3 above shipped and were committed (`8de9712`). After reviewing the live app, the user
+reversed one decision: the Neto card's "Real" value should show `realBalance` (refunds included)
+instead of `actualNet` (refunds excluded). `computeBudgetSummary()` already computes and returns
+`realBalance` — no domain-function change is required. This phase is consumption-side only.
+
+- [x] 4.1 RED: add a `Real $1.100.000` assertion to test **B3** in `BudgetTab.test.tsx` (`:294`,
+  "B3: renders 'Disponible $700.000' and 'Ahorro potencial $100.000' inside Neto card" — renamed
+  to "B3: renders 'Real $1.100.000', 'Disponible $700.000' and 'Ahorro potencial $100.000' inside
+  Neto card"):
+  ```ts
+  expect(within(netoCard).getByText("Real $1.100.000")).toBeTruthy();
+  ```
+  Confirmed failing against current code, which still renders `actual={actualNet}` →
+  "Real $1.000.000".
+  *(finance-budget-summary: the Neto card's "Real" displays realBalance — B3 gains a "Real"
+  assertion protecting the realBalance display)*
+
+- [x] 4.2 GREEN: in `features/finance/presentation/components/Budget/BudgetTab.tsx`, change the
+  destructure from `computeBudgetSummary()` (`{ actualNet, available, potentialSavings }` →
+  `{ realBalance, available, potentialSavings }`) and change the Neto `SummaryCard`'s `actual`
+  prop from `actual={actualNet}` to `actual={realBalance}`. No import changes
+  (`computeBudgetSummary` already imported). `disponible`/`ahorroPotencial` props unchanged. B3
+  (4.1) passes.
+  *(finance-budget-summary: the Neto card's "Real" displays realBalance)*
+
+- [x] 4.3 Run `npm run test` — full suite green (358/358, 52 files), `tsc --noEmit` clean. Confirm
+  **T4** (`:138`, "Neto excludes refunds → $400.000") stays green unchanged — its fixture uses
+  `transactions={[]}`, so `actualNet === realBalance === 0` there, and the `$400.000` it asserts
+  is the Neto **Presup.** figure, unaffected. Confirm all other Phase 1–3 tests (domain unit
+  tests, B1/B2/B4/B5, A1–A7) still pass unchanged.

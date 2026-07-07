@@ -127,6 +127,47 @@ and the `SummaryCard` for "Neto" (line 134) changes only its prop value:
 prop is unchanged in name and now carries the redefined `available`. The import on line 6 adds
 `computeBudgetSummary` to the existing `@/features/finance/domain` import.
 
+## Phase 4 (v3): Neto "Real" shows `realBalance` (post-apply follow-up)
+
+Phases 1–3 above are **done and committed** (`8de9712`). Phase 4 is a smaller, separate delta added
+after the user reviewed the live app and decided the Neto card's "Real" should INCLUDE devoluciones —
+i.e. display `realBalance` (`actualNet + actualRefund`) instead of `actualNet`. See proposal v3 and
+the spec requirement "The Neto card's 'Real' displays `realBalance`".
+
+**This is purely consumption-side.** `computeBudgetSummary()` ALREADY computes and returns
+`realBalance` (confirmed in `features/finance/domain/computeBudgetSummary.ts`, line 19/23) — it was
+built into the Phase 2 domain function per the original design's "Return breadth" decision. So Phase 4
+adds NO domain-function change; it only changes what `BudgetTab.tsx` consumes.
+
+### Phase 4 file changes
+
+| File | Action | Description |
+|------|--------|-------------|
+| `features/finance/presentation/components/Budget/BudgetTab.tsx` | Modify | Add `realBalance` to the existing `computeBudgetSummary()` destructure (currently `{ actualNet, available, potentialSavings }`); change the Neto `SummaryCard` `actual` prop from `actual={actualNet}` to `actual={realBalance}`. |
+| `features/finance/presentation/components/Budget/BudgetTab.test.tsx` | Modify | Add one assertion to B3 (`:294`): `Neto "Real $1.100.000"` (realBalance = 1000000 + 100000). No other test changes; T4 stays green untouched. |
+
+### Phase 4 integration point in `BudgetTab.tsx`
+
+The destructure at lines 91–97 changes from:
+
+```ts
+const { actualNet, available, potentialSavings } = computeBudgetSummary({ ... });
+```
+
+to include `realBalance`:
+
+```ts
+const { realBalance, available, potentialSavings } = computeBudgetSummary({ ... });
+```
+
+`actualNet` is no longer destructured (it becomes internal to the domain function). The Neto
+`SummaryCard` (lines 137–143) changes one prop value: `actual={actualNet}` → `actual={realBalance}`.
+The `budget`, `disponible={available}`, and `ahorroPotencial={potentialSavings}` props are unchanged.
+No import changes (`computeBudgetSummary` is already imported).
+
+> Note: if any lingering reference to `actualNet` remains after the swap, either drop it from the
+> destructure or keep it — but it is no longer read by the render. The minimal edit drops it.
+
 ## Testing Strategy
 
 Strict TDD (vitest). Two RED→GREEN cycles, in order.
@@ -163,6 +204,15 @@ Strict TDD (vitest). Two RED→GREEN cycles, in order.
    this now fails (old code renders `Disponible $600.000` + `Ahorro potencial $600.000`).
 4. **GREEN** — apply the `BudgetTab.tsx` integration edit above. B3 passes; full suite green
    (`npm run test`).
+
+### Cycle 3 — Phase 4 (v3): Neto "Real" = realBalance
+
+5. **RED** — add to B3 (`BudgetTab.test.tsx:294`) the assertion
+   `expect(within(netoCard).getByText("Real $1.100.000")).toBeTruthy();`. Against the current code
+   (which still feeds `actual={actualNet}` = 1000000) this fails, rendering "Real $1.000.000".
+6. **GREEN** — in `BudgetTab.tsx`, destructure `realBalance` and change the Neto card to
+   `actual={realBalance}`. B3 passes; full suite green. T4 stays green untouched (its "Real" line is
+   `$0` and its `$400.000` is Presup).
 
 ### Regression guards (must stay green untouched)
 
