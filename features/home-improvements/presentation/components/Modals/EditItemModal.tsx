@@ -45,7 +45,7 @@ export function EditItemModal({ item, zones, onClose, onSave }: Props) {
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <ItemFormFields form={form} set={set} submitLabel="Guardar ✓" onClose={onClose}>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Cantidad">
               <Input
                 type="number"

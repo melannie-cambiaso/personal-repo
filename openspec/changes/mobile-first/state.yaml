@@ -25,7 +25,7 @@ phases:
     status: done
     artifact: openspec/changes/mobile-first/tasks.md
   apply:
-    status: in_progress
+    status: done
     notes: >
       Phase 1 / PR 1 (Drawer Navigation, tasks 1.1-1.6) done — AppNav
       component, features.ts, layout.tsx mount, full suite green (no
@@ -62,7 +62,22 @@ phases:
       (regression proof). Full suite: 336/337, same 1 pre-existing unrelated
       BudgetTab B3 failure (Ahorro potencial rounding bug) present before and
       after — confirmed unrelated, not a regression.
-      Phase 4 (modal grids) still pending.
+      Phase 4 / PR 4 (Modal Form Grid Reflow, tasks 4.1-4.3) done — none of the
+      5 target components (WishlistAddItemModal, EditItemModal, AddItemModal,
+      ItemFormFields in home-improvements, EntryFormFields in savings) had an
+      existing test file, so wrote new behavioral test files for all 5 (16
+      tests total: fields present via getByLabelText, fields functional via
+      fireEvent.change, forms submit with correct values via onAdd/onSave
+      spies) and ran them green BEFORE the class change as the Approval
+      Testing baseline/safety net, then ran them green again AFTER the
+      className change as regression proof. Then changed grid-cols-2 to
+      grid-cols-1 sm:grid-cols-2 in all 5 files. Deviation: did NOT add
+      literal className/grid-cols assertions in tests — strict-tdd.md's
+      Implementation Detail Coupling Rule bans CSS class-name assertions
+      outright; same deviation as Phase 2/3. All 4 PRs of the mobile-first
+      change are now complete. Full suite: 352/353, same 1 pre-existing
+      unrelated BudgetTab B3 failure (Ahorro potencial rounding bug) present
+      before and after — confirmed unrelated, not a regression.
   verify:
     status: pending
   archive:

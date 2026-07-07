@@ -68,7 +68,7 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
       title={editItem ? "Editar item" : "Nuevo item"}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Título *">
             <Input value={form.title} onChange={set("title")} required />
           </Field>
@@ -77,7 +77,7 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           </Field>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Categoría *">
             <Select value={form.categoryKey} onChange={set("categoryKey")} required>
               {Object.entries(CATEGORIES).map(([key, cat]) => (
@@ -96,7 +96,7 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           <Textarea rows={3} value={form.description} onChange={set("description")} required />
         </Field>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Precio (CLP)">
             <Input
               type="number"

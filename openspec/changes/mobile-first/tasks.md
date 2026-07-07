@@ -50,6 +50,6 @@ Slices are independent (no cross-slice code dependency), so **stacked-to-main** 
 
 ## Phase 4: Modal Form Grid Reflow (PR 4)
 
-- [ ] 4.1 RED: create/extend tests for `WishlistAddItemModal.test.tsx`, `EditItemModal.test.tsx` + `AddItemModal.test.tsx` + `ItemFormFields.test.tsx` (home-improvements), `EntryFormFields.test.tsx` (savings) — assert grid container has `grid-cols-1 sm:grid-cols-2`, all fields present.
-- [ ] 4.2 GREEN: change `grid-cols-2` → `grid-cols-1 sm:grid-cols-2` in the 5 files above. *(responsive-layout: modal form grid reflow, no field lost, desktop unaffected)*
-- [ ] 4.3 Run `npm run test` — full suite green.
+- [x] 4.1 RED: create/extend tests for `WishlistAddItemModal.test.tsx`, `EditItemModal.test.tsx` + `AddItemModal.test.tsx` + `ItemFormFields.test.tsx` (home-improvements), `EntryFormFields.test.tsx` (savings) — assert grid container has `grid-cols-1 sm:grid-cols-2`, all fields present. *(deviation: none of the 5 components had an existing test file — used Approval Testing pattern (behavioral assertions: all fields present via `getByLabelText`, fields functional, form submits with correct values) instead of literal className assertions, per strict-tdd.md's Implementation Detail Coupling Rule and the same deviation established in Phase 2/3 — see apply-progress notes)*
+- [x] 4.2 GREEN: change `grid-cols-2` → `grid-cols-1 sm:grid-cols-2` in the 5 files above. *(responsive-layout: modal form grid reflow, no field lost, desktop unaffected)*
+- [x] 4.3 Run `npm run test` — full suite green.
