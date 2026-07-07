@@ -9,21 +9,21 @@ delivery_decision: chained-4-prs (nav, budget-tab, tap-targets, modal-grids)
 phases:
   explore:
     status: done
-    artifact: openspec/changes/mobile-first/exploration.md
+    artifact: openspec/changes/archive/2026-07-07-mobile-first/exploration.md
   propose:
     status: done
-    artifact: openspec/changes/mobile-first/proposal.md
+    artifact: openspec/changes/archive/2026-07-07-mobile-first/proposal.md
   spec:
     status: done
     artifacts:
-      - openspec/changes/mobile-first/specs/mobile-navigation/spec.md
-      - openspec/changes/mobile-first/specs/responsive-layout/spec.md
+      - openspec/specs/mobile-navigation/spec.md
+      - openspec/specs/responsive-layout/spec.md
   design:
     status: done
-    artifact: openspec/changes/mobile-first/design.md
+    artifact: openspec/changes/archive/2026-07-07-mobile-first/design.md
   tasks:
     status: done
-    artifact: openspec/changes/mobile-first/tasks.md
+    artifact: openspec/changes/archive/2026-07-07-mobile-first/tasks.md
   apply:
     status: done
     notes: >
@@ -80,7 +80,7 @@ phases:
       before and after — confirmed unrelated, not a regression.
   verify:
     status: pass_with_warnings
-    artifact: openspec/changes/mobile-first/verify-report.md
+    artifact: openspec/changes/archive/2026-07-07-mobile-first/verify-report.md
     notes: >
       All 15 tasks (1.1-4.3) verified complete against actual committed diffs
       (5ac4d4f, d5767fc, 1c8f950, 997d992), not just checked boxes. Full test
@@ -96,3 +96,7 @@ phases:
       lint warning in EntryFormFields.test.tsx (PR4). No CRITICAL issues.
   archive:
     status: done
+    artifact: openspec/changes/archive/2026-07-07-mobile-first/archive-report.md
+    archived_to: openspec/changes/archive/2026-07-07-mobile-first/
+    archived_date: 2026-07-07
+    engram_report_id: 286
