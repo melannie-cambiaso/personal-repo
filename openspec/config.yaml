@@ -1,0 +1,31 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Next.js 16.2.9 (App Router), React 19.2.4, TypeScript 5 (strict), Tailwind CSS 4 (CSS-based config, no tailwind.config.*)
+  Architecture: feature-based/hexagonal — features/{name}/{domain,data,presentation}, presentation/{screens,components}, shared/components for cross-feature UI
+  Testing: Vitest 4 + Testing Library (React/DOM) + jsdom, `npm run test` (vitest run), no setupFiles configured
+  Style: ESLint 9 flat config (eslint.config.mjs), Prettier 3.8 with prettier-plugin-tailwindcss
+  Note: this Next.js version has breaking changes vs. training data — consult node_modules/next/dist/docs/ before assuming APIs/conventions (see AGENTS.md)
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns
+    tdd: true
+    test_command: "npm run test"
+  verify:
+    test_command: "npm run test"
+    build_command: "npm run build"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas

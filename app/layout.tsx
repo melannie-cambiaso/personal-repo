@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Dancing_Script } from "next/font/google";
+import { AppNav } from "@/shared/components/AppNav/AppNav";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -28,7 +29,10 @@ export default function RootLayout({
       lang="es"
       className={`${montserrat.variable} ${dancingScript.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <AppNav />
+        {children}
+      </body>
     </html>
   );
 }

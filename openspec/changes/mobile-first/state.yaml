@@ -1,0 +1,38 @@
+change: mobile-first
+created: 2026-07-06
+artifact_store: openspec
+execution_mode: interactive
+delivery_strategy: ask-on-risk
+chain_strategy: stacked-to-main
+delivery_decision: chained-4-prs (nav, budget-tab, tap-targets, modal-grids)
+
+phases:
+  explore:
+    status: done
+    artifact: openspec/changes/mobile-first/exploration.md
+  propose:
+    status: done
+    artifact: openspec/changes/mobile-first/proposal.md
+  spec:
+    status: done
+    artifacts:
+      - openspec/changes/mobile-first/specs/mobile-navigation/spec.md
+      - openspec/changes/mobile-first/specs/responsive-layout/spec.md
+  design:
+    status: done
+    artifact: openspec/changes/mobile-first/design.md
+  tasks:
+    status: done
+    artifact: openspec/changes/mobile-first/tasks.md
+  apply:
+    status: in_progress
+    notes: >
+      Phase 1 / PR 1 (Drawer Navigation, tasks 1.1-1.6) done — AppNav
+      component, features.ts, layout.tsx mount, full suite green (no
+      regression vs. 1 pre-existing unrelated BudgetTab failure).
+      Phase 2 (BudgetTab), Phase 3 (tap targets), Phase 4 (modal grids)
+      still pending.
+  verify:
+    status: pending
+  archive:
+    status: pending
