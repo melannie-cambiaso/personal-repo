@@ -7,3 +7,4 @@ export { DeleteEntryConfirmModal } from "./Modals/DeleteEntryConfirmModal";
 export { AddGoalModal } from "./Modals/AddGoalModal";
 export { EditGoalModal } from "./Modals/EditGoalModal";
 export { DeleteGoalConfirmModal } from "./Modals/DeleteGoalConfirmModal";
+export { MonthlyBreakdown } from "./MonthlyBreakdown/MonthlyBreakdown";

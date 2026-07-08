@@ -16,6 +16,7 @@ import {
   AddGoalModal,
   EditGoalModal,
   DeleteGoalConfirmModal,
+  MonthlyBreakdown,
 } from "../../components";
 import { PageHeader, AddButton } from "@/shared/components";
 
@@ -53,7 +54,7 @@ export function SavingsScreen({
       onSave: onSaveGoals ?? (() => {}),
     });
 
-  const [activeTab, setActiveTab] = useState<"history" | "goals">("history");
+  const [activeTab, setActiveTab] = useState<"history" | "goals" | "monthly">("history");
 
   // Entry modal state
   const [addOpen, setAddOpen] = useState(false);
@@ -90,6 +91,13 @@ export function SavingsScreen({
             className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "goals" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
           >
             Metas
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("monthly")}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "monthly" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
+          >
+            Por mes
           </button>
         </div>
 
@@ -140,6 +148,8 @@ export function SavingsScreen({
             />
           </>
         )}
+
+        {activeTab === "monthly" && <MonthlyBreakdown entries={entries} />}
       </div>
 
       <AddEntryModal

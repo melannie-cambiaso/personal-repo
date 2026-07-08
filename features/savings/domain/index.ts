@@ -4,3 +4,5 @@ export { computeTotalToReplenish } from "./computeTotalToReplenish";
 export type { SavingsGoal, GoalWithProgress } from "./SavingsGoal";
 export { distributeToGoals } from "./distributeToGoals";
 export { normalizePriorities } from "./normalizePriorities";
+export { groupEntriesByMonth } from "./groupEntriesByMonth";
+export type { MonthlySavingsGroup } from "./groupEntriesByMonth";
