@@ -1,15 +1,29 @@
-import { ModalShell, Field, Input, Textarea } from "@/shared/components";
+import { ModalShell, Field, Input, Select, Textarea } from "@/shared/components";
+import type { SavingsGoal } from "@/features/savings/domain";
 
 type EntryField = "amount" | "date" | "notes" | "toReplenish";
 
 interface Props {
-  form: { amount: string; date: string; notes: string; toReplenish: boolean };
+  form: { amount: string; date: string; notes: string; toReplenish: boolean; goalId?: string };
   showReplenish: boolean;
   setField: (field: EntryField) => React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   amountPlaceholder?: string;
+  goals?: SavingsGoal[];
+  showGoalSelector?: boolean;
+  onGoalChange?: React.ChangeEventHandler<HTMLSelectElement>;
 }
 
-export function EntryFormFields({ form, showReplenish, setField, amountPlaceholder }: Props) {
+export function EntryFormFields({
+  form,
+  showReplenish,
+  setField,
+  amountPlaceholder,
+  goals,
+  showGoalSelector,
+  onGoalChange,
+}: Props) {
+  const activeGoals = goals?.filter((g) => g.isDone !== true) ?? [];
+
   return (
     <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -31,6 +45,18 @@ export function EntryFormFields({ form, showReplenish, setField, amountPlacehold
       <Field label="Notas">
         <Textarea rows={2} value={form.notes} onChange={setField("notes")} />
       </Field>
+      {showGoalSelector && activeGoals.length > 0 && (
+        <Field label="Meta">
+          <Select value={form.goalId ?? ""} onChange={onGoalChange}>
+            <option value="">Sin meta asignada</option>
+            {activeGoals.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
       {showReplenish && (
         <label className="text-brown-700 flex cursor-pointer items-center gap-2 text-sm">
           <input

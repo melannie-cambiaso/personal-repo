@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { SavingsEntry, EntryType } from "@/features/savings/domain/SavingsEntry";
+import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
 import { ModalShell, Button, Select, Field } from "@/shared/components";
 import { EntryFormFields } from "./EntryFormFields";
 
@@ -9,6 +10,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (entry: SavingsEntry) => void;
+  goals?: SavingsGoal[];
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -18,9 +20,10 @@ const EMPTY = {
   date: today(),
   notes: "",
   toReplenish: false,
+  goalId: "",
 };
 
-export function AddEntryModal({ isOpen, onClose, onAdd }: Props) {
+export function AddEntryModal({ isOpen, onClose, onAdd, goals }: Props) {
   const [form, setForm] = useState(() => ({ ...EMPTY, date: today() }));
 
   const setField =
@@ -45,6 +48,7 @@ export function AddEntryModal({ isOpen, onClose, onAdd }: Props) {
       notes: form.notes.trim() || undefined,
       toReplenish: form.type === "deposito" ? false : form.toReplenish,
       createdAt: new Date().toISOString(),
+      goalId: form.type === "deposito" && form.goalId ? form.goalId : undefined,
     };
     onAdd(entry);
     onClose();
@@ -64,6 +68,9 @@ export function AddEntryModal({ isOpen, onClose, onAdd }: Props) {
           showReplenish={form.type === "gasto"}
           setField={setField}
           amountPlaceholder="0"
+          goals={goals}
+          showGoalSelector={form.type === "deposito"}
+          onGoalChange={setField("goalId")}
         />
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" onPress={onClose} variant="secondary">

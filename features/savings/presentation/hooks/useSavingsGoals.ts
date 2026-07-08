@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { SavingsGoal } from "@/features/savings/domain";
-import { distributeToGoals, normalizePriorities } from "@/features/savings/domain";
+import type { SavingsEntry, SavingsGoal } from "@/features/savings/domain";
+import { distributeToGoals, normalizePriorities, sumEarmarksByGoal } from "@/features/savings/domain";
 
 interface Params {
   initialGoals: SavingsGoal[];
   balance: number;
+  entries?: SavingsEntry[];
   onSave: (goals: SavingsGoal[]) => Promise<void> | void;
 }
 
-export function useSavingsGoals({ initialGoals, balance, onSave }: Params) {
+export function useSavingsGoals({ initialGoals, balance, entries = [], onSave }: Params) {
   const [goals, setGoals] = useState<SavingsGoal[]>(initialGoals);
   const goalsRef = useRef(initialGoals);
 
@@ -18,9 +19,11 @@ export function useSavingsGoals({ initialGoals, balance, onSave }: Params) {
     goalsRef.current = goals;
   }, [goals]);
 
+  const earmarks = useMemo(() => sumEarmarksByGoal(entries), [entries]);
+
   const { goals: distributed, surplus } = useMemo(
-    () => distributeToGoals(balance, goals),
-    [balance, goals]
+    () => distributeToGoals(balance, goals, earmarks),
+    [balance, goals, earmarks]
   );
 
   const persist = (next: SavingsGoal[]) => {

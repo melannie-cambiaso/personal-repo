@@ -8,4 +8,5 @@ export interface SavingsEntry {
   notes?: string;
   toReplenish: boolean;
   createdAt: string;
+  goalId?: string;
 }

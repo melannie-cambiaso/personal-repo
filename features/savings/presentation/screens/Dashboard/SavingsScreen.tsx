@@ -51,8 +51,11 @@ export function SavingsScreen({
     useSavingsGoals({
       initialGoals,
       balance,
+      entries,
       onSave: onSaveGoals ?? (() => {}),
     });
+
+  const activeGoals = distributed.filter((g) => g.isDone !== true);
 
   const [activeTab, setActiveTab] = useState<"history" | "goals" | "monthly">("history");
 
@@ -160,6 +163,7 @@ export function SavingsScreen({
           addEntry(entry);
           setAddOpen(false);
         }}
+        goals={activeGoals}
       />
       <EditEntryModal
         entry={editingEntry}

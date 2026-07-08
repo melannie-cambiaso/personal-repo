@@ -6,3 +6,4 @@ export { distributeToGoals } from "./distributeToGoals";
 export { normalizePriorities } from "./normalizePriorities";
 export { groupEntriesByMonth } from "./groupEntriesByMonth";
 export type { MonthlySavingsGroup } from "./groupEntriesByMonth";
+export { sumEarmarksByGoal } from "./sumEarmarksByGoal";

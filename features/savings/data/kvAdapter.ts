@@ -16,7 +16,7 @@ export async function loadEntries(): Promise<SavingsEntry[]> {
 export async function saveEntries(entries: SavingsEntry[]): Promise<void> {
   try {
     const sanitized = entries.map((e) =>
-      e.type === "deposito" ? { ...e, toReplenish: false } : e
+      e.type === "deposito" ? { ...e, toReplenish: false } : { ...e, goalId: undefined }
     );
     await redis.set(ENTRIES_KEY, sanitized);
   } catch (e) {

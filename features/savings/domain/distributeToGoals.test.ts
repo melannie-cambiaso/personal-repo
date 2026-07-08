@@ -174,4 +174,61 @@ describe("distributeToGoals", () => {
     expect(result.goals[1].currentAmount).toBe(500);
     expect(result.goals[2].currentAmount).toBe(0);
   });
+
+  describe("earmarks (deposit tagging extension)", () => {
+    it("tagged deposit under target: earmark funds the goal directly, waterfall fills the rest", () => {
+      // G1(1000,p1), G2(800,p2), G3(2000,p3); 300 tagged to G2; untagged pool 1200; balance=1500
+      const goals = [
+        goal({ id: "1", targetAmount: 1000, priority: 1 }),
+        goal({ id: "2", targetAmount: 800, priority: 2 }),
+        goal({ id: "3", targetAmount: 2000, priority: 3 }),
+      ];
+      const result = distributeToGoals(1500, goals, { "2": 300 });
+      expect(result.goals[0].currentAmount).toBe(1000);
+      expect(result.goals[1].currentAmount).toBe(500);
+      expect(result.goals[2].currentAmount).toBe(0);
+      expect(result.surplus).toBe(0);
+    });
+
+    it("tagged deposit overshoots target: excess is not subtracted from the pool, surfaces as surplus", () => {
+      // G1(1000,p1), G2(800,p2); 1000 tagged to G2 (200 over target); untagged deposit 1000; balance=2000
+      const goals = [
+        goal({ id: "1", targetAmount: 1000, priority: 1 }),
+        goal({ id: "2", targetAmount: 800, priority: 2 }),
+      ];
+      const result = distributeToGoals(2000, goals, { "2": 1000 });
+      expect(result.goals[0].currentAmount).toBe(1000);
+      expect(result.goals[1].currentAmount).toBe(800);
+      expect(result.surplus).toBe(200);
+    });
+
+    it("deposit tagged to a goal later marked done: currentAmount stays targetAmount, earmark surfaces via the unchanged surplus formula", () => {
+      // surplus formula stays untouched: max(0, balance - totalTarget), totalTarget excludes isDone goals.
+      // The earmark isn't reassigned; it's simply part of balance, and this done goal's target is
+      // excluded from totalTarget, so the earmark surfaces as surplus rather than being "returned".
+      const goals = [goal({ id: "1", targetAmount: 1000, priority: 1, isDone: true })];
+      const result = distributeToGoals(1000, goals, { "1": 500 });
+      expect(result.goals[0].currentAmount).toBe(1000);
+      expect(result.goals[0].isCompleted).toBe(true);
+      expect(result.surplus).toBe(1000);
+    });
+
+    it("dangling earmark (goalId not present in goals list) is ignored, money stays in the untagged pool", () => {
+      const goals = [goal({ id: "1", targetAmount: 1000, priority: 1 })];
+      const result = distributeToGoals(1000, goals, { "deleted-goal": 300 });
+      expect(result.goals[0].currentAmount).toBe(1000);
+      expect(result.surplus).toBe(0);
+    });
+
+    it("empty earmarks object behaves identically to omitting the argument (default {})", () => {
+      const goals = [
+        goal({ id: "1", targetAmount: 1000, priority: 1 }),
+        goal({ id: "2", targetAmount: 800, priority: 2 }),
+        goal({ id: "3", targetAmount: 2000, priority: 3 }),
+      ];
+      const withDefault = distributeToGoals(1500, goals);
+      const withEmpty = distributeToGoals(1500, goals, {});
+      expect(withEmpty).toEqual(withDefault);
+    });
+  });
 });

@@ -45,6 +45,64 @@ describe("useSavingsGoals", () => {
     expect(result.current.surplus).toBe(expected.surplus);
   });
 
+  it("a deposit entry tagged to a goal feeds an earmark into distributed, overriding plain priority order", () => {
+    // Insufficient balance to cover both goals via plain waterfall: G1 (higher priority) would
+    // normally claim the balance first. Tagging the deposit to G2 (lower priority) proves the
+    // earmark is actually wired through, not just coincidentally equal to the untagged result.
+    const initialGoals = [
+      makeGoal({
+        id: "1",
+        name: "Goal A",
+        targetAmount: 1000,
+        priority: 1,
+        createdAt: "2026-01-01T00:00:00Z",
+      }),
+      makeGoal({
+        id: "2",
+        name: "Goal B",
+        targetAmount: 800,
+        priority: 2,
+        createdAt: "2026-01-02T00:00:00Z",
+      }),
+    ];
+    const entries = [
+      {
+        id: "e1",
+        type: "deposito" as const,
+        amount: 800,
+        date: "2026-01-05",
+        toReplenish: false,
+        createdAt: "2026-01-05T00:00:00Z",
+        goalId: "2",
+      },
+    ];
+    const balance = 800;
+    const { result } = renderHook(() =>
+      useSavingsGoals({ initialGoals, balance, entries, onSave })
+    );
+    const expected = distributeToGoals(balance, initialGoals, { "2": 800 });
+    expect(expected.goals.find((g) => g.id === "2")?.currentAmount).toBe(800);
+    expect(expected.goals.find((g) => g.id === "1")?.currentAmount).toBe(0);
+    expect(result.current.distributed).toEqual(expected.goals);
+    expect(result.current.surplus).toBe(expected.surplus);
+  });
+
+  it("defaults to no earmarks when entries is omitted", () => {
+    const initialGoals = [
+      makeGoal({
+        id: "1",
+        name: "Goal A",
+        targetAmount: 500,
+        priority: 1,
+        createdAt: "2026-01-01T00:00:00Z",
+      }),
+    ];
+    const balance = 300;
+    const { result } = renderHook(() => useSavingsGoals({ initialGoals, balance, onSave }));
+    const expected = distributeToGoals(balance, initialGoals);
+    expect(result.current.distributed).toEqual(expected.goals);
+  });
+
   it("handleAdd appends goal, normalizes priorities, calls onSave", () => {
     const initialGoals = [
       makeGoal({
