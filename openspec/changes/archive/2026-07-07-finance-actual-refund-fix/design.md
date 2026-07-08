@@ -258,5 +258,3 @@ not trip.
 - **Return breadth**: full `BudgetSummary` (five fields); component destructures three.
 - **Barrel export**: both `computeBudgetSummary` and `BudgetSummary` type added to
   `features/finance/domain/index.ts`, matching how siblings are re-exported.
-</content>
-</invoke>

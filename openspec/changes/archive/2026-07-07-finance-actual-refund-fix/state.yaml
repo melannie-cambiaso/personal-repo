@@ -121,9 +121,28 @@ phases:
       realBalance === 0; its $400.000 assertion is the Presup. figure).
       tasks.md updated with a new "Phase 4" section, checked off.
   verify:
-    status: pending
+    status: done
+    verdict: PASS WITH WARNINGS
+    artifact: openspec/changes/finance-actual-refund-fix/verify-report.md
     notes: >
-      Phase 4 (v3) now applied and committed alongside Phases 1-3. Ready for
-      sdd-verify against the amended (v3) spec/design/proposal.
+      Full-suite run: 358/358 tests, 52 files green; tsc --noEmit clean.
+      Traced both commits (8de9712, 711fb67) against v3-amended spec/design:
+      actualNet is fully internal (zero references left in BudgetTab.tsx),
+      realBalance correctly feeds the Neto "Real" prop, available/
+      potentialSavings formulas unchanged and correct, budgetRefund's other
+      consumers (Devoluciones Presup., BudgetTableView/BudgetCardsView)
+      confirmed untouched via source diff. Confirmed via git diff that
+      computeBudgetSummary.ts has zero changes between 8de9712 and 711fb67
+      (Phase 4 was genuinely consumption-side only, as designed). Zero
+      CRITICAL issues. One WARNING: test T4's name/comment
+      ("Neto excludes refunds") is now stale under the v3 reversal -- its
+      $400.000 assertion (Presup./budget figure) is still correct and
+      passing, but the name asserts something no longer true of the
+      product's "Real" line (which now includes refunds via realBalance).
+      Recommend rename only, not a fix -- non-blocking. Two SUGGESTIONs:
+      budgetRefund-other-consumers requirement is verified by static diff +
+      regression rather than a dedicated runtime assertion; v3's worked
+      live-numbers example is documentation-only, not literally
+      unit-tested (mechanism is covered by the B3 fixture instead).
   archive:
-    status: pending
+    status: done
