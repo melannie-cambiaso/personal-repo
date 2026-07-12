@@ -5,8 +5,12 @@ import {
   loadTransactions,
   loadCategories,
   loadClosedCategories,
+  loadBudgetUnitConfig,
 } from "@/features/finance/data";
-import { handleSaveBudget } from "@/features/finance/data/financeActions";
+import {
+  handleSaveBudget,
+  handleSaveBudgetUnitConfig,
+} from "@/features/finance/data/financeActions";
 import { FinanceScreen } from "@/features/finance/presentation/screens/Dashboard/FinanceScreen";
 
 export default async function FinancePage() {
@@ -16,13 +20,19 @@ export default async function FinancePage() {
 
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const [initialBudget, initialTransactions, initialCategories, initialClosedCategories] =
-    await Promise.all([
-      loadBudget(currentMonth),
-      loadTransactions(currentMonth),
-      loadCategories(),
-      loadClosedCategories(currentMonth),
-    ]);
+  const [
+    initialBudget,
+    initialTransactions,
+    initialCategories,
+    initialClosedCategories,
+    initialUnitConfig,
+  ] = await Promise.all([
+    loadBudget(currentMonth),
+    loadTransactions(currentMonth),
+    loadCategories(),
+    loadClosedCategories(currentMonth),
+    loadBudgetUnitConfig(currentMonth),
+  ]);
 
   return (
     <FinanceScreen
@@ -30,7 +40,9 @@ export default async function FinancePage() {
       initialTransactions={initialTransactions}
       initialCategories={initialCategories}
       initialClosedCategories={initialClosedCategories}
+      initialUnitConfig={initialUnitConfig}
       onSaveBudget={handleSaveBudget}
+      onSaveUnitConfig={handleSaveBudgetUnitConfig}
     />
   );
 }

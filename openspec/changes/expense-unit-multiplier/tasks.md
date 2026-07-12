@@ -48,25 +48,31 @@ at/above the 400-line guard, so it is marked **High** and split at the existing 
 
 ## Phase 2: Persistence — `kvAdapter` + `financeActions` + SSR wiring
 
-- [ ] 2.1 `features/finance/data/kvAdapter.ts`: add `budgetUnitConfigKey(month)` →
+- [x] 2.1 `features/finance/data/kvAdapter.ts`: add `budgetUnitConfigKey(month)` →
   `` `finance-budget-unit-config:${month}` ``, `loadBudgetUnitConfig(month)` (mirror
   `loadBudget`'s try/catch → `{}` default), `saveBudgetUnitConfig(month, config)` (mirror
   `saveBudget`'s try/catch → `console.error`).
-- [ ] 2.2 `features/finance/data/financeActions.ts`: import `loadBudgetUnitConfig`,
+- [x] 2.2 `features/finance/data/financeActions.ts`: import `loadBudgetUnitConfig`,
   `saveBudgetUnitConfig` from `./kvAdapter`; add `getBudgetUnitConfigForMonth(month)` and
   `handleSaveBudgetUnitConfig(month, config)`, mirroring `getBudgetForMonth`/`handleSaveBudget`'s
   `wishlist_auth` cookie guard and early-return-empty pattern.
-- [ ] 2.3 `features/finance/data/index.ts`: export `loadBudgetUnitConfig` alongside the existing
+- [x] 2.3 `features/finance/data/index.ts`: export `loadBudgetUnitConfig` alongside the existing
   `loadBudget` barrel export.
-- [ ] 2.4 `app/finance/page.tsx`: add `loadBudgetUnitConfig(currentMonth)` to the existing
+- [x] 2.4 `app/finance/page.tsx`: add `loadBudgetUnitConfig(currentMonth)` to the existing
   `Promise.all` (line ~20), destructure `initialUnitConfig`, pass `initialUnitConfig` and
   `onSaveUnitConfig={handleSaveBudgetUnitConfig}` into `<FinanceScreen>`.
-- [ ] 2.5 `features/finance/presentation/screens/Dashboard/FinanceScreen.tsx`: add
+- [x] 2.5 `features/finance/presentation/screens/Dashboard/FinanceScreen.tsx`: add
   `initialUnitConfig: BudgetUnitConfig` and `onSaveUnitConfig` to `Props`; add
   `monthUnitConfig` state next to `monthBudget` (line ~36); add
   `getBudgetUnitConfigForMonth(selectedMonth)` to the month-change `Promise.all` (line ~47-56) and
   `setMonthUnitConfig` in the `.then`; pass `initialUnitConfig={monthUnitConfig}` and
   `onSaveUnitConfig={(c) => onSaveUnitConfig(selectedMonth, c)}` to `<BudgetTab>` (line ~168-177).
+  **Deviation**: the last clause (passing `initialUnitConfig`/`onSaveUnitConfig` into `<BudgetTab>`)
+  is deferred to PR 2 — `BudgetTab.tsx` does not accept those props until Phase 3 lands, and this
+  run's chain boundary explicitly excludes Phase 3. `monthUnitConfig` state and the
+  `onSaveUnitConfig` prop are wired and reloaded per month, ready for PR 2 to consume; ESLint
+  reports 2 `no-unused-vars` warnings (not errors) on `FinanceScreen.tsx` until PR 2 wires them
+  into `BudgetTab`.
 
 ## Phase 3: UI — `BudgetTab` unit-mode toggle, fields, blur, copy (strict TDD)
 

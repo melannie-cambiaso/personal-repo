@@ -5,13 +5,14 @@ import {
   getBudgetForMonth,
   getTransactionsForMonth,
   getClosedCategoriesForMonth,
+  getBudgetUnitConfigForMonth,
   addTransaction,
   deleteTransaction,
   addCategory,
   deleteCategory,
 } from "@/features/finance/data/financeActions";
 import { type Group } from "@/features/finance/data/kvAdapter";
-import type { FinanceTransaction } from "@/features/finance/domain";
+import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
 import { BudgetTab, CategoriesTab, AddTransactionModal, TransactionsTab } from "../../components";
 import { PageHeader, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
@@ -22,7 +23,9 @@ interface Props {
   initialTransactions: FinanceTransaction[];
   initialCategories: Group[];
   initialClosedCategories: string[];
+  initialUnitConfig: BudgetUnitConfig;
   onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
+  onSaveUnitConfig: (month: string, config: BudgetUnitConfig) => Promise<void>;
 }
 
 export function FinanceScreen({
@@ -30,10 +33,13 @@ export function FinanceScreen({
   initialTransactions,
   initialCategories,
   initialClosedCategories,
+  initialUnitConfig,
   onSaveBudget,
+  onSaveUnitConfig,
 }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<string>(currentMonth());
   const [monthBudget, setMonthBudget] = useState<Record<string, number>>(initialBudget);
+  const [monthUnitConfig, setMonthUnitConfig] = useState<BudgetUnitConfig>(initialUnitConfig);
   const [budgetLoadedFor, setBudgetLoadedFor] = useState(selectedMonth);
   const [groups, setGroups] = useState<Group[]>(initialCategories);
   const [activeTab, setActiveTab] = useState<"budget" | "categories" | "transactions">("budget");
@@ -48,10 +54,12 @@ export function FinanceScreen({
       getBudgetForMonth(selectedMonth),
       getTransactionsForMonth(selectedMonth),
       getClosedCategoriesForMonth(selectedMonth),
-    ]).then(([b, txs, closed]) => {
+      getBudgetUnitConfigForMonth(selectedMonth),
+    ]).then(([b, txs, closed, unitConfig]) => {
       setMonthBudget(b);
       setTransactions(txs);
       setClosedCategories(closed);
+      setMonthUnitConfig(unitConfig);
       setBudgetLoadedFor(selectedMonth);
     });
   }, [selectedMonth, budgetLoadedFor]);
