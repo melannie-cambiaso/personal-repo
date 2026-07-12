@@ -180,7 +180,9 @@ export function FinanceScreen({
               transactions={transactions}
               selectedMonth={selectedMonth}
               initialClosedCategories={closedCategories}
+              initialUnitConfig={monthUnitConfig}
               onSave={(b) => onSaveBudget(selectedMonth, b)}
+              onSaveUnitConfig={(c) => onSaveUnitConfig(selectedMonth, c)}
               onOpenTransaction={handleOpenTransaction}
             />
           </>
