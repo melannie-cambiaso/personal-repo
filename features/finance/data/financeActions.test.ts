@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { FinanceTransaction } from "@/features/finance/domain";
+import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
 
 const cookiesGetMock = vi.hoisted(() => vi.fn());
 const revalidatePathMock = vi.hoisted(() => vi.fn());
@@ -7,6 +7,8 @@ const loadTransactionsMock = vi.hoisted(() => vi.fn());
 const saveTransactionsMock = vi.hoisted(() => vi.fn());
 const loadClosedCategoriesMock = vi.hoisted(() => vi.fn());
 const saveClosedCategoriesMock = vi.hoisted(() => vi.fn());
+const loadBudgetUnitConfigMock = vi.hoisted(() => vi.fn());
+const saveBudgetUnitConfigMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -20,6 +22,8 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     saveTransactions: saveTransactionsMock,
     loadClosedCategories: loadClosedCategoriesMock,
     saveClosedCategories: saveClosedCategoriesMock,
+    loadBudgetUnitConfig: loadBudgetUnitConfigMock,
+    saveBudgetUnitConfig: saveBudgetUnitConfigMock,
   };
 });
 
@@ -29,6 +33,8 @@ import {
   deleteTransaction,
   getClosedCategoriesForMonth,
   toggleClosedCategory,
+  getBudgetUnitConfigForMonth,
+  handleSaveBudgetUnitConfig,
 } from "./financeActions";
 
 const tx = (overrides: Partial<FinanceTransaction> = {}): FinanceTransaction => ({
@@ -178,5 +184,42 @@ describe("toggleClosedCategory", () => {
     loadClosedCategoriesMock.mockResolvedValue([]);
     await toggleClosedCategory("2026-06", "Alquiler");
     expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("getBudgetUnitConfigForMonth", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns {} without auth and does not read Redis", async () => {
+    withoutAuth();
+    const result = await getBudgetUnitConfigForMonth("2026-06");
+    expect(result).toEqual({});
+    expect(loadBudgetUnitConfigMock).not.toHaveBeenCalled();
+  });
+
+  it("returns the stored config from kvAdapter when authenticated", async () => {
+    withAuth();
+    const stored: BudgetUnitConfig = { DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } };
+    loadBudgetUnitConfigMock.mockResolvedValue(stored);
+    const result = await getBudgetUnitConfigForMonth("2026-06");
+    expect(result).toEqual(stored);
+    expect(loadBudgetUnitConfigMock).toHaveBeenCalledWith("2026-06");
+  });
+});
+
+describe("handleSaveBudgetUnitConfig", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing without auth", async () => {
+    withoutAuth();
+    await handleSaveBudgetUnitConfig("2026-06", { DBT: { unitAmount: 1, quantity: 1, factor: 1 } });
+    expect(saveBudgetUnitConfigMock).not.toHaveBeenCalled();
+  });
+
+  it("saves the config via kvAdapter when authenticated", async () => {
+    withAuth();
+    const config: BudgetUnitConfig = { DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } };
+    await handleSaveBudgetUnitConfig("2026-06", config);
+    expect(saveBudgetUnitConfigMock).toHaveBeenCalledWith("2026-06", config);
   });
 });

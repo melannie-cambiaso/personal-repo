@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import type { FinanceTransaction } from "@/features/finance/domain";
+import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
 import {
   saveBudget,
   loadBudget,
@@ -12,6 +12,8 @@ import {
   saveTransactions,
   loadClosedCategories,
   saveClosedCategories,
+  loadBudgetUnitConfig,
+  saveBudgetUnitConfig,
 } from "./kvAdapter";
 
 export async function getBudgetForMonth(month: string): Promise<Record<string, number>> {
@@ -27,6 +29,21 @@ export async function handleSaveBudget(
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;
   await saveBudget(month, budget);
+}
+
+export async function getBudgetUnitConfigForMonth(month: string): Promise<BudgetUnitConfig> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return {};
+  return loadBudgetUnitConfig(month);
+}
+
+export async function handleSaveBudgetUnitConfig(
+  month: string,
+  config: BudgetUnitConfig
+): Promise<void> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return;
+  await saveBudgetUnitConfig(month, config);
 }
 
 export async function addCategory(groupName: string, category: string): Promise<void> {

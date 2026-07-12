@@ -1,7 +1,7 @@
 import "server-only";
 import { redis } from "@/shared/kv";
 import { DEFAULT_GROUPS } from "@/features/finance/domain";
-import type { FinanceTransaction } from "@/features/finance/domain";
+import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
 
 export type Group = { name: string; type: "income" | "expense" | "refund"; categories: string[] };
 
@@ -22,6 +22,27 @@ export async function saveBudget(month: string, budget: Record<string, number>):
     await redis.set(budgetKey(month), budget);
   } catch (e) {
     console.error("finance.saveBudget failed", e);
+  }
+}
+
+const budgetUnitConfigKey = (month: string) => `finance-budget-unit-config:${month}`;
+
+export async function loadBudgetUnitConfig(month: string): Promise<BudgetUnitConfig> {
+  try {
+    return (await redis.get<BudgetUnitConfig>(budgetUnitConfigKey(month))) ?? {};
+  } catch {
+    return {};
+  }
+}
+
+export async function saveBudgetUnitConfig(
+  month: string,
+  config: BudgetUnitConfig
+): Promise<void> {
+  try {
+    await redis.set(budgetUnitConfigKey(month), config);
+  } catch (e) {
+    console.error("finance.saveBudgetUnitConfig failed", e);
   }
 }
 

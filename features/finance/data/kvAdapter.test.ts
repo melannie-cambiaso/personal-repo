@@ -4,8 +4,15 @@ const redisMock = vi.hoisted(() => ({ get: vi.fn(), set: vi.fn() }));
 
 vi.mock("@/shared/kv", () => ({ redis: redisMock }));
 
-import { loadTransactions, saveTransactions, loadClosedCategories, saveClosedCategories } from "./kvAdapter";
-import type { FinanceTransaction } from "@/features/finance/domain";
+import {
+  loadTransactions,
+  saveTransactions,
+  loadClosedCategories,
+  saveClosedCategories,
+  loadBudgetUnitConfig,
+  saveBudgetUnitConfig,
+} from "./kvAdapter";
+import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
 
 const tx = (overrides: Partial<FinanceTransaction> = {}): FinanceTransaction => ({
   id: "abc-1",
@@ -89,5 +96,53 @@ describe("saveClosedCategories", () => {
   it("saves closed categories under the correct key", async () => {
     await saveClosedCategories("2026-06", ["Alquiler"]);
     expect(redisMock.set).toHaveBeenCalledWith("finance-closed-categories:2026-06", ["Alquiler"]);
+  });
+});
+
+describe("loadBudgetUnitConfig", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns an empty object when the key is missing", async () => {
+    redisMock.get.mockResolvedValue(null);
+    const result = await loadBudgetUnitConfig("2026-06");
+    expect(result).toEqual({});
+  });
+
+  it("uses the correct key format: finance-budget-unit-config:YYYY-MM", async () => {
+    redisMock.get.mockResolvedValue({});
+    await loadBudgetUnitConfig("2026-07");
+    expect(redisMock.get).toHaveBeenCalledWith("finance-budget-unit-config:2026-07");
+  });
+
+  it("returns the stored config for the given month", async () => {
+    const stored: BudgetUnitConfig = { DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } };
+    redisMock.get.mockResolvedValue(stored);
+    const result = await loadBudgetUnitConfig("2026-06");
+    expect(result).toEqual(stored);
+  });
+
+  it("returns an empty object when redis.get throws", async () => {
+    redisMock.get.mockRejectedValue(new Error("connection lost"));
+    const result = await loadBudgetUnitConfig("2026-06");
+    expect(result).toEqual({});
+  });
+});
+
+describe("saveBudgetUnitConfig", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("saves the unit config under the correct key", async () => {
+    const config: BudgetUnitConfig = { DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } };
+    await saveBudgetUnitConfig("2026-06", config);
+    expect(redisMock.set).toHaveBeenCalledWith("finance-budget-unit-config:2026-06", config);
+  });
+
+  it("uses the correct key format for a different month", async () => {
+    await saveBudgetUnitConfig("2025-12", {});
+    expect(redisMock.set).toHaveBeenCalledWith("finance-budget-unit-config:2025-12", {});
   });
 });
