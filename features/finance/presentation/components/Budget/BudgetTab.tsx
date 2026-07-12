@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import { type Group } from "@/features/finance/data/kvAdapter";
-import { getBudgetForMonth, toggleClosedCategory } from "@/features/finance/data/financeActions";
+import {
+  getBudgetForMonth,
+  getBudgetUnitConfigForMonth,
+  toggleClosedCategory,
+} from "@/features/finance/data/financeActions";
 import {
   computeActualFromTransactions,
   computeBudgetSummary,
   computePendingExpenses,
+  deriveUnitTotal,
 } from "@/features/finance/domain";
-import type { FinanceTransaction } from "@/features/finance/domain";
+import type { FinanceTransaction, UnitConfig, BudgetUnitConfig } from "@/features/finance/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 import { prevMonth } from "@/shared/utils/monthUtils";
 
@@ -18,8 +23,10 @@ interface Props {
   transactions: FinanceTransaction[];
   selectedMonth: string;
   initialClosedCategories?: string[];
+  initialUnitConfig?: BudgetUnitConfig;
   onSave: (budget: Record<string, number>) => Promise<void>;
   onOpenTransaction: (category: string) => void;
+  onSaveUnitConfig?: (config: BudgetUnitConfig) => Promise<void>;
 }
 
 export function BudgetTab({
@@ -28,10 +35,13 @@ export function BudgetTab({
   transactions,
   selectedMonth,
   initialClosedCategories = [],
+  initialUnitConfig = {},
   onSave,
   onOpenTransaction,
+  onSaveUnitConfig = async () => {},
 }: Props) {
   const [budget, setBudget] = useState<Record<string, number>>(initialBudget);
+  const [unitConfig, setUnitConfig] = useState<BudgetUnitConfig>(initialUnitConfig);
   const [inputKey, setInputKey] = useState(0);
   const [refMonth, setRefMonth] = useState(prevMonth(selectedMonth));
   const [copying, setCopying] = useState(false);
@@ -45,6 +55,40 @@ export function BudgetTab({
     onSave(next);
   };
 
+  const handleUnitBlur = (category: string, field: keyof UnitConfig, raw: string) => {
+    const cur = unitConfig[category] ?? { unitAmount: 0, quantity: 1, factor: 1 };
+    const nextCfg = { ...cur, [field]: Math.max(0, Number(raw) || 0) };
+    const nextConfig = { ...unitConfig, [category]: nextCfg };
+    setUnitConfig(nextConfig);
+    onSaveUnitConfig(nextConfig);
+
+    const nextBudget = { ...budget, [category]: deriveUnitTotal(nextCfg) };
+    setBudget(nextBudget);
+    onSave(nextBudget);
+  };
+
+  const handleToggleUnitMode = (category: string) => {
+    if (unitConfig[category]) {
+      const rest = Object.fromEntries(
+        Object.entries(unitConfig).filter(([cat]) => cat !== category)
+      );
+      setUnitConfig(rest);
+      onSaveUnitConfig(rest);
+      setInputKey((k) => k + 1);
+      return;
+    }
+
+    const seeded: UnitConfig = { unitAmount: budget[category] ?? 0, quantity: 1, factor: 1 };
+    const nextConfig = { ...unitConfig, [category]: seeded };
+    setUnitConfig(nextConfig);
+    onSaveUnitConfig(nextConfig);
+
+    const nextBudget = { ...budget, [category]: deriveUnitTotal(seeded) };
+    setBudget(nextBudget);
+    onSave(nextBudget);
+    setInputKey((k) => k + 1);
+  };
+
   const handleToggleClose = (category: string) => {
     const next = closedCategories.includes(category)
       ? closedCategories.filter((c) => c !== category)
@@ -55,10 +99,19 @@ export function BudgetTab({
 
   const handleCopy = async () => {
     setCopying(true);
-    const ref = await getBudgetForMonth(refMonth);
-    setBudget(ref);
+    const [refBudget, refConfig] = await Promise.all([
+      getBudgetForMonth(refMonth),
+      getBudgetUnitConfigForMonth(refMonth),
+    ]);
+
+    const nextBudget = { ...refBudget };
+    for (const [cat, cfg] of Object.entries(refConfig)) nextBudget[cat] = deriveUnitTotal(cfg);
+
+    setUnitConfig(refConfig);
+    setBudget(nextBudget);
     setInputKey((k) => k + 1);
-    onSave(ref);
+    onSaveUnitConfig(refConfig);
+    onSave(nextBudget);
     setCopying(false);
   };
 
@@ -151,8 +204,11 @@ export function BudgetTab({
         refundGroups={refundGroups}
         budget={budget}
         actual={actual}
+        unitConfig={unitConfig}
         inputKey={inputKey}
         onBlur={handleBlur}
+        onUnitBlur={handleUnitBlur}
+        onToggleUnitMode={handleToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
         closedCategories={closedCategories}
         onToggleClose={handleToggleClose}
@@ -163,8 +219,11 @@ export function BudgetTab({
         refundGroups={refundGroups}
         budget={budget}
         actual={actual}
+        unitConfig={unitConfig}
         inputKey={inputKey}
         onBlur={handleBlur}
+        onUnitBlur={handleUnitBlur}
+        onToggleUnitMode={handleToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
         closedCategories={closedCategories}
         onToggleClose={handleToggleClose}
@@ -179,8 +238,11 @@ interface ResponsiveViewProps {
   refundGroups: Group[];
   budget: Record<string, number>;
   actual: Record<string, number>;
+  unitConfig: BudgetUnitConfig;
   inputKey: number;
   onBlur: (category: string, value: string) => void;
+  onUnitBlur: (category: string, field: keyof UnitConfig, value: string) => void;
+  onToggleUnitMode: (category: string) => void;
   onOpenTransaction: (category: string) => void;
   closedCategories: string[];
   onToggleClose: (category: string) => void;
@@ -193,8 +255,11 @@ function BudgetTableView({
   refundGroups,
   budget,
   actual,
+  unitConfig,
   inputKey,
   onBlur,
+  onUnitBlur,
+  onToggleUnitMode,
   onOpenTransaction,
   closedCategories,
   onToggleClose,
@@ -206,9 +271,12 @@ function BudgetTableView({
         groups={incomeGroups}
         budget={budget}
         actual={actual}
+        unitConfig={unitConfig}
         isIncome
         inputKey={inputKey}
         onBlur={onBlur}
+        onUnitBlur={onUnitBlur}
+        onToggleUnitMode={onToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
       />
       <GroupSection
@@ -216,9 +284,12 @@ function BudgetTableView({
         groups={expenseGroups}
         budget={budget}
         actual={actual}
+        unitConfig={unitConfig}
         isIncome={false}
         inputKey={inputKey}
         onBlur={onBlur}
+        onUnitBlur={onUnitBlur}
+        onToggleUnitMode={onToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
         closedCategories={closedCategories}
         onToggleClose={onToggleClose}
@@ -228,9 +299,12 @@ function BudgetTableView({
         groups={refundGroups}
         budget={budget}
         actual={actual}
+        unitConfig={unitConfig}
         isIncome={true}
         inputKey={inputKey}
         onBlur={onBlur}
+        onUnitBlur={onUnitBlur}
+        onToggleUnitMode={onToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
       />
     </div>
@@ -244,8 +318,11 @@ function BudgetCardsView({
   refundGroups,
   budget,
   actual,
+  unitConfig,
   inputKey,
   onBlur,
+  onUnitBlur,
+  onToggleUnitMode,
   onOpenTransaction,
   closedCategories,
   onToggleClose,
@@ -257,9 +334,12 @@ function BudgetCardsView({
         groups={incomeGroups}
         budget={budget}
         actual={actual}
+        unitConfig={unitConfig}
         isIncome
         inputKey={inputKey}
         onBlur={onBlur}
+        onUnitBlur={onUnitBlur}
+        onToggleUnitMode={onToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
       />
       <CardsSection
@@ -267,9 +347,12 @@ function BudgetCardsView({
         groups={expenseGroups}
         budget={budget}
         actual={actual}
+        unitConfig={unitConfig}
         isIncome={false}
         inputKey={inputKey}
         onBlur={onBlur}
+        onUnitBlur={onUnitBlur}
+        onToggleUnitMode={onToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
         closedCategories={closedCategories}
         onToggleClose={onToggleClose}
@@ -279,9 +362,12 @@ function BudgetCardsView({
         groups={refundGroups}
         budget={budget}
         actual={actual}
+        unitConfig={unitConfig}
         isIncome={true}
         inputKey={inputKey}
         onBlur={onBlur}
+        onUnitBlur={onUnitBlur}
+        onToggleUnitMode={onToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
       />
     </div>
@@ -342,9 +428,12 @@ function GroupSection({
   groups,
   budget,
   actual,
+  unitConfig,
   isIncome,
   inputKey,
   onBlur,
+  onUnitBlur,
+  onToggleUnitMode,
   onOpenTransaction,
   closedCategories = [],
   onToggleClose,
@@ -353,9 +442,12 @@ function GroupSection({
   groups: Group[];
   budget: Record<string, number>;
   actual: Record<string, number>;
+  unitConfig: BudgetUnitConfig;
   isIncome: boolean;
   inputKey: number;
   onBlur: (category: string, value: string) => void;
+  onUnitBlur: (category: string, field: keyof UnitConfig, value: string) => void;
+  onToggleUnitMode: (category: string) => void;
   onOpenTransaction: (category: string) => void;
   closedCategories?: string[];
   onToggleClose?: (category: string) => void;
@@ -388,6 +480,7 @@ function GroupSection({
                 const real = actual[cat] ?? 0;
                 const diff = isIncome ? real - planned : planned - real;
                 const isClosed = !isIncome && closedCategories.includes(cat);
+                const cfg = unitConfig[cat];
                 return (
                   <div
                     key={cat}
@@ -398,16 +491,54 @@ function GroupSection({
                       {cat}
                     </span>
                     <div className="flex justify-end">
-                      <input
-                        type="number"
-                        min="0"
-                        key={`${inputKey}-b-${cat}`}
-                        defaultValue={planned || ""}
-                        placeholder="0"
-                        disabled={isClosed}
-                        onBlur={(e) => onBlur(cat, e.target.value)}
-                        className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                      />
+                      {cfg ? (
+                        <div className="flex flex-col items-end gap-1">
+                          <input
+                            type="number"
+                            min="0"
+                            key={`${inputKey}-ua-${cat}`}
+                            defaultValue={cfg.unitAmount || ""}
+                            placeholder="0"
+                            aria-label="Monto unitario"
+                            onBlur={(e) => onUnitBlur(cat, "unitAmount", e.target.value)}
+                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                          />
+                          <input
+                            type="number"
+                            min="0"
+                            key={`${inputKey}-qty-${cat}`}
+                            defaultValue={cfg.quantity}
+                            placeholder="0"
+                            aria-label="Cantidad"
+                            onBlur={(e) => onUnitBlur(cat, "quantity", e.target.value)}
+                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                          />
+                          <input
+                            type="number"
+                            step="any"
+                            key={`${inputKey}-factor-${cat}`}
+                            defaultValue={cfg.factor}
+                            placeholder="0"
+                            aria-label="Factor"
+                            onBlur={(e) => onUnitBlur(cat, "factor", e.target.value)}
+                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                          />
+                          <span className="text-brown-900 text-xs font-semibold">
+                            {formatCLP(deriveUnitTotal(cfg))}
+                          </span>
+                        </div>
+                      ) : (
+                        <input
+                          type="number"
+                          min="0"
+                          key={`${inputKey}-b-${cat}`}
+                          defaultValue={planned || ""}
+                          placeholder="0"
+                          disabled={isClosed}
+                          onBlur={(e) => onBlur(cat, e.target.value)}
+                          className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                      )}
                     </div>
                     <div className="flex items-center justify-end gap-1">
                       <span className="text-brown-900 text-sm">
@@ -420,6 +551,14 @@ function GroupSection({
                         aria-label={`Agregar transacción para ${cat}`}
                       >
                         +
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onToggleUnitMode(cat)}
+                        aria-pressed={!!cfg}
+                        className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-1.5 py-0.5 text-xs transition-colors"
+                      >
+                        {cfg ? "Fijo" : "Unitario"}
                       </button>
                       {!isIncome && onToggleClose && (
                         <button
@@ -476,9 +615,12 @@ function CardsSection({
   groups,
   budget,
   actual,
+  unitConfig,
   isIncome,
   inputKey,
   onBlur,
+  onUnitBlur,
+  onToggleUnitMode,
   onOpenTransaction,
   closedCategories = [],
   onToggleClose,
@@ -487,9 +629,12 @@ function CardsSection({
   groups: Group[];
   budget: Record<string, number>;
   actual: Record<string, number>;
+  unitConfig: BudgetUnitConfig;
   isIncome: boolean;
   inputKey: number;
   onBlur: (category: string, value: string) => void;
+  onUnitBlur: (category: string, field: keyof UnitConfig, value: string) => void;
+  onToggleUnitMode: (category: string) => void;
   onOpenTransaction: (category: string) => void;
   closedCategories?: string[];
   onToggleClose?: (category: string) => void;
@@ -516,6 +661,7 @@ function CardsSection({
                   const real = actual[cat] ?? 0;
                   const diff = isIncome ? real - planned : planned - real;
                   const isClosed = !isIncome && closedCategories.includes(cat);
+                  const cfg = unitConfig[cat];
                   return (
                     <div
                       key={cat}
@@ -537,6 +683,14 @@ function CardsSection({
                           >
                             +
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => onToggleUnitMode(cat)}
+                            aria-pressed={!!cfg}
+                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center rounded-md border text-xs transition-colors"
+                          >
+                            {cfg ? "Fijo" : "Unitario"}
+                          </button>
                           {!isIncome && onToggleClose && (
                             <button
                               type="button"
@@ -551,19 +705,69 @@ function CardsSection({
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between gap-2 text-xs">
-                        <span className="text-brown-500">Presupuesto</span>
-                        <input
-                          type="number"
-                          min="0"
-                          key={`${inputKey}-b-${cat}`}
-                          defaultValue={planned || ""}
-                          placeholder="0"
-                          disabled={isClosed}
-                          onBlur={(e) => onBlur(cat, e.target.value)}
-                          className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                        />
-                      </div>
+                      {cfg ? (
+                        <div className="flex flex-col gap-2 text-xs">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-brown-500">Monto unitario</span>
+                            <input
+                              type="number"
+                              min="0"
+                              key={`${inputKey}-ua-${cat}`}
+                              defaultValue={cfg.unitAmount || ""}
+                              placeholder="0"
+                              aria-label="Monto unitario"
+                              onBlur={(e) => onUnitBlur(cat, "unitAmount", e.target.value)}
+                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-brown-500">Cantidad</span>
+                            <input
+                              type="number"
+                              min="0"
+                              key={`${inputKey}-qty-${cat}`}
+                              defaultValue={cfg.quantity}
+                              placeholder="0"
+                              aria-label="Cantidad"
+                              onBlur={(e) => onUnitBlur(cat, "quantity", e.target.value)}
+                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-brown-500">Factor</span>
+                            <input
+                              type="number"
+                              step="any"
+                              key={`${inputKey}-factor-${cat}`}
+                              defaultValue={cfg.factor}
+                              placeholder="0"
+                              aria-label="Factor"
+                              onBlur={(e) => onUnitBlur(cat, "factor", e.target.value)}
+                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-brown-500">Total</span>
+                            <span className="text-brown-900 font-semibold">
+                              {formatCLP(deriveUnitTotal(cfg))}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-2 text-xs">
+                          <span className="text-brown-500">Presupuesto</span>
+                          <input
+                            type="number"
+                            min="0"
+                            key={`${inputKey}-b-${cat}`}
+                            defaultValue={planned || ""}
+                            placeholder="0"
+                            disabled={isClosed}
+                            onBlur={(e) => onBlur(cat, e.target.value)}
+                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                      )}
 
                       <div className="flex items-center justify-between gap-2 text-xs">
                         <span className="text-brown-500">Real</span>

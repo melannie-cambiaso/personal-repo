@@ -1,12 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, within, fireEvent } from "@testing-library/react";
+import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import { SummaryCard, BudgetTab } from "./BudgetTab";
-import type { FinanceTransaction } from "@/features/finance/domain";
+import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
 
 const toggleClosedCategoryMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const getBudgetForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
+const getBudgetUnitConfigForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 
 vi.mock("@/features/finance/data/financeActions", () => ({
-  getBudgetForMonth: vi.fn().mockResolvedValue({}),
+  getBudgetForMonth: getBudgetForMonthMock,
+  getBudgetUnitConfigForMonth: getBudgetUnitConfigForMonthMock,
   toggleClosedCategory: toggleClosedCategoryMock,
 }));
 
@@ -461,5 +464,124 @@ describe("BudgetTab — closed expense categories", () => {
     const cardsView = screen.getByTestId("budget-cards");
     expect(within(tableView).queryByRole("button", { name: /Cerrar|Reabrir/ })).toBeNull();
     expect(within(cardsView).queryByRole("button", { name: /Cerrar|Reabrir/ })).toBeNull();
+  });
+});
+
+describe("BudgetTab — unit mode (unit amount × quantity × factor)", () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
+  const onOpenTransaction = vi.fn();
+
+  const expenseGroups = [
+    { name: "Gastos fijos", type: "expense" as const, categories: ["DBT", "Arriendo"] },
+  ];
+
+  type BudgetTabProps = Parameters<typeof BudgetTab>[0];
+
+  function renderTab(overrides: Partial<BudgetTabProps> = {}) {
+    onSave.mockClear();
+    onSaveUnitConfig.mockClear();
+    return render(
+      <BudgetTab
+        groups={expenseGroups}
+        initialBudget={{ DBT: 0, Arriendo: 400000 }}
+        initialUnitConfig={{}}
+        transactions={[]}
+        selectedMonth="2026-06"
+        onSave={onSave}
+        onSaveUnitConfig={onSaveUnitConfig}
+        onOpenTransaction={onOpenTransaction}
+        {...overrides}
+      />
+    );
+  }
+
+  function rowFor(container: HTMLElement, category: string): HTMLElement {
+    return within(container).getByText(category).closest("[aria-disabled]") as HTMLElement;
+  }
+
+  // 3.1 — satisfies: per-category unit-mode toggle renders 3 fields; sibling stays flat
+  it("enabling unit mode on one category renders 3 unit fields while a sibling category stays flat", () => {
+    renderTab();
+    const tableView = screen.getByTestId("budget-table");
+    const dbtRow = rowFor(tableView, "DBT");
+    fireEvent.click(within(dbtRow).getByRole("button", { name: "Unitario" }));
+
+    expect(within(dbtRow).getByLabelText("Monto unitario")).toBeTruthy();
+    expect(within(dbtRow).getByLabelText("Cantidad")).toBeTruthy();
+    expect(within(dbtRow).getByLabelText("Factor")).toBeTruthy();
+
+    const arriendoRow = rowFor(tableView, "Arriendo");
+    expect(within(arriendoRow).queryByLabelText("Monto unitario")).toBeNull();
+    expect(within(arriendoRow).getByPlaceholderText("0")).toBeTruthy();
+
+    // mirrored in the mobile cards view (same shared state)
+    const cardsView = screen.getByTestId("budget-cards");
+    const dbtCard = rowFor(cardsView, "DBT");
+    expect(within(dbtCard).getByLabelText("Monto unitario")).toBeTruthy();
+  });
+
+  // 3.2 — satisfies: blur recomputes total, writes budget[cat] and unit config (55000×5×0.9=247500)
+  it("blurring a unit field recomputes the read-only total and calls onSave + onSaveUnitConfig with the derived breakdown", () => {
+    renderTab();
+    const tableView = screen.getByTestId("budget-table");
+    const dbtRow = rowFor(tableView, "DBT");
+    fireEvent.click(within(dbtRow).getByRole("button", { name: "Unitario" }));
+
+    fireEvent.blur(within(dbtRow).getByLabelText("Monto unitario"), { target: { value: "55000" } });
+    fireEvent.blur(within(dbtRow).getByLabelText("Cantidad"), { target: { value: "5" } });
+    fireEvent.blur(within(dbtRow).getByLabelText("Factor"), { target: { value: "0.9" } });
+
+    expect(within(dbtRow).getByText("$247.500")).toBeTruthy();
+    expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ DBT: 247500 }));
+    expect(onSaveUnitConfig).toHaveBeenLastCalledWith(
+      expect.objectContaining({ DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } })
+    );
+  });
+
+  // 3.3 — satisfies: disabling unit mode falls back to the flat total
+  it("disabling unit mode restores a flat input pre-filled with the last derived total", () => {
+    renderTab({
+      initialBudget: { DBT: 247500, Arriendo: 400000 },
+      initialUnitConfig: { DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } },
+    });
+    const tableView = screen.getByTestId("budget-table");
+    const dbtRow = rowFor(tableView, "DBT");
+    fireEvent.click(within(dbtRow).getByRole("button", { name: "Fijo" }));
+
+    expect(within(dbtRow).queryByLabelText("Monto unitario")).toBeNull();
+    const flatInput = within(dbtRow).getByPlaceholderText("0") as HTMLInputElement;
+    expect(flatInput.value).toBe("247500");
+  });
+
+  // 3.4 — satisfies: "Copiar desde" carries unit config + recomputes; flat-only category unaffected
+  it("'Copiar desde' carries a unit-mode category's config and recomputes its total; a flat-only category copies unaffected", async () => {
+    getBudgetForMonthMock.mockResolvedValueOnce({ DBT: 247500, Arriendo: 300000 });
+    getBudgetUnitConfigForMonthMock.mockResolvedValueOnce({
+      DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 },
+    });
+
+    renderTab();
+    fireEvent.click(screen.getByRole("button", { name: /^Copiar$/ }));
+
+    await waitFor(() => {
+      expect(onSaveUnitConfig).toHaveBeenCalledWith({
+        DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 },
+      });
+    });
+
+    const tableView = screen.getByTestId("budget-table");
+    const dbtRow = rowFor(tableView, "DBT");
+    expect(within(dbtRow).getByLabelText("Monto unitario")).toBeTruthy();
+    expect(within(dbtRow).getByText("$247.500")).toBeTruthy();
+
+    const arriendoRow = rowFor(tableView, "Arriendo");
+    expect(within(arriendoRow).queryByLabelText("Monto unitario")).toBeNull();
+    const flatInput = within(arriendoRow).getByPlaceholderText("0") as HTMLInputElement;
+    expect(flatInput.value).toBe("300000");
+
+    expect(onSave).toHaveBeenLastCalledWith(
+      expect.objectContaining({ DBT: 247500, Arriendo: 300000 })
+    );
   });
 });
