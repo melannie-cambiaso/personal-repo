@@ -1,5 +1,7 @@
 export { DEFAULT_GROUPS } from "./categories";
 export type { FinanceTransaction } from "./FinanceTransaction";
+export type { UnitConfig, BudgetUnitConfig } from "./BudgetUnitConfig";
+export { deriveUnitTotal, DEFAULT_UNIT_CONFIG } from "./BudgetUnitConfig";
 export { computeActualFromTransactions } from "./computeActualFromTransactions";
 export { computePendingExpenses } from "./computePendingExpenses";
 export { computeBudgetSummary } from "./computeBudgetSummary";
