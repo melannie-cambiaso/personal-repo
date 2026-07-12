@@ -76,47 +76,54 @@ at/above the 400-line guard, so it is marked **High** and split at the existing 
 
 ## Phase 3: UI — `BudgetTab` unit-mode toggle, fields, blur, copy (strict TDD)
 
-- [ ] 3.1 RED: extend `features/finance/presentation/components/Budget/BudgetTab.test.tsx` —
+- [x] 3.1 RED: extend `features/finance/presentation/components/Budget/BudgetTab.test.tsx` —
   "enabling unit mode on one category renders the 3 unit fields (Unit amount, Quantity, Factor)
   while a sibling category stays a flat input." Must fail — toggle doesn't exist yet.
-- [ ] 3.2 RED: add test — "blurring a unit field recomputes the read-only total and calls `onSave`
+- [x] 3.2 RED: add test — "blurring a unit field recomputes the read-only total and calls `onSave`
   with the derived `budget[cat]` and `onSaveUnitConfig` with the breakdown" (worked example
   `55000 × 5 × 0.9 = 247500`).
-- [ ] 3.3 RED: add test — "disabling unit mode restores a flat input pre-filled with the last
+- [x] 3.3 RED: add test — "disabling unit mode restores a flat input pre-filled with the last
   derived total."
-- [ ] 3.4 RED: add test — "'Copiar desde' a month whose config has a unit-mode category renders
+- [x] 3.4 RED: add test — "'Copiar desde' a month whose config has a unit-mode category renders
   that category in unit mode in the destination and recomputes its total; a flat-only category
   copies unaffected with no unit-config entry created."
-- [ ] 3.5 GREEN: add `initialUnitConfig`/`onSaveUnitConfig` props and `unitConfig` state to
+- [x] 3.5 GREEN: add `initialUnitConfig`/`onSaveUnitConfig` props and `unitConfig` state to
   `BudgetTab` (`Props` interface + `useState`, next to `budget`).
-- [ ] 3.6 GREEN: implement `handleUnitBlur(cat, field, raw)` — recompute `nextCfg`,
+- [x] 3.6 GREEN: implement `handleUnitBlur(cat, field, raw)` — recompute `nextCfg`,
   `setUnitConfig`/`onSaveUnitConfig`, then `setBudget`/`onSave` with
   `deriveUnitTotal(nextCfg)`, per design's single-write-path snippet.
-- [ ] 3.7 GREEN: implement `onToggleUnitMode(cat)` — enable seeds
+- [x] 3.7 GREEN: implement `onToggleUnitMode(cat)` — enable seeds
   `{ unitAmount: budget[cat] ?? 0, quantity: 1, factor: 1 }`, persists both stores, bumps
   `inputKey`; disable deletes the `unitConfig[cat]` entry, persists the shrunk config, keeps
   `budget[cat]` as-is, bumps `inputKey`.
-- [ ] 3.8 GREEN: add `unitConfig`/`onUnitBlur`/`onToggleUnitMode` to `ResponsiveViewProps` and
+- [x] 3.8 GREEN: add `unitConfig`/`onUnitBlur`/`onToggleUnitMode` to `ResponsiveViewProps` and
   thread them through `BudgetTableView`/`BudgetCardsView` into every `GroupSection`/`CardsSection`
   call (income/expense/refund).
-- [ ] 3.9 GREEN: add the per-category toggle button ("Unitario" off / "Fijo" on,
+- [x] 3.9 GREEN: add the per-category toggle button ("Unitario" off / "Fijo" on,
   `aria-pressed`) to `GroupSection`'s existing action cluster (next to `+`/`Cerrar`).
-- [ ] 3.10 GREEN: branch `GroupSection`'s "Presupuesto" cell on `unitConfig[cat]` — absent renders
+- [x] 3.10 GREEN: branch `GroupSection`'s "Presupuesto" cell on `unitConfig[cat]` — absent renders
   today's flat `<input>` unchanged; present renders 3 uncontrolled `<input>`s (unit amount
   `min="0"`, quantity `min="0"`, factor `step="any"`) keyed on `inputKey`, plus the read-only
   derived total via `formatCLP`.
-- [ ] 3.11 GREEN: mirror 3.9-3.10 in `CardsSection` (mobile stacked-card layout) — toggle button +
+- [x] 3.11 GREEN: mirror 3.9-3.10 in `CardsSection` (mobile stacked-card layout) — toggle button +
   flat-vs-3-field branch as label/value rows + read-only total.
-- [ ] 3.12 GREEN: update `handleCopy` — load `getBudgetUnitConfigForMonth(refMonth)` in parallel
+- [x] 3.12 GREEN: update `handleCopy` — load `getBudgetUnitConfigForMonth(refMonth)` in parallel
   with `getBudgetForMonth(refMonth)`; recompute `nextBudget[cat] = deriveUnitTotal(cfg)` for every
   category in `refConfig`; `setUnitConfig(refConfig)` + `onSaveUnitConfig(refConfig)` alongside the
   existing `setBudget`/`onSave`/`setInputKey` calls. Test suite (3.1-3.4) passes.
 
+**Additional (not in the original task list, required to close the loop)**: wired
+`initialUnitConfig={monthUnitConfig}` and `onSaveUnitConfig={(c) => onSaveUnitConfig(selectedMonth, c)}`
+from `FinanceScreen.tsx` into `<BudgetTab>` — this consumes the state/prop deferred by task 2.5 in
+Phase 2 and resolves the 2 `no-unused-vars` ESLint warnings noted there.
+
 ## Phase 4: Regression check
 
-- [ ] 4.1 Run `npm run test` — full suite green: existing `computeBudgetSummary.test.ts`,
+- [x] 4.1 Run `npm run test` — full suite green: existing `computeBudgetSummary.test.ts`,
   `computePendingExpenses.test.ts`, `buildBudgetExportRows.test.ts` unaffected (files untouched);
-  new `BudgetUnitConfig.test.ts` and extended `BudgetTab.test.tsx` passing.
-- [ ] 4.2 Run `tsc --noEmit` — clean, confirming the new `UnitConfig`/`BudgetUnitConfig` types and
+  new `BudgetUnitConfig.test.ts` and extended `BudgetTab.test.tsx` passing. Result: 59 test files,
+  410 tests passing (406 baseline + 4 new `BudgetTab` unit-mode scenarios).
+- [x] 4.2 Run `tsc --noEmit` — clean, confirming the new `UnitConfig`/`BudgetUnitConfig` types and
   widened `Props` type-check across `kvAdapter.ts`, `financeActions.ts`, `page.tsx`,
-  `FinanceScreen.tsx`, `BudgetTab.tsx`.
+  `FinanceScreen.tsx`, `BudgetTab.tsx`. Result: clean, no errors. `eslint` on changed files: 0
+  warnings, 0 errors.
