@@ -490,18 +490,19 @@ function GroupSection({
                     <span className={`text-brown-700 text-sm ${isClosed ? "line-through" : ""}`}>
                       {cat}
                     </span>
-                    <div className="flex justify-end">
+                    <div className="flex min-w-0 justify-end">
                       {cfg ? (
-                        <div className="flex flex-col items-end gap-1">
+                        <div className="flex w-full min-w-0 max-w-24 flex-col items-end gap-1">
                           <input
                             type="number"
                             min="0"
                             key={`${inputKey}-ua-${cat}`}
                             defaultValue={cfg.unitAmount || ""}
                             placeholder="0"
+                            autoComplete="off"
                             aria-label="Monto unitario"
                             onBlur={(e) => onUnitBlur(cat, "unitAmount", e.target.value)}
-                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-full min-w-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
                           />
                           <input
                             type="number"
@@ -509,9 +510,10 @@ function GroupSection({
                             key={`${inputKey}-qty-${cat}`}
                             defaultValue={cfg.quantity}
                             placeholder="0"
+                            autoComplete="off"
                             aria-label="Cantidad"
                             onBlur={(e) => onUnitBlur(cat, "quantity", e.target.value)}
-                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-full min-w-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
                           />
                           <input
                             type="number"
@@ -519,11 +521,12 @@ function GroupSection({
                             key={`${inputKey}-factor-${cat}`}
                             defaultValue={cfg.factor}
                             placeholder="0"
+                            autoComplete="off"
                             aria-label="Factor"
                             onBlur={(e) => onUnitBlur(cat, "factor", e.target.value)}
-                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                            className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-full min-w-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
                           />
-                          <span className="text-brown-900 text-xs font-semibold">
+                          <span className="text-brown-900 w-full truncate text-right text-xs font-semibold">
                             {formatCLP(deriveUnitTotal(cfg))}
                           </span>
                         </div>
@@ -534,13 +537,14 @@ function GroupSection({
                           key={`${inputKey}-b-${cat}`}
                           defaultValue={planned || ""}
                           placeholder="0"
+                          autoComplete="off"
                           disabled={isClosed}
                           onBlur={(e) => onBlur(cat, e.target.value)}
                           className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         />
                       )}
                     </div>
-                    <div className="flex items-center justify-end gap-1">
+                    <div className="flex min-w-0 flex-wrap items-center justify-end gap-1">
                       <span className="text-brown-900 text-sm">
                         {real > 0 ? formatCLP(real) : "—"}
                       </span>
@@ -668,13 +672,13 @@ function CardsSection({
                       aria-disabled={isIncome ? undefined : isClosed}
                       className={`border-cream-100 flex flex-col gap-2 rounded-lg border p-3 ${isClosed ? "opacity-50" : ""}`}
                     >
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
                         <span
                           className={`text-brown-700 text-sm font-semibold ${isClosed ? "line-through" : ""}`}
                         >
                           {cat}
                         </span>
-                        <div className="flex items-center gap-1">
+                        <div className="flex flex-wrap items-center gap-1">
                           <button
                             type="button"
                             onClick={() => onOpenTransaction(cat)}
@@ -715,6 +719,7 @@ function CardsSection({
                               key={`${inputKey}-ua-${cat}`}
                               defaultValue={cfg.unitAmount || ""}
                               placeholder="0"
+                              autoComplete="off"
                               aria-label="Monto unitario"
                               onBlur={(e) => onUnitBlur(cat, "unitAmount", e.target.value)}
                               className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
@@ -728,6 +733,7 @@ function CardsSection({
                               key={`${inputKey}-qty-${cat}`}
                               defaultValue={cfg.quantity}
                               placeholder="0"
+                              autoComplete="off"
                               aria-label="Cantidad"
                               onBlur={(e) => onUnitBlur(cat, "quantity", e.target.value)}
                               className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
@@ -741,6 +747,7 @@ function CardsSection({
                               key={`${inputKey}-factor-${cat}`}
                               defaultValue={cfg.factor}
                               placeholder="0"
+                              autoComplete="off"
                               aria-label="Factor"
                               onBlur={(e) => onUnitBlur(cat, "factor", e.target.value)}
                               className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
@@ -762,6 +769,7 @@ function CardsSection({
                             key={`${inputKey}-b-${cat}`}
                             defaultValue={planned || ""}
                             placeholder="0"
+                            autoComplete="off"
                             disabled={isClosed}
                             onBlur={(e) => onBlur(cat, e.target.value)}
                             className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
