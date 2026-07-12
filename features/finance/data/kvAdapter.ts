@@ -7,44 +7,39 @@ export type Group = { name: string; type: "income" | "expense" | "refund"; categ
 
 const CATEGORIES_KEY = "finance-categories";
 
-const budgetKey = (month: string) => `finance-budget:${month}`;
-
-export async function loadBudget(month: string): Promise<Record<string, number>> {
-  try {
-    return (await redis.get<Record<string, number>>(budgetKey(month))) ?? {};
-  } catch {
-    return {};
-  }
+// ponytail: 4 monthly-keyed stores share this exact load/save-with-default shape; a 5th one
+// should extend this factory instead of copy-pasting another try/catch pair.
+function monthlyKvStore<T>(prefix: string, label: string, defaultValue: () => T) {
+  const key = (month: string) => `${prefix}:${month}`;
+  return {
+    load: async (month: string): Promise<T> => {
+      try {
+        return (await redis.get<T>(key(month))) ?? defaultValue();
+      } catch {
+        return defaultValue();
+      }
+    },
+    save: async (month: string, value: T): Promise<void> => {
+      try {
+        await redis.set(key(month), value);
+      } catch (e) {
+        console.error(`finance.save${label} failed`, e);
+      }
+    },
+  };
 }
 
-export async function saveBudget(month: string, budget: Record<string, number>): Promise<void> {
-  try {
-    await redis.set(budgetKey(month), budget);
-  } catch (e) {
-    console.error("finance.saveBudget failed", e);
-  }
-}
+const budgetStore = monthlyKvStore<Record<string, number>>("finance-budget", "Budget", () => ({}));
+export const loadBudget = budgetStore.load;
+export const saveBudget = budgetStore.save;
 
-const budgetUnitConfigKey = (month: string) => `finance-budget-unit-config:${month}`;
-
-export async function loadBudgetUnitConfig(month: string): Promise<BudgetUnitConfig> {
-  try {
-    return (await redis.get<BudgetUnitConfig>(budgetUnitConfigKey(month))) ?? {};
-  } catch {
-    return {};
-  }
-}
-
-export async function saveBudgetUnitConfig(
-  month: string,
-  config: BudgetUnitConfig
-): Promise<void> {
-  try {
-    await redis.set(budgetUnitConfigKey(month), config);
-  } catch (e) {
-    console.error("finance.saveBudgetUnitConfig failed", e);
-  }
-}
+const budgetUnitConfigStore = monthlyKvStore<BudgetUnitConfig>(
+  "finance-budget-unit-config",
+  "BudgetUnitConfig",
+  () => ({})
+);
+export const loadBudgetUnitConfig = budgetUnitConfigStore.load;
+export const saveBudgetUnitConfig = budgetUnitConfigStore.save;
 
 export async function loadCategories(): Promise<Group[]> {
   try {
@@ -68,38 +63,18 @@ export async function saveCategories(groups: Group[]): Promise<void> {
   }
 }
 
-const transactionsKey = (month: string) => `finance-transactions:${month}`;
+const transactionsStore = monthlyKvStore<FinanceTransaction[]>(
+  "finance-transactions",
+  "Transactions",
+  () => []
+);
+export const loadTransactions = transactionsStore.load;
+export const saveTransactions = transactionsStore.save;
 
-export async function loadTransactions(month: string): Promise<FinanceTransaction[]> {
-  try {
-    return (await redis.get<FinanceTransaction[]>(transactionsKey(month))) ?? [];
-  } catch {
-    return [];
-  }
-}
-
-export async function saveTransactions(month: string, txs: FinanceTransaction[]): Promise<void> {
-  try {
-    await redis.set(transactionsKey(month), txs);
-  } catch (e) {
-    console.error("finance.saveTransactions failed", e);
-  }
-}
-
-const closedCategoriesKey = (month: string) => `finance-closed-categories:${month}`;
-
-export async function loadClosedCategories(month: string): Promise<string[]> {
-  try {
-    return (await redis.get<string[]>(closedCategoriesKey(month))) ?? [];
-  } catch {
-    return [];
-  }
-}
-
-export async function saveClosedCategories(month: string, categories: string[]): Promise<void> {
-  try {
-    await redis.set(closedCategoriesKey(month), categories);
-  } catch (e) {
-    console.error("finance.saveClosedCategories failed", e);
-  }
-}
+const closedCategoriesStore = monthlyKvStore<string[]>(
+  "finance-closed-categories",
+  "ClosedCategories",
+  () => []
+);
+export const loadClosedCategories = closedCategoriesStore.load;
+export const saveClosedCategories = closedCategoriesStore.save;
