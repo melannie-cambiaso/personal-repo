@@ -46,6 +46,7 @@ export function BudgetTab({
   const [refMonth, setRefMonth] = useState(prevMonth(selectedMonth));
   const [copying, setCopying] = useState(false);
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
+  const [lastUnitConfig, setLastUnitConfig] = useState<Record<string, UnitConfig>>({});
 
   const actual = computeActualFromTransactions(transactions);
 
@@ -56,6 +57,8 @@ export function BudgetTab({
   };
 
   const handleUnitBlur = (category: string, field: keyof UnitConfig, raw: string) => {
+    if (closedCategories.includes(category)) return;
+
     const cur = unitConfig[category] ?? { unitAmount: 0, quantity: 1, factor: 1 };
     const nextCfg = { ...cur, [field]: Math.max(0, Number(raw) || 0) };
     const nextConfig = { ...unitConfig, [category]: nextCfg };
@@ -68,7 +71,10 @@ export function BudgetTab({
   };
 
   const handleToggleUnitMode = (category: string) => {
+    if (closedCategories.includes(category)) return;
+
     if (unitConfig[category]) {
+      setLastUnitConfig((prev) => ({ ...prev, [category]: unitConfig[category] }));
       const rest = Object.fromEntries(
         Object.entries(unitConfig).filter(([cat]) => cat !== category)
       );
@@ -78,7 +84,11 @@ export function BudgetTab({
       return;
     }
 
-    const seeded: UnitConfig = { unitAmount: budget[category] ?? 0, quantity: 1, factor: 1 };
+    const seeded: UnitConfig = lastUnitConfig[category] ?? {
+      unitAmount: budget[category] ?? 0,
+      quantity: 1,
+      factor: 1,
+    };
     const nextConfig = { ...unitConfig, [category]: seeded };
     setUnitConfig(nextConfig);
     onSaveUnitConfig(nextConfig);
@@ -500,6 +510,7 @@ function GroupSection({
                             defaultValue={cfg.unitAmount || ""}
                             placeholder="0"
                             autoComplete="off"
+                            disabled={isClosed}
                             aria-label="Monto unitario"
                             onBlur={(e) => onUnitBlur(cat, "unitAmount", e.target.value)}
                             className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-full min-w-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
@@ -511,6 +522,7 @@ function GroupSection({
                             defaultValue={cfg.quantity}
                             placeholder="0"
                             autoComplete="off"
+                            disabled={isClosed}
                             aria-label="Cantidad"
                             onBlur={(e) => onUnitBlur(cat, "quantity", e.target.value)}
                             className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-full min-w-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
@@ -522,6 +534,7 @@ function GroupSection({
                             defaultValue={cfg.factor}
                             placeholder="0"
                             autoComplete="off"
+                            disabled={isClosed}
                             aria-label="Factor"
                             onBlur={(e) => onUnitBlur(cat, "factor", e.target.value)}
                             className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-full min-w-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
@@ -559,8 +572,9 @@ function GroupSection({
                       <button
                         type="button"
                         onClick={() => onToggleUnitMode(cat)}
+                        disabled={isClosed}
                         aria-pressed={!!cfg}
-                        className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-1.5 py-0.5 text-xs transition-colors"
+                        className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-1.5 py-0.5 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {cfg ? "Fijo" : "Unitario"}
                       </button>
@@ -690,8 +704,9 @@ function CardsSection({
                           <button
                             type="button"
                             onClick={() => onToggleUnitMode(cat)}
+                            disabled={isClosed}
                             aria-pressed={!!cfg}
-                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center rounded-md border text-xs transition-colors"
+                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center rounded-md border text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {cfg ? "Fijo" : "Unitario"}
                           </button>
@@ -720,6 +735,7 @@ function CardsSection({
                               defaultValue={cfg.unitAmount || ""}
                               placeholder="0"
                               autoComplete="off"
+                              disabled={isClosed}
                               aria-label="Monto unitario"
                               onBlur={(e) => onUnitBlur(cat, "unitAmount", e.target.value)}
                               className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
@@ -734,6 +750,7 @@ function CardsSection({
                               defaultValue={cfg.quantity}
                               placeholder="0"
                               autoComplete="off"
+                              disabled={isClosed}
                               aria-label="Cantidad"
                               onBlur={(e) => onUnitBlur(cat, "quantity", e.target.value)}
                               className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
@@ -748,6 +765,7 @@ function CardsSection({
                               defaultValue={cfg.factor}
                               placeholder="0"
                               autoComplete="off"
+                              disabled={isClosed}
                               aria-label="Factor"
                               onBlur={(e) => onUnitBlur(cat, "factor", e.target.value)}
                               className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"

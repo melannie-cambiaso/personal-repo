@@ -584,4 +584,43 @@ describe("BudgetTab — unit mode (unit amount × quantity × factor)", () => {
       expect.objectContaining({ DBT: 247500, Arriendo: 300000 })
     );
   });
+
+  it("a closed category's unit-mode toggle and fields stay disabled and inert", () => {
+    renderTab({
+      initialBudget: { DBT: 247500, Arriendo: 400000 },
+      initialUnitConfig: { DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } },
+      initialClosedCategories: ["DBT"],
+    });
+    const tableView = screen.getByTestId("budget-table");
+    const dbtRow = rowFor(tableView, "DBT");
+
+    const toggleButton = within(dbtRow).getByRole("button", { name: "Fijo" });
+    expect((toggleButton as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(toggleButton);
+    expect(onSaveUnitConfig).not.toHaveBeenCalled();
+
+    const unitAmountInput = within(dbtRow).getByLabelText("Monto unitario") as HTMLInputElement;
+    expect(unitAmountInput.disabled).toBe(true);
+    fireEvent.blur(unitAmountInput, { target: { value: "99999" } });
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("toggling unit mode off then back on restores the previous breakdown instead of resetting quantity/factor", () => {
+    renderTab({
+      initialBudget: { DBT: 247500, Arriendo: 400000 },
+      initialUnitConfig: { DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } },
+    });
+    const tableView = screen.getByTestId("budget-table");
+    const dbtRow = rowFor(tableView, "DBT");
+
+    fireEvent.click(within(dbtRow).getByRole("button", { name: "Fijo" }));
+    fireEvent.click(within(dbtRow).getByRole("button", { name: "Unitario" }));
+
+    const unitAmountInput = within(dbtRow).getByLabelText("Monto unitario") as HTMLInputElement;
+    const quantityInput = within(dbtRow).getByLabelText("Cantidad") as HTMLInputElement;
+    const factorInput = within(dbtRow).getByLabelText("Factor") as HTMLInputElement;
+    expect(unitAmountInput.value).toBe("55000");
+    expect(quantityInput.value).toBe("5");
+    expect(factorInput.value).toBe("0.9");
+  });
 });
