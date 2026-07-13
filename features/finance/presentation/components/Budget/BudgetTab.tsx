@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { type Group } from "@/features/finance/data/kvAdapter";
 import {
   getBudgetForMonth,
@@ -12,6 +12,7 @@ import {
   computeBudgetSummary,
   computePendingExpenses,
   deriveUnitTotal,
+  DEFAULT_UNIT_CONFIG,
 } from "@/features/finance/domain";
 import type { FinanceTransaction, UnitConfig, BudgetUnitConfig } from "@/features/finance/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
@@ -26,7 +27,16 @@ interface Props {
   initialUnitConfig?: BudgetUnitConfig;
   onSave: (budget: Record<string, number>) => Promise<void>;
   onOpenTransaction: (category: string) => void;
-  onSaveUnitConfig?: (config: BudgetUnitConfig) => Promise<void>;
+  onSaveUnitConfig: (config: BudgetUnitConfig) => Promise<void>;
+}
+
+// ponytail: chains same-key writes through one promise queue so out-of-order network
+// resolution can't let an earlier blur's save clobber a later one.
+function useOrderedSave<T>(save: (value: T) => Promise<void>) {
+  const queueRef = useRef(Promise.resolve());
+  return (value: T) => {
+    queueRef.current = queueRef.current.then(() => save(value));
+  };
 }
 
 export function BudgetTab({
@@ -38,7 +48,7 @@ export function BudgetTab({
   initialUnitConfig = {},
   onSave,
   onOpenTransaction,
-  onSaveUnitConfig = async () => {},
+  onSaveUnitConfig,
 }: Props) {
   const [budget, setBudget] = useState<Record<string, number>>(initialBudget);
   const [unitConfig, setUnitConfig] = useState<BudgetUnitConfig>(initialUnitConfig);
@@ -47,27 +57,39 @@ export function BudgetTab({
   const [copying, setCopying] = useState(false);
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
   const [lastUnitConfig, setLastUnitConfig] = useState<Record<string, UnitConfig>>({});
+  const saveBudgetOrdered = useOrderedSave(onSave);
+  const saveUnitConfigOrdered = useOrderedSave(onSaveUnitConfig);
 
   const actual = computeActualFromTransactions(transactions);
 
   const handleBlur = (category: string, raw: string) => {
     const next = { ...budget, [category]: Math.max(0, Number(raw) || 0) };
     setBudget(next);
-    onSave(next);
+    saveBudgetOrdered(next);
+  };
+
+  // Applies a new unit config: persists it, re-derives every category's total from it onto
+  // `baseBudget` (defaults to current budget), and persists that. Shared by every code path
+  // that changes unit config so they can't drift into inconsistent save/derive behavior.
+  const applyUnitConfig = (
+    nextConfig: BudgetUnitConfig,
+    baseBudget: Record<string, number> = budget
+  ) => {
+    setUnitConfig(nextConfig);
+    saveUnitConfigOrdered(nextConfig);
+
+    const nextBudget = { ...baseBudget };
+    for (const [cat, cfg] of Object.entries(nextConfig)) nextBudget[cat] = deriveUnitTotal(cfg);
+    setBudget(nextBudget);
+    saveBudgetOrdered(nextBudget);
   };
 
   const handleUnitBlur = (category: string, field: keyof UnitConfig, raw: string) => {
     if (closedCategories.includes(category)) return;
 
-    const cur = unitConfig[category] ?? { unitAmount: 0, quantity: 1, factor: 1 };
+    const cur = unitConfig[category] ?? { unitAmount: 0, ...DEFAULT_UNIT_CONFIG };
     const nextCfg = { ...cur, [field]: Math.max(0, Number(raw) || 0) };
-    const nextConfig = { ...unitConfig, [category]: nextCfg };
-    setUnitConfig(nextConfig);
-    onSaveUnitConfig(nextConfig);
-
-    const nextBudget = { ...budget, [category]: deriveUnitTotal(nextCfg) };
-    setBudget(nextBudget);
-    onSave(nextBudget);
+    applyUnitConfig({ ...unitConfig, [category]: nextCfg });
   };
 
   const handleToggleUnitMode = (category: string) => {
@@ -78,24 +100,16 @@ export function BudgetTab({
       const rest = Object.fromEntries(
         Object.entries(unitConfig).filter(([cat]) => cat !== category)
       );
-      setUnitConfig(rest);
-      onSaveUnitConfig(rest);
+      applyUnitConfig(rest);
       setInputKey((k) => k + 1);
       return;
     }
 
     const seeded: UnitConfig = lastUnitConfig[category] ?? {
       unitAmount: budget[category] ?? 0,
-      quantity: 1,
-      factor: 1,
+      ...DEFAULT_UNIT_CONFIG,
     };
-    const nextConfig = { ...unitConfig, [category]: seeded };
-    setUnitConfig(nextConfig);
-    onSaveUnitConfig(nextConfig);
-
-    const nextBudget = { ...budget, [category]: deriveUnitTotal(seeded) };
-    setBudget(nextBudget);
-    onSave(nextBudget);
+    applyUnitConfig({ ...unitConfig, [category]: seeded });
     setInputKey((k) => k + 1);
   };
 
@@ -114,14 +128,8 @@ export function BudgetTab({
       getBudgetUnitConfigForMonth(refMonth),
     ]);
 
-    const nextBudget = { ...refBudget };
-    for (const [cat, cfg] of Object.entries(refConfig)) nextBudget[cat] = deriveUnitTotal(cfg);
-
-    setUnitConfig(refConfig);
-    setBudget(nextBudget);
+    applyUnitConfig(refConfig, refBudget);
     setInputKey((k) => k + 1);
-    onSaveUnitConfig(refConfig);
-    onSave(nextBudget);
     setCopying(false);
   };
 
@@ -507,7 +515,7 @@ function GroupSection({
                             type="number"
                             min="0"
                             key={`${inputKey}-ua-${cat}`}
-                            defaultValue={cfg.unitAmount || ""}
+                            defaultValue={cfg.unitAmount}
                             placeholder="0"
                             autoComplete="off"
                             disabled={isClosed}
@@ -726,23 +734,23 @@ function CardsSection({
 
                       {cfg ? (
                         <div className="flex flex-col gap-2 text-xs">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-brown-500">Monto unitario</span>
+                          <div className="flex min-w-0 items-center justify-between gap-2">
+                            <span className="text-brown-500 truncate">Monto unitario</span>
                             <input
                               type="number"
                               min="0"
                               key={`${inputKey}-ua-${cat}`}
-                              defaultValue={cfg.unitAmount || ""}
+                              defaultValue={cfg.unitAmount}
                               placeholder="0"
                               autoComplete="off"
                               disabled={isClosed}
                               aria-label="Monto unitario"
                               onBlur={(e) => onUnitBlur(cat, "unitAmount", e.target.value)}
-                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 shrink-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
                             />
                           </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-brown-500">Cantidad</span>
+                          <div className="flex min-w-0 items-center justify-between gap-2">
+                            <span className="text-brown-500 truncate">Cantidad</span>
                             <input
                               type="number"
                               min="0"
@@ -753,11 +761,11 @@ function CardsSection({
                               disabled={isClosed}
                               aria-label="Cantidad"
                               onBlur={(e) => onUnitBlur(cat, "quantity", e.target.value)}
-                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 shrink-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
                             />
                           </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-brown-500">Factor</span>
+                          <div className="flex min-w-0 items-center justify-between gap-2">
+                            <span className="text-brown-500 truncate">Factor</span>
                             <input
                               type="number"
                               step="any"
@@ -768,12 +776,12 @@ function CardsSection({
                               disabled={isClosed}
                               aria-label="Factor"
                               onBlur={(e) => onUnitBlur(cat, "factor", e.target.value)}
-                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 rounded-lg border px-2 py-1 text-right text-sm outline-none"
+                              className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-24 shrink-0 rounded-lg border px-2 py-1 text-right text-sm outline-none"
                             />
                           </div>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-brown-500">Total</span>
-                            <span className="text-brown-900 font-semibold">
+                          <div className="flex min-w-0 items-center justify-between gap-2">
+                            <span className="text-brown-500 truncate">Total</span>
+                            <span className="text-brown-900 shrink-0 truncate font-semibold">
                               {formatCLP(deriveUnitTotal(cfg))}
                             </span>
                           </div>

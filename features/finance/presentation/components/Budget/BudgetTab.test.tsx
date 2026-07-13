@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import { SummaryCard, BudgetTab } from "./BudgetTab";
-import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
+import type { FinanceTransaction } from "@/features/finance/domain";
 
 const toggleClosedCategoryMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const getBudgetForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
@@ -91,6 +91,7 @@ describe("SummaryCard – disponible/ahorroPotencial props", () => {
 
 describe("BudgetTab — refund group separation", () => {
   const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
   const onOpenTransaction = vi.fn();
 
   // T2 — satisfies: Devoluciones GroupSection requirement
@@ -104,6 +105,7 @@ describe("BudgetTab — refund group separation", () => {
         selectedMonth="2025-01"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -126,6 +128,7 @@ describe("BudgetTab — refund group separation", () => {
         selectedMonth="2025-01"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -153,6 +156,7 @@ describe("BudgetTab — refund group separation", () => {
         selectedMonth="2025-01"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     // Devoluciones view must be present (scoped to the unchanged table view)
@@ -167,6 +171,7 @@ describe("BudgetTab — refund group separation", () => {
 
 describe("BudgetTab — responsive view split (mobile cards / desktop table)", () => {
   const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
   const onOpenTransaction = vi.fn();
 
   const groups = [
@@ -183,6 +188,7 @@ describe("BudgetTab — responsive view split (mobile cards / desktop table)", (
         selectedMonth="2026-06"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     expect(screen.getByTestId("budget-table")).toBeTruthy();
@@ -199,6 +205,7 @@ describe("BudgetTab — responsive view split (mobile cards / desktop table)", (
         selectedMonth="2026-06"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -229,6 +236,7 @@ describe("BudgetTab — responsive view split (mobile cards / desktop table)", (
         initialClosedCategories={[]}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const cardsView = screen.getByTestId("budget-cards");
@@ -248,6 +256,7 @@ describe("BudgetTab — responsive view split (mobile cards / desktop table)", (
 
 describe("BudgetTab – disponible/ahorroPotencial integration", () => {
   const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
   const onOpenTransaction = vi.fn();
 
   const baseGroups = [
@@ -269,6 +278,7 @@ describe("BudgetTab – disponible/ahorroPotencial integration", () => {
         selectedMonth="2025-01"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const netoCard = screen.getByText("Neto").closest("div")!;
@@ -285,6 +295,7 @@ describe("BudgetTab – disponible/ahorroPotencial integration", () => {
         selectedMonth="2025-01"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const netoCard = screen.getByText("Neto").closest("div")!;
@@ -309,6 +320,7 @@ describe("BudgetTab – disponible/ahorroPotencial integration", () => {
         selectedMonth="2025-01"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const netoCard = screen.getByText("Neto").closest("div")!;
@@ -327,6 +339,7 @@ describe("BudgetTab – disponible/ahorroPotencial integration", () => {
         selectedMonth="2025-01"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const ingresosCard = screen.getAllByText("Ingresos")[0].closest("div")!;
@@ -344,6 +357,7 @@ describe("BudgetTab – disponible/ahorroPotencial integration", () => {
         selectedMonth="2025-01"
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const gastosCard = screen.getAllByText("Gastos")[0].closest("div")!;
@@ -354,6 +368,7 @@ describe("BudgetTab – disponible/ahorroPotencial integration", () => {
 
 describe("BudgetTab — closed expense categories", () => {
   const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
   const onOpenTransaction = vi.fn();
 
   const expenseGroups = [
@@ -371,6 +386,7 @@ describe("BudgetTab — closed expense categories", () => {
         initialClosedCategories={[]}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -395,6 +411,7 @@ describe("BudgetTab — closed expense categories", () => {
         initialClosedCategories={["Arriendo"]}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -418,6 +435,7 @@ describe("BudgetTab — closed expense categories", () => {
         initialClosedCategories={["Arriendo"]}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -438,6 +456,7 @@ describe("BudgetTab — closed expense categories", () => {
         initialClosedCategories={[]}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -458,6 +477,7 @@ describe("BudgetTab — closed expense categories", () => {
         initialClosedCategories={[]}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -522,7 +542,7 @@ describe("BudgetTab — unit mode (unit amount × quantity × factor)", () => {
   });
 
   // 3.2 — satisfies: blur recomputes total, writes budget[cat] and unit config (55000×5×0.9=247500)
-  it("blurring a unit field recomputes the read-only total and calls onSave + onSaveUnitConfig with the derived breakdown", () => {
+  it("blurring a unit field recomputes the read-only total and calls onSave + onSaveUnitConfig with the derived breakdown", async () => {
     renderTab();
     const tableView = screen.getByTestId("budget-table");
     const dbtRow = rowFor(tableView, "DBT");
@@ -533,7 +553,9 @@ describe("BudgetTab — unit mode (unit amount × quantity × factor)", () => {
     fireEvent.blur(within(dbtRow).getByLabelText("Factor"), { target: { value: "0.9" } });
 
     expect(within(dbtRow).getByText("$247.500")).toBeTruthy();
-    expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ DBT: 247500 }));
+    await waitFor(() => {
+      expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ DBT: 247500 }));
+    });
     expect(onSaveUnitConfig).toHaveBeenLastCalledWith(
       expect.objectContaining({ DBT: { unitAmount: 55000, quantity: 5, factor: 0.9 } })
     );
