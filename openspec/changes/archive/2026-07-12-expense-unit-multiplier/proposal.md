@@ -123,9 +123,9 @@ migration or data rewrite is involved.
 
 ## Success Criteria
 
-- [ ] A category can be switched to unit mode and store `unitAmount`, `quantity`, `factor`; the
+- [x] A category can be switched to unit mode and store `unitAmount`, `quantity`, `factor`; the
       derived total lands in `budget[category]`.
-- [ ] Reopening the category next month shows the saved parts, editable, not just the flat total.
-- [ ] Non-unit categories and existing flat-only months are unchanged.
-- [ ] `computeBudgetSummary` / `computePendingExpenses` / export produce identical results for a
+- [x] Reopening the category next month shows the saved parts, editable, not just the flat total.
+- [x] Non-unit categories and existing flat-only months are unchanged.
+- [x] `computeBudgetSummary` / `computePendingExpenses` / export produce identical results for a
       given derived total; full suite green (`npm run test`).

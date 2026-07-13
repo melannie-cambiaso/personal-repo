@@ -122,7 +122,7 @@ Phase 2 and resolves the 2 `no-unused-vars` ESLint warnings noted there.
 - [x] 4.1 Run `npm run test` — full suite green: existing `computeBudgetSummary.test.ts`,
   `computePendingExpenses.test.ts`, `buildBudgetExportRows.test.ts` unaffected (files untouched);
   new `BudgetUnitConfig.test.ts` and extended `BudgetTab.test.tsx` passing. Result: 59 test files,
-  410 tests passing (406 baseline + 4 new `BudgetTab` unit-mode scenarios).
+  412 tests passing (406 baseline + 4 new `BudgetTab` unit-mode scenarios + 2 regression tests).
 - [x] 4.2 Run `tsc --noEmit` — clean, confirming the new `UnitConfig`/`BudgetUnitConfig` types and
   widened `Props` type-check across `kvAdapter.ts`, `financeActions.ts`, `page.tsx`,
   `FinanceScreen.tsx`, `BudgetTab.tsx`. Result: clean, no errors. `eslint` on changed files: 0
