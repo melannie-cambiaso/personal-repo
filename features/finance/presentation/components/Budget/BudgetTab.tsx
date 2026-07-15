@@ -7,6 +7,7 @@ import {
   getBudgetUnitConfigForMonth,
   toggleClosedCategory,
   toggleExcludedCategory,
+  saveCategoryNote,
 } from "@/features/finance/data/financeActions";
 import { BudgetCategoriesModal } from "./BudgetCategoriesModal";
 import {
@@ -28,6 +29,7 @@ interface Props {
   selectedMonth: string;
   initialClosedCategories?: string[];
   initialExcludedCategories?: string[];
+  initialCategoryNotes?: Record<string, string>;
   initialUnitConfig?: BudgetUnitConfig;
   onSave: (budget: Record<string, number>) => Promise<void>;
   onOpenTransaction: (category: string) => void;
@@ -50,6 +52,7 @@ export function BudgetTab({
   selectedMonth,
   initialClosedCategories = [],
   initialExcludedCategories = [],
+  initialCategoryNotes = {},
   initialUnitConfig = {},
   onSave,
   onOpenTransaction,
@@ -63,6 +66,9 @@ export function BudgetTab({
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
   const [excludedCategories, setExcludedCategories] =
     useState<string[]>(initialExcludedCategories);
+  const [categoryNotes, setCategoryNotes] =
+    useState<Record<string, string>>(initialCategoryNotes);
+  const [expandedNoteCategory, setExpandedNoteCategory] = useState<string | null>(null);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [lastUnitConfig, setLastUnitConfig] = useState<Record<string, UnitConfig>>({});
   const saveBudgetOrdered = useOrderedSave(onSave);
@@ -135,6 +141,23 @@ export function BudgetTab({
       : [...excludedCategories, category];
     setExcludedCategories(next);
     void toggleExcludedCategory(selectedMonth, category);
+  };
+
+  const handleToggleNoteExpand = (category: string) => {
+    setExpandedNoteCategory((prev) => (prev === category ? null : category));
+  };
+
+  // Empty/whitespace text deletes the category's key rather than storing "" — no note = no indicator.
+  const handleSaveNote = (category: string, text: string) => {
+    const trimmed = text.trim();
+    setCategoryNotes((prev) => {
+      if (trimmed) return { ...prev, [category]: trimmed };
+      if (!(category in prev)) return prev;
+      const next = { ...prev };
+      delete next[category];
+      return next;
+    });
+    void saveCategoryNote(selectedMonth, category, text);
   };
 
   const handleCopy = async () => {
@@ -266,6 +289,10 @@ export function BudgetTab({
         onOpenTransaction={onOpenTransaction}
         closedCategories={closedCategories}
         onToggleClose={handleToggleClose}
+        categoryNotes={categoryNotes}
+        expandedNoteCategory={expandedNoteCategory}
+        onToggleNoteExpand={handleToggleNoteExpand}
+        onSaveNote={handleSaveNote}
       />
       <BudgetCardsView
         incomeGroups={incomeGroups}
@@ -281,6 +308,10 @@ export function BudgetTab({
         onOpenTransaction={onOpenTransaction}
         closedCategories={closedCategories}
         onToggleClose={handleToggleClose}
+        categoryNotes={categoryNotes}
+        expandedNoteCategory={expandedNoteCategory}
+        onToggleNoteExpand={handleToggleNoteExpand}
+        onSaveNote={handleSaveNote}
       />
     </div>
   );
@@ -300,6 +331,10 @@ interface ResponsiveViewProps {
   onOpenTransaction: (category: string) => void;
   closedCategories: string[];
   onToggleClose: (category: string) => void;
+  categoryNotes: Record<string, string>;
+  expandedNoteCategory: string | null;
+  onToggleNoteExpand: (category: string) => void;
+  onSaveNote: (category: string, text: string) => void;
 }
 
 /** Desktop dense table layout. Markup is unchanged from the pre-split BudgetTab — only wrapped and hidden below `sm`. */
@@ -317,6 +352,10 @@ function BudgetTableView({
   onOpenTransaction,
   closedCategories,
   onToggleClose,
+  categoryNotes,
+  expandedNoteCategory,
+  onToggleNoteExpand,
+  onSaveNote,
 }: ResponsiveViewProps) {
   return (
     <div data-testid="budget-table" className="hidden flex-col gap-6 sm:flex">
@@ -347,6 +386,10 @@ function BudgetTableView({
         onOpenTransaction={onOpenTransaction}
         closedCategories={closedCategories}
         onToggleClose={onToggleClose}
+        categoryNotes={categoryNotes}
+        expandedNoteCategory={expandedNoteCategory}
+        onToggleNoteExpand={onToggleNoteExpand}
+        onSaveNote={onSaveNote}
       />
       <GroupSection
         title="Devoluciones"
@@ -380,6 +423,10 @@ function BudgetCardsView({
   onOpenTransaction,
   closedCategories,
   onToggleClose,
+  categoryNotes,
+  expandedNoteCategory,
+  onToggleNoteExpand,
+  onSaveNote,
 }: ResponsiveViewProps) {
   return (
     <div data-testid="budget-cards" className="flex flex-col gap-6 sm:hidden">
@@ -410,6 +457,10 @@ function BudgetCardsView({
         onOpenTransaction={onOpenTransaction}
         closedCategories={closedCategories}
         onToggleClose={onToggleClose}
+        categoryNotes={categoryNotes}
+        expandedNoteCategory={expandedNoteCategory}
+        onToggleNoteExpand={onToggleNoteExpand}
+        onSaveNote={onSaveNote}
       />
       <CardsSection
         title="Devoluciones"
@@ -424,6 +475,71 @@ function BudgetCardsView({
         onToggleUnitMode={onToggleUnitMode}
         onOpenTransaction={onOpenTransaction}
       />
+    </div>
+  );
+}
+
+interface CategoryNoteProps {
+  value?: string;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  onSave: (text: string) => void;
+}
+
+/**
+ * Shared category-name cell for both `GroupSection` (desktop table) and
+ * `CardsSection` (mobile cards). Renders a plain name span when `notes` is
+ * absent (income/refund rows, unchanged from before this feature). When
+ * `notes` is present (expense rows only), the name becomes a toggle button
+ * with a dot indicator shown only when a non-empty note exists, expanding to
+ * an inline textarea — kept inside this single cell so it never overflows
+ * into neighboring grid columns, and adds zero buttons to the action cluster.
+ */
+function CategoryNameCell({
+  category,
+  isClosed,
+  bold = false,
+  notes,
+}: {
+  category: string;
+  isClosed: boolean;
+  bold?: boolean;
+  notes?: CategoryNoteProps;
+}) {
+  const textClass = `text-brown-700 text-sm ${bold ? "font-semibold" : ""} ${isClosed ? "line-through" : ""}`;
+
+  if (!notes) {
+    return <span className={textClass}>{category}</span>;
+  }
+
+  const hasNote = !!notes.value?.trim();
+
+  return (
+    <div className="flex min-w-0 flex-col gap-1">
+      <button
+        type="button"
+        onClick={notes.onToggleExpand}
+        className={`flex min-w-0 items-center gap-1.5 text-left ${textClass}`}
+        aria-label={hasNote ? `Ver nota de ${category}` : `Agregar nota a ${category}`}
+      >
+        <span className="truncate">{category}</span>
+        {hasNote && (
+          <span
+            aria-hidden="true"
+            data-testid={`note-indicator-${category}`}
+            className="bg-brown-600 inline-block h-1.5 w-1.5 shrink-0 rounded-full"
+          />
+        )}
+      </button>
+      {notes.isExpanded && (
+        <textarea
+          defaultValue={notes.value ?? ""}
+          onBlur={(e) => notes.onSave(e.target.value)}
+          placeholder="Agregar nota..."
+          rows={2}
+          className="border-cream-400 bg-cream-50 text-brown-900 focus:border-brown-600 w-full min-w-0 rounded-lg border px-2 py-1 text-xs outline-none"
+        />
+      )}
     </div>
   );
 }
@@ -491,6 +607,10 @@ function GroupSection({
   onOpenTransaction,
   closedCategories = [],
   onToggleClose,
+  categoryNotes = {},
+  expandedNoteCategory = null,
+  onToggleNoteExpand,
+  onSaveNote,
 }: {
   title: string;
   groups: Group[];
@@ -505,6 +625,10 @@ function GroupSection({
   onOpenTransaction: (category: string) => void;
   closedCategories?: string[];
   onToggleClose?: (category: string) => void;
+  categoryNotes?: Record<string, string>;
+  expandedNoteCategory?: string | null;
+  onToggleNoteExpand?: (category: string) => void;
+  onSaveNote?: (category: string, text: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -541,9 +665,20 @@ function GroupSection({
                     aria-disabled={isIncome ? undefined : isClosed}
                     className={`border-cream-100 grid grid-cols-4 items-center gap-2 border-t px-4 py-2 ${isClosed ? "opacity-50" : ""}`}
                   >
-                    <span className={`text-brown-700 text-sm ${isClosed ? "line-through" : ""}`}>
-                      {cat}
-                    </span>
+                    <CategoryNameCell
+                      category={cat}
+                      isClosed={isClosed}
+                      notes={
+                        !isIncome && onToggleNoteExpand && onSaveNote
+                          ? {
+                              value: categoryNotes[cat],
+                              isExpanded: expandedNoteCategory === cat,
+                              onToggleExpand: () => onToggleNoteExpand(cat),
+                              onSave: (text) => onSaveNote(cat, text),
+                            }
+                          : undefined
+                      }
+                    />
                     <div className="flex min-w-0 justify-end">
                       {cfg ? (
                         <div className="flex w-full min-w-0 max-w-24 flex-col items-end gap-1">
@@ -686,6 +821,10 @@ function CardsSection({
   onOpenTransaction,
   closedCategories = [],
   onToggleClose,
+  categoryNotes = {},
+  expandedNoteCategory = null,
+  onToggleNoteExpand,
+  onSaveNote,
 }: {
   title: string;
   groups: Group[];
@@ -700,6 +839,10 @@ function CardsSection({
   onOpenTransaction: (category: string) => void;
   closedCategories?: string[];
   onToggleClose?: (category: string) => void;
+  categoryNotes?: Record<string, string>;
+  expandedNoteCategory?: string | null;
+  onToggleNoteExpand?: (category: string) => void;
+  onSaveNote?: (category: string, text: string) => void;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -731,11 +874,21 @@ function CardsSection({
                       className={`border-cream-100 flex flex-col gap-2 rounded-lg border p-3 ${isClosed ? "opacity-50" : ""}`}
                     >
                       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
-                        <span
-                          className={`text-brown-700 text-sm font-semibold ${isClosed ? "line-through" : ""}`}
-                        >
-                          {cat}
-                        </span>
+                        <CategoryNameCell
+                          category={cat}
+                          isClosed={isClosed}
+                          bold
+                          notes={
+                            !isIncome && onToggleNoteExpand && onSaveNote
+                              ? {
+                                  value: categoryNotes[cat],
+                                  isExpanded: expandedNoteCategory === cat,
+                                  onToggleExpand: () => onToggleNoteExpand(cat),
+                                  onSave: (text) => onSaveNote(cat, text),
+                                }
+                              : undefined
+                          }
+                        />
                         <div className="flex flex-wrap items-center gap-1">
                           <button
                             type="button"

@@ -13,6 +13,8 @@ import {
   saveBudgetUnitConfig,
   loadExcludedCategories,
   saveExcludedCategories,
+  loadCategoryNotes,
+  saveCategoryNotes,
 } from "./kvAdapter";
 import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
 
@@ -177,6 +179,56 @@ describe("saveExcludedCategories", () => {
   it("swallows redis errors on save", async () => {
     redisMock.set.mockRejectedValue(new Error("connection lost"));
     await expect(saveExcludedCategories("2026-06", ["Suscripciones"])).resolves.toBeUndefined();
+  });
+});
+
+describe("loadCategoryNotes", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns an empty object when the key is missing", async () => {
+    redisMock.get.mockResolvedValue(null);
+    const result = await loadCategoryNotes("2026-06");
+    expect(result).toEqual({});
+  });
+
+  it("uses the correct key format: finance-category-notes:YYYY-MM", async () => {
+    redisMock.get.mockResolvedValue({});
+    await loadCategoryNotes("2026-07");
+    expect(redisMock.get).toHaveBeenCalledWith("finance-category-notes:2026-07");
+  });
+
+  it("returns the stored map for the given month", async () => {
+    const stored = { Suscripciones: "Netflix + Spotify" };
+    redisMock.get.mockResolvedValue(stored);
+    const result = await loadCategoryNotes("2026-06");
+    expect(result).toEqual(stored);
+  });
+
+  it("returns an empty object when redis.get throws", async () => {
+    redisMock.get.mockRejectedValue(new Error("connection lost"));
+    const result = await loadCategoryNotes("2026-06");
+    expect(result).toEqual({});
+  });
+});
+
+describe("saveCategoryNotes", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("saves category notes under the correct key", async () => {
+    const notes = { Suscripciones: "Netflix + Spotify" };
+    await saveCategoryNotes("2026-06", notes);
+    expect(redisMock.set).toHaveBeenCalledWith("finance-category-notes:2026-06", notes);
+  });
+
+  it("swallows redis errors on save", async () => {
+    redisMock.set.mockRejectedValue(new Error("connection lost"));
+    await expect(
+      saveCategoryNotes("2026-06", { Suscripciones: "Netflix" })
+    ).resolves.toBeUndefined();
   });
 });
 

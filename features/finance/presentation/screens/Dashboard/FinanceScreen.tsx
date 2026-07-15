@@ -6,6 +6,7 @@ import {
   getTransactionsForMonth,
   getClosedCategoriesForMonth,
   getExcludedCategoriesForMonth,
+  getCategoryNotesForMonth,
   getBudgetUnitConfigForMonth,
   addTransaction,
   deleteTransaction,
@@ -25,6 +26,7 @@ interface Props {
   initialCategories: Group[];
   initialClosedCategories: string[];
   initialExcludedCategories: string[];
+  initialCategoryNotes: Record<string, string>;
   initialUnitConfig: BudgetUnitConfig;
   onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
   onSaveUnitConfig: (month: string, config: BudgetUnitConfig) => Promise<void>;
@@ -36,6 +38,7 @@ export function FinanceScreen({
   initialCategories,
   initialClosedCategories,
   initialExcludedCategories,
+  initialCategoryNotes,
   initialUnitConfig,
   onSaveBudget,
   onSaveUnitConfig,
@@ -50,6 +53,8 @@ export function FinanceScreen({
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
   const [excludedCategories, setExcludedCategories] =
     useState<string[]>(initialExcludedCategories);
+  const [categoryNotes, setCategoryNotes] =
+    useState<Record<string, string>>(initialCategoryNotes);
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [activeTxCategory, setActiveTxCategory] = useState("");
 
@@ -60,12 +65,14 @@ export function FinanceScreen({
       getTransactionsForMonth(selectedMonth),
       getClosedCategoriesForMonth(selectedMonth),
       getExcludedCategoriesForMonth(selectedMonth),
+      getCategoryNotesForMonth(selectedMonth),
       getBudgetUnitConfigForMonth(selectedMonth),
-    ]).then(([b, txs, closed, excluded, unitConfig]) => {
+    ]).then(([b, txs, closed, excluded, notes, unitConfig]) => {
       setMonthBudget(b);
       setTransactions(txs);
       setClosedCategories(closed);
       setExcludedCategories(excluded);
+      setCategoryNotes(notes);
       setMonthUnitConfig(unitConfig);
       setBudgetLoadedFor(selectedMonth);
     });
@@ -188,6 +195,7 @@ export function FinanceScreen({
               selectedMonth={selectedMonth}
               initialClosedCategories={closedCategories}
               initialExcludedCategories={excludedCategories}
+              initialCategoryNotes={categoryNotes}
               initialUnitConfig={monthUnitConfig}
               onSave={(b) => onSaveBudget(selectedMonth, b)}
               onSaveUnitConfig={(c) => onSaveUnitConfig(selectedMonth, c)}

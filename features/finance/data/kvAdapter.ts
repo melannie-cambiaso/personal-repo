@@ -86,3 +86,11 @@ const excludedCategoriesStore = monthlyKvStore<string[]>(
 );
 export const loadExcludedCategories = excludedCategoriesStore.load;
 export const saveExcludedCategories = excludedCategoriesStore.save;
+
+const categoryNotesStore = monthlyKvStore<Record<string, string>>(
+  "finance-category-notes",
+  "CategoryNotes",
+  () => ({})
+);
+export const loadCategoryNotes = categoryNotesStore.load;
+export const saveCategoryNotes = categoryNotesStore.save;

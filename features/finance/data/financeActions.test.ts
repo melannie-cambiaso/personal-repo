@@ -11,6 +11,8 @@ const loadBudgetUnitConfigMock = vi.hoisted(() => vi.fn());
 const saveBudgetUnitConfigMock = vi.hoisted(() => vi.fn());
 const loadExcludedCategoriesMock = vi.hoisted(() => vi.fn());
 const saveExcludedCategoriesMock = vi.hoisted(() => vi.fn());
+const loadCategoryNotesMock = vi.hoisted(() => vi.fn());
+const saveCategoryNotesMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -28,6 +30,8 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     saveBudgetUnitConfig: saveBudgetUnitConfigMock,
     loadExcludedCategories: loadExcludedCategoriesMock,
     saveExcludedCategories: saveExcludedCategoriesMock,
+    loadCategoryNotes: loadCategoryNotesMock,
+    saveCategoryNotes: saveCategoryNotesMock,
   };
 });
 
@@ -41,6 +45,8 @@ import {
   handleSaveBudgetUnitConfig,
   getExcludedCategoriesForMonth,
   toggleExcludedCategory,
+  getCategoryNotesForMonth,
+  saveCategoryNote,
 } from "./financeActions";
 
 const tx = (overrides: Partial<FinanceTransaction> = {}): FinanceTransaction => ({
@@ -237,6 +243,69 @@ describe("toggleExcludedCategory", () => {
     loadExcludedCategoriesMock.mockResolvedValue(["Suscripciones", "Internet"]);
     await toggleExcludedCategory("2026-06", "Suscripciones");
     expect(saveExcludedCategoriesMock).toHaveBeenCalledWith("2026-06", ["Internet"]);
+  });
+});
+
+describe("getCategoryNotesForMonth", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns {} without auth and does not read Redis", async () => {
+    withoutAuth();
+    const result = await getCategoryNotesForMonth("2026-06");
+    expect(result).toEqual({});
+    expect(loadCategoryNotesMock).not.toHaveBeenCalled();
+  });
+
+  it("returns the stored map from kvAdapter when authenticated", async () => {
+    withAuth();
+    loadCategoryNotesMock.mockResolvedValue({ Suscripciones: "Netflix + Spotify" });
+    const result = await getCategoryNotesForMonth("2026-06");
+    expect(result).toEqual({ Suscripciones: "Netflix + Spotify" });
+    expect(loadCategoryNotesMock).toHaveBeenCalledWith("2026-06");
+  });
+});
+
+describe("saveCategoryNote", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing without auth", async () => {
+    withoutAuth();
+    await saveCategoryNote("2026-06", "Suscripciones", "Netflix");
+    expect(loadCategoryNotesMock).not.toHaveBeenCalled();
+    expect(saveCategoryNotesMock).not.toHaveBeenCalled();
+  });
+
+  it("sets the category's note when text is non-empty", async () => {
+    withAuth();
+    loadCategoryNotesMock.mockResolvedValue({});
+    await saveCategoryNote("2026-06", "Suscripciones", "Netflix + Spotify");
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith("2026-06", {
+      Suscripciones: "Netflix + Spotify",
+    });
+  });
+
+  it("preserves other categories' notes when saving one category's note (read-modify-write)", async () => {
+    withAuth();
+    loadCategoryNotesMock.mockResolvedValue({ Internet: "Fibra 500mb" });
+    await saveCategoryNote("2026-06", "Suscripciones", "Netflix");
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith("2026-06", {
+      Internet: "Fibra 500mb",
+      Suscripciones: "Netflix",
+    });
+  });
+
+  it("deletes the category's key when text is empty", async () => {
+    withAuth();
+    loadCategoryNotesMock.mockResolvedValue({ Suscripciones: "Netflix" });
+    await saveCategoryNote("2026-06", "Suscripciones", "");
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith("2026-06", {});
+  });
+
+  it("deletes the category's key when text is whitespace-only", async () => {
+    withAuth();
+    loadCategoryNotesMock.mockResolvedValue({ Suscripciones: "Netflix" });
+    await saveCategoryNote("2026-06", "Suscripciones", "   ");
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith("2026-06", {});
   });
 });
 

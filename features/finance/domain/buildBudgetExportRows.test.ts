@@ -103,6 +103,26 @@ describe("buildBudgetExportRows", () => {
     expect(rows.map((r) => r.categoria)).toEqual(["Arriendo"]);
   });
 
+  it("never includes a note/nota field in export rows, even when a note exists for that category elsewhere", () => {
+    const groups = [
+      { name: "Gastos fijos", type: "expense" as const, categories: ["Suscripciones"] },
+    ];
+
+    // buildBudgetExportRows has no notes parameter at all — this asserts the row shape itself
+    // has no note-related key, guarding against accidental future coupling to category notes.
+    const rows = buildBudgetExportRows(groups, { Suscripciones: 20000 }, [], []);
+
+    expect(rows[0]).toEqual({
+      categoria: "Suscripciones",
+      presupuestado: 20000,
+      real: 0,
+      diferencia: 20000,
+      cerrada: false,
+    });
+    expect(rows[0]).not.toHaveProperty("nota");
+    expect(rows[0]).not.toHaveProperty("note");
+  });
+
   it("includes a re-included (not-excluded) category with its persisted amounts", () => {
     const groups = [
       { name: "Gastos fijos", type: "expense" as const, categories: ["Suscripciones"] },

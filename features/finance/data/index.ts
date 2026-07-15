@@ -4,5 +4,6 @@ export {
   loadTransactions,
   loadClosedCategories,
   loadExcludedCategories,
+  loadCategoryNotes,
   loadBudgetUnitConfig,
 } from "./kvAdapter";

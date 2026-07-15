@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from "vitest";
+import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import { SummaryCard, BudgetTab } from "./BudgetTab";
 import type { FinanceTransaction } from "@/features/finance/domain";
@@ -7,12 +7,14 @@ const toggleClosedCategoryMock = vi.hoisted(() => vi.fn().mockResolvedValue(unde
 const toggleExcludedCategoryMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const getBudgetForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 const getBudgetUnitConfigForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
+const saveCategoryNoteMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock("@/features/finance/data/financeActions", () => ({
   getBudgetForMonth: getBudgetForMonthMock,
   getBudgetUnitConfigForMonth: getBudgetUnitConfigForMonthMock,
   toggleClosedCategory: toggleClosedCategoryMock,
   toggleExcludedCategory: toggleExcludedCategoryMock,
+  saveCategoryNote: saveCategoryNoteMock,
 }));
 
 // jsdom does not implement HTMLDialogElement.showModal / close (used by BudgetCategoriesModal)
@@ -588,6 +590,141 @@ describe("BudgetTab — excluded expense categories", () => {
     const incomeGroups = within(tableView).getAllByText("Suscripciones");
     // Only the income row should remain (expense one filtered out)
     expect(incomeGroups).toHaveLength(1);
+  });
+});
+
+describe("BudgetTab — category notes", () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
+  const onOpenTransaction = vi.fn();
+
+  const groups = [
+    { name: "Gastos fijos", type: "expense" as const, categories: ["Suscripciones", "Arriendo"] },
+  ];
+
+  beforeEach(() => {
+    saveCategoryNoteMock.mockClear();
+  });
+
+  it("shows a note indicator on a category with a saved note, in both table and card views", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialCategoryNotes={{ Suscripciones: "Netflix + Spotify" }}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    const cardsView = screen.getByTestId("budget-cards");
+    expect(within(tableView).getByTestId("note-indicator-Suscripciones")).toBeTruthy();
+    expect(within(cardsView).getByTestId("note-indicator-Suscripciones")).toBeTruthy();
+  });
+
+  it("does not show a note indicator when no note exists for a category", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    expect(within(tableView).queryByTestId("note-indicator-Arriendo")).toBeNull();
+  });
+
+  it("expanding a category's name cell and saving non-empty text calls saveCategoryNote and shows the indicator", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    fireEvent.click(within(tableView).getByRole("button", { name: /Agregar nota a Arriendo/ }));
+
+    const textarea = within(tableView).getByPlaceholderText("Agregar nota...");
+    fireEvent.blur(textarea, { target: { value: "Depto + estacionamiento" } });
+
+    expect(saveCategoryNoteMock).toHaveBeenCalledWith(
+      "2026-07",
+      "Arriendo",
+      "Depto + estacionamiento"
+    );
+    expect(within(tableView).getByTestId("note-indicator-Arriendo")).toBeTruthy();
+  });
+
+  it("saving empty text removes the note indicator", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialCategoryNotes={{ Arriendo: "Depto" }}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    fireEvent.click(within(tableView).getByRole("button", { name: /Ver nota de Arriendo/ }));
+
+    const textarea = within(tableView).getByPlaceholderText("Agregar nota...");
+    fireEvent.blur(textarea, { target: { value: "" } });
+
+    expect(saveCategoryNoteMock).toHaveBeenCalledWith("2026-07", "Arriendo", "");
+    expect(within(tableView).queryByTestId("note-indicator-Arriendo")).toBeNull();
+  });
+
+  it("does not render note affordance on income category rows", () => {
+    const incomeGroups = [{ name: "Sueldo", type: "income" as const, categories: ["Peter"] }];
+    render(
+      <BudgetTab
+        groups={incomeGroups}
+        initialBudget={{ Peter: 1000000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    expect(
+      screen.queryByRole("button", { name: /Agregar nota a Peter|Ver nota de Peter/ })
+    ).toBeNull();
+  });
+
+  it("does not add extra grid columns to the desktop row when a note indicator is present (mobile-overflow regression guard)", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialCategoryNotes={{ Suscripciones: "Netflix" }}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    const row = within(tableView).getByText("Suscripciones").closest("[aria-disabled]") as HTMLElement;
+    expect(row.className).toContain("grid-cols-4");
+    expect(row.children).toHaveLength(4);
   });
 });
 
