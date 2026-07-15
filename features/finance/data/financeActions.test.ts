@@ -45,6 +45,7 @@ import {
   handleSaveBudgetUnitConfig,
   getExcludedCategoriesForMonth,
   toggleExcludedCategory,
+  setExcludedCategoriesForMonth,
   getCategoryNotesForMonth,
   saveCategoryNote,
 } from "./financeActions";
@@ -243,6 +244,32 @@ describe("toggleExcludedCategory", () => {
     loadExcludedCategoriesMock.mockResolvedValue(["Suscripciones", "Internet"]);
     await toggleExcludedCategory("2026-06", "Suscripciones");
     expect(saveExcludedCategoriesMock).toHaveBeenCalledWith("2026-06", ["Internet"]);
+  });
+});
+
+describe("setExcludedCategoriesForMonth", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing without auth", async () => {
+    withoutAuth();
+    await setExcludedCategoriesForMonth("2026-06", ["Suscripciones"]);
+    expect(saveExcludedCategoriesMock).not.toHaveBeenCalled();
+  });
+
+  it("replaces the full excluded-categories list when authenticated (no read-modify-write)", async () => {
+    withAuth();
+    await setExcludedCategoriesForMonth("2026-06", ["Suscripciones", "Gimnasio"]);
+    expect(saveExcludedCategoriesMock).toHaveBeenCalledWith("2026-06", [
+      "Suscripciones",
+      "Gimnasio",
+    ]);
+    expect(loadExcludedCategoriesMock).not.toHaveBeenCalled();
+  });
+
+  it("replaces with an empty list when the reference month has no exclusions", async () => {
+    withAuth();
+    await setExcludedCategoriesForMonth("2026-06", []);
+    expect(saveExcludedCategoriesMock).toHaveBeenCalledWith("2026-06", []);
   });
 });
 

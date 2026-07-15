@@ -87,3 +87,73 @@ describe("BudgetCategoriesModal", () => {
     expect(onToggle).not.toHaveBeenCalled();
   });
 });
+
+describe("BudgetCategoriesModal — grouped rendering", () => {
+  const multiGroupGroups = [
+    { name: "Sueldo", type: "income" as const, categories: ["Peter"] },
+    {
+      name: "Servicios",
+      type: "expense" as const,
+      categories: ["Luz", "Agua"],
+    },
+    {
+      name: "Supermercado",
+      type: "expense" as const,
+      categories: ["Jumbo", "Despensa"],
+    },
+    { name: "Devolución", type: "refund" as const, categories: ["Isapre"] },
+  ];
+
+  it("renders each expense group's name as a heading, in the same order as the input groups", () => {
+    render(
+      <BudgetCategoriesModal
+        isOpen={true}
+        onClose={vi.fn()}
+        month="2026-07"
+        groups={multiGroupGroups}
+        excludedCategories={[]}
+        onToggle={vi.fn()}
+      />
+    );
+    const headings = screen.getAllByRole("heading", { level: 3, hidden: true });
+    const headingTexts = headings.map((h) => h.textContent);
+    expect(headingTexts).toEqual(["Servicios", "Supermercado"]);
+  });
+
+  it("does not render a heading for income/refund groups", () => {
+    render(
+      <BudgetCategoriesModal
+        isOpen={true}
+        onClose={vi.fn()}
+        month="2026-07"
+        groups={multiGroupGroups}
+        excludedCategories={[]}
+        onToggle={vi.fn()}
+      />
+    );
+    expect(screen.queryByRole("heading", { name: "Sueldo", hidden: true })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Devolución", hidden: true })).toBeNull();
+  });
+
+  it("lists each group's categories under its own heading, sorted alphabetically within the group", () => {
+    render(
+      <BudgetCategoriesModal
+        isOpen={true}
+        onClose={vi.fn()}
+        month="2026-07"
+        groups={multiGroupGroups}
+        excludedCategories={[]}
+        onToggle={vi.fn()}
+      />
+    );
+    const serviciosHeading = screen.getByRole("heading", { name: "Servicios", hidden: true });
+    const serviciosSection = serviciosHeading.closest("section") as HTMLElement;
+    const serviciosButtons = within(serviciosSection).getAllByRole("button", { hidden: true });
+    expect(serviciosButtons.map((b) => b.textContent)).toEqual(["Excluir Agua", "Excluir Luz"]);
+
+    const superHeading = screen.getByRole("heading", { name: "Supermercado", hidden: true });
+    const superSection = superHeading.closest("section") as HTMLElement;
+    const superButtons = within(superSection).getAllByRole("button", { hidden: true });
+    expect(superButtons.map((b) => b.textContent)).toEqual(["Excluir Despensa", "Excluir Jumbo"]);
+  });
+});

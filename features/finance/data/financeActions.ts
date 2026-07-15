@@ -155,6 +155,17 @@ export async function toggleExcludedCategory(month: string, category: string): P
   await saveExcludedCategories(month, next);
 }
 
+// Full replace (not merge) — mirrors handleSaveBudget/handleSaveBudgetUnitConfig's copy
+// semantics: "copy from" fully replaces the month's exclusion set rather than merging it.
+export async function setExcludedCategoriesForMonth(
+  month: string,
+  categories: string[]
+): Promise<void> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return;
+  await saveExcludedCategories(month, categories);
+}
+
 export async function getCategoryNotesForMonth(month: string): Promise<Record<string, string>> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return {};

@@ -7,6 +7,8 @@ const toggleClosedCategoryMock = vi.hoisted(() => vi.fn().mockResolvedValue(unde
 const toggleExcludedCategoryMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const getBudgetForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 const getBudgetUnitConfigForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
+const getExcludedCategoriesForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue([]));
+const setExcludedCategoriesForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const saveCategoryNoteMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock("@/features/finance/data/financeActions", () => ({
@@ -14,6 +16,8 @@ vi.mock("@/features/finance/data/financeActions", () => ({
   getBudgetUnitConfigForMonth: getBudgetUnitConfigForMonthMock,
   toggleClosedCategory: toggleClosedCategoryMock,
   toggleExcludedCategory: toggleExcludedCategoryMock,
+  getExcludedCategoriesForMonth: getExcludedCategoriesForMonthMock,
+  setExcludedCategoriesForMonth: setExcludedCategoriesForMonthMock,
   saveCategoryNote: saveCategoryNoteMock,
 }));
 
@@ -933,5 +937,86 @@ describe("BudgetTab — unit mode (unit amount × quantity × factor)", () => {
     expect(unitAmountInput.value).toBe("55000");
     expect(quantityInput.value).toBe("5");
     expect(factorInput.value).toBe("0.9");
+  });
+});
+
+describe("BudgetTab — 'Copiar desde' includes excluded categories", () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
+  const onOpenTransaction = vi.fn();
+
+  const groups = [
+    { name: "Gastos fijos", type: "expense" as const, categories: ["Arriendo", "Suscripciones"] },
+  ];
+
+  beforeEach(() => {
+    getBudgetForMonthMock.mockClear().mockResolvedValue({});
+    getBudgetUnitConfigForMonthMock.mockClear().mockResolvedValue({});
+    getExcludedCategoriesForMonthMock.mockClear().mockResolvedValue([]);
+    setExcludedCategoriesForMonthMock.mockClear().mockResolvedValue(undefined);
+  });
+
+  it("copying from a reference month replaces excludedCategories with the reference month's set and hides the newly-excluded category", async () => {
+    getBudgetForMonthMock.mockResolvedValueOnce({ Arriendo: 400000, Suscripciones: 15000 });
+    getBudgetUnitConfigForMonthMock.mockResolvedValueOnce({});
+    getExcludedCategoriesForMonthMock.mockResolvedValueOnce(["Suscripciones"]);
+
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{}}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialExcludedCategories={[]}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /^Copiar$/ }));
+
+    await waitFor(() => {
+      expect(setExcludedCategoriesForMonthMock).toHaveBeenCalledWith("2026-07", [
+        "Suscripciones",
+      ]);
+    });
+
+    const tableView = screen.getByTestId("budget-table");
+    const cardsView = screen.getByTestId("budget-cards");
+    expect(within(tableView).queryByText("Suscripciones")).toBeNull();
+    expect(within(cardsView).queryByText("Suscripciones")).toBeNull();
+    expect(within(tableView).getByText("Arriendo")).toBeTruthy();
+  });
+
+  it("copying from a reference month with no exclusions clears the current month's excluded categories", async () => {
+    getBudgetForMonthMock.mockResolvedValueOnce({ Arriendo: 400000, Suscripciones: 15000 });
+    getBudgetUnitConfigForMonthMock.mockResolvedValueOnce({});
+    getExcludedCategoriesForMonthMock.mockResolvedValueOnce([]);
+
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{}}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialExcludedCategories={["Suscripciones"]}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+
+    const tableViewBefore = screen.getByTestId("budget-table");
+    expect(within(tableViewBefore).queryByText("Suscripciones")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Copiar$/ }));
+
+    await waitFor(() => {
+      expect(setExcludedCategoriesForMonthMock).toHaveBeenCalledWith("2026-07", []);
+    });
+
+    const tableView = screen.getByTestId("budget-table");
+    expect(within(tableView).getByText("Suscripciones")).toBeTruthy();
   });
 });

@@ -26,32 +26,40 @@ export function BudgetCategoriesModal({
   excludedCategories,
   onToggle,
 }: Props) {
-  const expenseCategories = groups
-    .filter((g) => g.type === "expense")
-    .flatMap((g) => g.categories)
-    .sort((a, b) => a.localeCompare(b, "es"));
+  // Groups keep the order they were given in (same as BudgetTab's GroupSection); only
+  // categories within each group are alphabetized, mirroring GroupSection's row order.
+  const expenseGroups = groups.filter((g) => g.type === "expense");
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title={`Categorías del presupuesto — ${month}`}>
-      <div className="flex flex-col gap-3">
-        <ul className="flex flex-col gap-2">
-          {expenseCategories.map((cat) => {
-            const isExcluded = excludedCategories.includes(cat);
-            return (
-              <li key={cat} className="flex items-center justify-between gap-2">
-                <span className="text-brown-700 text-sm">{cat}</span>
-                <button
-                  type="button"
-                  onClick={() => onToggle(cat)}
-                  aria-pressed={isExcluded}
-                  className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-2 py-1 text-xs transition-colors"
-                >
-                  {isExcluded ? `Incluir ${cat}` : `Excluir ${cat}`}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+      <div className="flex flex-col gap-4">
+        {expenseGroups.map((group) => (
+          <section key={group.name} className="flex flex-col gap-2">
+            <h3 className="text-brown-400 text-xs font-semibold tracking-wide uppercase">
+              {group.name}
+            </h3>
+            <ul className="flex flex-col gap-2">
+              {[...group.categories]
+                .sort((a, b) => a.localeCompare(b, "es"))
+                .map((cat) => {
+                  const isExcluded = excludedCategories.includes(cat);
+                  return (
+                    <li key={cat} className="flex items-center justify-between gap-2">
+                      <span className="text-brown-700 text-sm">{cat}</span>
+                      <button
+                        type="button"
+                        onClick={() => onToggle(cat)}
+                        aria-pressed={isExcluded}
+                        className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-2 py-1 text-xs transition-colors"
+                      >
+                        {isExcluded ? `Incluir ${cat}` : `Excluir ${cat}`}
+                      </button>
+                    </li>
+                  );
+                })}
+            </ul>
+          </section>
+        ))}
 
         <div className="flex justify-end">
           <Button onPress={onClose} type="button" variant="secondary">

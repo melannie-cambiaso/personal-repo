@@ -5,6 +5,8 @@ import { type Group } from "@/features/finance/data/kvAdapter";
 import {
   getBudgetForMonth,
   getBudgetUnitConfigForMonth,
+  getExcludedCategoriesForMonth,
+  setExcludedCategoriesForMonth,
   toggleClosedCategory,
   toggleExcludedCategory,
   saveCategoryNote,
@@ -162,12 +164,15 @@ export function BudgetTab({
 
   const handleCopy = async () => {
     setCopying(true);
-    const [refBudget, refConfig] = await Promise.all([
+    const [refBudget, refConfig, refExcluded] = await Promise.all([
       getBudgetForMonth(refMonth),
       getBudgetUnitConfigForMonth(refMonth),
+      getExcludedCategoriesForMonth(refMonth),
     ]);
 
     applyUnitConfig(refConfig, refBudget);
+    setExcludedCategories(refExcluded);
+    void setExcludedCategoriesForMonth(selectedMonth, refExcluded);
     setInputKey((k) => k + 1);
     setCopying(false);
   };
