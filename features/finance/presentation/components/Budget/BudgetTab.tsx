@@ -6,13 +6,16 @@ import {
   getBudgetForMonth,
   getBudgetUnitConfigForMonth,
   toggleClosedCategory,
+  toggleExcludedCategory,
 } from "@/features/finance/data/financeActions";
+import { BudgetCategoriesModal } from "./BudgetCategoriesModal";
 import {
   computeActualFromTransactions,
   computeBudgetSummary,
   computePendingExpenses,
   deriveUnitTotal,
   DEFAULT_UNIT_CONFIG,
+  excludeCategoriesFromGroups,
 } from "@/features/finance/domain";
 import type { FinanceTransaction, UnitConfig, BudgetUnitConfig } from "@/features/finance/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
@@ -24,6 +27,7 @@ interface Props {
   transactions: FinanceTransaction[];
   selectedMonth: string;
   initialClosedCategories?: string[];
+  initialExcludedCategories?: string[];
   initialUnitConfig?: BudgetUnitConfig;
   onSave: (budget: Record<string, number>) => Promise<void>;
   onOpenTransaction: (category: string) => void;
@@ -45,6 +49,7 @@ export function BudgetTab({
   transactions,
   selectedMonth,
   initialClosedCategories = [],
+  initialExcludedCategories = [],
   initialUnitConfig = {},
   onSave,
   onOpenTransaction,
@@ -56,6 +61,9 @@ export function BudgetTab({
   const [refMonth, setRefMonth] = useState(prevMonth(selectedMonth));
   const [copying, setCopying] = useState(false);
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
+  const [excludedCategories, setExcludedCategories] =
+    useState<string[]>(initialExcludedCategories);
+  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [lastUnitConfig, setLastUnitConfig] = useState<Record<string, UnitConfig>>({});
   const saveBudgetOrdered = useOrderedSave(onSave);
   const saveUnitConfigOrdered = useOrderedSave(onSaveUnitConfig);
@@ -121,6 +129,14 @@ export function BudgetTab({
     void toggleClosedCategory(selectedMonth, category);
   };
 
+  const handleToggleExcluded = (category: string) => {
+    const next = excludedCategories.includes(category)
+      ? excludedCategories.filter((c) => c !== category)
+      : [...excludedCategories, category];
+    setExcludedCategories(next);
+    void toggleExcludedCategory(selectedMonth, category);
+  };
+
   const handleCopy = async () => {
     setCopying(true);
     const [refBudget, refConfig] = await Promise.all([
@@ -135,7 +151,10 @@ export function BudgetTab({
 
   const incomeGroups = groups.filter((g) => g.type === "income");
   const refundGroups = groups.filter((g) => g.type === "refund");
-  const expenseGroups = groups.filter((g) => g.type === "expense");
+  const expenseGroups = excludeCategoriesFromGroups(
+    groups.filter((g) => g.type === "expense"),
+    excludedCategories
+  );
 
   const sumBudget = (gs: Group[]) =>
     gs.flatMap((g) => g.categories).reduce((s, c) => s + (budget[c] ?? 0), 0);
@@ -154,7 +173,8 @@ export function BudgetTab({
     budget,
     actual,
     allExpenseCategories,
-    closedCategories
+    closedCategories,
+    excludedCategories
   );
   const pendingAmount =
     actualExpense > budgetExpense ? -(actualExpense - budgetExpense) : pendingExpenses;
@@ -191,7 +211,23 @@ export function BudgetTab({
         >
           Exportar a Excel
         </a>
+        <button
+          type="button"
+          onClick={() => setIsCategoriesModalOpen(true)}
+          className="border-brown-800 text-brown-800 hover:bg-brown-800 cursor-pointer rounded-lg border px-4 py-1.5 text-xs font-bold whitespace-nowrap transition-colors hover:text-white"
+        >
+          Categorías
+        </button>
       </div>
+
+      <BudgetCategoriesModal
+        isOpen={isCategoriesModalOpen}
+        onClose={() => setIsCategoriesModalOpen(false)}
+        month={selectedMonth}
+        groups={groups}
+        excludedCategories={excludedCategories}
+        onToggle={handleToggleExcluded}
+      />
 
       <div className="border-brown-300 overflow-hidden rounded-xl border bg-white">
         <div className="border-cream-200 border-b px-4 py-3">

@@ -92,4 +92,31 @@ describe("buildBudgetExportRows", () => {
 
     expect(rows.map((r) => r.categoria)).toEqual(["Peter", "Arriendo", "Zapatos", "Isapre"]);
   });
+
+  it("omits an excluded category's row from the export", () => {
+    const groups = [
+      { name: "Gastos fijos", type: "expense" as const, categories: ["Arriendo", "Suscripciones"] },
+    ];
+
+    const rows = buildBudgetExportRows(groups, {}, [], [], ["Suscripciones"]);
+
+    expect(rows.map((r) => r.categoria)).toEqual(["Arriendo"]);
+  });
+
+  it("includes a re-included (not-excluded) category with its persisted amounts", () => {
+    const groups = [
+      { name: "Gastos fijos", type: "expense" as const, categories: ["Suscripciones"] },
+    ];
+    const budget = { Suscripciones: 20000 };
+    const transactions = [tx("Suscripciones", 15000)];
+
+    const rows = buildBudgetExportRows(groups, budget, transactions, [], []);
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      categoria: "Suscripciones",
+      presupuestado: 20000,
+      real: 15000,
+    });
+  });
 });

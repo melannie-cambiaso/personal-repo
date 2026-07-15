@@ -5,6 +5,7 @@ import {
   getBudgetForMonth,
   getTransactionsForMonth,
   getClosedCategoriesForMonth,
+  getExcludedCategoriesForMonth,
   getBudgetUnitConfigForMonth,
   addTransaction,
   deleteTransaction,
@@ -23,6 +24,7 @@ interface Props {
   initialTransactions: FinanceTransaction[];
   initialCategories: Group[];
   initialClosedCategories: string[];
+  initialExcludedCategories: string[];
   initialUnitConfig: BudgetUnitConfig;
   onSaveBudget: (month: string, budget: Record<string, number>) => Promise<void>;
   onSaveUnitConfig: (month: string, config: BudgetUnitConfig) => Promise<void>;
@@ -33,6 +35,7 @@ export function FinanceScreen({
   initialTransactions,
   initialCategories,
   initialClosedCategories,
+  initialExcludedCategories,
   initialUnitConfig,
   onSaveBudget,
   onSaveUnitConfig,
@@ -45,6 +48,8 @@ export function FinanceScreen({
   const [activeTab, setActiveTab] = useState<"budget" | "categories" | "transactions">("budget");
   const [transactions, setTransactions] = useState<FinanceTransaction[]>(initialTransactions);
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
+  const [excludedCategories, setExcludedCategories] =
+    useState<string[]>(initialExcludedCategories);
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [activeTxCategory, setActiveTxCategory] = useState("");
 
@@ -54,11 +59,13 @@ export function FinanceScreen({
       getBudgetForMonth(selectedMonth),
       getTransactionsForMonth(selectedMonth),
       getClosedCategoriesForMonth(selectedMonth),
+      getExcludedCategoriesForMonth(selectedMonth),
       getBudgetUnitConfigForMonth(selectedMonth),
-    ]).then(([b, txs, closed, unitConfig]) => {
+    ]).then(([b, txs, closed, excluded, unitConfig]) => {
       setMonthBudget(b);
       setTransactions(txs);
       setClosedCategories(closed);
+      setExcludedCategories(excluded);
       setMonthUnitConfig(unitConfig);
       setBudgetLoadedFor(selectedMonth);
     });
@@ -180,6 +187,7 @@ export function FinanceScreen({
               transactions={transactions}
               selectedMonth={selectedMonth}
               initialClosedCategories={closedCategories}
+              initialExcludedCategories={excludedCategories}
               initialUnitConfig={monthUnitConfig}
               onSave={(b) => onSaveBudget(selectedMonth, b)}
               onSaveUnitConfig={(c) => onSaveUnitConfig(selectedMonth, c)}

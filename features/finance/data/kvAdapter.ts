@@ -78,3 +78,11 @@ const closedCategoriesStore = monthlyKvStore<string[]>(
 );
 export const loadClosedCategories = closedCategoriesStore.load;
 export const saveClosedCategories = closedCategoriesStore.save;
+
+const excludedCategoriesStore = monthlyKvStore<string[]>(
+  "finance-excluded-categories",
+  "ExcludedCategories",
+  () => []
+);
+export const loadExcludedCategories = excludedCategoriesStore.load;
+export const saveExcludedCategories = excludedCategoriesStore.save;

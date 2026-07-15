@@ -6,6 +6,7 @@ import {
   loadBudget,
   loadCategories,
   loadClosedCategories,
+  loadExcludedCategories,
   loadTransactions,
 } from "@/features/finance/data/kvAdapter";
 import { buildBudgetExportRows } from "@/features/finance/domain";
@@ -28,14 +29,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing or invalid month" }, { status: 400 });
   }
 
-  const [budget, transactions, groups, closedCategories] = await Promise.all([
+  const [budget, transactions, groups, closedCategories, excludedCategories] = await Promise.all([
     loadBudget(month),
     loadTransactions(month),
     loadCategories(),
     loadClosedCategories(month),
+    loadExcludedCategories(month),
   ]);
 
-  const rows = buildBudgetExportRows(groups, budget, transactions, closedCategories);
+  const rows = buildBudgetExportRows(
+    groups,
+    budget,
+    transactions,
+    closedCategories,
+    excludedCategories
+  );
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Presupuesto");

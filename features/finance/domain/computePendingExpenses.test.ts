@@ -52,4 +52,20 @@ describe("computePendingExpenses", () => {
   it("treats undefined closedCategories as empty (backward compat)", () => {
     expect(computePendingExpenses({ food: 100 }, { food: 60 }, ["food"], undefined)).toBe(40);
   });
+
+  it("omits an excluded category from the pending total even with an unpaid budgeted amount", () => {
+    expect(
+      computePendingExpenses(
+        { food: 100, rent: 500 },
+        { food: 60, rent: 0 },
+        ["food", "rent"],
+        undefined,
+        ["rent"]
+      )
+    ).toBe(40); // rent excluded; only food: 100-60=40
+  });
+
+  it("treats undefined excludedCategories as empty (backward compat when omitted)", () => {
+    expect(computePendingExpenses({ food: 100 }, { food: 60 }, ["food"], undefined)).toBe(40);
+  });
 });

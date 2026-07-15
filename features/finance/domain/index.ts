@@ -8,3 +8,4 @@ export { computeBudgetSummary } from "./computeBudgetSummary";
 export type { BudgetSummary } from "./computeBudgetSummary";
 export { buildBudgetExportRows } from "./buildBudgetExportRows";
 export type { BudgetExportRow } from "./buildBudgetExportRows";
+export { excludeCategoriesFromGroups } from "./excludeCategoriesFromGroups";

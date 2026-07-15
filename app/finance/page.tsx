@@ -5,6 +5,7 @@ import {
   loadTransactions,
   loadCategories,
   loadClosedCategories,
+  loadExcludedCategories,
   loadBudgetUnitConfig,
 } from "@/features/finance/data";
 import {
@@ -25,12 +26,14 @@ export default async function FinancePage() {
     initialTransactions,
     initialCategories,
     initialClosedCategories,
+    initialExcludedCategories,
     initialUnitConfig,
   ] = await Promise.all([
     loadBudget(currentMonth),
     loadTransactions(currentMonth),
     loadCategories(),
     loadClosedCategories(currentMonth),
+    loadExcludedCategories(currentMonth),
     loadBudgetUnitConfig(currentMonth),
   ]);
 
@@ -40,6 +43,7 @@ export default async function FinancePage() {
       initialTransactions={initialTransactions}
       initialCategories={initialCategories}
       initialClosedCategories={initialClosedCategories}
+      initialExcludedCategories={initialExcludedCategories}
       initialUnitConfig={initialUnitConfig}
       onSaveBudget={handleSaveBudget}
       onSaveUnitConfig={handleSaveBudgetUnitConfig}

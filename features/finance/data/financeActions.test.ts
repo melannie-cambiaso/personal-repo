@@ -9,6 +9,8 @@ const loadClosedCategoriesMock = vi.hoisted(() => vi.fn());
 const saveClosedCategoriesMock = vi.hoisted(() => vi.fn());
 const loadBudgetUnitConfigMock = vi.hoisted(() => vi.fn());
 const saveBudgetUnitConfigMock = vi.hoisted(() => vi.fn());
+const loadExcludedCategoriesMock = vi.hoisted(() => vi.fn());
+const saveExcludedCategoriesMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -24,6 +26,8 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     saveClosedCategories: saveClosedCategoriesMock,
     loadBudgetUnitConfig: loadBudgetUnitConfigMock,
     saveBudgetUnitConfig: saveBudgetUnitConfigMock,
+    loadExcludedCategories: loadExcludedCategoriesMock,
+    saveExcludedCategories: saveExcludedCategoriesMock,
   };
 });
 
@@ -35,6 +39,8 @@ import {
   toggleClosedCategory,
   getBudgetUnitConfigForMonth,
   handleSaveBudgetUnitConfig,
+  getExcludedCategoriesForMonth,
+  toggleExcludedCategory,
 } from "./financeActions";
 
 const tx = (overrides: Partial<FinanceTransaction> = {}): FinanceTransaction => ({
@@ -184,6 +190,53 @@ describe("toggleClosedCategory", () => {
     loadClosedCategoriesMock.mockResolvedValue([]);
     await toggleClosedCategory("2026-06", "Alquiler");
     expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("getExcludedCategoriesForMonth", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns [] without auth and does not read Redis", async () => {
+    withoutAuth();
+    const result = await getExcludedCategoriesForMonth("2026-06");
+    expect(result).toEqual([]);
+    expect(loadExcludedCategoriesMock).not.toHaveBeenCalled();
+  });
+
+  it("returns the stored array from kvAdapter when authenticated", async () => {
+    withAuth();
+    loadExcludedCategoriesMock.mockResolvedValue(["Suscripciones"]);
+    const result = await getExcludedCategoriesForMonth("2026-06");
+    expect(result).toEqual(["Suscripciones"]);
+    expect(loadExcludedCategoriesMock).toHaveBeenCalledWith("2026-06");
+  });
+});
+
+describe("toggleExcludedCategory", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing without auth", async () => {
+    withoutAuth();
+    await toggleExcludedCategory("2026-06", "Suscripciones");
+    expect(loadExcludedCategoriesMock).not.toHaveBeenCalled();
+    expect(saveExcludedCategoriesMock).not.toHaveBeenCalled();
+  });
+
+  it("adds the category when it is not currently excluded", async () => {
+    withAuth();
+    loadExcludedCategoriesMock.mockResolvedValue(["Internet"]);
+    await toggleExcludedCategory("2026-06", "Suscripciones");
+    expect(saveExcludedCategoriesMock).toHaveBeenCalledWith("2026-06", [
+      "Internet",
+      "Suscripciones",
+    ]);
+  });
+
+  it("removes the category when it is already excluded", async () => {
+    withAuth();
+    loadExcludedCategoriesMock.mockResolvedValue(["Suscripciones", "Internet"]);
+    await toggleExcludedCategory("2026-06", "Suscripciones");
+    expect(saveExcludedCategoriesMock).toHaveBeenCalledWith("2026-06", ["Internet"]);
   });
 });
 

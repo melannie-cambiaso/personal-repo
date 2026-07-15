@@ -1,9 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, within, fireEvent, waitFor } from "@testing-library/react";
 import { SummaryCard, BudgetTab } from "./BudgetTab";
 import type { FinanceTransaction } from "@/features/finance/domain";
 
 const toggleClosedCategoryMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const toggleExcludedCategoryMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const getBudgetForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 const getBudgetUnitConfigForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 
@@ -11,7 +12,14 @@ vi.mock("@/features/finance/data/financeActions", () => ({
   getBudgetForMonth: getBudgetForMonthMock,
   getBudgetUnitConfigForMonth: getBudgetUnitConfigForMonthMock,
   toggleClosedCategory: toggleClosedCategoryMock,
+  toggleExcludedCategory: toggleExcludedCategoryMock,
 }));
+
+// jsdom does not implement HTMLDialogElement.showModal / close (used by BudgetCategoriesModal)
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = vi.fn();
+  HTMLDialogElement.prototype.close = vi.fn();
+});
 
 // Task 1.1 — spec: Scenario: Under budget
 describe("SummaryCard — pending row", () => {
@@ -484,6 +492,150 @@ describe("BudgetTab — closed expense categories", () => {
     const cardsView = screen.getByTestId("budget-cards");
     expect(within(tableView).queryByRole("button", { name: /Cerrar|Reabrir/ })).toBeNull();
     expect(within(cardsView).queryByRole("button", { name: /Cerrar|Reabrir/ })).toBeNull();
+  });
+});
+
+describe("BudgetTab — excluded expense categories", () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
+  const onOpenTransaction = vi.fn();
+
+  it("does not render an excluded category's row in the table or cards view", () => {
+    const groups = [
+      { name: "Gastos fijos", type: "expense" as const, categories: ["Arriendo", "Suscripciones"] },
+    ];
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Arriendo: 400000, Suscripciones: 15000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialExcludedCategories={["Suscripciones"]}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    const cardsView = screen.getByTestId("budget-cards");
+    expect(within(tableView).queryByText("Suscripciones")).toBeNull();
+    expect(within(cardsView).queryByText("Suscripciones")).toBeNull();
+    expect(within(tableView).getByText("Arriendo")).toBeTruthy();
+  });
+
+  it("excludes an excluded category's amounts from budget/actual totals and pending", () => {
+    const groups = [
+      { name: "Gastos fijos", type: "expense" as const, categories: ["Arriendo", "Suscripciones"] },
+    ];
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Arriendo: 100000, Suscripciones: 15000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialExcludedCategories={["Suscripciones"]}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const gastosCard = screen.getAllByText("Gastos")[0].closest("div")!;
+    // total budget shown should be 100000 (Suscripciones' 15000 excluded)
+    expect(within(gastosCard).getByText("Presup. $100.000")).toBeTruthy();
+  });
+
+  it("a category both closed and excluded does not render (excluded wins)", () => {
+    const groups = [
+      { name: "Gastos fijos", type: "expense" as const, categories: ["Gimnasio"] },
+    ];
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Gimnasio: 20000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialClosedCategories={["Gimnasio"]}
+        initialExcludedCategories={["Gimnasio"]}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    const cardsView = screen.getByTestId("budget-cards");
+    expect(within(tableView).queryByText("Gimnasio")).toBeNull();
+    expect(within(cardsView).queryByText("Gimnasio")).toBeNull();
+  });
+
+  it("an income category with the same name as an excluded expense category still renders", () => {
+    const groups = [
+      { name: "Sueldo", type: "income" as const, categories: ["Suscripciones"] },
+      { name: "Gastos fijos", type: "expense" as const, categories: ["Suscripciones"] },
+    ];
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{}}
+        transactions={[]}
+        selectedMonth="2026-07"
+        initialExcludedCategories={["Suscripciones"]}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    const tableView = screen.getByTestId("budget-table");
+    const incomeGroups = within(tableView).getAllByText("Suscripciones");
+    // Only the income row should remain (expense one filtered out)
+    expect(incomeGroups).toHaveLength(1);
+  });
+});
+
+describe("BudgetTab — BudgetCategoriesModal launch and toggle wiring", () => {
+  const onSave = vi.fn().mockResolvedValue(undefined);
+  const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
+  const onOpenTransaction = vi.fn();
+
+  const groups = [
+    { name: "Gastos fijos", type: "expense" as const, categories: ["Arriendo", "Suscripciones"] },
+  ];
+
+  it("toolbar has a button that opens BudgetCategoriesModal", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Arriendo: 400000, Suscripciones: 15000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Categorías/ }));
+    expect(screen.getByText(/Categorías del presupuesto/)).toBeTruthy();
+  });
+
+  it("toggling a category in the modal updates excludedCategories live and calls toggleExcludedCategory", () => {
+    render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Arriendo: 400000, Suscripciones: 15000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Categorías/ }));
+
+    fireEvent.click(screen.getByRole("button", { name: /Excluir Suscripciones/, hidden: true }));
+
+    expect(toggleExcludedCategoryMock).toHaveBeenCalledWith("2026-07", "Suscripciones");
+
+    const tableView = screen.getByTestId("budget-table");
+    expect(within(tableView).queryByText("Suscripciones")).toBeNull();
   });
 });
 

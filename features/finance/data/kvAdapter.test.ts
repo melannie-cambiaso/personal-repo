@@ -11,6 +11,8 @@ import {
   saveClosedCategories,
   loadBudgetUnitConfig,
   saveBudgetUnitConfig,
+  loadExcludedCategories,
+  saveExcludedCategories,
 } from "./kvAdapter";
 import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
 
@@ -127,6 +129,54 @@ describe("loadBudgetUnitConfig", () => {
     redisMock.get.mockRejectedValue(new Error("connection lost"));
     const result = await loadBudgetUnitConfig("2026-06");
     expect(result).toEqual({});
+  });
+});
+
+describe("loadExcludedCategories", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns an empty array when the key is missing", async () => {
+    redisMock.get.mockResolvedValue(null);
+    const result = await loadExcludedCategories("2026-06");
+    expect(result).toEqual([]);
+  });
+
+  it("uses the correct key format: finance-excluded-categories:YYYY-MM", async () => {
+    redisMock.get.mockResolvedValue([]);
+    await loadExcludedCategories("2026-07");
+    expect(redisMock.get).toHaveBeenCalledWith("finance-excluded-categories:2026-07");
+  });
+
+  it("returns the stored array for the given month", async () => {
+    redisMock.get.mockResolvedValue(["Suscripciones"]);
+    const result = await loadExcludedCategories("2026-06");
+    expect(result).toEqual(["Suscripciones"]);
+  });
+
+  it("returns an empty array when redis.get throws", async () => {
+    redisMock.get.mockRejectedValue(new Error("connection lost"));
+    const result = await loadExcludedCategories("2026-06");
+    expect(result).toEqual([]);
+  });
+});
+
+describe("saveExcludedCategories", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("saves excluded categories under the correct key", async () => {
+    await saveExcludedCategories("2026-06", ["Suscripciones"]);
+    expect(redisMock.set).toHaveBeenCalledWith("finance-excluded-categories:2026-06", [
+      "Suscripciones",
+    ]);
+  });
+
+  it("swallows redis errors on save", async () => {
+    redisMock.set.mockRejectedValue(new Error("connection lost"));
+    await expect(saveExcludedCategories("2026-06", ["Suscripciones"])).resolves.toBeUndefined();
   });
 });
 

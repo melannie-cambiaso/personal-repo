@@ -3,5 +3,6 @@ export {
   loadCategories,
   loadTransactions,
   loadClosedCategories,
+  loadExcludedCategories,
   loadBudgetUnitConfig,
 } from "./kvAdapter";

@@ -14,6 +14,8 @@ import {
   saveClosedCategories,
   loadBudgetUnitConfig,
   saveBudgetUnitConfig,
+  loadExcludedCategories,
+  saveExcludedCategories,
 } from "./kvAdapter";
 
 export async function getBudgetForMonth(month: string): Promise<Record<string, number>> {
@@ -132,4 +134,21 @@ export async function toggleClosedCategory(month: string, category: string): Pro
     ? current.filter((c) => c !== category)
     : [...current, category];
   await saveClosedCategories(month, next);
+}
+
+export async function getExcludedCategoriesForMonth(month: string): Promise<string[]> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return [];
+  return loadExcludedCategories(month);
+}
+
+export async function toggleExcludedCategory(month: string, category: string): Promise<void> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return;
+
+  const current = await loadExcludedCategories(month);
+  const next = current.includes(category)
+    ? current.filter((c) => c !== category)
+    : [...current, category];
+  await saveExcludedCategories(month, next);
 }
