@@ -87,10 +87,22 @@ const excludedCategoriesStore = monthlyKvStore<string[]>(
 export const loadExcludedCategories = excludedCategoriesStore.load;
 export const saveExcludedCategories = excludedCategoriesStore.save;
 
-const categoryNotesStore = monthlyKvStore<Record<string, string>>(
-  "finance-category-notes",
-  "CategoryNotes",
-  () => ({})
-);
-export const loadCategoryNotes = categoryNotesStore.load;
-export const saveCategoryNotes = categoryNotesStore.save;
+// Global, not month-scoped — mirrors loadCategories/saveCategories exactly: one shared
+// note per category across every month, same cadence as the category list itself.
+const CATEGORY_NOTES_KEY = "finance-category-notes";
+
+export async function loadCategoryNotes(): Promise<Record<string, string>> {
+  try {
+    return (await redis.get<Record<string, string>>(CATEGORY_NOTES_KEY)) ?? {};
+  } catch {
+    return {};
+  }
+}
+
+export async function saveCategoryNotes(notes: Record<string, string>): Promise<void> {
+  try {
+    await redis.set(CATEGORY_NOTES_KEY, notes);
+  } catch {
+    // ponytail: swallow — caller has no recovery path; notes revert to in-memory state on next load
+  }
+}

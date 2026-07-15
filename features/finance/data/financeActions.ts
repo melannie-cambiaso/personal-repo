@@ -166,21 +166,18 @@ export async function setExcludedCategoriesForMonth(
   await saveExcludedCategories(month, categories);
 }
 
-export async function getCategoryNotesForMonth(month: string): Promise<Record<string, string>> {
+// Global, not month-scoped — same cadence as loadCategories/saveCategories.
+export async function getCategoryNotes(): Promise<Record<string, string>> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return {};
-  return loadCategoryNotes(month);
+  return loadCategoryNotes();
 }
 
-export async function saveCategoryNote(
-  month: string,
-  category: string,
-  text: string
-): Promise<void> {
+export async function saveCategoryNote(category: string, text: string): Promise<void> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;
 
-  const current = await loadCategoryNotes(month);
+  const current = await loadCategoryNotes();
   const trimmed = text.trim();
   const next = { ...current };
   if (trimmed) {
@@ -188,5 +185,5 @@ export async function saveCategoryNote(
   } else {
     delete next[category];
   }
-  await saveCategoryNotes(month, next);
+  await saveCategoryNotes(next);
 }

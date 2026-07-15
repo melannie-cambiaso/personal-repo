@@ -182,53 +182,51 @@ describe("saveExcludedCategories", () => {
   });
 });
 
-describe("loadCategoryNotes", () => {
+describe("loadCategoryNotes (global — not month-scoped)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("returns an empty object when the key is missing", async () => {
     redisMock.get.mockResolvedValue(null);
-    const result = await loadCategoryNotes("2026-06");
+    const result = await loadCategoryNotes();
     expect(result).toEqual({});
   });
 
-  it("uses the correct key format: finance-category-notes:YYYY-MM", async () => {
+  it("uses the global key with no month suffix: finance-category-notes", async () => {
     redisMock.get.mockResolvedValue({});
-    await loadCategoryNotes("2026-07");
-    expect(redisMock.get).toHaveBeenCalledWith("finance-category-notes:2026-07");
+    await loadCategoryNotes();
+    expect(redisMock.get).toHaveBeenCalledWith("finance-category-notes");
   });
 
-  it("returns the stored map for the given month", async () => {
+  it("returns the stored map", async () => {
     const stored = { Suscripciones: "Netflix + Spotify" };
     redisMock.get.mockResolvedValue(stored);
-    const result = await loadCategoryNotes("2026-06");
+    const result = await loadCategoryNotes();
     expect(result).toEqual(stored);
   });
 
   it("returns an empty object when redis.get throws", async () => {
     redisMock.get.mockRejectedValue(new Error("connection lost"));
-    const result = await loadCategoryNotes("2026-06");
+    const result = await loadCategoryNotes();
     expect(result).toEqual({});
   });
 });
 
-describe("saveCategoryNotes", () => {
+describe("saveCategoryNotes (global — not month-scoped)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("saves category notes under the correct key", async () => {
+  it("saves category notes under the global key with no month suffix", async () => {
     const notes = { Suscripciones: "Netflix + Spotify" };
-    await saveCategoryNotes("2026-06", notes);
-    expect(redisMock.set).toHaveBeenCalledWith("finance-category-notes:2026-06", notes);
+    await saveCategoryNotes(notes);
+    expect(redisMock.set).toHaveBeenCalledWith("finance-category-notes", notes);
   });
 
   it("swallows redis errors on save", async () => {
     redisMock.set.mockRejectedValue(new Error("connection lost"));
-    await expect(
-      saveCategoryNotes("2026-06", { Suscripciones: "Netflix" })
-    ).resolves.toBeUndefined();
+    await expect(saveCategoryNotes({ Suscripciones: "Netflix" })).resolves.toBeUndefined();
   });
 });
 

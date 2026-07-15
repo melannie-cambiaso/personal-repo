@@ -36,7 +36,7 @@ export default async function FinancePage() {
     loadCategories(),
     loadClosedCategories(currentMonth),
     loadExcludedCategories(currentMonth),
-    loadCategoryNotes(currentMonth),
+    loadCategoryNotes(),
     loadBudgetUnitConfig(currentMonth),
   ]);
 

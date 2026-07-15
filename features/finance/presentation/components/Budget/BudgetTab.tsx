@@ -9,7 +9,6 @@ import {
   setExcludedCategoriesForMonth,
   toggleClosedCategory,
   toggleExcludedCategory,
-  saveCategoryNote,
 } from "@/features/finance/data/financeActions";
 import { BudgetCategoriesModal } from "./BudgetCategoriesModal";
 import {
@@ -31,11 +30,12 @@ interface Props {
   selectedMonth: string;
   initialClosedCategories?: string[];
   initialExcludedCategories?: string[];
-  initialCategoryNotes?: Record<string, string>;
+  categoryNotes?: Record<string, string>;
   initialUnitConfig?: BudgetUnitConfig;
   onSave: (budget: Record<string, number>) => Promise<void>;
   onOpenTransaction: (category: string) => void;
   onSaveUnitConfig: (config: BudgetUnitConfig) => Promise<void>;
+  onSaveNote?: (category: string, text: string) => void;
 }
 
 // ponytail: chains same-key writes through one promise queue so out-of-order network
@@ -54,11 +54,12 @@ export function BudgetTab({
   selectedMonth,
   initialClosedCategories = [],
   initialExcludedCategories = [],
-  initialCategoryNotes = {},
+  categoryNotes = {},
   initialUnitConfig = {},
   onSave,
   onOpenTransaction,
   onSaveUnitConfig,
+  onSaveNote = () => {},
 }: Props) {
   const [budget, setBudget] = useState<Record<string, number>>(initialBudget);
   const [unitConfig, setUnitConfig] = useState<BudgetUnitConfig>(initialUnitConfig);
@@ -68,8 +69,6 @@ export function BudgetTab({
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
   const [excludedCategories, setExcludedCategories] =
     useState<string[]>(initialExcludedCategories);
-  const [categoryNotes, setCategoryNotes] =
-    useState<Record<string, string>>(initialCategoryNotes);
   const [expandedNoteCategory, setExpandedNoteCategory] = useState<string | null>(null);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [lastUnitConfig, setLastUnitConfig] = useState<Record<string, UnitConfig>>({});
@@ -147,19 +146,6 @@ export function BudgetTab({
 
   const handleToggleNoteExpand = (category: string) => {
     setExpandedNoteCategory((prev) => (prev === category ? null : category));
-  };
-
-  // Empty/whitespace text deletes the category's key rather than storing "" — no note = no indicator.
-  const handleSaveNote = (category: string, text: string) => {
-    const trimmed = text.trim();
-    setCategoryNotes((prev) => {
-      if (trimmed) return { ...prev, [category]: trimmed };
-      if (!(category in prev)) return prev;
-      const next = { ...prev };
-      delete next[category];
-      return next;
-    });
-    void saveCategoryNote(selectedMonth, category, text);
   };
 
   const handleCopy = async () => {
@@ -297,7 +283,7 @@ export function BudgetTab({
         categoryNotes={categoryNotes}
         expandedNoteCategory={expandedNoteCategory}
         onToggleNoteExpand={handleToggleNoteExpand}
-        onSaveNote={handleSaveNote}
+        onSaveNote={onSaveNote}
       />
       <BudgetCardsView
         incomeGroups={incomeGroups}
@@ -316,7 +302,7 @@ export function BudgetTab({
         categoryNotes={categoryNotes}
         expandedNoteCategory={expandedNoteCategory}
         onToggleNoteExpand={handleToggleNoteExpand}
-        onSaveNote={handleSaveNote}
+        onSaveNote={onSaveNote}
       />
     </div>
   );

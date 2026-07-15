@@ -6,12 +6,12 @@ import {
   getTransactionsForMonth,
   getClosedCategoriesForMonth,
   getExcludedCategoriesForMonth,
-  getCategoryNotesForMonth,
   getBudgetUnitConfigForMonth,
   addTransaction,
   deleteTransaction,
   addCategory,
   deleteCategory,
+  saveCategoryNote,
 } from "@/features/finance/data/financeActions";
 import { type Group } from "@/features/finance/data/kvAdapter";
 import type { FinanceTransaction, BudgetUnitConfig } from "@/features/finance/domain";
@@ -60,19 +60,19 @@ export function FinanceScreen({
 
   useEffect(() => {
     if (budgetLoadedFor === selectedMonth) return;
+    // categoryNotes is global (not month-scoped) — it is fetched once on initial page load
+    // and never refetched here, unlike the other month-scoped stores below.
     Promise.all([
       getBudgetForMonth(selectedMonth),
       getTransactionsForMonth(selectedMonth),
       getClosedCategoriesForMonth(selectedMonth),
       getExcludedCategoriesForMonth(selectedMonth),
-      getCategoryNotesForMonth(selectedMonth),
       getBudgetUnitConfigForMonth(selectedMonth),
-    ]).then(([b, txs, closed, excluded, notes, unitConfig]) => {
+    ]).then(([b, txs, closed, excluded, unitConfig]) => {
       setMonthBudget(b);
       setTransactions(txs);
       setClosedCategories(closed);
       setExcludedCategories(excluded);
-      setCategoryNotes(notes);
       setMonthUnitConfig(unitConfig);
       setBudgetLoadedFor(selectedMonth);
     });
@@ -139,6 +139,21 @@ export function FinanceScreen({
     }
   };
 
+  // Notes are global (one per category, shared across all months) — optimistic update here
+  // plus a fire-and-forget persist, same shape as handleAddCategory/handleDeleteCategory above.
+  // Empty/whitespace text deletes the category's key rather than storing "" — no note = no indicator.
+  const handleSaveNote = (category: string, text: string) => {
+    const trimmed = text.trim();
+    setCategoryNotes((prev) => {
+      if (trimmed) return { ...prev, [category]: trimmed };
+      if (!(category in prev)) return prev;
+      const next = { ...prev };
+      delete next[category];
+      return next;
+    });
+    void saveCategoryNote(category, text);
+  };
+
   const allCategories = groups.flatMap((g) => g.categories);
 
   return (
@@ -195,11 +210,12 @@ export function FinanceScreen({
               selectedMonth={selectedMonth}
               initialClosedCategories={closedCategories}
               initialExcludedCategories={excludedCategories}
-              initialCategoryNotes={categoryNotes}
+              categoryNotes={categoryNotes}
               initialUnitConfig={monthUnitConfig}
               onSave={(b) => onSaveBudget(selectedMonth, b)}
               onSaveUnitConfig={(c) => onSaveUnitConfig(selectedMonth, c)}
               onOpenTransaction={handleOpenTransaction}
+              onSaveNote={handleSaveNote}
             />
           </>
         )}

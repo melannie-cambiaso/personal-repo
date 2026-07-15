@@ -46,7 +46,7 @@ import {
   getExcludedCategoriesForMonth,
   toggleExcludedCategory,
   setExcludedCategoriesForMonth,
-  getCategoryNotesForMonth,
+  getCategoryNotes,
   saveCategoryNote,
 } from "./financeActions";
 
@@ -273,31 +273,31 @@ describe("setExcludedCategoriesForMonth", () => {
   });
 });
 
-describe("getCategoryNotesForMonth", () => {
+describe("getCategoryNotes (global — not month-scoped)", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("returns {} without auth and does not read Redis", async () => {
     withoutAuth();
-    const result = await getCategoryNotesForMonth("2026-06");
+    const result = await getCategoryNotes();
     expect(result).toEqual({});
     expect(loadCategoryNotesMock).not.toHaveBeenCalled();
   });
 
-  it("returns the stored map from kvAdapter when authenticated", async () => {
+  it("returns the stored map from kvAdapter when authenticated, with no month argument", async () => {
     withAuth();
     loadCategoryNotesMock.mockResolvedValue({ Suscripciones: "Netflix + Spotify" });
-    const result = await getCategoryNotesForMonth("2026-06");
+    const result = await getCategoryNotes();
     expect(result).toEqual({ Suscripciones: "Netflix + Spotify" });
-    expect(loadCategoryNotesMock).toHaveBeenCalledWith("2026-06");
+    expect(loadCategoryNotesMock).toHaveBeenCalledWith();
   });
 });
 
-describe("saveCategoryNote", () => {
+describe("saveCategoryNote (global — not month-scoped)", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("does nothing without auth", async () => {
     withoutAuth();
-    await saveCategoryNote("2026-06", "Suscripciones", "Netflix");
+    await saveCategoryNote("Suscripciones", "Netflix");
     expect(loadCategoryNotesMock).not.toHaveBeenCalled();
     expect(saveCategoryNotesMock).not.toHaveBeenCalled();
   });
@@ -305,8 +305,8 @@ describe("saveCategoryNote", () => {
   it("sets the category's note when text is non-empty", async () => {
     withAuth();
     loadCategoryNotesMock.mockResolvedValue({});
-    await saveCategoryNote("2026-06", "Suscripciones", "Netflix + Spotify");
-    expect(saveCategoryNotesMock).toHaveBeenCalledWith("2026-06", {
+    await saveCategoryNote("Suscripciones", "Netflix + Spotify");
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith({
       Suscripciones: "Netflix + Spotify",
     });
   });
@@ -314,8 +314,8 @@ describe("saveCategoryNote", () => {
   it("preserves other categories' notes when saving one category's note (read-modify-write)", async () => {
     withAuth();
     loadCategoryNotesMock.mockResolvedValue({ Internet: "Fibra 500mb" });
-    await saveCategoryNote("2026-06", "Suscripciones", "Netflix");
-    expect(saveCategoryNotesMock).toHaveBeenCalledWith("2026-06", {
+    await saveCategoryNote("Suscripciones", "Netflix");
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith({
       Internet: "Fibra 500mb",
       Suscripciones: "Netflix",
     });
@@ -324,15 +324,24 @@ describe("saveCategoryNote", () => {
   it("deletes the category's key when text is empty", async () => {
     withAuth();
     loadCategoryNotesMock.mockResolvedValue({ Suscripciones: "Netflix" });
-    await saveCategoryNote("2026-06", "Suscripciones", "");
-    expect(saveCategoryNotesMock).toHaveBeenCalledWith("2026-06", {});
+    await saveCategoryNote("Suscripciones", "");
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith({});
   });
 
   it("deletes the category's key when text is whitespace-only", async () => {
     withAuth();
     loadCategoryNotesMock.mockResolvedValue({ Suscripciones: "Netflix" });
-    await saveCategoryNote("2026-06", "Suscripciones", "   ");
-    expect(saveCategoryNotesMock).toHaveBeenCalledWith("2026-06", {});
+    await saveCategoryNote("Suscripciones", "   ");
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith({});
+  });
+
+  it("the same note applies regardless of which month is active (global scope, no per-month drift)", async () => {
+    withAuth();
+    loadCategoryNotesMock.mockResolvedValue({});
+    await saveCategoryNote("Suscripciones", "Netflix");
+    // saveCategoryNote takes no month argument at all — the note is not scoped to a month
+    expect(saveCategoryNotesMock).toHaveBeenCalledWith({ Suscripciones: "Netflix" });
+    expect(saveCategoryNotesMock.mock.calls[0]).toHaveLength(1);
   });
 });
 

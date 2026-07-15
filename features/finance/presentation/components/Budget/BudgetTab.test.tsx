@@ -9,7 +9,6 @@ const getBudgetForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 const getBudgetUnitConfigForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 const getExcludedCategoriesForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue([]));
 const setExcludedCategoriesForMonthMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
-const saveCategoryNoteMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock("@/features/finance/data/financeActions", () => ({
   getBudgetForMonth: getBudgetForMonthMock,
@@ -18,7 +17,6 @@ vi.mock("@/features/finance/data/financeActions", () => ({
   toggleExcludedCategory: toggleExcludedCategoryMock,
   getExcludedCategoriesForMonth: getExcludedCategoriesForMonthMock,
   setExcludedCategoriesForMonth: setExcludedCategoriesForMonthMock,
-  saveCategoryNote: saveCategoryNoteMock,
 }));
 
 // jsdom does not implement HTMLDialogElement.showModal / close (used by BudgetCategoriesModal)
@@ -597,7 +595,7 @@ describe("BudgetTab — excluded expense categories", () => {
   });
 });
 
-describe("BudgetTab — category notes", () => {
+describe("BudgetTab — category notes (global, shared across all months)", () => {
   const onSave = vi.fn().mockResolvedValue(undefined);
   const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
   const onOpenTransaction = vi.fn();
@@ -606,10 +604,6 @@ describe("BudgetTab — category notes", () => {
     { name: "Gastos fijos", type: "expense" as const, categories: ["Suscripciones", "Arriendo"] },
   ];
 
-  beforeEach(() => {
-    saveCategoryNoteMock.mockClear();
-  });
-
   it("shows a note indicator on a category with a saved note, in both table and card views", () => {
     render(
       <BudgetTab
@@ -617,7 +611,7 @@ describe("BudgetTab — category notes", () => {
         initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
         transactions={[]}
         selectedMonth="2026-07"
-        initialCategoryNotes={{ Suscripciones: "Netflix + Spotify" }}
+        categoryNotes={{ Suscripciones: "Netflix + Spotify" }}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
         onSaveUnitConfig={onSaveUnitConfig}
@@ -645,7 +639,8 @@ describe("BudgetTab — category notes", () => {
     expect(within(tableView).queryByTestId("note-indicator-Arriendo")).toBeNull();
   });
 
-  it("expanding a category's name cell and saving non-empty text calls saveCategoryNote and shows the indicator", () => {
+  it("expanding a category's name cell and saving non-empty text calls onSaveNote (no month argument) and shows the indicator", () => {
+    const onSaveNote = vi.fn();
     render(
       <BudgetTab
         groups={groups}
@@ -655,6 +650,7 @@ describe("BudgetTab — category notes", () => {
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
         onSaveUnitConfig={onSaveUnitConfig}
+        onSaveNote={onSaveNote}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -663,25 +659,24 @@ describe("BudgetTab — category notes", () => {
     const textarea = within(tableView).getByPlaceholderText("Agregar nota...");
     fireEvent.blur(textarea, { target: { value: "Depto + estacionamiento" } });
 
-    expect(saveCategoryNoteMock).toHaveBeenCalledWith(
-      "2026-07",
-      "Arriendo",
-      "Depto + estacionamiento"
-    );
-    expect(within(tableView).getByTestId("note-indicator-Arriendo")).toBeTruthy();
+    expect(onSaveNote).toHaveBeenCalledWith("Arriendo", "Depto + estacionamiento");
+    // no month argument at all — notes are global, not per-month
+    expect(onSaveNote.mock.calls[0]).toHaveLength(2);
   });
 
-  it("saving empty text removes the note indicator", () => {
+  it("saving empty text calls onSaveNote with empty text (no month argument)", () => {
+    const onSaveNote = vi.fn();
     render(
       <BudgetTab
         groups={groups}
         initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
         transactions={[]}
         selectedMonth="2026-07"
-        initialCategoryNotes={{ Arriendo: "Depto" }}
+        categoryNotes={{ Arriendo: "Depto" }}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
         onSaveUnitConfig={onSaveUnitConfig}
+        onSaveNote={onSaveNote}
       />
     );
     const tableView = screen.getByTestId("budget-table");
@@ -690,8 +685,7 @@ describe("BudgetTab — category notes", () => {
     const textarea = within(tableView).getByPlaceholderText("Agregar nota...");
     fireEvent.blur(textarea, { target: { value: "" } });
 
-    expect(saveCategoryNoteMock).toHaveBeenCalledWith("2026-07", "Arriendo", "");
-    expect(within(tableView).queryByTestId("note-indicator-Arriendo")).toBeNull();
+    expect(onSaveNote).toHaveBeenCalledWith("Arriendo", "");
   });
 
   it("does not render note affordance on income category rows", () => {
@@ -719,7 +713,7 @@ describe("BudgetTab — category notes", () => {
         initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
         transactions={[]}
         selectedMonth="2026-07"
-        initialCategoryNotes={{ Suscripciones: "Netflix" }}
+        categoryNotes={{ Suscripciones: "Netflix" }}
         onSave={onSave}
         onOpenTransaction={onOpenTransaction}
         onSaveUnitConfig={onSaveUnitConfig}
@@ -729,6 +723,46 @@ describe("BudgetTab — category notes", () => {
     const row = within(tableView).getByText("Suscripciones").closest("[aria-disabled]") as HTMLElement;
     expect(row.className).toContain("grid-cols-4");
     expect(row.children).toHaveLength(4);
+  });
+
+  // Scope-correction regression: notes used to be per-month (finance-category-notes:YYYY-MM).
+  // They are now global — the same `categoryNotes` prop value must render identically
+  // regardless of which `selectedMonth` is passed in, since BudgetTab no longer copies
+  // the prop into month-scoped local state.
+  it("renders the same note indicator and text across different selectedMonth values (global, not per-month)", () => {
+    const sharedNotes = { Suscripciones: "Netflix + Spotify" };
+    const { rerender } = render(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-07"
+        categoryNotes={sharedNotes}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    expect(
+      within(screen.getByTestId("budget-table")).getByTestId("note-indicator-Suscripciones")
+    ).toBeTruthy();
+
+    rerender(
+      <BudgetTab
+        groups={groups}
+        initialBudget={{ Suscripciones: 15000, Arriendo: 400000 }}
+        transactions={[]}
+        selectedMonth="2026-08"
+        categoryNotes={sharedNotes}
+        onSave={onSave}
+        onOpenTransaction={onOpenTransaction}
+        onSaveUnitConfig={onSaveUnitConfig}
+      />
+    );
+    // switching the viewed month must NOT clear or diverge the note — same object, same result
+    expect(
+      within(screen.getByTestId("budget-table")).getByTestId("note-indicator-Suscripciones")
+    ).toBeTruthy();
   });
 });
 
