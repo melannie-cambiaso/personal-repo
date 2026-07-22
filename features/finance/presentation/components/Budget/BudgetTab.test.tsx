@@ -314,11 +314,11 @@ describe("BudgetTab – disponible/ahorroPotencial integration", () => {
     expect(within(netoCard).getByText("Faltante $400.000")).toBeTruthy();
   });
 
-  // B3 — real refunds move Disponible; Ahorro potencial becomes the still-expected gap;
-  // Neto "Real" shows realBalance (v3):
+  // B3 — refunds are excluded from Neto/Disponible (they're routed to savings separately);
+  // Ahorro potencial keeps tracking the still-expected gap:
   // actualIncome=1000000, actualExpense=0, actualRefund=100000, budgetRefund=0, pendingExpenses=400000
-  // → realBalance=1100000 ("Real"), available=700000 ("Disponible"), potentialSavings=-100000 ("Ahorro potencial")
-  it("B3: renders 'Real $1.100.000', 'Disponible $700.000' and 'Ahorro potencial $100.000' inside Neto card", () => {
+  // → actualNet=1000000 ("Real"), available=600000 ("Disponible"), potentialSavings=-100000 ("Ahorro potencial")
+  it("B3: renders 'Real $1.000.000', 'Disponible $600.000' and 'Ahorro potencial $100.000' inside Neto card", () => {
     const groups = [
       { name: "Sueldo", type: "income" as const, categories: ["Peter"] },
       { name: "Devolución", type: "refund" as const, categories: ["Isapre"] },
@@ -336,8 +336,8 @@ describe("BudgetTab – disponible/ahorroPotencial integration", () => {
       />
     );
     const netoCard = screen.getByText("Neto").closest("div")!;
-    expect(within(netoCard).getByText("Real $1.100.000")).toBeTruthy();
-    expect(within(netoCard).getByText("Disponible $700.000")).toBeTruthy();
+    expect(within(netoCard).getByText("Real $1.000.000")).toBeTruthy();
+    expect(within(netoCard).getByText("Disponible $600.000")).toBeTruthy();
     expect(within(netoCard).getByText("Ahorro potencial $100.000")).toBeTruthy();
   });
 

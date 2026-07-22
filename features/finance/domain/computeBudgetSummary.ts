@@ -1,8 +1,7 @@
 export interface BudgetSummary {
-  actualNet: number; // actualIncome − actualExpense (refunds excluded)
-  realBalance: number; // actualNet + actualRefund
+  actualNet: number; // actualIncome − actualExpense (refunds excluded — they're routed to savings)
   potentialSavings: number; // budgetRefund − actualRefund
-  available: number; // realBalance − pendingExpenses
+  available: number; // actualNet − pendingExpenses (refunds excluded)
   pendingExpenses: number; // passed through for the caller
 }
 
@@ -16,9 +15,8 @@ export function computeBudgetSummary(input: {
   const { actualIncome, actualExpense, actualRefund, budgetRefund, pendingExpenses } = input;
 
   const actualNet = actualIncome - actualExpense;
-  const realBalance = actualNet + actualRefund;
-  const available = realBalance - pendingExpenses;
+  const available = actualNet - pendingExpenses;
   const potentialSavings = budgetRefund - actualRefund;
 
-  return { actualNet, realBalance, potentialSavings, available, pendingExpenses };
+  return { actualNet, potentialSavings, available, pendingExpenses };
 }
