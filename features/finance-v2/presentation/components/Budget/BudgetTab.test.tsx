@@ -22,9 +22,11 @@ const invalidSplit: SplitResult = {
 const noop = () => {};
 
 describe("BudgetTab", () => {
-  it("empty state renders the comparison row plus an add-category affordance (name + bucket)", () => {
+  it("empty state in edit mode renders the comparison row plus an add-category affordance (name + bucket)", () => {
     render(
       <BudgetTab
+        mode="edit"
+        onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
         onAmountBlur={noop}
@@ -41,9 +43,87 @@ describe("BudgetTab", () => {
     expect(screen.getByLabelText("Bucket de la categoría")).toBeTruthy();
   });
 
+  it("empty categories renders the toggle in both view and edit mode", () => {
+    const { unmount } = render(
+      <BudgetTab
+        mode="view"
+        onToggleMode={noop}
+        categories={[]}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        onAmountBlur={noop}
+        onAddCategory={noop}
+        onAddSubcategory={noop}
+        onDeleteCategory={noop}
+        onDeleteSubcategory={noop}
+      />
+    );
+    expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
+    unmount();
+
+    render(
+      <BudgetTab
+        mode="edit"
+        onToggleMode={noop}
+        categories={[]}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        onAmountBlur={noop}
+        onAddCategory={noop}
+        onAddSubcategory={noop}
+        onDeleteCategory={noop}
+        onDeleteSubcategory={noop}
+      />
+    );
+    expect(screen.getByRole("button", { name: "Listo" })).toBeTruthy();
+  });
+
+  it("view mode with empty categories renders an explicit empty message and no add-category form", () => {
+    render(
+      <BudgetTab
+        mode="view"
+        onToggleMode={noop}
+        categories={[]}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        onAmountBlur={noop}
+        onAddCategory={noop}
+        onAddSubcategory={noop}
+        onDeleteCategory={noop}
+        onDeleteSubcategory={noop}
+      />
+    );
+
+    expect(screen.getByText("No hay categorías cargadas")).toBeTruthy();
+    expect(screen.queryByLabelText("Nombre de la categoría")).toBeNull();
+  });
+
+  it("the toggle label and aria-pressed reflect mode, and clicking it calls onToggleMode once", () => {
+    const onToggleMode = vi.fn();
+    render(
+      <BudgetTab
+        mode="view"
+        onToggleMode={onToggleMode}
+        categories={[]}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        onAmountBlur={noop}
+        onAddCategory={noop}
+        onAddSubcategory={noop}
+        onDeleteCategory={noop}
+        onDeleteSubcategory={noop}
+      />
+    );
+
+    const toggle = screen.getByRole("button", { name: "Editar" });
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.click(toggle);
+
+    expect(onToggleMode).toHaveBeenCalledOnce();
+  });
+
   it("degrades to budget-only comparison when the split is invalid", () => {
     render(
       <BudgetTab
+        mode="view"
+        onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, invalidSplit)}
         onAmountBlur={noop}
@@ -62,6 +142,8 @@ describe("BudgetTab", () => {
     const onAddCategory = vi.fn();
     render(
       <BudgetTab
+        mode="edit"
+        onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
         onAmountBlur={noop}
@@ -85,6 +167,8 @@ describe("BudgetTab", () => {
     const onAddCategory = vi.fn();
     render(
       <BudgetTab
+        mode="edit"
+        onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
         onAmountBlur={noop}
@@ -111,6 +195,8 @@ describe("BudgetTab", () => {
     const onAmountBlur = vi.fn();
     render(
       <BudgetTab
+        mode="edit"
+        onToggleMode={noop}
         categories={[category]}
         comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
         onAmountBlur={onAmountBlur}

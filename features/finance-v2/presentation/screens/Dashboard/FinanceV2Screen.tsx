@@ -6,6 +6,7 @@ import { useFinanceV2Dashboard } from "../../hooks/useFinanceV2Dashboard";
 import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
 import { IncomeSplitTab } from "./IncomeSplitTab";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
+import type { BudgetMode } from "../../components/Budget/budgetMode";
 import { PageHeader } from "@/shared/components";
 
 type TabKey = "split" | "budget";
@@ -39,6 +40,12 @@ export function FinanceV2Screen({ initialConfig, onSave, initialBudget, onSaveBu
   } = useFinanceV2Budget({ initialBudget, split, onSave: onSaveBudget });
 
   const [activeTab, setActiveTab] = useState<TabKey>("split");
+  // Hoisted beside `useFinanceV2Budget` (same remount rationale as design decision #1):
+  // the Budget tab is conditionally rendered, so mode state must live here, not inside
+  // `BudgetTab`, to survive a switch away and back. Default lives ONLY here — `mode` is
+  // a required prop everywhere else.
+  const [budgetMode, setBudgetMode] = useState<BudgetMode>("view");
+  const toggleBudgetMode = () => setBudgetMode((m) => (m === "view" ? "edit" : "view"));
 
   return (
     <main className="flex flex-1 flex-col">
@@ -77,6 +84,8 @@ export function FinanceV2Screen({ initialConfig, onSave, initialBudget, onSaveBu
           />
         ) : (
           <BudgetTab
+            mode={budgetMode}
+            onToggleMode={toggleBudgetMode}
             categories={categories}
             comparison={comparison}
             onAmountBlur={handleAmountBlur}

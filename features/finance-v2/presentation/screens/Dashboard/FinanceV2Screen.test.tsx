@@ -125,6 +125,7 @@ describe("FinanceV2Screen", () => {
     );
 
     fireEvent.click(screen.getByText("Presupuesto"));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     fireEvent.change(screen.getByLabelText("Nombre de la categoría"), {
       target: { value: "Arriendo" },
     });
@@ -135,6 +136,63 @@ describe("FinanceV2Screen", () => {
     fireEvent.click(screen.getByText("Presupuesto"));
 
     expect(screen.getByText("Arriendo")).toBeTruthy();
+  });
+
+  it("Presupuesto tab defaults to view mode", () => {
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+
+    expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
+    expect(screen.queryByLabelText("Nombre de la categoría")).toBeNull();
+  });
+
+  it("mode survives Presupuesto → Distribución → Presupuesto", () => {
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
+
+    fireEvent.click(screen.getByText("Distribución"));
+    fireEvent.click(screen.getByText("Presupuesto"));
+
+    expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Listo" })).toBeTruthy();
+  });
+
+  it("mode persists across a category-list mutation", () => {
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    fireEvent.change(screen.getByLabelText("Nombre de la categoría"), {
+      target: { value: "Arriendo" },
+    });
+    fireEvent.click(screen.getByText("Agregar categoría"));
+
+    expect(screen.getByRole("button", { name: "Listo" })).toBeTruthy();
   });
 
   it("preserves edited income in the DOM after switching tabs and back", () => {

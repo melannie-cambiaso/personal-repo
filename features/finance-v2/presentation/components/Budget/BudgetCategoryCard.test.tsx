@@ -11,6 +11,14 @@ const leafCategory: BudgetCategory = {
   subcategories: [],
 };
 
+const zeroLeafCategory: BudgetCategory = {
+  id: "c3",
+  name: "Internet",
+  bucket: "fixed",
+  amount: 0,
+  subcategories: [],
+};
+
 const parentCategory: BudgetCategory = {
   id: "c2",
   name: "Servicios",
@@ -29,6 +37,7 @@ describe("BudgetCategoryCard", () => {
     const onAmountBlur = vi.fn();
     render(
       <BudgetCategoryCard
+        mode="edit"
         category={leafCategory}
         onAmountBlur={onAmountBlur}
         onDeleteCategory={noop}
@@ -46,6 +55,7 @@ describe("BudgetCategoryCard", () => {
   it("parent category renders NO direct amount input, a derived total, and one row per subcategory", () => {
     render(
       <BudgetCategoryCard
+        mode="edit"
         category={parentCategory}
         onAmountBlur={noop}
         onDeleteCategory={noop}
@@ -64,6 +74,7 @@ describe("BudgetCategoryCard", () => {
     const onAmountBlur = vi.fn();
     render(
       <BudgetCategoryCard
+        mode="edit"
         category={parentCategory}
         onAmountBlur={onAmountBlur}
         onDeleteCategory={noop}
@@ -80,6 +91,7 @@ describe("BudgetCategoryCard", () => {
   it("the add-subcategory bucket select defaults to the category's own stored bucket", () => {
     render(
       <BudgetCategoryCard
+        mode="edit"
         category={parentCategory}
         onAmountBlur={noop}
         onDeleteCategory={noop}
@@ -96,6 +108,7 @@ describe("BudgetCategoryCard", () => {
     const onAddSubcategory = vi.fn();
     render(
       <BudgetCategoryCard
+        mode="edit"
         category={leafCategory}
         onAmountBlur={noop}
         onDeleteCategory={noop}
@@ -118,6 +131,7 @@ describe("BudgetCategoryCard", () => {
     const onDeleteSubcategory = vi.fn();
     render(
       <BudgetCategoryCard
+        mode="edit"
         category={parentCategory}
         onAmountBlur={noop}
         onDeleteCategory={noop}
@@ -145,6 +159,7 @@ describe("BudgetCategoryCard", () => {
       const onDeleteCategory = vi.fn();
       render(
         <BudgetCategoryCard
+          mode="edit"
           category={leafCategory}
           onAmountBlur={noop}
           onDeleteCategory={onDeleteCategory}
@@ -164,6 +179,7 @@ describe("BudgetCategoryCard", () => {
       const onDeleteCategory = vi.fn();
       render(
         <BudgetCategoryCard
+          mode="edit"
           category={leafCategory}
           onAmountBlur={noop}
           onDeleteCategory={onDeleteCategory}
@@ -175,6 +191,103 @@ describe("BudgetCategoryCard", () => {
       fireEvent.click(screen.getByLabelText("Eliminar categoría Arriendo"));
 
       expect(onDeleteCategory).toHaveBeenCalledWith("c1");
+    });
+  });
+
+  describe("view mode", () => {
+    it("leaf renders the formatted amount as text, not an input", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={leafCategory}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByText("$350.000")).toBeTruthy();
+      expect(screen.queryByLabelText("Monto de Arriendo")).toBeNull();
+    });
+
+    it("parent renders the total plus per-subcategory formatted amounts, zero inputs", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={parentCategory}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByText("$8.000")).toBeTruthy();
+      expect(screen.getByText("$5.000")).toBeTruthy();
+      expect(screen.getByText("$3.000")).toBeTruthy();
+      expect(screen.queryByLabelText("Monto de Luz")).toBeNull();
+      expect(screen.queryByLabelText("Monto de Agua")).toBeNull();
+    });
+
+    it("hides delete-category, subcategory delete, and the add-subcategory form", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={parentCategory}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.queryByLabelText("Eliminar categoría Servicios")).toBeNull();
+      expect(screen.queryByLabelText("Eliminar Luz")).toBeNull();
+      expect(screen.queryByLabelText("Eliminar Agua")).toBeNull();
+      expect(screen.queryByLabelText("Nombre de la subcategoría")).toBeNull();
+    });
+
+    it("a zero-amount leaf renders $0, not blank", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={zeroLeafCategory}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByText("$0")).toBeTruthy();
+    });
+
+    it("renders the header name identically to edit mode", () => {
+      const { unmount } = render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={leafCategory}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+      expect(screen.getByText("Arriendo")).toBeTruthy();
+      unmount();
+
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={leafCategory}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+      expect(screen.getByText("Arriendo")).toBeTruthy();
     });
   });
 });
