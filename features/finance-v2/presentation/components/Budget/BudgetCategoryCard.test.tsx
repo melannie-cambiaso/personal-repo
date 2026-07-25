@@ -211,7 +211,7 @@ describe("BudgetCategoryCard", () => {
       expect(screen.queryByLabelText("Monto de Arriendo")).toBeNull();
     });
 
-    it("parent renders the total plus per-subcategory formatted amounts, zero inputs", () => {
+    it("parent renders the total; subcategories start collapsed behind Ver más", () => {
       render(
         <BudgetCategoryCard
           mode="view"
@@ -224,13 +224,13 @@ describe("BudgetCategoryCard", () => {
       );
 
       expect(screen.getByText("$8.000")).toBeTruthy();
-      expect(screen.getByText("$5.000")).toBeTruthy();
-      expect(screen.getByText("$3.000")).toBeTruthy();
-      expect(screen.queryByLabelText("Monto de Luz")).toBeNull();
-      expect(screen.queryByLabelText("Monto de Agua")).toBeNull();
+      expect(screen.queryByText("$5.000")).toBeNull();
+      expect(screen.queryByText("$3.000")).toBeNull();
+      expect(screen.queryByText("Luz")).toBeNull();
+      expect(screen.getByRole("button", { name: "Ver más" })).toBeTruthy();
     });
 
-    it("hides delete-category, subcategory delete, and the add-subcategory form", () => {
+    it("clicking Ver más reveals subcategory names and amounts, and flips the label to Ver menos", () => {
       render(
         <BudgetCategoryCard
           mode="view"
@@ -241,6 +241,48 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
         />
       );
+
+      fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
+
+      expect(screen.getByText("Luz")).toBeTruthy();
+      expect(screen.getByText("$5.000")).toBeTruthy();
+      expect(screen.getByText("Agua")).toBeTruthy();
+      expect(screen.getByText("$3.000")).toBeTruthy();
+      expect(screen.queryByLabelText("Monto de Luz")).toBeNull();
+      expect(screen.getByRole("button", { name: "Ver menos" })).toBeTruthy();
+    });
+
+    it("edit mode always shows every subcategory, with no Ver más/Ver menos toggle", () => {
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={parentCategory}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByLabelText("Monto de Luz")).toBeTruthy();
+      expect(screen.getByLabelText("Monto de Agua")).toBeTruthy();
+      expect(screen.queryByText("Ver más")).toBeNull();
+      expect(screen.queryByText("Ver menos")).toBeNull();
+    });
+
+    it("hides delete-category, subcategory delete, and the add-subcategory form (subcategories expanded)", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={parentCategory}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
 
       expect(screen.queryByLabelText("Eliminar categoría Servicios")).toBeNull();
       expect(screen.queryByLabelText("Eliminar Luz")).toBeNull();
