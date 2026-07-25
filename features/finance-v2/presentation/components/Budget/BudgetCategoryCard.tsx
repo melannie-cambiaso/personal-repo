@@ -29,7 +29,7 @@ interface AmountFieldProps {
 // avoids duplicating the view/edit split per leaf/parent/sub kind (design decision).
 function AmountField({ mode, label, amount, className, onBlur }: AmountFieldProps) {
   if (mode === "view") {
-    return <span className="text-brown-900 text-sm font-bold">{formatCLP(amount)}</span>;
+    return <span className="text-brown-800 text-sm font-bold">{formatCLP(amount)}</span>;
   }
   return (
     <Input
@@ -113,7 +113,7 @@ export function BudgetCategoryCard({
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <span className="text-brown-500 text-xs">Total</span>
-            <span className="text-brown-900 text-sm font-bold">{formatCLP(view.total)}</span>
+            <span className="text-brown-800 text-sm font-bold">{formatCLP(view.total)}</span>
           </div>
           {view.subcategories.map((sub) => (
             <div key={sub.id} className="flex items-center justify-between gap-2">

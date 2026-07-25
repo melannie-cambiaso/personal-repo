@@ -28,7 +28,7 @@ export function SplitSummary({ split }: Props) {
             <span>{BUCKET_LABELS[bucket.key]}</span>
             <span className="text-2xs text-brown-400">({bucket.percentage}%)</span>
           </span>
-          <span className="text-brown-900 text-sm font-bold">{formatCLP(bucket.amount)}</span>
+          <span className="text-brown-800 text-sm font-bold">{formatCLP(bucket.amount)}</span>
         </div>
       ))}
     </div>

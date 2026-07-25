@@ -18,7 +18,7 @@ export function BucketComparison({ comparison }: Props) {
       {comparison.rows.map((row) => (
         <div key={row.key} className="flex items-center justify-between gap-2">
           <span className="text-brown-500 text-sm">{BUCKET_LABELS[row.key]}</span>
-          <span className="text-brown-900 text-sm font-bold">
+          <span className="text-brown-800 text-sm font-bold">
             {formatCLP(row.budgeted)}
             {withTargets && "target" in row && (
               <span className="text-2xs text-brown-400 ml-1 font-normal">
@@ -30,7 +30,7 @@ export function BucketComparison({ comparison }: Props) {
       ))}
       <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
         <span className="text-brown-500 text-sm">{TOTAL_LABEL}</span>
-        <span className="text-brown-900 text-sm font-bold">
+        <span className="text-brown-800 text-sm font-bold">
           {formatCLP(comparison.total.budgeted)}
           {withTargets && "target" in comparison.total && (
             <span className="text-2xs text-brown-400 ml-1 font-normal">
