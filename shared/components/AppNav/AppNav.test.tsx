@@ -32,7 +32,7 @@ describe("AppNav", () => {
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("lists all 6 feature links inside the drawer", () => {
+  it("lists all 7 feature links inside the drawer", () => {
     render(<AppNav />);
     fireEvent.click(screen.getByRole("button", { name: /menú/i }));
     expect(
@@ -48,8 +48,11 @@ describe("AppNav", () => {
       screen.getByRole("link", { name: /ahorros/i, hidden: true }).getAttribute("href")
     ).toBe("/savings");
     expect(
-      screen.getByRole("link", { name: /finanzas/i, hidden: true }).getAttribute("href")
+      screen.getByRole("link", { name: /finanzas$/i, hidden: true }).getAttribute("href")
     ).toBe("/finance");
+    expect(
+      screen.getByRole("link", { name: /finanzas v2/i, hidden: true }).getAttribute("href")
+    ).toBe("/finance-v2");
     expect(
       screen.getByRole("link", { name: /compras/i, hidden: true }).getAttribute("href")
     ).toBe("/shopping-list");
@@ -70,7 +73,7 @@ describe("AppNav", () => {
     render(<AppNav />);
     fireEvent.click(screen.getByRole("button", { name: /menú/i }));
     const links = screen.getAllByRole("link", { hidden: true });
-    expect(links).toHaveLength(6);
+    expect(links).toHaveLength(7);
     for (const link of links) {
       expect(link.getAttribute("aria-current")).toBeNull();
     }

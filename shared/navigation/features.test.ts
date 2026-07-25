@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { FEATURE_NAV_ITEMS } from "./features";
 
 describe("FEATURE_NAV_ITEMS", () => {
-  it("has exactly 6 entries", () => {
-    expect(FEATURE_NAV_ITEMS).toHaveLength(6);
+  it("has exactly 7 entries", () => {
+    expect(FEATURE_NAV_ITEMS).toHaveLength(7);
   });
 
   it("does not include a login entry", () => {
@@ -24,6 +24,7 @@ describe("FEATURE_NAV_ITEMS", () => {
     expect(hrefs).toEqual(
       [
         "/finance",
+        "/finance-v2",
         "/home-improvements",
         "/savings",
         "/shopping-list",
