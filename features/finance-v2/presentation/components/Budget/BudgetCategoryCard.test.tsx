@@ -65,7 +65,7 @@ describe("BudgetCategoryCard", () => {
     );
 
     expect(screen.queryByLabelText("Monto de Servicios")).toBeNull();
-    expect(screen.getByText("$8.000")).toBeTruthy(); // derived total: 5000 + 3000
+    expect(screen.getByText("$8.000")).toBeTruthy();
     expect(screen.getByLabelText("Monto de Luz")).toBeTruthy();
     expect(screen.getByLabelText("Monto de Agua")).toBeTruthy();
   });

@@ -36,7 +36,6 @@ export function addSubcategory(
   };
 }
 
-/** Cascade-deletes the category and all of its subcategories. */
 export function deleteCategory(config: BudgetConfig, categoryId: string): BudgetConfig {
   return {
     categories: config.categories.filter((category) => category.id !== categoryId),
