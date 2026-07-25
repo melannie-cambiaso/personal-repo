@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { FinanceV2Config } from "@/features/finance-v2/domain";
+import type { FinanceV2Config, BudgetConfig } from "@/features/finance-v2/domain";
 
 const cookiesGetMock = vi.hoisted(() => vi.fn());
 const saveDashboardConfigMock = vi.hoisted(() => vi.fn());
+const saveBudgetConfigMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -12,10 +13,11 @@ vi.mock("./kvAdapter", async (importOriginal) => {
   return {
     ...actual,
     saveDashboardConfig: saveDashboardConfigMock,
+    saveBudgetConfig: saveBudgetConfigMock,
   };
 });
 
-import { handleSaveDashboardConfig } from "./financeV2Actions";
+import { handleSaveDashboardConfig, handleSaveBudgetConfig } from "./financeV2Actions";
 
 const config = (overrides: Partial<FinanceV2Config> = {}): FinanceV2Config => ({
   income: 1_000_000,
@@ -42,5 +44,23 @@ describe("handleSaveDashboardConfig", () => {
     const next = config({ income: 2_000_000 });
     await handleSaveDashboardConfig(next);
     expect(saveDashboardConfigMock).toHaveBeenCalledWith(next);
+  });
+});
+
+describe("handleSaveBudgetConfig", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing without auth and does not write KV", async () => {
+    withoutAuth();
+    const budget: BudgetConfig = { categories: [] };
+    await handleSaveBudgetConfig(budget);
+    expect(saveBudgetConfigMock).not.toHaveBeenCalled();
+  });
+
+  it("delegates to kvAdapter when authenticated", async () => {
+    withAuth();
+    const budget: BudgetConfig = { categories: [] };
+    await handleSaveBudgetConfig(budget);
+    expect(saveBudgetConfigMock).toHaveBeenCalledWith(budget);
   });
 });
