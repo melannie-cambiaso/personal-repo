@@ -100,6 +100,7 @@ describe("computeBudgetComparison", () => {
         { key: "variable", budgeted: 50000, target: 300000 },
         { key: "savings", budgeted: 0, target: 200000 },
       ],
+      total: { budgeted: 400000, target: 1000000 },
     });
   });
 
@@ -113,9 +114,11 @@ describe("computeBudgetComparison", () => {
         { key: "variable", budgeted: 50000 },
         { key: "savings", budgeted: 0 },
       ],
+      total: { budgeted: 400000 },
     });
     for (const row of result.rows) {
       expect(row).not.toHaveProperty("target");
     }
+    expect(result.total).not.toHaveProperty("target");
   });
 });

@@ -1,6 +1,6 @@
 import type { BudgetComparison as BudgetComparisonResult } from "@/features/finance-v2/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
-import { BUCKET_LABELS } from "../bucketLabels";
+import { BUCKET_LABELS, TOTAL_LABEL } from "../bucketLabels";
 
 interface Props {
   comparison: BudgetComparisonResult;
@@ -28,6 +28,17 @@ export function BucketComparison({ comparison }: Props) {
           </span>
         </div>
       ))}
+      <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
+        <span className="text-brown-500 text-sm">{TOTAL_LABEL}</span>
+        <span className="text-brown-900 text-sm font-bold">
+          {formatCLP(comparison.total.budgeted)}
+          {withTargets && "target" in comparison.total && (
+            <span className="text-2xs text-brown-400 ml-1 font-normal">
+              de {formatCLP(comparison.total.target)}
+            </span>
+          )}
+        </span>
+      </div>
     </div>
   );
 }

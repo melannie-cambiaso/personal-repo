@@ -8,10 +8,11 @@ describe("BucketComparison", () => {
     const comparison: BudgetComparison = {
       status: "with-targets",
       rows: [
-        { key: "fixed", budgeted: 400_000, target: 500_000 },
+        { key: "fixed", budgeted: 400_000, target: 600_000 },
         { key: "variable", budgeted: 100_000, target: 300_000 },
         { key: "savings", budgeted: 0, target: 200_000 },
       ],
+      total: { budgeted: 500_000, target: 1_100_000 },
     };
     render(<BucketComparison comparison={comparison} />);
 
@@ -19,9 +20,12 @@ describe("BucketComparison", () => {
     expect(screen.getByText("Variables")).toBeTruthy();
     expect(screen.getByText("Ahorro")).toBeTruthy();
     expect(screen.getByText("$400.000")).toBeTruthy();
-    expect(screen.getByText(/500\.000/)).toBeTruthy();
+    expect(screen.getByText(/600\.000/)).toBeTruthy();
     expect(screen.getByText("$100.000")).toBeTruthy();
     expect(screen.getByText(/300\.000/)).toBeTruthy();
+    expect(screen.getByText("Total")).toBeTruthy();
+    expect(screen.getByText("$500.000")).toBeTruthy();
+    expect(screen.getByText(/1\.100\.000/)).toBeTruthy();
   });
 
   it("budget-only: renders only the budgeted figure, no target copy", () => {
@@ -32,10 +36,13 @@ describe("BucketComparison", () => {
         { key: "variable", budgeted: 100_000 },
         { key: "savings", budgeted: 0 },
       ],
+      total: { budgeted: 500_000 },
     };
     render(<BucketComparison comparison={comparison} />);
 
     expect(screen.getByText("$400.000")).toBeTruthy();
+    expect(screen.getByText("Total")).toBeTruthy();
+    expect(screen.getByText("$500.000")).toBeTruthy();
     expect(screen.queryByText(/de \$/)).toBeNull();
   });
 });

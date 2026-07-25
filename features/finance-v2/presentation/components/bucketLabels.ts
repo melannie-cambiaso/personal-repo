@@ -9,3 +9,5 @@ export const BUCKET_LABELS: Record<BucketKey, string> = {
 };
 
 export const BUCKET_ORDER: BucketKey[] = ["fixed", "variable", "savings"];
+
+export const TOTAL_LABEL = "Total";

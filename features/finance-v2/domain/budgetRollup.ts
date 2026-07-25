@@ -25,8 +25,16 @@ export function computeBucketTotals(config: BudgetConfig): BucketTotals {
 }
 
 export type BudgetComparison =
-  | { status: "with-targets"; rows: { key: BucketKey; budgeted: number; target: number }[] }
-  | { status: "budget-only"; rows: { key: BucketKey; budgeted: number }[] };
+  | {
+      status: "with-targets";
+      rows: { key: BucketKey; budgeted: number; target: number }[];
+      total: { budgeted: number; target: number };
+    }
+  | {
+      status: "budget-only";
+      rows: { key: BucketKey; budgeted: number }[];
+      total: { budgeted: number };
+    };
 
 /** Informational comparison of budgeted sums against tab 1's split targets.
  *  Degrades to budgeted-sum-only when `split` is invalid — never fabricates
@@ -35,20 +43,29 @@ export function computeBudgetComparison(config: BudgetConfig, split: SplitResult
   const totals = computeBucketTotals(config);
 
   if (split.status === "invalid") {
+    const rows = BUCKET_ORDER.map((key) => ({ key, budgeted: totals[key] }));
+
     return {
       status: "budget-only",
-      rows: BUCKET_ORDER.map((key) => ({ key, budgeted: totals[key] })),
+      rows,
+      total: { budgeted: rows.reduce((sum, row) => sum + row.budgeted, 0) },
     };
   }
 
   const targetsByKey = new Map(split.buckets.map((bucket) => [bucket.key, bucket.amount]));
 
+  const rows = BUCKET_ORDER.map((key) => ({
+    key,
+    budgeted: totals[key],
+    target: targetsByKey.get(key) ?? 0,
+  }));
+
   return {
     status: "with-targets",
-    rows: BUCKET_ORDER.map((key) => ({
-      key,
-      budgeted: totals[key],
-      target: targetsByKey.get(key) ?? 0,
-    })),
+    rows,
+    total: {
+      budgeted: rows.reduce((sum, row) => sum + row.budgeted, 0),
+      target: rows.reduce((sum, row) => sum + row.target, 0),
+    },
   };
 }

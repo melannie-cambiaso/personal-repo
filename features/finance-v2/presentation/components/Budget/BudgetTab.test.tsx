@@ -36,7 +36,7 @@ describe("BudgetTab", () => {
     );
 
     expect(screen.getAllByText("Fijos").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("$0")).toHaveLength(3);
+    expect(screen.getAllByText("$0")).toHaveLength(4);
     expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
     expect(screen.getByLabelText("Bucket de la categoría")).toBeTruthy();
   });
@@ -54,7 +54,7 @@ describe("BudgetTab", () => {
       />
     );
 
-    expect(screen.getAllByText("$0")).toHaveLength(3);
+    expect(screen.getAllByText("$0")).toHaveLength(4);
     expect(screen.queryByText(/de \$/)).toBeNull();
   });
 
