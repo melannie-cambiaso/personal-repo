@@ -1,14 +1,6 @@
-import type { BucketKey, SplitResult } from "@/features/finance-v2/domain";
+import type { SplitResult } from "@/features/finance-v2/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
-
-// Exported so FinanceV2Screen can label the matching percentage inputs with the
-// same Spanish copy without duplicating the map (design decision #2: labels
-// live in presentation, single source of truth here).
-export const BUCKET_LABELS: Record<BucketKey, string> = {
-  fixed: "Fijos",
-  variable: "Variables",
-  savings: "Ahorro",
-};
+import { BUCKET_LABELS } from "../bucketLabels";
 
 interface Props {
   split: SplitResult;

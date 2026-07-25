@@ -1,12 +1,19 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { FinanceV2Screen } from "./FinanceV2Screen";
-import { DEFAULT_FINANCE_V2_CONFIG } from "@/features/finance-v2/domain";
+import { DEFAULT_FINANCE_V2_CONFIG, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type { FinanceV2Config } from "@/features/finance-v2/domain";
 
 describe("FinanceV2Screen", () => {
   it("shows the 50/30/20 empty-state defaults and zero amounts when nothing was ever saved", () => {
-    render(<FinanceV2Screen initialConfig={DEFAULT_FINANCE_V2_CONFIG} onSave={vi.fn()} />);
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
 
     expect((screen.getByLabelText("Ingreso mensual") as HTMLInputElement).value).toBe("");
     expect(screen.getByDisplayValue("50")).toBeTruthy();
@@ -23,7 +30,14 @@ describe("FinanceV2Screen", () => {
       savingsPct: 20,
     };
 
-    render(<FinanceV2Screen initialConfig={saved} onSave={vi.fn()} />);
+    render(
+      <FinanceV2Screen
+        initialConfig={saved}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
 
     expect(screen.getByDisplayValue("1000000")).toBeTruthy();
     expect(screen.getByText("$500.000")).toBeTruthy();
@@ -33,7 +47,14 @@ describe("FinanceV2Screen", () => {
 
   it("hides the computed amounts and shows the error while an edit makes the split invalid, then restores them once corrected", () => {
     const onSave = vi.fn();
-    render(<FinanceV2Screen initialConfig={DEFAULT_FINANCE_V2_CONFIG} onSave={onSave} />);
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={onSave}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
 
     fireEvent.blur(screen.getByLabelText("Fijos"), { target: { value: "60" } });
 
@@ -49,10 +70,88 @@ describe("FinanceV2Screen", () => {
   });
 
   it("clamps a negative income to 0 on blur", () => {
-    render(<FinanceV2Screen initialConfig={DEFAULT_FINANCE_V2_CONFIG} onSave={vi.fn()} />);
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
 
     fireEvent.blur(screen.getByLabelText("Ingreso mensual"), { target: { value: "-500" } });
 
     expect((screen.getByLabelText("Ingreso mensual") as HTMLInputElement).value).toBe("");
+  });
+
+  it("defaults to the Distribución tab, showing the split editor and hiding the budget tab", () => {
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
+
+    expect(screen.getByLabelText("Ingreso mensual")).toBeTruthy();
+    expect(screen.getByText("Presupuesto")).toBeTruthy();
+  });
+
+  it("switches to the Presupuesto tab and hides the split editor", () => {
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+
+    expect(screen.queryByLabelText("Ingreso mensual")).toBeNull();
+    expect(screen.getAllByText("Fijos").length).toBeGreaterThan(0);
+  });
+
+  it("preserves a budget category added on the Presupuesto tab after switching away and back", () => {
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+    fireEvent.change(screen.getByLabelText("Nombre de la categoría"), {
+      target: { value: "Arriendo" },
+    });
+    fireEvent.click(screen.getByText("Agregar categoría"));
+    expect(screen.getByText("Arriendo")).toBeTruthy();
+
+    fireEvent.click(screen.getByText("Distribución"));
+    fireEvent.click(screen.getByText("Presupuesto"));
+
+    expect(screen.getByText("Arriendo")).toBeTruthy();
+  });
+
+  it("preserves edited income in the DOM after switching tabs and back", () => {
+    render(
+      <FinanceV2Screen
+        initialConfig={DEFAULT_FINANCE_V2_CONFIG}
+        onSave={vi.fn()}
+        initialBudget={DEFAULT_BUDGET_CONFIG}
+        onSaveBudget={vi.fn()}
+      />
+    );
+
+    fireEvent.blur(screen.getByLabelText("Ingreso mensual"), { target: { value: "1500000" } });
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+    fireEvent.click(screen.getByText("Distribución"));
+
+    expect((screen.getByLabelText("Ingreso mensual") as HTMLInputElement).value).toBe("1500000");
   });
 });

@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { loadDashboardConfig, handleSaveDashboardConfig } from "@/features/finance-v2/data";
+import {
+  loadDashboardConfig,
+  handleSaveDashboardConfig,
+  loadBudgetConfig,
+  handleSaveBudgetConfig,
+} from "@/features/finance-v2/data";
 import { FinanceV2Screen } from "@/features/finance-v2/presentation/screens/Dashboard/FinanceV2Screen";
 
 export default async function FinanceV2Page() {
@@ -8,7 +13,17 @@ export default async function FinanceV2Page() {
   const isOwner = !!cookieStore.get("wishlist_auth")?.value;
   if (!isOwner) redirect("/login");
 
-  const initialConfig = await loadDashboardConfig();
+  const [initialConfig, initialBudget] = await Promise.all([
+    loadDashboardConfig(),
+    loadBudgetConfig(),
+  ]);
 
-  return <FinanceV2Screen initialConfig={initialConfig} onSave={handleSaveDashboardConfig} />;
+  return (
+    <FinanceV2Screen
+      initialConfig={initialConfig}
+      onSave={handleSaveDashboardConfig}
+      initialBudget={initialBudget}
+      onSaveBudget={handleSaveBudgetConfig}
+    />
+  );
 }
