@@ -164,9 +164,9 @@ the Add-Transaction modal is open"._
 
 ## Phase 5: Regression check
 
-- [ ] 5.1 Run `npm run test` — full suite green: `IncomeSplitTab`, `BudgetTab`, v1 `MonthNav`,
+- [x] 5.1 Run `npm run test` — full suite green: `IncomeSplitTab`, `BudgetTab`, v1 `MonthNav`,
   `TransactionForm`, `TransactionList`/`TransactionRow`, `MovementSummary` suites unaffected (files
   untouched); all new/updated suites from Phases 1-4 passing.
-- [ ] 5.2 Run `tsc --noEmit` — clean, no errors, confirming the Phase 3 warning was fully resolved
+- [x] 5.2 Run `tsc --noEmit` — clean, no errors, confirming the Phase 3 warning was fully resolved
   by 4.7. Run `eslint` on changed files — 0 warnings, 0 errors.
-- [ ] 5.3 Run `npm run build` — passes, per the proposal's Success Criteria.
+- [x] 5.3 Run `npm run build` — passes, per the proposal's Success Criteria.
