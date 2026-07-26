@@ -4,15 +4,17 @@ interface Props {
   label: string;
   onPrev: () => void;
   onNext: () => void;
+  disabled?: boolean;
 }
 
-export function MonthNav({ label, onPrev, onNext }: Props) {
+export function MonthNav({ label, onPrev, onNext, disabled = false }: Props) {
   return (
     <div className="mb-6 flex items-center justify-between">
       <button
         type="button"
         onClick={onPrev}
-        className="border-cream-400 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors"
+        disabled={disabled}
+        className="border-cream-400 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         ← Anterior
       </button>
@@ -20,7 +22,8 @@ export function MonthNav({ label, onPrev, onNext }: Props) {
       <button
         type="button"
         onClick={onNext}
-        className="border-cream-400 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors"
+        disabled={disabled}
+        className="border-cream-400 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         Siguiente →
       </button>
