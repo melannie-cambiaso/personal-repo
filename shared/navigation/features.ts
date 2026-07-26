@@ -23,6 +23,5 @@ export const FEATURE_NAV_ITEMS: FeatureNavItem[] = [
     subtitle: "Tu registro financiero",
     disabled: true,
   },
-  { href: "/todo", label: "To-Do", icon: "✅", subtitle: "Tus tareas pendientes" },
   { href: "/wishlist", label: "Wishlist", icon: "🛍️", subtitle: "Tus cosas deseadas" },
 ];

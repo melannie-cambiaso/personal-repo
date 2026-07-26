@@ -4,19 +4,19 @@
 
 ### Requirement: Drawer navigation lists all features
 
-The system MUST provide a drawer (hamburger-triggered) navigation component that lists all 5 content features: finance, home-improvements, savings, todo, wishlist. `login` MUST NOT appear in the drawer — it is an auth route, not a content feature, consistent with the existing home-page grid.
+The system MUST provide a drawer (hamburger-triggered) navigation component that lists all 4 content features: finance, home-improvements, savings, wishlist. `login` MUST NOT appear in the drawer — it is an auth route, not a content feature, consistent with the existing home-page grid.
 
 #### Scenario: Drawer lists every feature
 
 - GIVEN the drawer is open
 - WHEN the user inspects its contents
-- THEN it MUST show exactly one navigation entry per feature (finance, home-improvements, savings, todo, wishlist)
+- THEN it MUST show exactly one navigation entry per feature (finance, home-improvements, savings, wishlist)
 - AND each entry MUST link to that feature's route
 - AND no entry for `login` MUST be present
 
 ### Requirement: Drawer reachable from every screen
 
-At mobile viewports (~375-430px), the system MUST expose a drawer trigger (hamburger icon) on every screen: the home page (`/`) and inside every one of the 5 content-feature routes. The trigger MUST be hidden at desktop breakpoints (`lg:hidden`) so existing desktop appearance is unchanged — this is mobile-only scope, not a desktop navigation change.
+At mobile viewports (~375-430px), the system MUST expose a drawer trigger (hamburger icon) on every screen: the home page (`/`) and inside every one of the 4 content-feature routes. The trigger MUST be hidden at desktop breakpoints (`lg:hidden`) so existing desktop appearance is unchanged — this is mobile-only scope, not a desktop navigation change.
 
 #### Scenario: Trigger present on home (mobile)
 
@@ -64,7 +64,7 @@ The system MUST visually indicate which feature entry corresponds to the current
 
 #### Scenario: Current feature highlighted
 
-- GIVEN the user is on a feature route (e.g. `/todo`)
+- GIVEN the user is on a feature route (e.g. `/savings`)
 - WHEN the drawer is open
 - THEN the entry for that feature MUST be visually distinguished from the other entries
 

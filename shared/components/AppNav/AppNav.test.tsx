@@ -32,15 +32,12 @@ describe("AppNav", () => {
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("lists all 6 feature links inside the drawer", () => {
+  it("lists all 5 feature links inside the drawer", () => {
     render(<AppNav />);
     fireEvent.click(screen.getByRole("button", { name: /menú/i }));
     expect(
       screen.getByRole("link", { name: /wishlist/i, hidden: true }).getAttribute("href")
     ).toBe("/wishlist");
-    expect(
-      screen.getByRole("link", { name: /to-do/i, hidden: true }).getAttribute("href")
-    ).toBe("/todo");
     expect(
       screen.getByRole("link", { name: /casa/i, hidden: true }).getAttribute("href")
     ).toBe("/home-improvements");
@@ -56,12 +53,12 @@ describe("AppNav", () => {
   });
 
   it("highlights the active link for the current feature route", () => {
-    usePathname.mockReturnValue("/todo");
+    usePathname.mockReturnValue("/savings");
     render(<AppNav />);
     fireEvent.click(screen.getByRole("button", { name: /menú/i }));
-    const todoLink = screen.getByRole("link", { name: /to-do/i, hidden: true });
+    const savingsLink = screen.getByRole("link", { name: /ahorros/i, hidden: true });
     const wishlistLink = screen.getByRole("link", { name: /wishlist/i, hidden: true });
-    expect(todoLink.getAttribute("aria-current")).toBe("page");
+    expect(savingsLink.getAttribute("aria-current")).toBe("page");
     expect(wishlistLink.getAttribute("aria-current")).toBeNull();
   });
 
@@ -70,7 +67,7 @@ describe("AppNav", () => {
     render(<AppNav />);
     fireEvent.click(screen.getByRole("button", { name: /menú/i }));
     const links = screen.getAllByRole("link", { hidden: true });
-    expect(links).toHaveLength(6);
+    expect(links).toHaveLength(5);
     for (const link of links) {
       expect(link.getAttribute("aria-current")).toBeNull();
     }
