@@ -4,9 +4,17 @@ const redisMock = vi.hoisted(() => ({ get: vi.fn(), set: vi.fn() }));
 
 vi.mock("@/shared/kv", () => ({ redis: redisMock }));
 
-import { loadDashboardConfig, saveDashboardConfig, loadBudgetConfig, saveBudgetConfig } from "./kvAdapter";
+import {
+  loadDashboardConfig,
+  saveDashboardConfig,
+  loadBudgetConfig,
+  saveBudgetConfig,
+  transactionsKey,
+  loadTransactions,
+  saveTransactions,
+} from "./kvAdapter";
 import { DEFAULT_FINANCE_V2_CONFIG, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
-import type { FinanceV2Config, BudgetConfig } from "@/features/finance-v2/domain";
+import type { FinanceV2Config, BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
 
 describe("loadDashboardConfig", () => {
   beforeEach(() => {
@@ -117,5 +125,63 @@ describe("saveBudgetConfig", () => {
   it("swallows redis errors on save", async () => {
     redisMock.set.mockRejectedValue(new Error("connection lost"));
     await expect(saveBudgetConfig({ categories: [] })).resolves.toBeUndefined();
+  });
+});
+
+describe("transactionsKey", () => {
+  it("builds the month-scoped key finance-v2-transactions:YYYY-MM", () => {
+    expect(transactionsKey("2026-07")).toBe("finance-v2-transactions:2026-07");
+  });
+});
+
+describe("loadTransactions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns an empty array when the month's key is missing (default-on-miss)", async () => {
+    redisMock.get.mockResolvedValue(null);
+    const result = await loadTransactions("2026-07");
+    expect(result).toEqual([]);
+  });
+
+  it("returns the stored transactions for the given month", async () => {
+    const stored: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01" },
+    ];
+    redisMock.get.mockResolvedValue(stored);
+    const result = await loadTransactions("2026-07");
+    expect(result).toEqual(stored);
+  });
+
+  it("uses the month-scoped key finance-v2-transactions:YYYY-MM", async () => {
+    redisMock.get.mockResolvedValue(null);
+    await loadTransactions("2026-07");
+    expect(redisMock.get).toHaveBeenCalledWith("finance-v2-transactions:2026-07");
+  });
+
+  it("returns an empty array (default) when redis.get throws (throw-swallow)", async () => {
+    redisMock.get.mockRejectedValue(new Error("connection lost"));
+    const result = await loadTransactions("2026-07");
+    expect(result).toEqual([]);
+  });
+});
+
+describe("saveTransactions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("saves transactions under the month-scoped key", async () => {
+    const list: FinanceV2Transaction[] = [
+      { id: "t1", type: "savings", amount: 200, date: "2026-07-25" },
+    ];
+    await saveTransactions("2026-07", list);
+    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-07", list);
+  });
+
+  it("swallows redis errors on save (throw-swallow)", async () => {
+    redisMock.set.mockRejectedValue(new Error("connection lost"));
+    await expect(saveTransactions("2026-07", [])).resolves.toBeUndefined();
   });
 });

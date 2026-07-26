@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { FinanceV2Config, BudgetConfig } from "@/features/finance-v2/domain";
+import type { FinanceV2Config, BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
 
 const cookiesGetMock = vi.hoisted(() => vi.fn());
 const saveDashboardConfigMock = vi.hoisted(() => vi.fn());
 const saveBudgetConfigMock = vi.hoisted(() => vi.fn());
+const saveTransactionsMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -14,10 +15,15 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     ...actual,
     saveDashboardConfig: saveDashboardConfigMock,
     saveBudgetConfig: saveBudgetConfigMock,
+    saveTransactions: saveTransactionsMock,
   };
 });
 
-import { handleSaveDashboardConfig, handleSaveBudgetConfig } from "./financeV2Actions";
+import {
+  handleSaveDashboardConfig,
+  handleSaveBudgetConfig,
+  handleSaveTransactions,
+} from "./financeV2Actions";
 
 const config = (overrides: Partial<FinanceV2Config> = {}): FinanceV2Config => ({
   income: 1_000_000,
@@ -62,5 +68,27 @@ describe("handleSaveBudgetConfig", () => {
     const budget: BudgetConfig = { categories: [] };
     await handleSaveBudgetConfig(budget);
     expect(saveBudgetConfigMock).toHaveBeenCalledWith(budget);
+  });
+});
+
+describe("handleSaveTransactions", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing without auth and does not write KV", async () => {
+    withoutAuth();
+    const list: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01" },
+    ];
+    await handleSaveTransactions("2026-07", list);
+    expect(saveTransactionsMock).not.toHaveBeenCalled();
+  });
+
+  it("delegates the whole list to kvAdapter's saveTransactions when authenticated", async () => {
+    withAuth();
+    const list: FinanceV2Transaction[] = [
+      { id: "t1", type: "expense", amount: 400, date: "2026-07-02", bucket: "fixed", category: null },
+    ];
+    await handleSaveTransactions("2026-07", list);
+    expect(saveTransactionsMock).toHaveBeenCalledWith("2026-07", list);
   });
 });
