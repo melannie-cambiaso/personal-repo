@@ -150,12 +150,12 @@ the Add-Transaction modal is open"._
   already imported); add `onChangeMonth: (month: string) => void` to `Props`; render
   `<MonthNav label={formatMonth(viewedMonth)} onPrev={() => onChangeMonth(prevMonth(viewedMonth))} onNext={() => onChangeMonth(nextMonth(viewedMonth))} disabled={isFormOpen} />`
   above `MovementSummary`, per the design's UI-wiring snippet. Suite (4.3) passes.
-- [ ] 4.5 RED: `features/finance-v2/presentation/components/Transactions/TransactionsTab.test.tsx` —
+- [x] 4.5 RED: `features/finance-v2/presentation/components/Transactions/TransactionsTab.test.tsx` —
   add "the Add-Transaction form's month select reseeds after a month change": render
   `TransactionsTab`, rerender with a new `viewedMonth`, open the Add modal, assert the "Mes" select's
   value matches the new `viewedMonth` (not the stale one from first mount). Must fail —
   `TransactionForm`'s sticky `month` state does not reseed on remount.
-- [ ] 4.6 GREEN: `features/finance-v2/presentation/components/Transactions/AddTransactionModal.tsx` —
+- [x] 4.6 GREEN: `features/finance-v2/presentation/components/Transactions/AddTransactionModal.tsx` —
   add `key={viewedMonth}` to `<TransactionForm>`, forcing a remount (and fresh `useState` seed) on
   every month change, mirroring v1's `key={budgetLoadedFor}` idiom. Suite (4.5) passes.
 - [x] 4.7 `features/finance-v2/presentation/screens/Dashboard/FinanceV2Screen.tsx` — pass

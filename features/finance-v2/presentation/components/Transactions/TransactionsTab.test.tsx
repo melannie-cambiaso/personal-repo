@@ -250,4 +250,38 @@ describe("TransactionsTab", () => {
     expect((screen.getByText("← Anterior") as HTMLButtonElement).disabled).toBe(true);
     expect((screen.getByText("Siguiente →") as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it("the Add-Transaction form's month select reseeds after a month change", () => {
+    const { rerender } = render(
+      <TransactionsTab
+        viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
+      />
+    );
+
+    rerender(
+      <TransactionsTab
+        viewedMonth="2026-09"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Nuevo movimiento"));
+
+    expect((screen.getByLabelText("Mes") as HTMLSelectElement).value).toBe("2026-09");
+  });
 });

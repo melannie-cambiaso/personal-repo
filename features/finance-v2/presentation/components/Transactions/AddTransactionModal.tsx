@@ -21,7 +21,12 @@ export function AddTransactionModal({ isOpen, viewedMonth, categoryOptions, onCl
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Registrar movimiento">
-      <TransactionForm viewedMonth={viewedMonth} categoryOptions={categoryOptions} onAdd={handleAdd} />
+      <TransactionForm
+        key={viewedMonth}
+        viewedMonth={viewedMonth}
+        categoryOptions={categoryOptions}
+        onAdd={handleAdd}
+      />
     </ModalShell>
   );
 }
