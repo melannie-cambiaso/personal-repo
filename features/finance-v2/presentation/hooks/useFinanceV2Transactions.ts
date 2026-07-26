@@ -27,7 +27,7 @@ interface Params {
 
 // Fire-and-forget persist on every mutation (mirrors `useFinanceV2Budget`). `listRef`
 // avoids stale closures across successive calls — same `persist*` pattern as
-// `useShoppingList`/`useFinanceV2Budget`. `viewedMonth` names the CURRENTLY VIEWED month
+// `useFinanceV2Budget`. `viewedMonth` names the CURRENTLY VIEWED month
 // (the whole-list save target); a transaction's OWN `month` field is a separate,
 // user-assigned value that may differ from it. The hook is the ROUTER: `tx.month ===
 // loadedMonthRef.current` keeps the existing whole-list save; otherwise the transaction

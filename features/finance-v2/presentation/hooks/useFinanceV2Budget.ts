@@ -20,7 +20,7 @@ interface Params {
 
 // Fire-and-forget persist on every mutation and on amount blur, no validity gate (design
 // decision #7) — unlike tab 1, no budget state is ever invalid. `configRef` avoids stale
-// closures across successive calls (same `persist*` pattern as `useShoppingList`).
+// closures across successive calls (same `persist*` pattern used across finance-v2 hooks).
 export function useFinanceV2Budget({ initialBudget, split, onSave }: Params) {
   const [config, setConfig] = useState<BudgetConfig>(initialBudget);
   const configRef = useRef(initialBudget);

@@ -4,19 +4,19 @@
 
 ### Requirement: Drawer navigation lists all features
 
-The system MUST provide a drawer (hamburger-triggered) navigation component that lists all 6 content features: finance, home-improvements, savings, shopping-list, todo, wishlist. `login` MUST NOT appear in the drawer — it is an auth route, not a content feature, consistent with the existing home-page grid.
+The system MUST provide a drawer (hamburger-triggered) navigation component that lists all 5 content features: finance, home-improvements, savings, todo, wishlist. `login` MUST NOT appear in the drawer — it is an auth route, not a content feature, consistent with the existing home-page grid.
 
 #### Scenario: Drawer lists every feature
 
 - GIVEN the drawer is open
 - WHEN the user inspects its contents
-- THEN it MUST show exactly one navigation entry per feature (finance, home-improvements, savings, shopping-list, todo, wishlist)
+- THEN it MUST show exactly one navigation entry per feature (finance, home-improvements, savings, todo, wishlist)
 - AND each entry MUST link to that feature's route
 - AND no entry for `login` MUST be present
 
 ### Requirement: Drawer reachable from every screen
 
-At mobile viewports (~375-430px), the system MUST expose a drawer trigger (hamburger icon) on every screen: the home page (`/`) and inside every one of the 6 content-feature routes. The trigger MUST be hidden at desktop breakpoints (`lg:hidden`) so existing desktop appearance is unchanged — this is mobile-only scope, not a desktop navigation change.
+At mobile viewports (~375-430px), the system MUST expose a drawer trigger (hamburger icon) on every screen: the home page (`/`) and inside every one of the 5 content-feature routes. The trigger MUST be hidden at desktop breakpoints (`lg:hidden`) so existing desktop appearance is unchanged — this is mobile-only scope, not a desktop navigation change.
 
 #### Scenario: Trigger present on home (mobile)
 
@@ -26,7 +26,7 @@ At mobile viewports (~375-430px), the system MUST expose a drawer trigger (hambu
 
 #### Scenario: Trigger present inside a feature (mobile)
 
-- GIVEN the user is on any feature route (e.g. `/finance`, `/shopping-list`) at a mobile viewport
+- GIVEN the user is on any feature route (e.g. `/finance`, `/savings`) at a mobile viewport
 - WHEN the page renders
 - THEN a drawer trigger MUST be visible without requiring the user to navigate back to `/` first
 
