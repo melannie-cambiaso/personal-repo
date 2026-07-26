@@ -8,7 +8,7 @@ export default function HomePage() {
         <h1 className="font-dancing text-brown-900 mb-2 text-5xl font-bold">Hola 👋</h1>
         <p className="text-brown-400 mb-12 text-sm">¿Qué querés ver hoy?</p>
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {FEATURE_NAV_ITEMS.map((item) => (
+          {FEATURE_NAV_ITEMS.filter((item) => !item.disabled).map((item) => (
             <Link
               key={item.href}
               href={item.href}
