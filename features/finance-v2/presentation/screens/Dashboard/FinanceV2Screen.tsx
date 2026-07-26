@@ -65,9 +65,8 @@ export function FinanceV2Screen({
   } = useFinanceV2Budget({ initialBudget, split, onSave: onSaveBudget });
 
   // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
-  // survive a tab switch. `setViewedMonth` is unused until PR2 wires it into
-  // `TransactionsTab`'s prev/next controls — a `no-unused-vars` warning is expected
-  // and accepted until then.
+  // survive a tab switch. `setViewedMonth` is wired into `TransactionsTab`'s
+  // `onChangeMonth` below, driving the prev/next controls.
   const [viewedMonth, setViewedMonth] = useState(initialMonth);
 
   const {
@@ -151,6 +150,7 @@ export function FinanceV2Screen({
             onDelete={deleteTransaction}
             lastCrossMonthSave={lastCrossMonthSave}
             onDismissCrossMonthSave={dismissCrossMonthSave}
+            onChangeMonth={setViewedMonth}
           />
         )}
       </div>

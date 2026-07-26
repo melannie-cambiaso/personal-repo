@@ -129,23 +129,23 @@ no visible control yet — that is Phase 4)._
 _Spec: "Prev/next controls change viewedMonth without bounds", "Month navigation is disabled while
 the Add-Transaction modal is open"._
 
-- [ ] 4.1 RED: `shared/components/MonthNav/MonthNav.test.tsx` (new file) — cases: renders `label`;
+- [x] 4.1 RED: `shared/components/MonthNav/MonthNav.test.tsx` (new file) — cases: renders `label`;
   clicking the prev/next buttons calls `onPrev`/`onNext`; `disabled={true}` disables both buttons
   (assert the `disabled` DOM attribute); omitting `disabled` (v1's existing call site) leaves both
   buttons enabled. Must fail — `disabled` prop does not exist.
-- [ ] 4.2 GREEN: `shared/components/MonthNav/MonthNav.tsx` — add optional `disabled?: boolean`
+- [x] 4.2 GREEN: `shared/components/MonthNav/MonthNav.tsx` — add optional `disabled?: boolean`
   (default `false`), applied to both `<button>`s plus
   `disabled:cursor-not-allowed disabled:opacity-50` classes. Suite (4.1) passes; confirm v1's
   existing `MonthNav` call site and its own test suite stay byte-for-byte green (no `disabled` prop
   passed there).
-- [ ] 4.3 RED: `features/finance-v2/presentation/components/Transactions/TransactionsTab.test.tsx` —
+- [x] 4.3 RED: `features/finance-v2/presentation/components/Transactions/TransactionsTab.test.tsx` —
   add `onChangeMonth: vi.fn()` to every existing render call's props, then add cases: the month
   label renders `formatMonth(viewedMonth)`; clicking "Anterior"/"Siguiente" calls `onChangeMonth`
   with `prevMonth(viewedMonth)`/`nextMonth(viewedMonth)` respectively; prev/next become disabled
   once the Add-Transaction modal is open (open the modal via the existing "Nuevo movimiento" button,
   then assert both `MonthNav` buttons are disabled). Must fail — `TransactionsTab` does not render
   `MonthNav` or accept `onChangeMonth` yet.
-- [ ] 4.4 GREEN: `features/finance-v2/presentation/components/Transactions/TransactionsTab.tsx` —
+- [x] 4.4 GREEN: `features/finance-v2/presentation/components/Transactions/TransactionsTab.tsx` —
   import `MonthNav` and `prevMonth`/`nextMonth` from `@/shared/utils/monthUtils` (`formatMonth` is
   already imported); add `onChangeMonth: (month: string) => void` to `Props`; render
   `<MonthNav label={formatMonth(viewedMonth)} onPrev={() => onChangeMonth(prevMonth(viewedMonth))} onNext={() => onChangeMonth(nextMonth(viewedMonth))} disabled={isFormOpen} />`
@@ -158,7 +158,7 @@ the Add-Transaction modal is open"._
 - [ ] 4.6 GREEN: `features/finance-v2/presentation/components/Transactions/AddTransactionModal.tsx` —
   add `key={viewedMonth}` to `<TransactionForm>`, forcing a remount (and fresh `useState` seed) on
   every month change, mirroring v1's `key={budgetLoadedFor}` idiom. Suite (4.5) passes.
-- [ ] 4.7 `features/finance-v2/presentation/screens/Dashboard/FinanceV2Screen.tsx` — pass
+- [x] 4.7 `features/finance-v2/presentation/screens/Dashboard/FinanceV2Screen.tsx` — pass
   `onChangeMonth={setViewedMonth}` into `<TransactionsTab>`, consuming the `setViewedMonth` deferred
   by Phase 3 and resolving its ESLint warning.
 

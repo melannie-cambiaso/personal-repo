@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TransactionsTab } from "./TransactionsTab";
 import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
+import { formatMonth } from "@/shared/utils/formatMonth";
+import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
@@ -23,6 +25,7 @@ describe("TransactionsTab", () => {
         categoryOptions={categoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
       />
     );
 
@@ -46,6 +49,7 @@ describe("TransactionsTab", () => {
         categoryOptions={categoryOptions}
         onAdd={onAdd}
         onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
       />
     );
 
@@ -78,6 +82,7 @@ describe("TransactionsTab", () => {
         categoryOptions={categoryOptions}
         onAdd={vi.fn()}
         onDelete={onDelete}
+        onChangeMonth={vi.fn()}
       />
     );
 
@@ -97,6 +102,7 @@ describe("TransactionsTab", () => {
         categoryOptions={categoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
       />
     );
 
@@ -114,6 +120,7 @@ describe("TransactionsTab", () => {
         categoryOptions={categoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
       />
     );
 
@@ -131,6 +138,7 @@ describe("TransactionsTab", () => {
         categoryOptions={categoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
       />
     );
 
@@ -151,11 +159,95 @@ describe("TransactionsTab", () => {
         categoryOptions={categoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
       />
     );
 
     fireEvent.click(screen.getByLabelText("Cerrar aviso"));
 
     expect(onDismissCrossMonthSave).toHaveBeenCalledOnce();
+  });
+
+  it("shows the month label formatted via formatMonth", () => {
+    render(
+      <TransactionsTab
+        viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText(formatMonth("2026-07"), { selector: "span" })).toBeTruthy();
+  });
+
+  it("clicking prev calls onChangeMonth with prevMonth(viewedMonth)", () => {
+    const onChangeMonth = vi.fn();
+    render(
+      <TransactionsTab
+        viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+        onChangeMonth={onChangeMonth}
+      />
+    );
+
+    fireEvent.click(screen.getByText("← Anterior"));
+
+    expect(onChangeMonth).toHaveBeenCalledWith(prevMonth("2026-07"));
+  });
+
+  it("clicking next calls onChangeMonth with nextMonth(viewedMonth)", () => {
+    const onChangeMonth = vi.fn();
+    render(
+      <TransactionsTab
+        viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+        onChangeMonth={onChangeMonth}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Siguiente →"));
+
+    expect(onChangeMonth).toHaveBeenCalledWith(nextMonth("2026-07"));
+  });
+
+  it("disables prev/next once the Add-Transaction modal is open", () => {
+    render(
+      <TransactionsTab
+        viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+        onChangeMonth={vi.fn()}
+      />
+    );
+
+    expect((screen.getByText("← Anterior") as HTMLButtonElement).disabled).toBe(false);
+
+    fireEvent.click(screen.getByText("Nuevo movimiento"));
+
+    expect((screen.getByText("← Anterior") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByText("Siguiente →") as HTMLButtonElement).disabled).toBe(true);
   });
 });

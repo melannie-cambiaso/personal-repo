@@ -3,8 +3,9 @@
 import { useState } from "react";
 import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
-import { Button } from "@/shared/components";
+import { Button, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
+import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 import { AddTransactionModal } from "./AddTransactionModal";
 import { MovementSummary } from "./MovementSummary";
 import { TransactionList } from "./TransactionList";
@@ -20,6 +21,7 @@ interface Props {
    *  `viewedMonth`; drives the dismissible confirmation banner below. `null` = no banner. */
   lastCrossMonthSave: string | null;
   onDismissCrossMonthSave: () => void;
+  onChangeMonth: (month: string) => void;
 }
 
 // Pure composition (math-free), consuming `useFinanceV2Transactions`'s hoisted state via
@@ -36,11 +38,18 @@ export function TransactionsTab({
   onDelete,
   lastCrossMonthSave,
   onDismissCrossMonthSave,
+  onChangeMonth,
 }: Props) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-6">
+      <MonthNav
+        label={formatMonth(viewedMonth)}
+        onPrev={() => onChangeMonth(prevMonth(viewedMonth))}
+        onNext={() => onChangeMonth(nextMonth(viewedMonth))}
+        disabled={isFormOpen}
+      />
       {lastCrossMonthSave && (
         <div
           role="status"
