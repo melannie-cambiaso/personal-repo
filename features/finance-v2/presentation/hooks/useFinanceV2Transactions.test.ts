@@ -5,11 +5,26 @@ import type { FinanceV2Transaction } from "@/features/finance-v2/domain";
 
 const onSave = vi.fn();
 const onSaveToOtherMonth = vi.fn();
+const onLoad = vi.fn();
+
+/** A promise whose resolution is controlled from the test body — used to assert
+ *  behaviour WHILE a `handleLoadTransactions` call is still in flight. */
+function createDeferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
 
 describe("useFinanceV2Transactions", () => {
   beforeEach(() => {
     onSave.mockReset();
     onSaveToOtherMonth.mockReset();
+    onLoad.mockReset();
+    onLoad.mockResolvedValue([]);
   });
 
   it("initializes transactions from initialTransactions and derives totals/dayGroups", () => {
@@ -26,7 +41,13 @@ describe("useFinanceV2Transactions", () => {
       },
     ];
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions, viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions,
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     expect(result.current.transactions).toEqual(initialTransactions);
@@ -36,7 +57,13 @@ describe("useFinanceV2Transactions", () => {
 
   it("addTransaction appends a new transaction with a generated id and calls onSave once with the viewed month and the resulting list", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions: [],
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     act(() =>
@@ -61,7 +88,13 @@ describe("useFinanceV2Transactions", () => {
 
   it("addTransaction with an expense variant carries bucket and category through", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions: [],
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     act(() =>
@@ -88,7 +121,13 @@ describe("useFinanceV2Transactions", () => {
       { id: "t2", type: "savings", amount: 200, date: "2026-07-02", month: "2026-07" },
     ];
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions, viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions,
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     act(() => result.current.deleteTransaction("t1"));
@@ -100,7 +139,13 @@ describe("useFinanceV2Transactions", () => {
 
   it("does not use a stale closure across successive add calls", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions: [],
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     act(() => {
@@ -124,7 +169,13 @@ describe("useFinanceV2Transactions", () => {
 
   it("same-month add calls onSave, not onSaveToOtherMonth, and lastCrossMonthSave stays null", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions: [],
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     act(() =>
@@ -143,7 +194,13 @@ describe("useFinanceV2Transactions", () => {
 
   it("cross-month add calls onSaveToOtherMonth, not onSave, leaves the list unchanged, and sets lastCrossMonthSave", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions: [],
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     act(() =>
@@ -163,7 +220,13 @@ describe("useFinanceV2Transactions", () => {
 
   it("lastCrossMonthSave is cleared by a subsequent same-month add", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions: [],
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     act(() =>
@@ -190,7 +253,13 @@ describe("useFinanceV2Transactions", () => {
 
   it("dismissCrossMonthSave clears lastCrossMonthSave", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+      useFinanceV2Transactions({
+        initialTransactions: [],
+        viewedMonth: "2026-07",
+        onSave,
+        onSaveToOtherMonth,
+        onLoad,
+      })
     );
 
     act(() =>
@@ -206,5 +275,220 @@ describe("useFinanceV2Transactions", () => {
     act(() => result.current.dismissCrossMonthSave());
 
     expect(result.current.lastCrossMonthSave).toBeNull();
+  });
+
+  it("re-fetches and replaces transactions/totals/dayGroups when viewedMonth changes", async () => {
+    const julyTransactions: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+    ];
+    const augustTransactions: FinanceV2Transaction[] = [
+      { id: "t2", type: "income", amount: 2000, date: "2026-08-01", month: "2026-08" },
+      { id: "t3", type: "expense", amount: 500, date: "2026-08-02", month: "2026-08", bucket: "fixed", category: null },
+    ];
+    onLoad.mockResolvedValueOnce(augustTransactions);
+
+    const { result, rerender } = renderHook(
+      ({ viewedMonth }) =>
+        useFinanceV2Transactions({
+          initialTransactions: julyTransactions,
+          viewedMonth,
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        }),
+      { initialProps: { viewedMonth: "2026-07" } }
+    );
+
+    expect(result.current.transactions).toEqual(julyTransactions);
+
+    await act(async () => {
+      rerender({ viewedMonth: "2026-08" });
+      await Promise.resolve();
+    });
+
+    expect(onLoad).toHaveBeenCalledWith("2026-08");
+    expect(result.current.transactions).toEqual(augustTransactions);
+    expect(result.current.totals).toEqual({ income: 2000, expense: 500, savings: 0, balance: 1500 });
+    expect(result.current.dayGroups.map((g) => g.date)).toEqual(["2026-08-02", "2026-08-01"]);
+  });
+
+  it("clears lastCrossMonthSave synchronously when viewedMonth changes, before onLoad resolves", async () => {
+    const deferred = createDeferred<FinanceV2Transaction[]>();
+    onLoad.mockReturnValueOnce(deferred.promise);
+
+    const { result, rerender } = renderHook(
+      ({ viewedMonth }) =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth,
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        }),
+      { initialProps: { viewedMonth: "2026-07" } }
+    );
+
+    act(() =>
+      result.current.addTransaction({
+        type: "income",
+        amount: 500,
+        date: "2026-07-31",
+        month: "2026-08",
+      })
+    );
+    expect(result.current.lastCrossMonthSave).toBe("2026-08");
+
+    act(() => {
+      rerender({ viewedMonth: "2026-09" });
+    });
+
+    expect(result.current.lastCrossMonthSave).toBeNull();
+
+    await act(async () => {
+      deferred.resolve([]);
+      await deferred.promise;
+    });
+  });
+
+  it("ordering guard: an older in-flight response resolving after a newer one does not win", async () => {
+    const augustDeferred = createDeferred<FinanceV2Transaction[]>();
+    const septemberDeferred = createDeferred<FinanceV2Transaction[]>();
+    const augustTransactions: FinanceV2Transaction[] = [
+      { id: "aug", type: "income", amount: 111, date: "2026-08-01", month: "2026-08" },
+    ];
+    const septemberTransactions: FinanceV2Transaction[] = [
+      { id: "sep", type: "income", amount: 222, date: "2026-09-01", month: "2026-09" },
+    ];
+    onLoad.mockReturnValueOnce(augustDeferred.promise);
+    onLoad.mockReturnValueOnce(septemberDeferred.promise);
+
+    const { result, rerender } = renderHook(
+      ({ viewedMonth }) =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth,
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        }),
+      { initialProps: { viewedMonth: "2026-07" } }
+    );
+
+    act(() => {
+      rerender({ viewedMonth: "2026-08" });
+    });
+    act(() => {
+      rerender({ viewedMonth: "2026-09" });
+    });
+
+    await act(async () => {
+      septemberDeferred.resolve(septemberTransactions);
+      await septemberDeferred.promise;
+    });
+    await act(async () => {
+      augustDeferred.resolve(augustTransactions);
+      await augustDeferred.promise;
+    });
+
+    expect(result.current.transactions).toEqual(septemberTransactions);
+  });
+
+  it("corruption guard: a delete during a pending load persists via the previously loaded month, not the requested one", async () => {
+    const julyTransactions: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+    ];
+    const deferred = createDeferred<FinanceV2Transaction[]>();
+    onLoad.mockReturnValueOnce(deferred.promise);
+
+    const { result, rerender } = renderHook(
+      ({ viewedMonth }) =>
+        useFinanceV2Transactions({
+          initialTransactions: julyTransactions,
+          viewedMonth,
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        }),
+      { initialProps: { viewedMonth: "2026-07" } }
+    );
+
+    act(() => {
+      rerender({ viewedMonth: "2026-08" });
+    });
+
+    act(() => result.current.deleteTransaction("t1"));
+
+    expect(onSave).toHaveBeenCalledOnce();
+    expect(onSave).toHaveBeenCalledWith("2026-07", []);
+
+    await act(async () => {
+      deferred.resolve([]);
+      await deferred.promise;
+    });
+  });
+
+  it("cross-month add during a pending load still routes through onSaveToOtherMonth, not the in-memory list", async () => {
+    const deferred = createDeferred<FinanceV2Transaction[]>();
+    onLoad.mockReturnValueOnce(deferred.promise);
+
+    const { result, rerender } = renderHook(
+      ({ viewedMonth }) =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth,
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        }),
+      { initialProps: { viewedMonth: "2026-07" } }
+    );
+
+    act(() => {
+      rerender({ viewedMonth: "2026-08" });
+    });
+
+    act(() =>
+      result.current.addTransaction({
+        type: "income",
+        amount: 300,
+        date: "2026-09-01",
+        month: "2026-09",
+      })
+    );
+
+    expect(onSaveToOtherMonth).toHaveBeenCalledOnce();
+    expect(result.current.transactions).toEqual([]);
+
+    await act(async () => {
+      deferred.resolve([]);
+      await deferred.promise;
+    });
+  });
+
+  it("a rejected onLoad applies an empty list and does not leave the previous month's data rendered", async () => {
+    const julyTransactions: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+    ];
+    onLoad.mockRejectedValueOnce(new Error("transport failure"));
+
+    const { result, rerender } = renderHook(
+      ({ viewedMonth }) =>
+        useFinanceV2Transactions({
+          initialTransactions: julyTransactions,
+          viewedMonth,
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        }),
+      { initialProps: { viewedMonth: "2026-07" } }
+    );
+
+    await act(async () => {
+      rerender({ viewedMonth: "2026-08" });
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(result.current.transactions).toEqual([]);
   });
 });
