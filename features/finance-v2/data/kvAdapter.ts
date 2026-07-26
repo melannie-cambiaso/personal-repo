@@ -70,3 +70,15 @@ export async function saveTransactions(
     // swallow — caller has no recovery path; list reverts to in-memory state on next load
   }
 }
+
+/** Read-append-write scoped to `month`'s key ONLY — composed of `loadTransactions`/
+ *  `saveTransactions` (not a raw redis pair) so key construction stays in `transactionsKey`
+ *  and this inherits the legacy backfill in `loadTransactions` for free. Used when a
+ *  transaction's `month` differs from the currently viewed month (design decision #1). */
+export async function appendTransactionToMonth(
+  month: string,
+  tx: FinanceV2Transaction,
+): Promise<void> {
+  const list = await loadTransactions(month);
+  await saveTransactions(month, [...list, tx]);
+}

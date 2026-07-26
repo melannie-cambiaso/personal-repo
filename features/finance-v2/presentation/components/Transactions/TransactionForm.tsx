@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { ExpenseBucketKey, ExpenseCategoryOption } from "@/features/finance-v2/domain";
 import { toLocalISODate } from "@/features/finance-v2/domain";
+import { monthWindow } from "@/shared/utils/monthUtils";
+import { formatMonth } from "@/shared/utils/formatMonth";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
 import { Button, Input, Select } from "@/shared/components";
 import { TRANSACTION_TYPE_LABELS, TRANSACTION_TYPE_ORDER } from "./transactionLabels";
@@ -12,37 +14,34 @@ type TransactionType = (typeof TRANSACTION_TYPE_ORDER)[number];
 
 const NO_CATEGORY = "";
 
+/** How many months on each side of `viewedMonth` the month picker offers — a
+ *  finance-v2 product rule, so it lives at the call site (this used to be where
+ *  `monthBounds` lived), not inside the generic `monthWindow` helper. */
+const MONTH_RADIUS = 3;
+
 interface Props {
   viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
   onAdd: (input: NewTransactionInput) => void;
 }
 
-/** Calendar bounds of `month` (`YYYY-MM`) for the date input's `min`/`max` — a
- *  presentational guard alongside the domain-level month check in
- *  `addTransaction`, not a third place that DERIVES a month string from a date. */
-function monthBounds(month: string): { min: string; max: string } {
-  const [year, monthNum] = month.split("-").map(Number);
-  const lastDay = new Date(year, monthNum, 0).getDate();
-  return { min: `${month}-01`, max: `${month}-${String(lastDay).padStart(2, "0")}` };
-}
-
 // Choosing a subcategory HIDES the bucket select entirely: bucket is unaskable twice
 // because the control simply isn't rendered, not because it's disabled.
 export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) {
-  const { min, max } = monthBounds(viewedMonth);
-  const today = toLocalISODate(new Date());
-  const defaultDate = today >= min && today <= max ? today : min;
+  const monthOptions = monthWindow(viewedMonth, MONTH_RADIUS);
 
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(defaultDate);
+  const [date, setDate] = useState(() => toLocalISODate(new Date()));
+  const [month, setMonth] = useState(viewedMonth);
   const [note, setNote] = useState("");
   const [bucket, setBucket] = useState<ExpenseBucketKey>("fixed");
   const [categoryId, setCategoryId] = useState(NO_CATEGORY);
 
   const selectedCategory = categoryOptions.find((c) => c.id === categoryId) ?? null;
 
+  // `date` and `month` are NOT reset — sticky like `type` (design decision #6): filing
+  // several transactions into the same other month shouldn't require re-picking each time.
   const reset = () => {
     setAmount("");
     setNote("");
@@ -61,13 +60,13 @@ export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) 
         type: "expense",
         amount: parsedAmount,
         date,
-        month: viewedMonth,
+        month,
         note: note.trim() || undefined,
         bucket: resolvedBucket,
         category: selectedCategory ? { id: selectedCategory.id, name: selectedCategory.name } : null,
       });
     } else {
-      onAdd({ type, amount: parsedAmount, date, month: viewedMonth, note: note.trim() || undefined });
+      onAdd({ type, amount: parsedAmount, date, month, note: note.trim() || undefined });
     }
 
     reset();
@@ -101,9 +100,13 @@ export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) 
           type="date"
           aria-label="Fecha"
           value={date}
-          min={min}
-          max={max}
           onChange={(e) => setDate(e.target.value)}
+        />
+        <Select
+          aria-label="Mes"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          options={monthOptions.map((m) => ({ value: m, label: formatMonth(m) }))}
         />
       </div>
 

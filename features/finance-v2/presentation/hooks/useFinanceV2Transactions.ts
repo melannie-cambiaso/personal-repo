@@ -21,16 +21,26 @@ interface Params {
   initialTransactions: FinanceV2Transaction[];
   viewedMonth: string;
   onSave: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
+  onSaveToOtherMonth: (tx: FinanceV2Transaction) => Promise<void> | void;
 }
 
 // Fire-and-forget persist on every mutation (mirrors `useFinanceV2Budget`). `listRef`
 // avoids stale closures across successive calls — same `persist*` pattern as
 // `useShoppingList`/`useFinanceV2Budget`. `viewedMonth` names the CURRENTLY VIEWED month
 // (the whole-list save target); a transaction's OWN `month` field is a separate,
-// user-assigned value that may differ from it.
-export function useFinanceV2Transactions({ initialTransactions, viewedMonth, onSave }: Params) {
+// user-assigned value that may differ from it. The hook is the ROUTER: `tx.month ===
+// viewedMonth` keeps the existing whole-list save; otherwise the transaction is appended
+// to its own month's key via `onSaveToOtherMonth`, and the current list/key stay
+// untouched — `lastCrossMonthSave` then drives a dismissible confirmation banner.
+export function useFinanceV2Transactions({
+  initialTransactions,
+  viewedMonth,
+  onSave,
+  onSaveToOtherMonth,
+}: Params) {
   const [transactions, setTransactions] = useState<FinanceV2Transaction[]>(initialTransactions);
   const listRef = useRef(initialTransactions);
+  const [lastCrossMonthSave, setLastCrossMonthSave] = useState<string | null>(null);
 
   const totals = useMemo(() => computeTransactionTotals(transactions), [transactions]);
   const dayGroups = useMemo(() => groupTransactionsByDay(transactions), [transactions]);
@@ -43,12 +53,30 @@ export function useFinanceV2Transactions({ initialTransactions, viewedMonth, onS
 
   const addTransaction = (input: NewTransactionInput) => {
     const tx = { ...input, id: crypto.randomUUID() } as FinanceV2Transaction;
-    persist(domainAddTransaction(listRef.current, tx));
+
+    if (tx.month === viewedMonth) {
+      setLastCrossMonthSave(null);
+      persist(domainAddTransaction(listRef.current, tx));
+      return;
+    }
+
+    void onSaveToOtherMonth(tx);
+    setLastCrossMonthSave(tx.month);
   };
 
   const deleteTransaction = (id: string) => {
     persist(domainDeleteTransaction(listRef.current, id));
   };
 
-  return { transactions, totals, dayGroups, addTransaction, deleteTransaction };
+  const dismissCrossMonthSave = () => setLastCrossMonthSave(null);
+
+  return {
+    transactions,
+    totals,
+    dayGroups,
+    addTransaction,
+    deleteTransaction,
+    lastCrossMonthSave,
+    dismissCrossMonthSave,
+  };
 }

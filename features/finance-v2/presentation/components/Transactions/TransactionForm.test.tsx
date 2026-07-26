@@ -18,13 +18,31 @@ describe("TransactionForm", () => {
     vi.useRealTimers();
   });
 
-  it("defaults the date input to today, min/max bound to the current month", () => {
+  it("defaults the date input to today, with no min/max bound (date is unbounded)", () => {
     render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     const dateInput = screen.getByLabelText("Fecha") as HTMLInputElement;
     expect(dateInput.value).toBe("2026-07-15");
-    expect(dateInput.min).toBe("2026-07-01");
-    expect(dateInput.max).toBe("2026-07-31");
+    expect(dateInput.min).toBe("");
+    expect(dateInput.max).toBe("");
+  });
+
+  it("offers exactly 7 month options, viewedMonth ± 3 months, defaulting to viewedMonth", () => {
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
+
+    const monthSelect = screen.getByLabelText("Mes") as HTMLSelectElement;
+    const optionValues = Array.from(monthSelect.options).map((o) => o.value);
+
+    expect(optionValues).toEqual([
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07",
+      "2026-08",
+      "2026-09",
+      "2026-10",
+    ]);
+    expect(monthSelect.value).toBe("2026-07");
   });
 
   it("shows the bucket select for an expense with no subcategory chosen", () => {

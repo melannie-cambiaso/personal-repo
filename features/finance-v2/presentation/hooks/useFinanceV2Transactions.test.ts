@@ -4,10 +4,12 @@ import { useFinanceV2Transactions } from "./useFinanceV2Transactions";
 import type { FinanceV2Transaction } from "@/features/finance-v2/domain";
 
 const onSave = vi.fn();
+const onSaveToOtherMonth = vi.fn();
 
 describe("useFinanceV2Transactions", () => {
   beforeEach(() => {
     onSave.mockReset();
+    onSaveToOtherMonth.mockReset();
   });
 
   it("initializes transactions from initialTransactions and derives totals/dayGroups", () => {
@@ -24,7 +26,7 @@ describe("useFinanceV2Transactions", () => {
       },
     ];
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions, viewedMonth: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions, viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
     );
 
     expect(result.current.transactions).toEqual(initialTransactions);
@@ -34,7 +36,7 @@ describe("useFinanceV2Transactions", () => {
 
   it("addTransaction appends a new transaction with a generated id and calls onSave once with the viewed month and the resulting list", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
     );
 
     act(() =>
@@ -59,7 +61,7 @@ describe("useFinanceV2Transactions", () => {
 
   it("addTransaction with an expense variant carries bucket and category through", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
     );
 
     act(() =>
@@ -86,7 +88,7 @@ describe("useFinanceV2Transactions", () => {
       { id: "t2", type: "savings", amount: 200, date: "2026-07-02", month: "2026-07" },
     ];
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions, viewedMonth: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions, viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
     );
 
     act(() => result.current.deleteTransaction("t1"));
@@ -98,7 +100,7 @@ describe("useFinanceV2Transactions", () => {
 
   it("does not use a stale closure across successive add calls", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
     );
 
     act(() => {
@@ -118,5 +120,91 @@ describe("useFinanceV2Transactions", () => {
 
     expect(result.current.transactions).toHaveLength(2);
     expect(onSave).toHaveBeenCalledTimes(2);
+  });
+
+  it("same-month add calls onSave, not onSaveToOtherMonth, and lastCrossMonthSave stays null", () => {
+    const { result } = renderHook(() =>
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+    );
+
+    act(() =>
+      result.current.addTransaction({
+        type: "income",
+        amount: 500,
+        date: "2026-07-10",
+        month: "2026-07",
+      })
+    );
+
+    expect(onSave).toHaveBeenCalledOnce();
+    expect(onSaveToOtherMonth).not.toHaveBeenCalled();
+    expect(result.current.lastCrossMonthSave).toBeNull();
+  });
+
+  it("cross-month add calls onSaveToOtherMonth, not onSave, leaves the list unchanged, and sets lastCrossMonthSave", () => {
+    const { result } = renderHook(() =>
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+    );
+
+    act(() =>
+      result.current.addTransaction({
+        type: "income",
+        amount: 500,
+        date: "2026-07-31",
+        month: "2026-08",
+      })
+    );
+
+    expect(onSaveToOtherMonth).toHaveBeenCalledOnce();
+    expect(onSave).not.toHaveBeenCalled();
+    expect(result.current.transactions).toHaveLength(0);
+    expect(result.current.lastCrossMonthSave).toBe("2026-08");
+  });
+
+  it("lastCrossMonthSave is cleared by a subsequent same-month add", () => {
+    const { result } = renderHook(() =>
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+    );
+
+    act(() =>
+      result.current.addTransaction({
+        type: "income",
+        amount: 500,
+        date: "2026-07-31",
+        month: "2026-08",
+      })
+    );
+    expect(result.current.lastCrossMonthSave).toBe("2026-08");
+
+    act(() =>
+      result.current.addTransaction({
+        type: "income",
+        amount: 200,
+        date: "2026-07-01",
+        month: "2026-07",
+      })
+    );
+
+    expect(result.current.lastCrossMonthSave).toBeNull();
+  });
+
+  it("dismissCrossMonthSave clears lastCrossMonthSave", () => {
+    const { result } = renderHook(() =>
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave, onSaveToOtherMonth })
+    );
+
+    act(() =>
+      result.current.addTransaction({
+        type: "income",
+        amount: 500,
+        date: "2026-07-31",
+        month: "2026-08",
+      })
+    );
+    expect(result.current.lastCrossMonthSave).toBe("2026-08");
+
+    act(() => result.current.dismissCrossMonthSave());
+
+    expect(result.current.lastCrossMonthSave).toBeNull();
   });
 });

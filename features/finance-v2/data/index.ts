@@ -9,4 +9,5 @@ export {
   handleSaveDashboardConfig,
   handleSaveBudgetConfig,
   handleSaveTransactions,
+  handleAppendTransactionToMonth,
 } from "./financeV2Actions";

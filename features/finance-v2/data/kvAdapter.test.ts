@@ -12,6 +12,7 @@ import {
   transactionsKey,
   loadTransactions,
   saveTransactions,
+  appendTransactionToMonth,
 } from "./kvAdapter";
 import { DEFAULT_FINANCE_V2_CONFIG, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type { FinanceV2Config, BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
@@ -210,5 +211,48 @@ describe("saveTransactions", () => {
   it("swallows redis errors on save (throw-swallow)", async () => {
     redisMock.set.mockRejectedValue(new Error("connection lost"));
     await expect(saveTransactions("2026-07", [])).resolves.toBeUndefined();
+  });
+});
+
+describe("appendTransactionToMonth", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("appends the transaction to the TARGET month's existing list and saves under the target key only", async () => {
+    const existing: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-08-01", month: "2026-08" },
+    ];
+    redisMock.get.mockResolvedValue(existing);
+    const tx: FinanceV2Transaction = {
+      id: "t2",
+      type: "savings",
+      amount: 300,
+      date: "2026-07-31",
+      month: "2026-08",
+    };
+
+    await appendTransactionToMonth("2026-08", tx);
+
+    expect(redisMock.get).toHaveBeenCalledWith("finance-v2-transactions:2026-08");
+    expect(redisMock.set).toHaveBeenCalledTimes(1);
+    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-08", [...existing, tx]);
+  });
+
+  it("appends to an empty list when the target month has no stored transactions yet", async () => {
+    redisMock.get.mockResolvedValue(null);
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "expense",
+      amount: 100,
+      date: "2026-09-01",
+      month: "2026-09",
+      bucket: "variable",
+      category: null,
+    };
+
+    await appendTransactionToMonth("2026-09", tx);
+
+    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-09", [tx]);
   });
 });

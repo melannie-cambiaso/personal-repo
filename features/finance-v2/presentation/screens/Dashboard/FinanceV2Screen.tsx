@@ -28,6 +28,7 @@ interface Props {
   initialTransactions: FinanceV2Transaction[];
   viewedMonth: string;
   onSaveTransactions: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
+  onSaveToOtherMonth: (tx: FinanceV2Transaction) => Promise<void> | void;
 }
 
 // `useFinanceV2Dashboard`, `useFinanceV2Budget`, and `useFinanceV2Transactions` all stay
@@ -44,6 +45,7 @@ export function FinanceV2Screen({
   initialTransactions,
   viewedMonth,
   onSaveTransactions,
+  onSaveToOtherMonth,
 }: Props) {
   const { config, split, handleIncomeBlur, handlePercentageBlur } = useFinanceV2Dashboard({
     initialConfig,
@@ -60,10 +62,18 @@ export function FinanceV2Screen({
     handleAmountBlur,
   } = useFinanceV2Budget({ initialBudget, split, onSave: onSaveBudget });
 
-  const { totals, dayGroups, addTransaction, deleteTransaction } = useFinanceV2Transactions({
+  const {
+    totals,
+    dayGroups,
+    addTransaction,
+    deleteTransaction,
+    lastCrossMonthSave,
+    dismissCrossMonthSave,
+  } = useFinanceV2Transactions({
     initialTransactions,
     viewedMonth,
     onSave: onSaveTransactions,
+    onSaveToOtherMonth,
   });
 
   // Flows LIVE from the hoisted budget hook: a subcategory added in tab 2 is pickable in
@@ -130,6 +140,8 @@ export function FinanceV2Screen({
             categoryOptions={categoryOptions}
             onAdd={addTransaction}
             onDelete={deleteTransaction}
+            lastCrossMonthSave={lastCrossMonthSave}
+            onDismissCrossMonthSave={dismissCrossMonthSave}
           />
         )}
       </div>

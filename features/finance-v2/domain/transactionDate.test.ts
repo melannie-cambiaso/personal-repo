@@ -1,5 +1,28 @@
 import { describe, it, expect } from "vitest";
-import { toLocalISODate } from "./transactionDate";
+import { isTransactionMonth, toLocalISODate } from "./transactionDate";
+
+describe("isTransactionMonth", () => {
+  it("accepts a well-formed YYYY-MM string", () => {
+    expect(isTransactionMonth("2026-07")).toBe(true);
+  });
+
+  it("accepts the boundary months 01 and 12", () => {
+    expect(isTransactionMonth("2026-01")).toBe(true);
+    expect(isTransactionMonth("2026-12")).toBe(true);
+  });
+
+  it("rejects a month number above 12", () => {
+    expect(isTransactionMonth("2026-13")).toBe(false);
+  });
+
+  it("rejects a single-digit month missing the leading zero", () => {
+    expect(isTransactionMonth("2026-7")).toBe(false);
+  });
+
+  it("rejects an empty string", () => {
+    expect(isTransactionMonth("")).toBe(false);
+  });
+});
 
 describe("toLocalISODate", () => {
   it("formats a Date using LOCAL time components, not UTC", () => {

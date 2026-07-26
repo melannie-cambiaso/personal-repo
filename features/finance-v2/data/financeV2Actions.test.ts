@@ -5,6 +5,7 @@ const cookiesGetMock = vi.hoisted(() => vi.fn());
 const saveDashboardConfigMock = vi.hoisted(() => vi.fn());
 const saveBudgetConfigMock = vi.hoisted(() => vi.fn());
 const saveTransactionsMock = vi.hoisted(() => vi.fn());
+const appendTransactionToMonthMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -16,6 +17,7 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     saveDashboardConfig: saveDashboardConfigMock,
     saveBudgetConfig: saveBudgetConfigMock,
     saveTransactions: saveTransactionsMock,
+    appendTransactionToMonth: appendTransactionToMonthMock,
   };
 });
 
@@ -23,6 +25,7 @@ import {
   handleSaveDashboardConfig,
   handleSaveBudgetConfig,
   handleSaveTransactions,
+  handleAppendTransactionToMonth,
 } from "./financeV2Actions";
 
 const config = (overrides: Partial<FinanceV2Config> = {}): FinanceV2Config => ({
@@ -98,5 +101,54 @@ describe("handleSaveTransactions", () => {
     ];
     await handleSaveTransactions("2026-07", list);
     expect(saveTransactionsMock).toHaveBeenCalledWith("2026-07", list);
+  });
+});
+
+describe("handleAppendTransactionToMonth", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does nothing without auth and does not write KV", async () => {
+    withoutAuth();
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "income",
+      amount: 1000,
+      date: "2026-07-01",
+      month: "2026-08",
+    };
+
+    await handleAppendTransactionToMonth(tx);
+
+    expect(appendTransactionToMonthMock).not.toHaveBeenCalled();
+  });
+
+  it("does nothing and does not write KV when tx.month is malformed", async () => {
+    withAuth();
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "income",
+      amount: 1000,
+      date: "2026-07-01",
+      month: "2026-13",
+    };
+
+    await handleAppendTransactionToMonth(tx);
+
+    expect(appendTransactionToMonthMock).not.toHaveBeenCalled();
+  });
+
+  it("derives the target month from tx.month and appends when authenticated and valid", async () => {
+    withAuth();
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "savings",
+      amount: 300,
+      date: "2026-07-31",
+      month: "2026-08",
+    };
+
+    await handleAppendTransactionToMonth(tx);
+
+    expect(appendTransactionToMonthMock).toHaveBeenCalledWith("2026-08", tx);
   });
 });

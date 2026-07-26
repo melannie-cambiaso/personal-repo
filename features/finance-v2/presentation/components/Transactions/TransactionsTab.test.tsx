@@ -16,6 +16,8 @@ describe("TransactionsTab", () => {
     render(
       <TransactionsTab
         viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
@@ -37,6 +39,8 @@ describe("TransactionsTab", () => {
     render(
       <TransactionsTab
         viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
@@ -67,6 +71,8 @@ describe("TransactionsTab", () => {
     render(
       <TransactionsTab
         viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
         totals={totals}
         dayGroups={dayGroups}
         categoryOptions={categoryOptions}
@@ -84,6 +90,8 @@ describe("TransactionsTab", () => {
     render(
       <TransactionsTab
         viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
@@ -93,5 +101,61 @@ describe("TransactionsTab", () => {
     );
 
     expect(screen.getByText(/no hay movimientos/i)).toBeTruthy();
+  });
+
+  it("shows no confirmation banner when lastCrossMonthSave is null", () => {
+    render(
+      <TransactionsTab
+        viewedMonth="2026-07"
+        lastCrossMonthSave={null}
+        onDismissCrossMonthSave={vi.fn()}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("shows a dismissible confirmation banner naming the destination month when lastCrossMonthSave is set", () => {
+    render(
+      <TransactionsTab
+        viewedMonth="2026-07"
+        lastCrossMonthSave="2026-08"
+        onDismissCrossMonthSave={vi.fn()}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    const banner = screen.getByRole("status");
+    expect(banner.textContent).toMatch(/Guardado en/);
+    expect(banner.textContent).toMatch(/agosto/i);
+  });
+
+  it("dismissing the banner calls onDismissCrossMonthSave", () => {
+    const onDismissCrossMonthSave = vi.fn();
+    render(
+      <TransactionsTab
+        viewedMonth="2026-07"
+        lastCrossMonthSave="2026-08"
+        onDismissCrossMonthSave={onDismissCrossMonthSave}
+        totals={totals}
+        dayGroups={[]}
+        categoryOptions={categoryOptions}
+        onAdd={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText("Cerrar aviso"));
+
+    expect(onDismissCrossMonthSave).toHaveBeenCalledOnce();
   });
 });

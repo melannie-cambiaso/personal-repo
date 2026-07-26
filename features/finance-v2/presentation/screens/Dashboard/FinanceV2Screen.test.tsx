@@ -17,6 +17,7 @@ const defaultProps = () => ({
   initialTransactions: [] as FinanceV2Transaction[],
   viewedMonth: "2026-07",
   onSaveTransactions: vi.fn(),
+  onSaveToOtherMonth: vi.fn(),
 });
 
 describe("FinanceV2Screen", () => {
@@ -179,5 +180,28 @@ describe("FinanceV2Screen", () => {
 
     expect(screen.getAllByText("$1.000")).toHaveLength(2);
     expect(screen.getByLabelText("Eliminar movimiento de $1.000")).toBeTruthy();
+  });
+
+  it("a transaction filed to a different month via the picker calls onSaveToOtherMonth, stays absent from the current view, and shows the confirmation banner", () => {
+    const onSaveToOtherMonth = vi.fn();
+    const onSaveTransactions = vi.fn();
+    render(
+      <FinanceV2Screen
+        {...defaultProps()}
+        onSaveToOtherMonth={onSaveToOtherMonth}
+        onSaveTransactions={onSaveTransactions}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Movimientos"));
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
+    fireEvent.change(screen.getByLabelText("Mes"), { target: { value: "2026-08" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onSaveToOtherMonth).toHaveBeenCalledOnce();
+    expect(onSaveTransactions).not.toHaveBeenCalled();
+    expect(screen.queryByText(/no hay movimientos/i)).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toMatch(/Guardado en/);
   });
 });
