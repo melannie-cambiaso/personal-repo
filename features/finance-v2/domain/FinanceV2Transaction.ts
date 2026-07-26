@@ -18,6 +18,8 @@ interface TransactionBase {
   amount: number;
   /** YYYY-MM-DD, user-picked at creation. */
   date: string;
+  /** YYYY-MM. User-assigned, NOT derived from `date`. Mirrors the storage key. */
+  month: string;
   note?: string;
 }
 

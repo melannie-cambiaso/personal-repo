@@ -31,7 +31,7 @@ export default async function FinanceV2Page() {
       initialBudget={initialBudget}
       onSaveBudget={handleSaveBudgetConfig}
       initialTransactions={initialTransactions}
-      month={month}
+      viewedMonth={month}
       onSaveTransactions={handleSaveTransactions}
     />
   );

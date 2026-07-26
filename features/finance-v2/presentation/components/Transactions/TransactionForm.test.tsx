@@ -19,7 +19,7 @@ describe("TransactionForm", () => {
   });
 
   it("defaults the date input to today, min/max bound to the current month", () => {
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     const dateInput = screen.getByLabelText("Fecha") as HTMLInputElement;
     expect(dateInput.value).toBe("2026-07-15");
@@ -28,13 +28,13 @@ describe("TransactionForm", () => {
   });
 
   it("shows the bucket select for an expense with no subcategory chosen", () => {
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     expect(screen.getByLabelText("Bucket")).toBeTruthy();
   });
 
   it("HIDES the bucket select once a subcategory is chosen — bucket is inferred, not asked twice", () => {
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "s1" } });
 
@@ -42,7 +42,7 @@ describe("TransactionForm", () => {
   });
 
   it("re-shows the bucket select if the subcategory is cleared back to 'Sin subcategoría'", () => {
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "s1" } });
     expect(screen.queryByLabelText("Bucket")).toBeNull();
@@ -52,7 +52,7 @@ describe("TransactionForm", () => {
   });
 
   it("does not show subcategory or bucket controls for income/savings types", () => {
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
 
@@ -62,20 +62,26 @@ describe("TransactionForm", () => {
 
   it("submits an income transaction with the entered amount/date and resets the amount field", () => {
     const onAdd = vi.fn();
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
 
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
     fireEvent.click(screen.getByText("Agregar movimiento"));
 
     expect(onAdd).toHaveBeenCalledOnce();
-    expect(onAdd).toHaveBeenCalledWith({ type: "income", amount: 1000, date: "2026-07-15", note: undefined });
+    expect(onAdd).toHaveBeenCalledWith({
+      type: "income",
+      amount: 1000,
+      date: "2026-07-15",
+      month: "2026-07",
+      note: undefined,
+    });
     expect((screen.getByLabelText("Monto") as HTMLInputElement).value).toBe("");
   });
 
   it("submits an expense linked to a subcategory with the inferred bucket and a snapshotted category ref", () => {
     const onAdd = vi.fn();
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
 
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "5000" } });
     fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "s2" } });
@@ -85,6 +91,7 @@ describe("TransactionForm", () => {
       type: "expense",
       amount: 5000,
       date: "2026-07-15",
+      month: "2026-07",
       note: undefined,
       bucket: "variable",
       category: { id: "s2", name: "Ocio" },
@@ -93,7 +100,7 @@ describe("TransactionForm", () => {
 
   it("submits a loose expense (no subcategory) using the manually chosen bucket", () => {
     const onAdd = vi.fn();
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
 
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "300" } });
     fireEvent.change(screen.getByLabelText("Bucket"), { target: { value: "variable" } });
@@ -103,6 +110,7 @@ describe("TransactionForm", () => {
       type: "expense",
       amount: 300,
       date: "2026-07-15",
+      month: "2026-07",
       note: undefined,
       bucket: "variable",
       category: null,
@@ -111,7 +119,7 @@ describe("TransactionForm", () => {
 
   it("does not submit when the amount is blank or zero", () => {
     const onAdd = vi.fn();
-    render(<TransactionForm month="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
 
     fireEvent.click(screen.getByText("Agregar movimiento"));
 

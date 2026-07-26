@@ -1,15 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { monthOf, toLocalISODate } from "./transactionDate";
-
-describe("monthOf", () => {
-  it("returns the YYYY-MM prefix of a YYYY-MM-DD date string", () => {
-    expect(monthOf("2026-07-25")).toBe("2026-07");
-  });
-
-  it("handles a december date without rolling into the next year", () => {
-    expect(monthOf("2025-12-31")).toBe("2025-12");
-  });
-});
+import { toLocalISODate } from "./transactionDate";
 
 describe("toLocalISODate", () => {
   it("formats a Date using LOCAL time components, not UTC", () => {

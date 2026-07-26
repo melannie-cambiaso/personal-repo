@@ -6,7 +6,13 @@ import type { FinanceV2Transaction } from "@/features/finance-v2/domain";
 describe("TransactionRow", () => {
   it("clicking delete calls onDelete with the transaction's id", () => {
     const onDelete = vi.fn();
-    const tx: FinanceV2Transaction = { id: "t1", type: "income", amount: 1000, date: "2026-07-01" };
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "income",
+      amount: 1000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
 
     render(<TransactionRow transaction={tx} onDelete={onDelete} />);
     fireEvent.click(screen.getByRole("button", { name: /eliminar/i }));
@@ -20,6 +26,7 @@ describe("TransactionRow", () => {
       type: "expense",
       amount: 500,
       date: "2026-07-01",
+      month: "2026-07",
       bucket: "fixed",
       category: { id: "deleted-subcategory-id", name: "Renta" },
     };
@@ -35,6 +42,7 @@ describe("TransactionRow", () => {
       type: "expense",
       amount: 500,
       date: "2026-07-01",
+      month: "2026-07",
       bucket: "variable",
       category: null,
     };
@@ -50,6 +58,7 @@ describe("TransactionRow", () => {
       type: "savings",
       amount: 200,
       date: "2026-07-01",
+      month: "2026-07",
       note: "Fondo de emergencia",
     };
 
@@ -59,7 +68,13 @@ describe("TransactionRow", () => {
   });
 
   it("shows the formatted amount", () => {
-    const tx: FinanceV2Transaction = { id: "t1", type: "income", amount: 1000, date: "2026-07-01" };
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "income",
+      amount: 1000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
 
     render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
 

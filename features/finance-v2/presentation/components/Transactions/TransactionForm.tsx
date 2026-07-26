@@ -13,7 +13,7 @@ type TransactionType = (typeof TRANSACTION_TYPE_ORDER)[number];
 const NO_CATEGORY = "";
 
 interface Props {
-  month: string;
+  viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
   onAdd: (input: NewTransactionInput) => void;
 }
@@ -29,8 +29,8 @@ function monthBounds(month: string): { min: string; max: string } {
 
 // Choosing a subcategory HIDES the bucket select entirely: bucket is unaskable twice
 // because the control simply isn't rendered, not because it's disabled.
-export function TransactionForm({ month, categoryOptions, onAdd }: Props) {
-  const { min, max } = monthBounds(month);
+export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) {
+  const { min, max } = monthBounds(viewedMonth);
   const today = toLocalISODate(new Date());
   const defaultDate = today >= min && today <= max ? today : min;
 
@@ -61,12 +61,13 @@ export function TransactionForm({ month, categoryOptions, onAdd }: Props) {
         type: "expense",
         amount: parsedAmount,
         date,
+        month: viewedMonth,
         note: note.trim() || undefined,
         bucket: resolvedBucket,
         category: selectedCategory ? { id: selectedCategory.id, name: selectedCategory.name } : null,
       });
     } else {
-      onAdd({ type, amount: parsedAmount, date, note: note.trim() || undefined });
+      onAdd({ type, amount: parsedAmount, date, month: viewedMonth, note: note.trim() || undefined });
     }
 
     reset();

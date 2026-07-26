@@ -15,7 +15,7 @@ describe("AddTransactionModal", () => {
     render(
       <AddTransactionModal
         isOpen
-        month="2026-07"
+        viewedMonth="2026-07"
         categoryOptions={categoryOptions}
         onClose={vi.fn()}
         onAdd={vi.fn()}
@@ -32,7 +32,7 @@ describe("AddTransactionModal", () => {
     render(
       <AddTransactionModal
         isOpen
-        month="2026-07"
+        viewedMonth="2026-07"
         categoryOptions={categoryOptions}
         onClose={onClose}
         onAdd={onAdd}
@@ -53,7 +53,7 @@ describe("AddTransactionModal", () => {
     render(
       <AddTransactionModal
         isOpen
-        month="2026-07"
+        viewedMonth="2026-07"
         categoryOptions={categoryOptions}
         onClose={onClose}
         onAdd={onAdd}

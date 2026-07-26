@@ -15,7 +15,7 @@ const defaultProps = () => ({
   initialBudget: DEFAULT_BUDGET_CONFIG,
   onSaveBudget: vi.fn(),
   initialTransactions: [] as FinanceV2Transaction[],
-  month: "2026-07",
+  viewedMonth: "2026-07",
   onSaveTransactions: vi.fn(),
 });
 

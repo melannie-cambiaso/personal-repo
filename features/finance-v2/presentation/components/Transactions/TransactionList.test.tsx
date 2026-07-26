@@ -15,13 +15,15 @@ describe("TransactionList", () => {
       {
         date: "2026-07-25",
         transactions: [
-          { id: "t3", type: "income", amount: 300, date: "2026-07-25" },
-          { id: "t2", type: "income", amount: 200, date: "2026-07-25" },
+          { id: "t3", type: "income", amount: 300, date: "2026-07-25", month: "2026-07" },
+          { id: "t2", type: "income", amount: 200, date: "2026-07-25", month: "2026-07" },
         ],
       },
       {
         date: "2026-07-01",
-        transactions: [{ id: "t1", type: "savings", amount: 100, date: "2026-07-01" }],
+        transactions: [
+          { id: "t1", type: "savings", amount: 100, date: "2026-07-01", month: "2026-07" },
+        ],
       },
     ];
 

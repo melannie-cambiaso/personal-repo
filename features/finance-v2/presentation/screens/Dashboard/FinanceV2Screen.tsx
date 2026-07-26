@@ -26,7 +26,7 @@ interface Props {
   initialBudget: BudgetConfig;
   onSaveBudget: (budget: BudgetConfig) => Promise<void> | void;
   initialTransactions: FinanceV2Transaction[];
-  month: string;
+  viewedMonth: string;
   onSaveTransactions: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
 }
 
@@ -42,7 +42,7 @@ export function FinanceV2Screen({
   initialBudget,
   onSaveBudget,
   initialTransactions,
-  month,
+  viewedMonth,
   onSaveTransactions,
 }: Props) {
   const { config, split, handleIncomeBlur, handlePercentageBlur } = useFinanceV2Dashboard({
@@ -62,7 +62,7 @@ export function FinanceV2Screen({
 
   const { totals, dayGroups, addTransaction, deleteTransaction } = useFinanceV2Transactions({
     initialTransactions,
-    month,
+    viewedMonth,
     onSave: onSaveTransactions,
   });
 
@@ -124,7 +124,7 @@ export function FinanceV2Screen({
 
         {activeTab === "movements" && (
           <TransactionsTab
-            month={month}
+            viewedMonth={viewedMonth}
             totals={totals}
             dayGroups={dayGroups}
             categoryOptions={categoryOptions}

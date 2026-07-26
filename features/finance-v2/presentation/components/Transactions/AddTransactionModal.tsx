@@ -7,13 +7,13 @@ import { TransactionForm } from "./TransactionForm";
 
 interface Props {
   isOpen: boolean;
-  month: string;
+  viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
   onClose: () => void;
   onAdd: (input: NewTransactionInput) => void;
 }
 
-export function AddTransactionModal({ isOpen, month, categoryOptions, onClose, onAdd }: Props) {
+export function AddTransactionModal({ isOpen, viewedMonth, categoryOptions, onClose, onAdd }: Props) {
   const handleAdd = (input: NewTransactionInput) => {
     onAdd(input);
     onClose();
@@ -21,7 +21,7 @@ export function AddTransactionModal({ isOpen, month, categoryOptions, onClose, o
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Registrar movimiento">
-      <TransactionForm month={month} categoryOptions={categoryOptions} onAdd={handleAdd} />
+      <TransactionForm viewedMonth={viewedMonth} categoryOptions={categoryOptions} onAdd={handleAdd} />
     </ModalShell>
   );
 }

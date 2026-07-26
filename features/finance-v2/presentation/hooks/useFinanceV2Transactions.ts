@@ -19,16 +19,16 @@ export type NewTransactionInput = DistributiveOmit<FinanceV2Transaction, "id">;
 
 interface Params {
   initialTransactions: FinanceV2Transaction[];
-  month: string;
+  viewedMonth: string;
   onSave: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
 }
 
 // Fire-and-forget persist on every mutation (mirrors `useFinanceV2Budget`). `listRef`
 // avoids stale closures across successive calls — same `persist*` pattern as
-// `useShoppingList`/`useFinanceV2Budget`. The month-integrity guard lives in the domain
-// layer (`addTransaction`), not here — the date `<input>` is also min/max bounded to the
-// current month, so this is a defense-in-depth backstop, not the primary gate.
-export function useFinanceV2Transactions({ initialTransactions, month, onSave }: Params) {
+// `useShoppingList`/`useFinanceV2Budget`. `viewedMonth` names the CURRENTLY VIEWED month
+// (the whole-list save target); a transaction's OWN `month` field is a separate,
+// user-assigned value that may differ from it.
+export function useFinanceV2Transactions({ initialTransactions, viewedMonth, onSave }: Params) {
   const [transactions, setTransactions] = useState<FinanceV2Transaction[]>(initialTransactions);
   const listRef = useRef(initialTransactions);
 
@@ -38,12 +38,12 @@ export function useFinanceV2Transactions({ initialTransactions, month, onSave }:
   const persist = (next: FinanceV2Transaction[]) => {
     listRef.current = next;
     setTransactions(next);
-    void onSave(month, next);
+    void onSave(viewedMonth, next);
   };
 
   const addTransaction = (input: NewTransactionInput) => {
     const tx = { ...input, id: crypto.randomUUID() } as FinanceV2Transaction;
-    persist(domainAddTransaction(listRef.current, tx, month));
+    persist(domainAddTransaction(listRef.current, tx));
   };
 
   const deleteTransaction = (id: string) => {

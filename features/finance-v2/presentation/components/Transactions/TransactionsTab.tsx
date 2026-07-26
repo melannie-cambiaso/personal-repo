@@ -9,7 +9,7 @@ import { MovementSummary } from "./MovementSummary";
 import { TransactionList } from "./TransactionList";
 
 interface Props {
-  month: string;
+  viewedMonth: string;
   totals: TransactionTotals;
   dayGroups: DayGroup[];
   categoryOptions: ExpenseCategoryOption[];
@@ -23,7 +23,7 @@ interface Props {
 // The add-transaction form lives in a modal (not inline) so the movement list stays the
 // main use of screen space.
 export function TransactionsTab({
-  month,
+  viewedMonth,
   totals,
   dayGroups,
   categoryOptions,
@@ -40,7 +40,7 @@ export function TransactionsTab({
       </Button>
       <AddTransactionModal
         isOpen={isFormOpen}
-        month={month}
+        viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
         onClose={() => setIsFormOpen(false)}
         onAdd={onAdd}

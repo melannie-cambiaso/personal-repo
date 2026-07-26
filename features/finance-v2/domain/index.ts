@@ -17,7 +17,7 @@ export {
   setLeafAmount,
 } from "./budgetMutations";
 export type { ExpenseBucketKey, TransactionCategoryRef, FinanceV2Transaction } from "./FinanceV2Transaction";
-export { monthOf, toLocalISODate } from "./transactionDate";
+export { toLocalISODate } from "./transactionDate";
 export { addTransaction, deleteTransaction } from "./transactionMutations";
 export type { TransactionTotals } from "./transactionTotals";
 export { computeTransactionTotals } from "./transactionTotals";

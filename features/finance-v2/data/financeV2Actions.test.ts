@@ -77,7 +77,7 @@ describe("handleSaveTransactions", () => {
   it("does nothing without auth and does not write KV", async () => {
     withoutAuth();
     const list: FinanceV2Transaction[] = [
-      { id: "t1", type: "income", amount: 1000, date: "2026-07-01" },
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
     ];
     await handleSaveTransactions("2026-07", list);
     expect(saveTransactionsMock).not.toHaveBeenCalled();
@@ -86,7 +86,15 @@ describe("handleSaveTransactions", () => {
   it("delegates the whole list to kvAdapter's saveTransactions when authenticated", async () => {
     withAuth();
     const list: FinanceV2Transaction[] = [
-      { id: "t1", type: "expense", amount: 400, date: "2026-07-02", bucket: "fixed", category: null },
+      {
+        id: "t1",
+        type: "expense",
+        amount: 400,
+        date: "2026-07-02",
+        month: "2026-07",
+        bucket: "fixed",
+        category: null,
+      },
     ];
     await handleSaveTransactions("2026-07", list);
     expect(saveTransactionsMock).toHaveBeenCalledWith("2026-07", list);

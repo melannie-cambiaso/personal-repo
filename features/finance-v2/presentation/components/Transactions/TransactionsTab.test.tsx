@@ -15,7 +15,7 @@ describe("TransactionsTab", () => {
   it("wires the summary — shows balance and savings from the given totals", () => {
     render(
       <TransactionsTab
-        month="2026-07"
+        viewedMonth="2026-07"
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
@@ -36,7 +36,7 @@ describe("TransactionsTab", () => {
     const onAdd = vi.fn();
     render(
       <TransactionsTab
-        month="2026-07"
+        viewedMonth="2026-07"
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
@@ -58,13 +58,15 @@ describe("TransactionsTab", () => {
     const dayGroups: DayGroup[] = [
       {
         date: "2026-07-01",
-        transactions: [{ id: "t1", type: "income", amount: 1000, date: "2026-07-01" }],
+        transactions: [
+          { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+        ],
       },
     ];
 
     render(
       <TransactionsTab
-        month="2026-07"
+        viewedMonth="2026-07"
         totals={totals}
         dayGroups={dayGroups}
         categoryOptions={categoryOptions}
@@ -81,7 +83,7 @@ describe("TransactionsTab", () => {
   it("shows the empty-state message from the list when there are no transactions", () => {
     render(
       <TransactionsTab
-        month="2026-07"
+        viewedMonth="2026-07"
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}

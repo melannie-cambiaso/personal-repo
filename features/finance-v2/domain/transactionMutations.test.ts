@@ -3,33 +3,20 @@ import { addTransaction, deleteTransaction } from "./transactionMutations";
 import type { FinanceV2Transaction } from "./FinanceV2Transaction";
 
 describe("addTransaction", () => {
-  it("appends the transaction when its date belongs to the given month", () => {
+  it("unconditionally appends the transaction regardless of how its month relates to its date", () => {
     const list: FinanceV2Transaction[] = [];
     const tx: FinanceV2Transaction = {
       id: "t1",
       type: "income",
       amount: 1000,
       date: "2026-07-25",
+      month: "2026-08",
     };
 
-    const next = addTransaction(list, tx, "2026-07");
+    const next = addTransaction(list, tx);
 
     expect(next).toEqual([tx]);
     expect(list).toEqual([]); // input untouched
-  });
-
-  it("rejects the transaction (returns the list unchanged) when its date is outside the given month", () => {
-    const list: FinanceV2Transaction[] = [];
-    const tx: FinanceV2Transaction = {
-      id: "t1",
-      type: "income",
-      amount: 1000,
-      date: "2026-08-01",
-    };
-
-    const next = addTransaction(list, tx, "2026-07");
-
-    expect(next).toEqual([]);
   });
 
   it("appends to an existing list without mutating it", () => {
@@ -38,6 +25,7 @@ describe("addTransaction", () => {
       type: "expense",
       amount: 500,
       date: "2026-07-01",
+      month: "2026-07",
       bucket: "fixed",
       category: null,
     };
@@ -47,9 +35,10 @@ describe("addTransaction", () => {
       type: "savings",
       amount: 200,
       date: "2026-07-25",
+      month: "2026-07",
     };
 
-    const next = addTransaction(list, tx, "2026-07");
+    const next = addTransaction(list, tx);
 
     expect(next).toEqual([existing, tx]);
     expect(list).toEqual([existing]);
@@ -58,8 +47,20 @@ describe("addTransaction", () => {
 
 describe("deleteTransaction", () => {
   it("removes only the targeted transaction, leaving others intact", () => {
-    const t1: FinanceV2Transaction = { id: "t1", type: "income", amount: 1000, date: "2026-07-01" };
-    const t2: FinanceV2Transaction = { id: "t2", type: "savings", amount: 200, date: "2026-07-02" };
+    const t1: FinanceV2Transaction = {
+      id: "t1",
+      type: "income",
+      amount: 1000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
+    const t2: FinanceV2Transaction = {
+      id: "t2",
+      type: "savings",
+      amount: 200,
+      date: "2026-07-02",
+      month: "2026-07",
+    };
     const list = [t1, t2];
 
     const next = deleteTransaction(list, "t1");
@@ -69,7 +70,13 @@ describe("deleteTransaction", () => {
   });
 
   it("returns the list unchanged (no throw) when the id is unknown", () => {
-    const t1: FinanceV2Transaction = { id: "t1", type: "income", amount: 1000, date: "2026-07-01" };
+    const t1: FinanceV2Transaction = {
+      id: "t1",
+      type: "income",
+      amount: 1000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
     const list = [t1];
 
     const next = deleteTransaction(list, "missing");

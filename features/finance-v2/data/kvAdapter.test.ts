@@ -147,11 +147,38 @@ describe("loadTransactions", () => {
 
   it("returns the stored transactions for the given month", async () => {
     const stored: FinanceV2Transaction[] = [
-      { id: "t1", type: "income", amount: 1000, date: "2026-07-01" },
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
     ];
     redisMock.get.mockResolvedValue(stored);
     const result = await loadTransactions("2026-07");
     expect(result).toEqual(stored);
+  });
+
+  it("backfills a missing month with the key's month (legacy record)", async () => {
+    const legacy = [{ id: "t1", type: "income", amount: 1000, date: "2026-06-15" }];
+    redisMock.get.mockResolvedValue(legacy);
+    const result = await loadTransactions("2026-06");
+    expect(result).toEqual([{ id: "t1", type: "income", amount: 1000, date: "2026-06-15", month: "2026-06" }]);
+  });
+
+  it("preserves an already-present month instead of overwriting it with the key's month", async () => {
+    const stored: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-08" },
+    ];
+    redisMock.get.mockResolvedValue(stored);
+    const result = await loadTransactions("2026-07");
+    expect(result).toEqual(stored);
+  });
+
+  it("is idempotent — backfilling an already-backfilled list does not change it", async () => {
+    const stored: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+    ];
+    redisMock.get.mockResolvedValue(stored);
+    const first = await loadTransactions("2026-07");
+    redisMock.get.mockResolvedValue(first);
+    const second = await loadTransactions("2026-07");
+    expect(second).toEqual(first);
   });
 
   it("uses the month-scoped key finance-v2-transactions:YYYY-MM", async () => {
@@ -174,7 +201,7 @@ describe("saveTransactions", () => {
 
   it("saves transactions under the month-scoped key", async () => {
     const list: FinanceV2Transaction[] = [
-      { id: "t1", type: "savings", amount: 200, date: "2026-07-25" },
+      { id: "t1", type: "savings", amount: 200, date: "2026-07-25", month: "2026-07" },
     ];
     await saveTransactions("2026-07", list);
     expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-07", list);

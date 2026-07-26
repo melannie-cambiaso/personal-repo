@@ -12,11 +12,19 @@ describe("useFinanceV2Transactions", () => {
 
   it("initializes transactions from initialTransactions and derives totals/dayGroups", () => {
     const initialTransactions: FinanceV2Transaction[] = [
-      { id: "t1", type: "income", amount: 1000, date: "2026-07-01" },
-      { id: "t2", type: "expense", amount: 400, date: "2026-07-02", bucket: "fixed", category: null },
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+      {
+        id: "t2",
+        type: "expense",
+        amount: 400,
+        date: "2026-07-02",
+        month: "2026-07",
+        bucket: "fixed",
+        category: null,
+      },
     ];
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions, month: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions, viewedMonth: "2026-07", onSave })
     );
 
     expect(result.current.transactions).toEqual(initialTransactions);
@@ -24,13 +32,18 @@ describe("useFinanceV2Transactions", () => {
     expect(result.current.dayGroups.map((g) => g.date)).toEqual(["2026-07-02", "2026-07-01"]);
   });
 
-  it("addTransaction appends a new transaction with a generated id and calls onSave once with the month and the resulting list", () => {
+  it("addTransaction appends a new transaction with a generated id and calls onSave once with the viewed month and the resulting list", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], month: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave })
     );
 
     act(() =>
-      result.current.addTransaction({ type: "income", amount: 500, date: "2026-07-10" })
+      result.current.addTransaction({
+        type: "income",
+        amount: 500,
+        date: "2026-07-10",
+        month: "2026-07",
+      })
     );
 
     expect(result.current.transactions).toHaveLength(1);
@@ -46,7 +59,7 @@ describe("useFinanceV2Transactions", () => {
 
   it("addTransaction with an expense variant carries bucket and category through", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], month: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave })
     );
 
     act(() =>
@@ -54,6 +67,7 @@ describe("useFinanceV2Transactions", () => {
         type: "expense",
         amount: 200,
         date: "2026-07-05",
+        month: "2026-07",
         bucket: "variable",
         category: { id: "s1", name: "Ocio" },
       })
@@ -66,25 +80,13 @@ describe("useFinanceV2Transactions", () => {
     });
   });
 
-  it("addTransaction with a date outside the current month is rejected by the domain guard (list stays unchanged)", () => {
-    const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], month: "2026-07", onSave })
-    );
-
-    act(() =>
-      result.current.addTransaction({ type: "income", amount: 500, date: "2026-08-01" })
-    );
-
-    expect(result.current.transactions).toHaveLength(0);
-  });
-
   it("deleteTransaction removes the targeted transaction and calls onSave once with the resulting list", () => {
     const initialTransactions: FinanceV2Transaction[] = [
-      { id: "t1", type: "income", amount: 1000, date: "2026-07-01" },
-      { id: "t2", type: "savings", amount: 200, date: "2026-07-02" },
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+      { id: "t2", type: "savings", amount: 200, date: "2026-07-02", month: "2026-07" },
     ];
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions, month: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions, viewedMonth: "2026-07", onSave })
     );
 
     act(() => result.current.deleteTransaction("t1"));
@@ -96,12 +98,22 @@ describe("useFinanceV2Transactions", () => {
 
   it("does not use a stale closure across successive add calls", () => {
     const { result } = renderHook(() =>
-      useFinanceV2Transactions({ initialTransactions: [], month: "2026-07", onSave })
+      useFinanceV2Transactions({ initialTransactions: [], viewedMonth: "2026-07", onSave })
     );
 
     act(() => {
-      result.current.addTransaction({ type: "income", amount: 100, date: "2026-07-01" });
-      result.current.addTransaction({ type: "income", amount: 200, date: "2026-07-02" });
+      result.current.addTransaction({
+        type: "income",
+        amount: 100,
+        date: "2026-07-01",
+        month: "2026-07",
+      });
+      result.current.addTransaction({
+        type: "income",
+        amount: 200,
+        date: "2026-07-02",
+        month: "2026-07",
+      });
     });
 
     expect(result.current.transactions).toHaveLength(2);

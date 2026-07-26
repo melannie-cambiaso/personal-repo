@@ -7,6 +7,7 @@ const tx = (id: string, date: string): FinanceV2Transaction => ({
   type: "income",
   amount: 100,
   date,
+  month: date.slice(0, 7),
 });
 
 describe("groupTransactionsByDay", () => {

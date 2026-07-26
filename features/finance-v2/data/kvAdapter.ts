@@ -45,13 +45,16 @@ export async function saveBudgetConfig(config: BudgetConfig): Promise<void> {
 
 // The ONE month-scoped store in v2 — a factory (like v1's `monthlyKvStore`) would be
 // premature for a single consumer; promote to one if a 2nd month-scoped store arrives.
-// This is the ONLY place `finance-v2-transactions:{month}` keys are built, mirroring how
-// `domain/transactionDate.ts#monthOf` is the only place a month string is derived.
+// This is the ONLY place `finance-v2-transactions:{month}` keys are built.
 export const transactionsKey = (month: string): string => `finance-v2-transactions:${month}`;
 
 export async function loadTransactions(month: string): Promise<FinanceV2Transaction[]> {
   try {
-    return (await redis.get<FinanceV2Transaction[]>(transactionsKey(month))) ?? [];
+    const stored = (await redis.get<FinanceV2Transaction[]>(transactionsKey(month))) ?? [];
+    // Legacy backfill: a record saved before `month` existed is treated as belonging to
+    // the key it was loaded from — no separate migration step (spec: Legacy Month Backfill
+    // on Read). Idempotent: a record that already has `month` is left untouched.
+    return stored.map((tx) => ({ ...tx, month: tx.month ?? month }));
   } catch {
     return [];
   }
