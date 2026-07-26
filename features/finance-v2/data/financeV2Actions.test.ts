@@ -6,6 +6,7 @@ const saveDashboardConfigMock = vi.hoisted(() => vi.fn());
 const saveBudgetConfigMock = vi.hoisted(() => vi.fn());
 const saveTransactionsMock = vi.hoisted(() => vi.fn());
 const appendTransactionToMonthMock = vi.hoisted(() => vi.fn());
+const loadTransactionsMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -18,6 +19,7 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     saveBudgetConfig: saveBudgetConfigMock,
     saveTransactions: saveTransactionsMock,
     appendTransactionToMonth: appendTransactionToMonthMock,
+    loadTransactions: loadTransactionsMock,
   };
 });
 
@@ -26,6 +28,7 @@ import {
   handleSaveBudgetConfig,
   handleSaveTransactions,
   handleAppendTransactionToMonth,
+  handleLoadTransactions,
 } from "./financeV2Actions";
 
 const config = (overrides: Partial<FinanceV2Config> = {}): FinanceV2Config => ({
@@ -150,5 +153,40 @@ describe("handleAppendTransactionToMonth", () => {
     await handleAppendTransactionToMonth(tx);
 
     expect(appendTransactionToMonthMock).toHaveBeenCalledWith("2026-08", tx);
+  });
+});
+
+describe("handleLoadTransactions", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns [] without auth and does not call loadTransactions", async () => {
+    withoutAuth();
+
+    const result = await handleLoadTransactions("2026-07");
+
+    expect(result).toEqual([]);
+    expect(loadTransactionsMock).not.toHaveBeenCalled();
+  });
+
+  it("returns [] for a malformed month even when authenticated", async () => {
+    withAuth();
+
+    const result = await handleLoadTransactions("2026-13");
+
+    expect(result).toEqual([]);
+    expect(loadTransactionsMock).not.toHaveBeenCalled();
+  });
+
+  it("delegates to loadTransactions(month) and returns its result when authenticated and month is well-formed", async () => {
+    withAuth();
+    const list: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+    ];
+    loadTransactionsMock.mockResolvedValue(list);
+
+    const result = await handleLoadTransactions("2026-07");
+
+    expect(loadTransactionsMock).toHaveBeenCalledWith("2026-07");
+    expect(result).toBe(list);
   });
 });

@@ -3,7 +3,13 @@
 import { cookies } from "next/headers";
 import type { FinanceV2Config, BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
 import { isTransactionMonth } from "@/features/finance-v2/domain";
-import { saveDashboardConfig, saveBudgetConfig, saveTransactions, appendTransactionToMonth } from "./kvAdapter";
+import {
+  saveDashboardConfig,
+  saveBudgetConfig,
+  saveTransactions,
+  appendTransactionToMonth,
+  loadTransactions,
+} from "./kvAdapter";
 
 export async function handleSaveDashboardConfig(config: FinanceV2Config): Promise<void> {
   const cookieStore = await cookies();
@@ -41,4 +47,16 @@ export async function handleAppendTransactionToMonth(tx: FinanceV2Transaction): 
   if (!cookieStore.get("wishlist_auth")?.value) return;
   if (!isTransactionMonth(tx.month)) return;
   await appendTransactionToMonth(tx.month, tx);
+}
+
+// Unlike the RSC's direct `loadTransactions` call (already gated by the page-level
+// redirect before it runs), this is invoked directly by the client hook on every month
+// change and is therefore POST-reachable on its own — it must gate auth and validate
+// `month` itself, making it the second `isTransactionMonth` call site (see
+// `transactionDate.ts`).
+export async function handleLoadTransactions(month: string): Promise<FinanceV2Transaction[]> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return [];
+  if (!isTransactionMonth(month)) return [];
+  return loadTransactions(month);
 }

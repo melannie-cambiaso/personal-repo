@@ -1,9 +1,9 @@
 const TRANSACTION_MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 
-/** Validates a well-formed `YYYY-MM` string — the ONE place user input is
- *  checked before it is used to build a redis key (`kvAdapter.ts`'s
- *  `appendTransactionToMonth`). Rejects unpadded months (`2026-7`) and
- *  out-of-range months (`2026-13`). */
+/** Validates a well-formed `YYYY-MM` string before it is used to build a
+ *  redis key. Two call sites: `financeV2Actions.ts`'s
+ *  `handleAppendTransactionToMonth` and `handleLoadTransactions`. Rejects
+ *  unpadded months (`2026-7`) and out-of-range months (`2026-13`). */
 export function isTransactionMonth(value: string): boolean {
   return TRANSACTION_MONTH_PATTERN.test(value);
 }
