@@ -108,6 +108,51 @@ None.
 Branch created off `main`; per stacked-to-main chain strategy, this PR targets `main` directly. Not
 pushed — pushing and opening the PR is the orchestrator's job per the task instructions.
 
+## Post-Review Fixes (4-reviewer pass)
+
+A follow-up review pass on this PR found one BLOCKER, one CRITICAL, one WARNING, and two
+lower-severity items. All were fixed in a follow-up commit before handoff:
+
+1. **BLOCKER — A→B→A round-trip data corruption**: the re-fetch effect's early-return guard
+   (`if (loadedMonthRef.current === viewedMonth) return;`) did not invalidate an in-flight request
+   when the user navigated back to an already-loaded month before the intervening month's load
+   resolved. Fixed by returning a cleanup function from the effect (`return () =>
+   { requestIdRef.current = requestId + 1; };`) that always runs before the next effect invocation,
+   bumping the token regardless of whether that next invocation itself early-returns. This covers
+   both "superseded by navigating away and back" and "unmounted while pending" through the same
+   `requestIdRef` mechanism — no separate cancellation flag added (kept per design ADR D2, which
+   already rejected a bare local `cancelled` flag as insufficient to protect `listRef`). Added a new
+   regression test: `"A->B->A round trip: navigating back before B resolves is not overwritten by
+   B's late response"` in `useFinanceV2Transactions.test.ts`.
+2. **CRITICAL — fabricated precedent comment**: the `viewedMonth`/`setViewedMonth` comment in
+   `FinanceV2Screen.tsx` cited an "`expense-unit-multiplier` precedent" for the expected
+   `no-unused-vars` warning. That precedent does not exist anywhere in the codebase outside this
+   PR's own `tasks.md` (self-reference, not an independent precedent). Rewrote the comment to state
+   the honest reason only: `setViewedMonth` is unused until PR2 wires it into `TransactionsTab`'s
+   prev/next controls.
+3. **WARNING — non-discriminating test**: `"cross-month add during a pending load still routes
+   through onSaveToOtherMonth..."` used a transaction month (`"2026-09"`) that differed from both
+   `viewedMonth` ("2026-08") and `loadedMonthRef.current` ("2026-07"), so it passed under both old
+   and new routing and didn't actually prove anything. Changed the transaction's month to
+   `"2026-08"` (equal to the pending `viewedMonth`, not `loadedMonthRef.current`) so the test now
+   forks correctly between old (`tx.month === viewedMonth`) and new (`tx.month ===
+   loadedMonthRef.current`) routing.
+4. **SUGGESTION — redundant wrap**: simplified `Promise.resolve(onLoad(month)).then(...)` to
+   `onLoad(month).then(...)` since `onLoad` already returns a `Promise`.
+5. **Observability**: added a `console.error` in the `onLoad` rejection path logging the month and
+   the error, so a real failure leaves a trace. No new error-state field or UI added, per explicit
+   product decision to keep this scope-limited to a log line.
+
+One incidental fix: the cleanup was initially written as `requestIdRef.current++`, which triggered a
+new `react-hooks/exhaustive-deps` warning (ref read in cleanup considered possibly-stale). Rewrote
+as `requestIdRef.current = requestId + 1` — a pure write using the already-captured `requestId`
+local, functionally identical (only one fetch can be in flight per effect instance) but silences the
+false-positive warning with no `eslint-disable` needed.
+
+Verification after fixes: `npm run test` → 684/684 passed (89 files, +1 new test); `npx tsc --noEmit`
+→ clean; `npm run build` → succeeded; `npx eslint` on the three changed files → 1 warning only
+(the pre-existing, intentional `setViewedMonth` unused-var warning).
+
 ## Remaining Tasks (out of scope for this batch — PR 2)
 
 - [ ] 4.1-4.2 `MonthNav` `disabled` prop (RED/GREEN)

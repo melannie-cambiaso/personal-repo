@@ -393,6 +393,51 @@ describe("useFinanceV2Transactions", () => {
     expect(result.current.transactions).toEqual(septemberTransactions);
   });
 
+  it("A->B->A round trip: navigating back before B resolves is not overwritten by B's late response", async () => {
+    const julyTransactions: FinanceV2Transaction[] = [
+      { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+    ];
+    const augustTransactions: FinanceV2Transaction[] = [
+      { id: "t2", type: "income", amount: 2000, date: "2026-08-01", month: "2026-08" },
+    ];
+    const augustDeferred = createDeferred<FinanceV2Transaction[]>();
+    onLoad.mockReturnValueOnce(augustDeferred.promise);
+
+    const { result, rerender } = renderHook(
+      ({ viewedMonth }) =>
+        useFinanceV2Transactions({
+          initialTransactions: julyTransactions,
+          viewedMonth,
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        }),
+      { initialProps: { viewedMonth: "2026-07" } }
+    );
+
+    // Navigate to August — load starts, still pending.
+    act(() => {
+      rerender({ viewedMonth: "2026-08" });
+    });
+
+    // Navigate back to July before August resolves — already loaded, no new fetch,
+    // and August's in-flight request must be invalidated by cleanup.
+    act(() => {
+      rerender({ viewedMonth: "2026-07" });
+    });
+
+    expect(onLoad).toHaveBeenCalledOnce();
+    expect(result.current.transactions).toEqual(julyTransactions);
+
+    // August's deferred promise resolves late — its stale response must be dropped.
+    await act(async () => {
+      augustDeferred.resolve(augustTransactions);
+      await augustDeferred.promise;
+    });
+
+    expect(result.current.transactions).toEqual(julyTransactions);
+  });
+
   it("corruption guard: a delete during a pending load persists via the previously loaded month, not the requested one", async () => {
     const julyTransactions: FinanceV2Transaction[] = [
       { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
@@ -428,6 +473,12 @@ describe("useFinanceV2Transactions", () => {
   });
 
   it("cross-month add during a pending load still routes through onSaveToOtherMonth, not the in-memory list", async () => {
+    // `tx.month` deliberately equals the pending `viewedMonth` ("2026-08"), NOT
+    // `loadedMonthRef.current` (still "2026-07"). Under the old `tx.month === viewedMonth`
+    // routing this would be misrouted as a same-month, in-memory persist; the correct
+    // `tx.month === loadedMonthRef.current` routing must still send it to
+    // `onSaveToOtherMonth`. This is what actually discriminates old vs. new routing —
+    // a third, unrelated month would pass under either implementation.
     const deferred = createDeferred<FinanceV2Transaction[]>();
     onLoad.mockReturnValueOnce(deferred.promise);
 
@@ -451,13 +502,15 @@ describe("useFinanceV2Transactions", () => {
       result.current.addTransaction({
         type: "income",
         amount: 300,
-        date: "2026-09-01",
-        month: "2026-09",
+        date: "2026-08-15",
+        month: "2026-08",
       })
     );
 
     expect(onSaveToOtherMonth).toHaveBeenCalledOnce();
+    expect(onSave).not.toHaveBeenCalled();
     expect(result.current.transactions).toEqual([]);
+    expect(result.current.lastCrossMonthSave).toBe("2026-08");
 
     await act(async () => {
       deferred.resolve([]);

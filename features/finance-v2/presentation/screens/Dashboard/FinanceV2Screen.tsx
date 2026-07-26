@@ -65,9 +65,9 @@ export function FinanceV2Screen({
   } = useFinanceV2Budget({ initialBudget, split, onSave: onSaveBudget });
 
   // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
-  // survive a tab switch. `setViewedMonth` is intentionally unused until Phase 4 wires it
-  // into `TransactionsTab`'s prev/next controls (expect a `no-unused-vars` ESLint warning
-  // until then, matching the `expense-unit-multiplier` precedent for a deferred prop).
+  // survive a tab switch. `setViewedMonth` is unused until PR2 wires it into
+  // `TransactionsTab`'s prev/next controls — a `no-unused-vars` warning is expected
+  // and accepted until then.
   const [viewedMonth, setViewedMonth] = useState(initialMonth);
 
   const {

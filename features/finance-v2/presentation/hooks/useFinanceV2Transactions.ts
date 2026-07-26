@@ -75,7 +75,18 @@ export function useFinanceV2Transactions({
       setIsLoadingMonth(false);
     };
 
-    void Promise.resolve(onLoad(month)).then(apply, () => apply([]));
+    void onLoad(month).then(apply, (error) => {
+      console.error(`useFinanceV2Transactions: failed to load month "${month}"`, error);
+      apply([]);
+    });
+
+    // Invalidate this request on cleanup — covers both "viewedMonth changed again
+    // before this load resolved" (React runs this before the next effect body) and
+    // "unmounted while a load was pending". Either way `apply` sees a stale
+    // `requestId` and its late response is dropped.
+    return () => {
+      requestIdRef.current = requestId + 1;
+    };
   }, [viewedMonth, onLoad]);
 
   const persist = (next: FinanceV2Transaction[]) => {
