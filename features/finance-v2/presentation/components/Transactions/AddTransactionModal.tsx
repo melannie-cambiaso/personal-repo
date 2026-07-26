@@ -21,6 +21,7 @@ export function AddTransactionModal({ isOpen, viewedMonth, categoryOptions, onCl
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Registrar movimiento">
+      {/* key forces a remount on month change since this dialog never unmounts, reseeding TransactionForm's local month state */}
       <TransactionForm
         key={viewedMonth}
         viewedMonth={viewedMonth}

@@ -11,26 +11,26 @@ describe("MonthNav", () => {
   it("calls onPrev when the prev button is clicked", () => {
     const onPrev = vi.fn();
     render(<MonthNav label="julio 2026" onPrev={onPrev} onNext={vi.fn()} />);
-    fireEvent.click(screen.getByText("← Anterior"));
+    fireEvent.click(screen.getByRole("button", { name: "← Anterior" }));
     expect(onPrev).toHaveBeenCalledOnce();
   });
 
   it("calls onNext when the next button is clicked", () => {
     const onNext = vi.fn();
     render(<MonthNav label="julio 2026" onPrev={vi.fn()} onNext={onNext} />);
-    fireEvent.click(screen.getByText("Siguiente →"));
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
     expect(onNext).toHaveBeenCalledOnce();
   });
 
   it("disables both buttons when disabled is true", () => {
     render(<MonthNav label="julio 2026" onPrev={vi.fn()} onNext={vi.fn()} disabled />);
-    expect((screen.getByText("← Anterior") as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByText("Siguiente →") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("leaves both buttons enabled when disabled is omitted (v1's existing call site)", () => {
     render(<MonthNav label="julio 2026" onPrev={vi.fn()} onNext={vi.fn()} />);
-    expect((screen.getByText("← Anterior") as HTMLButtonElement).disabled).toBe(false);
-    expect((screen.getByText("Siguiente →") as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled).toBe(false);
   });
 });

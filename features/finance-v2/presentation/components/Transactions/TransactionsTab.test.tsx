@@ -202,7 +202,7 @@ describe("TransactionsTab", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("← Anterior"));
+    fireEvent.click(screen.getByRole("button", { name: "← Anterior" }));
 
     expect(onChangeMonth).toHaveBeenCalledWith(prevMonth("2026-07"));
   });
@@ -223,12 +223,13 @@ describe("TransactionsTab", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Siguiente →"));
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
 
     expect(onChangeMonth).toHaveBeenCalledWith(nextMonth("2026-07"));
   });
 
   it("disables prev/next once the Add-Transaction modal is open", () => {
+    const onChangeMonth = vi.fn();
     render(
       <TransactionsTab
         viewedMonth="2026-07"
@@ -239,16 +240,23 @@ describe("TransactionsTab", () => {
         categoryOptions={categoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
-        onChangeMonth={vi.fn()}
+        onChangeMonth={onChangeMonth}
       />
     );
 
-    expect((screen.getByText("← Anterior") as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(false);
 
     fireEvent.click(screen.getByText("Nuevo movimiento"));
 
-    expect((screen.getByText("← Anterior") as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByText("Siguiente →") as HTMLButtonElement).disabled).toBe(true);
+    const prevButton = screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement;
+    const nextButton = screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement;
+    expect(prevButton.disabled).toBe(true);
+    expect(nextButton.disabled).toBe(true);
+
+    fireEvent.click(prevButton);
+    fireEvent.click(nextButton);
+
+    expect(onChangeMonth).not.toHaveBeenCalled();
   });
 
   it("the Add-Transaction form's month select reseeds after a month change", () => {
