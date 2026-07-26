@@ -27,7 +27,6 @@ function monthBounds(month: string): { min: string; max: string } {
   return { min: `${month}-01`, max: `${month}-${String(lastDay).padStart(2, "0")}` };
 }
 
-// Inline form in-tab (BudgetTab precedent), not a modal (locked design decision).
 // Choosing a subcategory HIDES the bucket select entirely: bucket is unaskable twice
 // because the control simply isn't rendered, not because it's disabled.
 export function TransactionForm({ month, categoryOptions, onAdd }: Props) {

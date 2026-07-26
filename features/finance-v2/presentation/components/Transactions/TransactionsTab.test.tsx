@@ -1,7 +1,12 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TransactionsTab } from "./TransactionsTab";
 import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
+
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = vi.fn();
+  HTMLDialogElement.prototype.close = vi.fn();
+});
 
 describe("TransactionsTab", () => {
   const totals: TransactionTotals = { income: 1000, expense: 400, savings: 200, balance: 600 };
@@ -40,6 +45,7 @@ describe("TransactionsTab", () => {
       />
     );
 
+    fireEvent.click(screen.getByText("Nuevo movimiento"));
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "500" } });
     fireEvent.click(screen.getByText("Agregar movimiento"));

@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
+import { Button } from "@/shared/components";
+import { AddTransactionModal } from "./AddTransactionModal";
 import { MovementSummary } from "./MovementSummary";
-import { TransactionForm } from "./TransactionForm";
 import { TransactionList } from "./TransactionList";
 
 interface Props {
@@ -18,6 +20,8 @@ interface Props {
 // Pure composition (math-free), consuming `useFinanceV2Transactions`'s hoisted state via
 // props — same hoisting rationale as `BudgetTab`/`IncomeSplitTab` (design decision #1):
 // tabs are conditionally rendered, so this tab must not own any of its own domain state.
+// The add-transaction form lives in a modal (not inline) so the movement list stays the
+// main use of screen space.
 export function TransactionsTab({
   month,
   totals,
@@ -26,10 +30,21 @@ export function TransactionsTab({
   onAdd,
   onDelete,
 }: Props) {
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
   return (
     <div className="flex flex-col gap-6">
       <MovementSummary totals={totals} />
-      <TransactionForm month={month} categoryOptions={categoryOptions} onAdd={onAdd} />
+      <Button type="button" variant="primary" onPress={() => setIsFormOpen(true)}>
+        Nuevo movimiento
+      </Button>
+      <AddTransactionModal
+        isOpen={isFormOpen}
+        month={month}
+        categoryOptions={categoryOptions}
+        onClose={() => setIsFormOpen(false)}
+        onAdd={onAdd}
+      />
       <TransactionList dayGroups={dayGroups} onDelete={onDelete} />
     </div>
   );

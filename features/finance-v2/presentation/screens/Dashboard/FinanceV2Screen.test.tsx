@@ -1,8 +1,13 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { FinanceV2Screen } from "./FinanceV2Screen";
 import { DEFAULT_FINANCE_V2_CONFIG, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type { FinanceV2Config, FinanceV2Transaction } from "@/features/finance-v2/domain";
+
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = vi.fn();
+  HTMLDialogElement.prototype.close = vi.fn();
+});
 
 const defaultProps = () => ({
   initialConfig: DEFAULT_FINANCE_V2_CONFIG,
@@ -160,6 +165,7 @@ describe("FinanceV2Screen", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
     fireEvent.click(screen.getByText("Movimientos"));
+    fireEvent.click(screen.getByText("Nuevo movimiento"));
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
     fireEvent.click(screen.getByText("Agregar movimiento"));

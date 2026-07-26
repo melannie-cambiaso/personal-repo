@@ -2,6 +2,7 @@ export { SplitSummary } from "./Split/SplitSummary";
 export { BucketComparison } from "./Budget/BucketComparison";
 export { BudgetTab } from "./Budget/BudgetTab";
 export { BudgetCategoryCard } from "./Budget/BudgetCategoryCard";
+export { AddTransactionModal } from "./Transactions/AddTransactionModal";
 export { MovementSummary } from "./Transactions/MovementSummary";
 export { TransactionForm } from "./Transactions/TransactionForm";
 export { TransactionList } from "./Transactions/TransactionList";
