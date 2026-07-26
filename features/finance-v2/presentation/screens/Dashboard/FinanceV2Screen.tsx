@@ -26,9 +26,10 @@ interface Props {
   initialBudget: BudgetConfig;
   onSaveBudget: (budget: BudgetConfig) => Promise<void> | void;
   initialTransactions: FinanceV2Transaction[];
-  viewedMonth: string;
+  initialMonth: string;
   onSaveTransactions: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
   onSaveToOtherMonth: (tx: FinanceV2Transaction) => Promise<void> | void;
+  onLoadTransactions: (month: string) => Promise<FinanceV2Transaction[]>;
 }
 
 // `useFinanceV2Dashboard`, `useFinanceV2Budget`, and `useFinanceV2Transactions` all stay
@@ -43,9 +44,10 @@ export function FinanceV2Screen({
   initialBudget,
   onSaveBudget,
   initialTransactions,
-  viewedMonth,
+  initialMonth,
   onSaveTransactions,
   onSaveToOtherMonth,
+  onLoadTransactions,
 }: Props) {
   const { config, split, handleIncomeBlur, handlePercentageBlur } = useFinanceV2Dashboard({
     initialConfig,
@@ -62,6 +64,12 @@ export function FinanceV2Screen({
     handleAmountBlur,
   } = useFinanceV2Budget({ initialBudget, split, onSave: onSaveBudget });
 
+  // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
+  // survive a tab switch. `setViewedMonth` is intentionally unused until Phase 4 wires it
+  // into `TransactionsTab`'s prev/next controls (expect a `no-unused-vars` ESLint warning
+  // until then, matching the `expense-unit-multiplier` precedent for a deferred prop).
+  const [viewedMonth, setViewedMonth] = useState(initialMonth);
+
   const {
     totals,
     dayGroups,
@@ -74,6 +82,7 @@ export function FinanceV2Screen({
     viewedMonth,
     onSave: onSaveTransactions,
     onSaveToOtherMonth,
+    onLoad: onLoadTransactions,
   });
 
   // Flows LIVE from the hoisted budget hook: a subcategory added in tab 2 is pickable in

@@ -8,6 +8,7 @@ import {
   loadTransactions,
   handleSaveTransactions,
   handleAppendTransactionToMonth,
+  handleLoadTransactions,
 } from "@/features/finance-v2/data";
 import { FinanceV2Screen } from "@/features/finance-v2/presentation/screens/Dashboard/FinanceV2Screen";
 import { currentMonth } from "@/shared/utils/monthUtils";
@@ -32,9 +33,10 @@ export default async function FinanceV2Page() {
       initialBudget={initialBudget}
       onSaveBudget={handleSaveBudgetConfig}
       initialTransactions={initialTransactions}
-      viewedMonth={month}
+      initialMonth={month}
       onSaveTransactions={handleSaveTransactions}
       onSaveToOtherMonth={handleAppendTransactionToMonth}
+      onLoadTransactions={handleLoadTransactions}
     />
   );
 }

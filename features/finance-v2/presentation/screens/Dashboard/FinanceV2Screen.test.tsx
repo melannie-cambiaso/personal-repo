@@ -15,9 +15,10 @@ const defaultProps = () => ({
   initialBudget: DEFAULT_BUDGET_CONFIG,
   onSaveBudget: vi.fn(),
   initialTransactions: [] as FinanceV2Transaction[],
-  viewedMonth: "2026-07",
+  initialMonth: "2026-07",
   onSaveTransactions: vi.fn(),
   onSaveToOtherMonth: vi.fn(),
+  onLoadTransactions: vi.fn().mockResolvedValue([]),
 });
 
 describe("FinanceV2Screen", () => {
