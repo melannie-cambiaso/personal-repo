@@ -2,14 +2,22 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
-import { computeBalance, computeTotalToReplenish } from "@/features/savings/domain";
+import type { SavingsPeriod } from "@/features/savings/domain/SavingsPeriod";
+import { computePeriodBalance, computeTotalToReplenish } from "@/features/savings/domain";
+
+const ZERO_INITIAL_AMOUNT_PERIOD: SavingsPeriod = {
+  id: "",
+  startedAt: "",
+  initialAmount: 0,
+};
 
 interface Params {
   initialEntries: SavingsEntry[];
   onSave: (entries: SavingsEntry[]) => Promise<void> | void;
+  period?: SavingsPeriod;
 }
 
-export function useSavings({ initialEntries, onSave }: Params) {
+export function useSavings({ initialEntries, onSave, period }: Params) {
   const [entries, setEntries] = useState<SavingsEntry[]>(initialEntries);
   const entriesRef = useRef(initialEntries);
 
@@ -26,7 +34,10 @@ export function useSavings({ initialEntries, onSave }: Params) {
     [entries]
   );
 
-  const balance = useMemo(() => computeBalance(entries), [entries]);
+  const balance = useMemo(
+    () => computePeriodBalance(entries, period ?? ZERO_INITIAL_AMOUNT_PERIOD),
+    [entries, period]
+  );
   const totalToReplenish = useMemo(() => computeTotalToReplenish(entries), [entries]);
   const totalDepositos = useMemo(
     () => entries.filter((e) => e.type === "deposito").reduce((s, e) => s + e.amount, 0),

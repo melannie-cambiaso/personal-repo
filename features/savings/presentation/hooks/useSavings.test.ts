@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useSavings } from "./useSavings";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
+import type { SavingsPeriod } from "@/features/savings/domain/SavingsPeriod";
 
 const onSave = vi.fn();
 
@@ -76,5 +77,36 @@ describe("useSavings", () => {
     act(() => result.current.markReplenished(entry.id));
     expect(result.current.entries[0].toReplenish).toBe(false);
     expect(result.current.entries).toHaveLength(1);
+  });
+
+  it("balance defaults to computeBalance alone when no period is passed", () => {
+    const entries = [makeEntry({ type: "deposito", amount: 500 })];
+    const { result } = renderHook(() => useSavings({ initialEntries: entries, onSave }));
+    expect(result.current.balance).toBe(500);
+  });
+
+  it("balance folds the period's initialAmount via computePeriodBalance", () => {
+    const period: SavingsPeriod = {
+      id: "period-2",
+      startedAt: "2026-07-01T00:00:00Z",
+      initialAmount: 5000,
+    };
+    const entries = [
+      makeEntry({ type: "deposito", amount: 500 }),
+      makeEntry({ type: "gasto", amount: 200 }),
+    ];
+    const { result } = renderHook(() => useSavings({ initialEntries: entries, onSave, period }));
+    expect(result.current.balance).toBe(5300);
+  });
+
+  it("addEntry never leaks entries outside the scoped active period into onSave", () => {
+    const activeOnly = [makeEntry({ id: "active-1" })];
+    const { result } = renderHook(() =>
+      useSavings({ initialEntries: activeOnly, onSave })
+    );
+    const newEntry = makeEntry({ id: "active-2" });
+    act(() => result.current.addEntry(newEntry));
+    const savedEntries = onSave.mock.calls[onSave.mock.calls.length - 1][0] as SavingsEntry[];
+    expect(savedEntries.map((e) => e.id).sort()).toEqual(["active-1", "active-2"]);
   });
 });
