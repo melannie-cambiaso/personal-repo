@@ -8,3 +8,5 @@ export { AddGoalModal } from "./Modals/AddGoalModal";
 export { EditGoalModal } from "./Modals/EditGoalModal";
 export { DeleteGoalConfirmModal } from "./Modals/DeleteGoalConfirmModal";
 export { MonthlyBreakdown } from "./MonthlyBreakdown/MonthlyBreakdown";
+export { ArchivedPeriodList } from "./Archived/ArchivedPeriodList";
+export { ArchivePeriodModal } from "./Modals/ArchivePeriodModal";
