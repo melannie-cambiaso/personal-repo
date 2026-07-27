@@ -21,7 +21,6 @@ export const FEATURE_NAV_ITEMS: FeatureNavItem[] = [
     label: "Ahorros",
     icon: "💰",
     subtitle: "Tu registro financiero",
-    disabled: true,
   },
   { href: "/wishlist", label: "Wishlist", icon: "🛍️", subtitle: "Tus cosas deseadas" },
 ];
