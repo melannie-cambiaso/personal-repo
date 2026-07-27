@@ -135,6 +135,7 @@ export function SavingsScreen({
                 totalToReplenish={totalToReplenish}
                 totalDepositos={totalDepositos}
                 totalGastos={totalGastos}
+                initialAmount={period?.initialAmount}
               />
             </div>
 

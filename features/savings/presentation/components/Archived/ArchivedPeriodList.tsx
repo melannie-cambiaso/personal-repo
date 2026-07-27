@@ -50,11 +50,18 @@ export function ArchivedPeriodList({ periods, entries }: Props) {
               <h3 className="text-brown-900 text-sm font-semibold">
                 {formatPeriodRange(period)}
               </h3>
-              {toReplenish > 0 && (
-                <span className="text-2xs rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">
-                  Pendiente de reponer: {formatCLP(toReplenish)}
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {period.initialAmount > 0 && (
+                  <span className="text-2xs text-brown-400 font-semibold">
+                    Monto inicial: {formatCLP(period.initialAmount)}
+                  </span>
+                )}
+                {toReplenish > 0 && (
+                  <span className="text-2xs rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">
+                    Pendiente de reponer: {formatCLP(toReplenish)}
+                  </span>
+                )}
+              </div>
             </div>
             <SavingsEntryList
               entries={periodEntries}

@@ -27,7 +27,7 @@ export function SavingsEntryCard({ entry, isOwner, onEdit, onMarkReplenished, on
             {isDeposito ? "Depósito" : "Gasto"}
           </span>
           <span className="text-brown-400 text-xs">{entry.date}</span>
-          {!isDeposito && entry.toReplenish && (
+          {isOwner && !isDeposito && entry.toReplenish && (
             <button
               type="button"
               onClick={(e) => {
