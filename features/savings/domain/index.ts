@@ -7,3 +7,11 @@ export { normalizePriorities } from "./normalizePriorities";
 export { groupEntriesByMonth } from "./groupEntriesByMonth";
 export type { MonthlySavingsGroup } from "./groupEntriesByMonth";
 export { sumEarmarksByGoal } from "./sumEarmarksByGoal";
+export {
+  INITIAL_PERIOD_ID,
+  resolveActivePeriod,
+  resolveEntryPeriodId,
+  selectPeriodEntries,
+} from "./SavingsPeriod";
+export type { SavingsPeriod } from "./SavingsPeriod";
+export { computePeriodBalance } from "./computePeriodBalance";

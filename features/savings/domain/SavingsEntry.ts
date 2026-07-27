@@ -9,4 +9,5 @@ export interface SavingsEntry {
   toReplenish: boolean;
   createdAt: string;
   goalId?: string;
+  periodId?: string;
 }
