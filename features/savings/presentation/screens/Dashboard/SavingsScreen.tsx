@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
+import type { SavingsPeriod } from "@/features/savings/domain/SavingsPeriod";
 import type { GoalWithProgress } from "@/features/savings/domain";
 import { useSavings } from "../../hooks/useSavings";
 import { useSavingsGoals } from "../../hooks/useSavingsGoals";
@@ -17,8 +18,10 @@ import {
   EditGoalModal,
   DeleteGoalConfirmModal,
   MonthlyBreakdown,
+  ArchivedPeriodList,
+  ArchivePeriodModal,
 } from "../../components";
-import { PageHeader, AddButton } from "@/shared/components";
+import { PageHeader, AddButton, Button } from "@/shared/components";
 
 interface Props {
   initialEntries: SavingsEntry[];
@@ -26,6 +29,10 @@ interface Props {
   isOwner: boolean;
   onSave: (entries: SavingsEntry[]) => Promise<void> | void;
   onSaveGoals?: (goals: SavingsGoal[]) => Promise<void> | void;
+  period?: SavingsPeriod;
+  periods?: SavingsPeriod[];
+  allEntries?: SavingsEntry[];
+  onArchive?: (data: { initialAmount?: number; label?: string }) => Promise<void> | void;
 }
 
 export function SavingsScreen({
@@ -34,6 +41,10 @@ export function SavingsScreen({
   isOwner,
   onSave,
   onSaveGoals,
+  period,
+  periods = [],
+  allEntries = [],
+  onArchive,
 }: Props) {
   const {
     entries,
@@ -45,7 +56,7 @@ export function SavingsScreen({
     editEntry,
     deleteEntry,
     markReplenished,
-  } = useSavings({ initialEntries, onSave });
+  } = useSavings({ initialEntries, onSave, period });
 
   const { distributed, handleAdd, handleEdit, handleDelete, handleReorder, handleToggleDone } =
     useSavingsGoals({
@@ -57,12 +68,17 @@ export function SavingsScreen({
 
   const activeGoals = distributed.filter((g) => g.isDone !== true);
 
-  const [activeTab, setActiveTab] = useState<"history" | "goals" | "monthly">("history");
+  const [activeTab, setActiveTab] = useState<"history" | "goals" | "monthly" | "archived">(
+    "history"
+  );
 
   // Entry modal state
   const [addOpen, setAddOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<SavingsEntry | null>(null);
   const [pendingDelete, setPendingDelete] = useState<SavingsEntry | null>(null);
+
+  // Archive period modal state
+  const [archiveOpen, setArchiveOpen] = useState(false);
 
   // Goal modal state
   const [addGoalOpen, setAddGoalOpen] = useState(false);
@@ -102,6 +118,13 @@ export function SavingsScreen({
           >
             Por mes
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("archived")}
+            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "archived" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
+          >
+            Archivados
+          </button>
         </div>
 
         {activeTab === "history" && (
@@ -115,7 +138,14 @@ export function SavingsScreen({
               />
             </div>
 
-            <div className="mb-6 flex justify-end">
+            <div className="mb-6 flex items-center justify-between">
+              {isOwner ? (
+                <Button type="button" variant="secondary" onPress={() => setArchiveOpen(true)}>
+                  Archivar período
+                </Button>
+              ) : (
+                <span />
+              )}
               {isOwner && <AddButton onClick={() => setAddOpen(true)} label="Agregar registro" />}
             </div>
 
@@ -153,6 +183,10 @@ export function SavingsScreen({
         )}
 
         {activeTab === "monthly" && <MonthlyBreakdown entries={entries} />}
+
+        {activeTab === "archived" && (
+          <ArchivedPeriodList periods={periods} entries={allEntries} />
+        )}
       </div>
 
       <AddEntryModal
@@ -211,6 +245,17 @@ export function SavingsScreen({
           }
         }}
         onCancel={() => setPendingDeleteGoal(null)}
+      />
+
+      <ArchivePeriodModal
+        key={archiveOpen ? "archive-open" : "archive-closed"}
+        isOpen={archiveOpen}
+        entries={entries}
+        onClose={() => setArchiveOpen(false)}
+        onConfirm={(data) => {
+          void onArchive?.(data);
+          setArchiveOpen(false);
+        }}
       />
     </main>
   );
