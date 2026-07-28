@@ -9,6 +9,8 @@ export type { CategoryView } from "./categoryView";
 export { toCategoryView } from "./categoryView";
 export type { BucketTotals, BudgetComparison } from "./budgetRollup";
 export { computeBucketTotals, computeBudgetComparison } from "./budgetRollup";
+export type { SpendRow, BucketSpendRow, SpendComparison } from "./spendRollup";
+export { computeSpentByCategory, computeSpendComparison, isOverrun } from "./spendRollup";
 export {
   addCategory,
   addSubcategory,
