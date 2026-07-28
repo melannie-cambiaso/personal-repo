@@ -15,7 +15,7 @@ interface Props {
 export function SpendPairing({ row }: Props) {
   const overrun = isOverrun(row);
   return (
-    <span className={overrun ? "text-red-600 text-sm font-bold" : "text-brown-800 text-sm font-bold"}>
+    <span className={overrun ? "text-red-600 text-sm font-bold" : "text-green-700 text-sm font-bold"}>
       {formatCLP(row.spent)}
       <span className={`text-2xs ml-1 font-normal ${overrun ? "text-red-600" : "text-brown-400"}`}>
         de {formatCLP(row.budgeted)}
