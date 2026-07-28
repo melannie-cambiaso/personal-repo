@@ -518,6 +518,47 @@ describe("useFinanceV2Transactions", () => {
     });
   });
 
+  it("isLoadingMonth is already true in the very render triggered by a viewedMonth change — before the load effect runs (no stale-month gap)", async () => {
+    const deferred = createDeferred<FinanceV2Transaction[]>();
+    onLoad.mockReturnValueOnce(deferred.promise);
+
+    const renders: { viewedMonth: string; isLoadingMonth: boolean }[] = [];
+
+    const { rerender } = renderHook(
+      ({ viewedMonth }) => {
+        const result = useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth,
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        });
+        renders.push({ viewedMonth, isLoadingMonth: result.isLoadingMonth });
+        return result;
+      },
+      { initialProps: { viewedMonth: "2026-07" } }
+    );
+
+    act(() => {
+      rerender({ viewedMonth: "2026-08" });
+    });
+
+    // The FIRST render captured for "2026-08" is produced synchronously by `rerender`
+    // itself — before the `useEffect` that kicks off `onLoad` has had a chance to run.
+    // If `isLoadingMonth` were still a `useState` flipped to `true` from inside that
+    // effect, this render would read `isLoadingMonth: false` while `transactions` still
+    // holds July's list: the exact stale-month race a consumer computing a comparison
+    // during render would hit. Deriving it synchronously from
+    // `loadedMonthRef.current !== viewedMonth` instead closes that gap.
+    const firstAugustRender = renders.find((r) => r.viewedMonth === "2026-08");
+    expect(firstAugustRender?.isLoadingMonth).toBe(true);
+
+    await act(async () => {
+      deferred.resolve([]);
+      await deferred.promise;
+    });
+  });
+
   it("a rejected onLoad applies an empty list and does not leave the previous month's data rendered", async () => {
     const julyTransactions: FinanceV2Transaction[] = [
       { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },

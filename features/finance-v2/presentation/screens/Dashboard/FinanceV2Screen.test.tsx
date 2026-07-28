@@ -217,6 +217,17 @@ describe("FinanceV2Screen", () => {
     expect(screen.getByText(formatMonth("2026-08"), { selector: "span" })).toBeTruthy();
   });
 
+  it("clicking ← Anterior on the shared MonthNav decrements the viewed month", () => {
+    render(<FinanceV2Screen {...defaultProps()} initialMonth="2026-07" />);
+
+    fireEvent.click(screen.getByText("Movimientos"));
+    fireEvent.click(screen.getByRole("button", { name: "← Anterior" }));
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+
+    expect(screen.getByText(formatMonth("2026-06"), { selector: "span" })).toBeTruthy();
+  });
+
   it("opening the Add-Transaction modal disables the shared MonthNav (lifted isAddOpen guard)", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 

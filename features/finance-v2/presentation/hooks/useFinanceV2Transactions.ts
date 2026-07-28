@@ -53,7 +53,14 @@ export function useFinanceV2Transactions({
   // this ref when it resolves may be applied — independent of Next's "one at a time"
   // dispatch, which its docs call a mutable implementation detail.
   const requestIdRef = useRef(0);
-  const [isLoadingMonth, setIsLoadingMonth] = useState(false);
+  // Derived at render time, NOT via a `useState` flipped inside the load effect: an
+  // effect-set flag lags one render behind a `viewedMonth` change (effects run after
+  // commit), so the render that produces the new `viewedMonth` would still read the old
+  // "not loading" flag while `transactions` holds the previous month's list — a real,
+  // user-visible stale-month race for anything computed from both during that render.
+  // Comparing against `loadedMonthRef.current` has no such gap: the ref only changes once
+  // `apply` runs, so it still reflects the previously loaded month during that render.
+  const isLoadingMonth = loadedMonthRef.current !== viewedMonth;
 
   const totals = useMemo(() => computeTransactionTotals(transactions), [transactions]);
   const dayGroups = useMemo(() => groupTransactionsByDay(transactions), [transactions]);
@@ -65,14 +72,12 @@ export function useFinanceV2Transactions({
     const requestId = ++requestIdRef.current;
 
     setLastCrossMonthSave(null);
-    setIsLoadingMonth(true);
 
     const apply = (list: FinanceV2Transaction[]) => {
       if (requestId !== requestIdRef.current) return; // superseded — drop silently
       loadedMonthRef.current = month;
       listRef.current = list;
       setTransactions(list);
-      setIsLoadingMonth(false);
     };
 
     void onLoad(month).then(apply, (error) => {
