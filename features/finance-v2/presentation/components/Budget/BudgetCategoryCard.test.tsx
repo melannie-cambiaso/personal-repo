@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BudgetCategoryCard } from "./BudgetCategoryCard";
 import type { BudgetCategory } from "@/features/finance-v2/domain";
+import type { SpendView } from "./spendView";
 
 const leafCategory: BudgetCategory = {
   id: "c1",
@@ -30,6 +31,31 @@ const parentCategory: BudgetCategory = {
   ],
 };
 
+const readySpend: SpendView = {
+  status: "ready",
+  comparison: {
+    categories: {
+      c1: { budgeted: 350_000, spent: 100_000 },
+      c2: { budgeted: 0, spent: 7_000 },
+      c3: { budgeted: 0, spent: 0 },
+    },
+    leaves: {
+      c1: { budgeted: 350_000, spent: 100_000 },
+      c3: { budgeted: 0, spent: 0 },
+      s1: { budgeted: 5_000, spent: 6_000 },
+      s2: { budgeted: 3_000, spent: 1_000 },
+    },
+    buckets: [
+      { key: "fixed", budgeted: 0, spent: 0, unassigned: 0 },
+      { key: "variable", budgeted: 0, spent: 0, unassigned: 0 },
+      { key: "savings", budgeted: 0, spent: 0, unassigned: 0 },
+    ],
+    total: { budgeted: 0, spent: 0, unassigned: 0 },
+  },
+};
+
+const loadingSpend: SpendView = { status: "loading" };
+
 const noop = () => {};
 
 describe("BudgetCategoryCard", () => {
@@ -39,6 +65,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={leafCategory}
+        spend={readySpend}
         onAmountBlur={onAmountBlur}
         onDeleteCategory={noop}
         onAddSubcategory={noop}
@@ -57,6 +84,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={parentCategory}
+        spend={readySpend}
         onAmountBlur={noop}
         onDeleteCategory={noop}
         onAddSubcategory={noop}
@@ -76,6 +104,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={parentCategory}
+        spend={readySpend}
         onAmountBlur={onAmountBlur}
         onDeleteCategory={noop}
         onAddSubcategory={noop}
@@ -93,6 +122,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={parentCategory}
+        spend={readySpend}
         onAmountBlur={noop}
         onDeleteCategory={noop}
         onAddSubcategory={noop}
@@ -110,6 +140,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={leafCategory}
+        spend={readySpend}
         onAmountBlur={noop}
         onDeleteCategory={noop}
         onAddSubcategory={onAddSubcategory}
@@ -133,6 +164,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={parentCategory}
+        spend={readySpend}
         onAmountBlur={noop}
         onDeleteCategory={noop}
         onAddSubcategory={noop}
@@ -161,6 +193,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="edit"
           category={leafCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={onDeleteCategory}
           onAddSubcategory={noop}
@@ -181,6 +214,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="edit"
           category={leafCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={onDeleteCategory}
           onAddSubcategory={noop}
@@ -195,11 +229,12 @@ describe("BudgetCategoryCard", () => {
   });
 
   describe("view mode", () => {
-    it("leaf renders the formatted amount as text, not an input", () => {
+    it("leaf renders no amount input", () => {
       render(
         <BudgetCategoryCard
           mode="view"
           category={leafCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
           onAddSubcategory={noop}
@@ -207,7 +242,6 @@ describe("BudgetCategoryCard", () => {
         />
       );
 
-      expect(screen.getByText("$350.000")).toBeTruthy();
       expect(screen.queryByLabelText("Monto de Arriendo")).toBeNull();
     });
 
@@ -216,6 +250,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
           onAddSubcategory={noop}
@@ -223,18 +258,16 @@ describe("BudgetCategoryCard", () => {
         />
       );
 
-      expect(screen.getByText("$8.000")).toBeTruthy();
-      expect(screen.queryByText("$5.000")).toBeNull();
-      expect(screen.queryByText("$3.000")).toBeNull();
       expect(screen.queryByText("Luz")).toBeNull();
       expect(screen.getByRole("button", { name: "Ver más" })).toBeTruthy();
     });
 
-    it("clicking Ver más reveals subcategory names and amounts, and flips the label to Ver menos", () => {
+    it("clicking Ver más reveals subcategory names, and flips the label to Ver menos", () => {
       render(
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
           onAddSubcategory={noop}
@@ -245,9 +278,7 @@ describe("BudgetCategoryCard", () => {
       fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
 
       expect(screen.getByText("Luz")).toBeTruthy();
-      expect(screen.getByText("$5.000")).toBeTruthy();
       expect(screen.getByText("Agua")).toBeTruthy();
-      expect(screen.getByText("$3.000")).toBeTruthy();
       expect(screen.queryByLabelText("Monto de Luz")).toBeNull();
       expect(screen.getByRole("button", { name: "Ver menos" })).toBeTruthy();
     });
@@ -257,6 +288,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="edit"
           category={parentCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
           onAddSubcategory={noop}
@@ -275,6 +307,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
           onAddSubcategory={noop}
@@ -290,26 +323,12 @@ describe("BudgetCategoryCard", () => {
       expect(screen.queryByLabelText("Nombre de la subcategoría")).toBeNull();
     });
 
-    it("a zero-amount leaf renders $0, not blank", () => {
-      render(
-        <BudgetCategoryCard
-          mode="view"
-          category={zeroLeafCategory}
-          onAmountBlur={noop}
-          onDeleteCategory={noop}
-          onAddSubcategory={noop}
-          onDeleteSubcategory={noop}
-        />
-      );
-
-      expect(screen.getByText("$0")).toBeTruthy();
-    });
-
     it("renders the header name identically to edit mode", () => {
       const { unmount } = render(
         <BudgetCategoryCard
           mode="edit"
           category={leafCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
           onAddSubcategory={noop}
@@ -323,6 +342,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={leafCategory}
+          spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
           onAddSubcategory={noop}
@@ -330,6 +350,132 @@ describe("BudgetCategoryCard", () => {
         />
       );
       expect(screen.getByText("Arriendo")).toBeTruthy();
+    });
+  });
+
+  describe("view mode spend pairing", () => {
+    it("leaf pairs its actual spend against its budgeted amount", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={leafCategory}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByText("$100.000")).toBeTruthy();
+      expect(screen.getByText(/de \$350\.000/)).toBeTruthy();
+    });
+
+    it("a zero-spend leaf still shows $0, never hidden", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={zeroLeafCategory}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByText("$0")).toBeTruthy();
+    });
+
+    it("parent header pairs the derived actual spend against the derived budgeted total", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={parentCategory}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByText("$7.000")).toBeTruthy();
+      expect(screen.getByText(/de \$8\.000/)).toBeTruthy();
+    });
+
+    it("an overrun subcategory shows the excedido suffix, a within-budget one does not", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={parentCategory}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
+
+      expect(screen.getByText("$6.000")).toBeTruthy();
+      expect(screen.getByText(/de \$5\.000 · excedido/)).toBeTruthy();
+      expect(screen.getByText("$1.000")).toBeTruthy();
+      expect(screen.getByText(/de \$3\.000/)).toBeTruthy();
+      expect(screen.getAllByText(/excedido/)).toHaveLength(1);
+    });
+
+    it("edit mode never renders the spend pairing, even for a leaf or the parent-derived total", () => {
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={parentCategory}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.queryByText(/de \$/)).toBeNull();
+      expect(screen.getByText("$8.000")).toBeTruthy();
+    });
+
+    it("shows — instead of a false $0 while the month is still loading", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={leafCategory}
+          spend={loadingSpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByText("—")).toBeTruthy();
+      expect(screen.queryByText("$100.000")).toBeNull();
+      expect(screen.queryByText(/de \$/)).toBeNull();
+    });
+
+    it("parent header also shows — while loading, never a stale derived total", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={parentCategory}
+          spend={loadingSpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getByText("—")).toBeTruthy();
+      expect(screen.queryByText("$8.000")).toBeNull();
     });
   });
 });

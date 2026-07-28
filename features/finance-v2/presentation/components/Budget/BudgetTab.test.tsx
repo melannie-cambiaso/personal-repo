@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { BudgetTab } from "./BudgetTab";
 import { computeBudgetComparison, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type { BudgetCategory, SplitResult } from "@/features/finance-v2/domain";
+import type { SpendView } from "./spendView";
 
 const validSplit: SplitResult = {
   status: "valid",
@@ -19,6 +20,22 @@ const invalidSplit: SplitResult = {
   totalPercentage: 110,
 };
 
+const emptySpend: SpendView = {
+  status: "ready",
+  comparison: {
+    categories: {},
+    leaves: {},
+    buckets: [
+      { key: "fixed", budgeted: 0, spent: 0, unassigned: 0 },
+      { key: "variable", budgeted: 0, spent: 0, unassigned: 0 },
+      { key: "savings", budgeted: 0, spent: 0, unassigned: 0 },
+    ],
+    total: { budgeted: 0, spent: 0, unassigned: 0 },
+  },
+};
+
+const loadingSpend: SpendView = { status: "loading" };
+
 const noop = () => {};
 
 describe("BudgetTab", () => {
@@ -29,6 +46,7 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -38,7 +56,6 @@ describe("BudgetTab", () => {
     );
 
     expect(screen.getAllByText("Fijos").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("$0")).toHaveLength(4);
     expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
     expect(screen.getByLabelText("Bucket de la categoría")).toBeTruthy();
   });
@@ -50,6 +67,7 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -66,6 +84,7 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -83,6 +102,7 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -103,6 +123,7 @@ describe("BudgetTab", () => {
         onToggleMode={onToggleMode}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -126,6 +147,7 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, invalidSplit)}
+        spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -134,8 +156,9 @@ describe("BudgetTab", () => {
       />
     );
 
-    expect(screen.getAllByText("$0")).toHaveLength(4);
-    expect(screen.queryByText(/de \$/)).toBeNull();
+    // No split "target" copy leaks through — the "de $" spend-pairing suffix is a
+    // separate, unrelated concern (design D1) and is expected to still render.
+    expect(screen.queryByText(/de \$1\.100\.000/)).toBeNull();
   });
 
   it("renders one BudgetCategoryCard per category and clears the form on submit", () => {
@@ -146,6 +169,7 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={onAddCategory}
         onAddSubcategory={noop}
@@ -171,6 +195,7 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={onAddCategory}
         onAddSubcategory={noop}
@@ -199,6 +224,7 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[category]}
         comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
+        spend={emptySpend}
         onAmountBlur={onAmountBlur}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -210,5 +236,86 @@ describe("BudgetTab", () => {
     fireEvent.blur(screen.getByLabelText("Monto de Arriendo"), { target: { value: "400000" } });
 
     expect(onAmountBlur).toHaveBeenCalledWith("c1", null, "400000");
+  });
+
+  describe("spend threading", () => {
+    const category: BudgetCategory = {
+      id: "c1",
+      name: "Arriendo",
+      bucket: "fixed",
+      amount: 350_000,
+      subcategories: [],
+    };
+    const spendWithData: SpendView = {
+      status: "ready",
+      comparison: {
+        categories: { c1: { budgeted: 350_000, spent: 100_000 } },
+        leaves: { c1: { budgeted: 350_000, spent: 100_000 } },
+        buckets: [
+          { key: "fixed", budgeted: 350_000, spent: 100_000, unassigned: 0 },
+          { key: "variable", budgeted: 0, spent: 0, unassigned: 0 },
+          { key: "savings", budgeted: 0, spent: 0, unassigned: 0 },
+        ],
+        total: { budgeted: 350_000, spent: 100_000, unassigned: 0 },
+      },
+    };
+
+    it("threads spend into BucketComparison's actual-spend column", () => {
+      render(
+        <BudgetTab
+          mode="view"
+          onToggleMode={noop}
+          categories={[category]}
+          comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
+          spend={spendWithData}
+          onAmountBlur={noop}
+          onAddCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteCategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getAllByText("$100.000").length).toBeGreaterThan(0);
+    });
+
+    it("threads spend into each BudgetCategoryCard's view-mode pairing", () => {
+      render(
+        <BudgetTab
+          mode="view"
+          onToggleMode={noop}
+          categories={[category]}
+          comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
+          spend={spendWithData}
+          onAmountBlur={noop}
+          onAddCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteCategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getAllByText(/de \$350\.000/).length).toBeGreaterThan(0);
+    });
+
+    it("threads a loading spend down to both children, showing — instead of a figure", () => {
+      render(
+        <BudgetTab
+          mode="view"
+          onToggleMode={noop}
+          categories={[category]}
+          comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
+          spend={loadingSpend}
+          onAmountBlur={noop}
+          onAddCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteCategory={noop}
+          onDeleteSubcategory={noop}
+        />
+      );
+
+      expect(screen.getAllByText("—").length).toBeGreaterThan(1);
+      expect(screen.queryByText("$100.000")).toBeNull();
+    });
   });
 });

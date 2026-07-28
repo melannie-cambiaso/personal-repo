@@ -18,10 +18,9 @@ interface Props {
   onToggleMode: () => void;
   categories: BudgetCategory[];
   comparison: BudgetComparisonResult;
-  /** Threaded from `FinanceV2Screen` (design D7/D8) but not yet rendered here — optional
-   *  until the spend-rendering work (`BucketComparison`/`BudgetCategoryCard`) lands, so
-   *  this stays a non-breaking addition for existing callers. */
-  spend?: SpendView;
+  /** Threaded from `FinanceV2Screen` (design D7/D8) into both `BucketComparison` and
+   *  every `BudgetCategoryCard`. */
+  spend: SpendView;
   onAmountBlur: (categoryId: string, subcategoryId: string | null, raw: string) => void;
   onAddCategory: (name: string, bucket: BucketKey) => void;
   onAddSubcategory: (categoryId: string, name: string, bucket: BucketKey) => void;
@@ -41,6 +40,7 @@ export function BudgetTab({
   onToggleMode,
   categories,
   comparison,
+  spend,
   onAmountBlur,
   onAddCategory,
   onAddSubcategory,
@@ -74,7 +74,7 @@ export function BudgetTab({
         </button>
       </div>
 
-      <BucketComparison comparison={comparison} />
+      <BucketComparison comparison={comparison} spend={spend} />
 
       {mode === "view" && categories.length === 0 ? (
         <p className="text-brown-500 text-sm">No hay categorías cargadas</p>
@@ -85,6 +85,7 @@ export function BudgetTab({
               key={category.id}
               mode={mode}
               category={category}
+              spend={spend}
               onAmountBlur={onAmountBlur}
               onDeleteCategory={onDeleteCategory}
               onAddSubcategory={onAddSubcategory}

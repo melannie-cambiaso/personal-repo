@@ -1,16 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import type { BucketKey, BudgetCategory } from "@/features/finance-v2/domain";
+import type { BucketKey, BudgetCategory, SpendRow } from "@/features/finance-v2/domain";
 import { toCategoryView } from "@/features/finance-v2/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 import { Button, Input, Select } from "@/shared/components";
 import { BUCKET_LABELS, BUCKET_ORDER } from "../bucketLabels";
 import type { BudgetMode } from "./budgetMode";
+import type { SpendView } from "./spendView";
+import { SpendPairing, LoadingSpend } from "./SpendPairing";
 
 interface Props {
   mode: BudgetMode;
   category: BudgetCategory;
+  spend: SpendView;
   onAmountBlur: (categoryId: string, subcategoryId: string | null, raw: string) => void;
   onDeleteCategory: (categoryId: string) => void;
   onAddSubcategory: (categoryId: string, name: string, bucket: BucketKey) => void;
@@ -23,13 +26,19 @@ interface AmountFieldProps {
   amount: number;
   className?: string;
   onBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
+  /** Only consulted in view mode (design D8 - spend renders in view mode only).
+   *  `undefined` means the month is still loading. */
+  spendRow: SpendRow | undefined;
 }
 
 // Mode branch written ONCE, consumed by both the leaf cell and every subcategory row —
 // avoids duplicating the view/edit split per leaf/parent/sub kind (design decision).
-function AmountField({ mode, label, amount, className, onBlur }: AmountFieldProps) {
+// View mode pairs actual spend against budget (design D4/D8): spent is the primary
+// figure, budgeted is the muted suffix — never the plain budgeted-only figure edit
+// mode still shows.
+function AmountField({ mode, label, amount, className, onBlur, spendRow }: AmountFieldProps) {
   if (mode === "view") {
-    return <span className="text-brown-800 text-sm font-bold">{formatCLP(amount)}</span>;
+    return spendRow ? <SpendPairing row={spendRow} /> : <LoadingSpend />;
   }
   return (
     <Input
@@ -53,12 +62,27 @@ function AmountField({ mode, label, amount, className, onBlur }: AmountFieldProp
 export function BudgetCategoryCard({
   mode,
   category,
+  spend,
   onAmountBlur,
   onDeleteCategory,
   onAddSubcategory,
   onDeleteSubcategory,
 }: Props) {
   const view = toCategoryView(category);
+
+  // Header row lookup (design D8): a leaf's own id doubles as its `categories` entry
+  // (`computeSpendComparison` stores the same row under both `categories` and `leaves`
+  // for a childless category). A parent's `categories[id].budgeted` is intentionally 0
+  // in the domain (it must never double-count into bucket totals - see
+  // `spendRollup.ts`), so the DISPLAYED budgeted figure is paired from `view.total`
+  // (already the derived sum `toCategoryView` computes) instead, with only `spent`
+  // sourced from the comparison.
+  const headerSpendRow: SpendRow | undefined =
+    spend.status !== "ready"
+      ? undefined
+      : view.kind === "leaf"
+        ? spend.comparison.categories[category.id]
+        : { budgeted: view.total, spent: spend.comparison.categories[category.id].spent };
 
   // Uncontrolled amount inputs (`defaultValue`) only reflect fresh state on remount, so a
   // counter bumped on every blur forces one — same trick as `IncomeSplitTab`'s `version`.
@@ -102,8 +126,11 @@ export function BudgetCategoryCard({
               amount={view.amount}
               key={`amt-${category.id}-${version}`}
               className="w-24 text-right"
+              spendRow={headerSpendRow}
               onBlur={(e) => handleAmountBlur(null, e.target.value)}
             />
+          ) : mode === "view" ? (
+            headerSpendRow ? <SpendPairing row={headerSpendRow} /> : <LoadingSpend />
           ) : (
             <span className="text-brown-800 text-sm font-bold">{formatCLP(view.total)}</span>
           )}
@@ -133,6 +160,7 @@ export function BudgetCategoryCard({
                     amount={sub.amount}
                     key={`amt-${sub.id}-${version}`}
                     className="w-24 text-right"
+                    spendRow={spend.status === "ready" ? spend.comparison.leaves[sub.id] : undefined}
                     onBlur={(e) => handleAmountBlur(sub.id, e.target.value)}
                   />
                   {mode === "edit" && (
