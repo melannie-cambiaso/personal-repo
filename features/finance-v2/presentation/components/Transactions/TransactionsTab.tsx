@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
-import { Button, MonthNav } from "@/shared/components";
+import { Button } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
-import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 import { AddTransactionModal } from "./AddTransactionModal";
 import { MovementSummary } from "./MovementSummary";
 import { TransactionList } from "./TransactionList";
@@ -21,14 +19,20 @@ interface Props {
    *  `viewedMonth`; drives the dismissible confirmation banner below. `null` = no banner. */
   lastCrossMonthSave: string | null;
   onDismissCrossMonthSave: () => void;
-  onChangeMonth: (month: string) => void;
+  isAddOpen: boolean;
+  onOpenAdd: () => void;
+  onCloseAdd: () => void;
 }
 
 // Pure composition (math-free), consuming `useFinanceV2Transactions`'s hoisted state via
 // props — same hoisting rationale as `BudgetTab`/`IncomeSplitTab` (design decision #1):
 // tabs are conditionally rendered, so this tab must not own any of its own domain state.
-// The add-transaction form lives in a modal (not inline) so the movement list stays the
-// main use of screen space.
+// `MonthNav` and the add-transaction open flag both moved up to `FinanceV2Screen` (design
+// decision D6): `MonthNav` is now a single control shared with the Presupuesto tab, and
+// `isAddOpen` had to move with it because `MonthNav`'s `disabled={isAddOpen}` guard is a
+// real correctness guard (`AddTransactionModal` reads `viewedMonth`; letting the month
+// change under an open modal would retarget the save). The add-transaction form lives in a
+// modal (not inline) so the movement list stays the main use of screen space.
 export function TransactionsTab({
   viewedMonth,
   totals,
@@ -38,18 +42,12 @@ export function TransactionsTab({
   onDelete,
   lastCrossMonthSave,
   onDismissCrossMonthSave,
-  onChangeMonth,
+  isAddOpen,
+  onOpenAdd,
+  onCloseAdd,
 }: Props) {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-
   return (
     <div className="flex flex-col gap-6">
-      <MonthNav
-        label={formatMonth(viewedMonth)}
-        onPrev={() => onChangeMonth(prevMonth(viewedMonth))}
-        onNext={() => onChangeMonth(nextMonth(viewedMonth))}
-        disabled={isFormOpen}
-      />
       {lastCrossMonthSave && (
         <div
           role="status"
@@ -67,14 +65,14 @@ export function TransactionsTab({
         </div>
       )}
       <MovementSummary totals={totals} />
-      <Button type="button" variant="primary" onPress={() => setIsFormOpen(true)}>
+      <Button type="button" variant="primary" onPress={onOpenAdd}>
         Nuevo movimiento
       </Button>
       <AddTransactionModal
-        isOpen={isFormOpen}
+        isOpen={isAddOpen}
         viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
-        onClose={() => setIsFormOpen(false)}
+        onClose={onCloseAdd}
         onAdd={onAdd}
       />
       <TransactionList dayGroups={dayGroups} onDelete={onDelete} />

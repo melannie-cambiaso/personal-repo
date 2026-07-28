@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { FinanceV2Screen } from "./FinanceV2Screen";
 import { DEFAULT_FINANCE_V2_CONFIG, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type { FinanceV2Config, FinanceV2Transaction } from "@/features/finance-v2/domain";
+import { formatMonth } from "@/shared/utils/formatMonth";
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
@@ -181,6 +182,50 @@ describe("FinanceV2Screen", () => {
 
     expect(screen.getAllByText("$1.000")).toHaveLength(2);
     expect(screen.getByLabelText("Eliminar movimiento de $1.000")).toBeTruthy();
+  });
+
+  it("hides MonthNav on the Distribución tab, which has no month axis", () => {
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    expect(screen.queryByRole("button", { name: "← Anterior" })).toBeNull();
+  });
+
+  it("shows a single shared MonthNav on the Presupuesto tab", () => {
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+
+    expect(screen.getByRole("button", { name: "← Anterior" })).toBeTruthy();
+  });
+
+  it("shows a single shared MonthNav on the Movimientos tab", () => {
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    fireEvent.click(screen.getByText("Movimientos"));
+
+    expect(screen.getByRole("button", { name: "← Anterior" })).toBeTruthy();
+  });
+
+  it("switching the month from the shared MonthNav is reflected immediately when switching to the Presupuesto tab", () => {
+    render(<FinanceV2Screen {...defaultProps()} initialMonth="2026-07" />);
+
+    fireEvent.click(screen.getByText("Movimientos"));
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+
+    expect(screen.getByText(formatMonth("2026-08"), { selector: "span" })).toBeTruthy();
+  });
+
+  it("opening the Add-Transaction modal disables the shared MonthNav (lifted isAddOpen guard)", () => {
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    fireEvent.click(screen.getByText("Movimientos"));
+    fireEvent.click(screen.getByText("Nuevo movimiento"));
+
+    expect(
+      (screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled
+    ).toBe(true);
   });
 
   it("a transaction filed to a different month via the picker calls onSaveToOtherMonth, stays absent from the current view, and shows the confirmation banner", () => {

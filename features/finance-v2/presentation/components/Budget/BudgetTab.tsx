@@ -11,12 +11,17 @@ import { BudgetCategoryCard } from "./BudgetCategoryCard";
 import { Button, Input, Select } from "@/shared/components";
 import { BUCKET_LABELS, BUCKET_ORDER } from "../bucketLabels";
 import { BUDGET_MODE_LABEL, type BudgetMode } from "./budgetMode";
+import type { SpendView } from "./spendView";
 
 interface Props {
   mode: BudgetMode;
   onToggleMode: () => void;
   categories: BudgetCategory[];
   comparison: BudgetComparisonResult;
+  /** Threaded from `FinanceV2Screen` (design D7/D8) but not yet rendered here — optional
+   *  until the spend-rendering work (`BucketComparison`/`BudgetCategoryCard`) lands, so
+   *  this stays a non-breaking addition for existing callers. */
+  spend?: SpendView;
   onAmountBlur: (categoryId: string, subcategoryId: string | null, raw: string) => void;
   onAddCategory: (name: string, bucket: BucketKey) => void;
   onAddSubcategory: (categoryId: string, name: string, bucket: BucketKey) => void;

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { BudgetConfig, FinanceV2Config, FinanceV2Transaction } from "@/features/finance-v2/domain";
-import { listExpenseCategoryOptions } from "@/features/finance-v2/domain";
+import { computeSpendComparison, listExpenseCategoryOptions } from "@/features/finance-v2/domain";
 import { useFinanceV2Dashboard } from "../../hooks/useFinanceV2Dashboard";
 import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
 import { useFinanceV2Transactions } from "../../hooks/useFinanceV2Transactions";
@@ -10,7 +10,10 @@ import { IncomeSplitTab } from "./IncomeSplitTab";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
 import { TransactionsTab } from "../../components/Transactions/TransactionsTab";
 import type { BudgetMode } from "../../components/Budget/budgetMode";
-import { PageHeader } from "@/shared/components";
+import { toSpendView } from "../../components/Budget/spendView";
+import { PageHeader, MonthNav } from "@/shared/components";
+import { formatMonth } from "@/shared/utils/formatMonth";
+import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 
 type TabKey = "split" | "budget" | "movements";
 
@@ -70,12 +73,14 @@ export function FinanceV2Screen({
   const [viewedMonth, setViewedMonth] = useState(initialMonth);
 
   const {
+    transactions,
     totals,
     dayGroups,
     addTransaction,
     deleteTransaction,
     lastCrossMonthSave,
     dismissCrossMonthSave,
+    isLoadingMonth,
   } = useFinanceV2Transactions({
     initialTransactions,
     viewedMonth,
@@ -88,6 +93,16 @@ export function FinanceV2Screen({
   // tab 3 without a reload (same rationale as design decision #1).
   const categoryOptions = useMemo(() => listExpenseCategoryOptions({ categories }), [categories]);
 
+  // Actuals counterpart to `comparison` (design D7): month-agnostic and pure, so it is
+  // memoized on the same axes `useFinanceV2Budget`'s `comparison` already relies on plus
+  // the loaded transaction list. `isLoadingMonth` is applied OUTSIDE the memo (via
+  // `toSpendView`) — it is a cheap wrap, not worth widening the memo's dependency list.
+  const spendComparison = useMemo(
+    () => computeSpendComparison({ categories }, transactions),
+    [categories, transactions]
+  );
+  const spend = toSpendView(isLoadingMonth, spendComparison);
+
   const [activeTab, setActiveTab] = useState<TabKey>("split");
   // Hoisted beside `useFinanceV2Budget` (same remount rationale as design decision #1):
   // the Budget tab is conditionally rendered, so mode state must live here, not inside
@@ -95,6 +110,11 @@ export function FinanceV2Screen({
   // a required prop everywhere else.
   const [budgetMode, setBudgetMode] = useState<BudgetMode>("view");
   const toggleBudgetMode = () => setBudgetMode((m) => (m === "view" ? "edit" : "view"));
+
+  // Lifted from `TransactionsTab` (design D6): `MonthNav` is now a single control shared
+  // by the Presupuesto and Movimientos tabs, so this flag — its `disabled` guard — had to
+  // move up with it (see `TransactionsTab`'s header comment for the correctness rationale).
+  const [isAddOpen, setIsAddOpen] = useState(false);
 
   return (
     <main className="flex flex-1 flex-col">
@@ -117,6 +137,16 @@ export function FinanceV2Screen({
           ))}
         </div>
 
+        {/* `split` has no month axis (design D6) — hidden there, shared by the other two. */}
+        {activeTab !== "split" && (
+          <MonthNav
+            label={formatMonth(viewedMonth)}
+            onPrev={() => setViewedMonth(prevMonth(viewedMonth))}
+            onNext={() => setViewedMonth(nextMonth(viewedMonth))}
+            disabled={isAddOpen}
+          />
+        )}
+
         {activeTab === "split" && (
           <IncomeSplitTab
             config={config}
@@ -132,6 +162,7 @@ export function FinanceV2Screen({
             onToggleMode={toggleBudgetMode}
             categories={categories}
             comparison={comparison}
+            spend={spend}
             onAmountBlur={handleAmountBlur}
             onAddCategory={addCategory}
             onAddSubcategory={addSubcategory}
@@ -150,7 +181,9 @@ export function FinanceV2Screen({
             onDelete={deleteTransaction}
             lastCrossMonthSave={lastCrossMonthSave}
             onDismissCrossMonthSave={dismissCrossMonthSave}
-            onChangeMonth={setViewedMonth}
+            isAddOpen={isAddOpen}
+            onOpenAdd={() => setIsAddOpen(true)}
+            onCloseAdd={() => setIsAddOpen(false)}
           />
         )}
       </div>
