@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { computeSpentByCategory, computeSpendComparison, isOverrun } from "./spendRollup";
+import { computeSpentByCategory, computeSpendComparison, isOverrun, resolveUnassignedBucket } from "./spendRollup";
+import { computeBucketTotals } from "./budgetRollup";
 import type { BudgetConfig } from "./BudgetConfig";
 import type { FinanceV2Transaction } from "./FinanceV2Transaction";
 
@@ -204,6 +205,46 @@ describe("computeSpendComparison", () => {
     const result = computeSpendComparison(config, list);
 
     expect(result.total.spent).toBe(120000);
+  });
+});
+
+describe("computeSpendComparison budgeted totals", () => {
+  it("matches computeBucketTotals for every bucket, never re-deriving budgeted sums independently", () => {
+    const config: BudgetConfig = {
+      categories: [
+        { id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] },
+        {
+          id: "c2",
+          name: "Servicios",
+          bucket: "fixed",
+          amount: 999999,
+          subcategories: [
+            { id: "s1", name: "Luz", bucket: "fixed", amount: 20000 },
+            { id: "s2", name: "Ocio", bucket: "variable", amount: 5000 },
+          ],
+        },
+        { id: "c3", name: "Fondo emergencia", bucket: "savings", amount: 30000, subcategories: [] },
+      ],
+    };
+
+    const result = computeSpendComparison(config, []);
+    const expected = computeBucketTotals(config);
+
+    for (const row of result.buckets) {
+      expect(row.budgeted).toBe(expected[row.key]);
+    }
+  });
+});
+
+describe("resolveUnassignedBucket", () => {
+  it("resolves the bucket from the matching expense transaction's category id", () => {
+    const list = [expenseTx({ amount: 12000, bucket: "variable", category: { id: "cat-old", name: "Super" } })];
+
+    expect(resolveUnassignedBucket(list, "cat-old")).toBe("variable");
+  });
+
+  it("throws instead of silently dropping the amount when no transaction resolves the leaf id", () => {
+    expect(() => resolveUnassignedBucket([], "ghost-leaf")).toThrow(/ghost-leaf/);
   });
 });
 

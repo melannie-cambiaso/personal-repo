@@ -1,6 +1,7 @@
 import type { BucketKey } from "./computeSplit";
 import type { BudgetConfig } from "./BudgetConfig";
 import type { ExpenseBucketKey, FinanceV2Transaction } from "./FinanceV2Transaction";
+import { computeBucketTotals } from "./budgetRollup";
 
 const BUCKET_ORDER: BucketKey[] = ["fixed", "variable", "savings"];
 
@@ -100,11 +101,11 @@ export function computeSpendComparison(
   // transaction itself, never from walking the config.
   for (const [leafId, spent] of Object.entries(byLeafId)) {
     if (claimedLeafIds.has(leafId)) continue;
-    const bucket = findTransactionBucket(transactions, leafId);
-    if (bucket) unassignedTotals[bucket] += spent;
+    const bucket = resolveUnassignedBucket(transactions, leafId);
+    unassignedTotals[bucket] += spent;
   }
 
-  const budgetedByBucket = computeBudgetedByBucket(config);
+  const budgetedByBucket = computeBucketTotals(config);
   const spentByBucket = computeSpentByBucket(config, byLeafId, unassignedTotals);
 
   const buckets: BucketSpendRow[] = BUCKET_ORDER.map((key) => ({
@@ -131,25 +132,19 @@ export function isOverrun(row: SpendRow): boolean {
   return row.spent > row.budgeted;
 }
 
-function findTransactionBucket(transactions: FinanceV2Transaction[], leafId: string): BucketKey | undefined {
+/** Resolves the bucket an unassigned leaf id's spend belongs to by locating
+ *  the expense transaction that produced it. `byLeafId` is always built from
+ *  this same `transactions` array (see `computeSpendComparison`), so a match
+ *  should always exist - throws instead of silently dropping the amount if
+ *  that invariant is ever violated (see `FinanceV2Transaction`'s fail-loudly
+ *  convention). */
+export function resolveUnassignedBucket(transactions: FinanceV2Transaction[], leafId: string): BucketKey {
   for (const tx of transactions) {
     if (tx.type === "expense" && tx.category?.id === leafId) return tx.bucket;
   }
-  return undefined;
-}
-
-function computeBudgetedByBucket(config: BudgetConfig): Record<BucketKey, number> {
-  const totals: Record<BucketKey, number> = { fixed: 0, variable: 0, savings: 0 };
-  for (const category of config.categories) {
-    if (category.subcategories.length === 0) {
-      totals[category.bucket] += category.amount;
-      continue;
-    }
-    for (const sub of category.subcategories) {
-      totals[sub.bucket] += sub.amount;
-    }
-  }
-  return totals;
+  throw new Error(
+    `computeSpendComparison: no transaction found for unassigned leaf id "${leafId}" - cannot resolve its bucket.`,
+  );
 }
 
 function computeSpentByBucket(
