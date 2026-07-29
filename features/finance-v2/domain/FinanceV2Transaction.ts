@@ -1,7 +1,7 @@
-import type { BucketKey } from "./computeSplit";
+import type { BucketKey } from "./BucketKey";
 
 /** `"savings"` is a transaction `type`, never a valid expense bucket — stays
- *  coupled to `computeSplit.BucketKey` so widening that union breaks this
+ *  coupled to `BucketKey` so widening that union breaks this
  *  loudly instead of silently accepting an invalid bucket. */
 export type ExpenseBucketKey = Extract<BucketKey, "fixed" | "variable">;
 

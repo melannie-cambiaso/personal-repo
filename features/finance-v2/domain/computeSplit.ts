@@ -1,6 +1,5 @@
 import type { FinanceV2Config } from "./FinanceV2Config";
-
-export type BucketKey = "fixed" | "variable" | "savings";
+import type { BucketKey } from "./BucketKey";
 
 export interface SplitBucket {
   key: BucketKey;

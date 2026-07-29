@@ -1,4 +1,5 @@
-import type { BucketKey, SplitResult } from "./computeSplit";
+import type { BucketKey } from "./BucketKey";
+import type { SplitResult } from "./computeSplit";
 import type { BudgetConfig } from "./BudgetConfig";
 
 export type BucketTotals = Record<BucketKey, number>;

@@ -1,4 +1,4 @@
-import type { BucketKey } from "./computeSplit";
+import type { BucketKey } from "./BucketKey";
 import type { BudgetConfig } from "./BudgetConfig";
 
 /** Pure tree edits over `BudgetConfig`. Callers supply ids (e.g.

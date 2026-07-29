@@ -1,4 +1,4 @@
-import type { BucketKey } from "./computeSplit";
+import type { BucketKey } from "./BucketKey";
 
 export interface BudgetSubcategory {
   id: string;

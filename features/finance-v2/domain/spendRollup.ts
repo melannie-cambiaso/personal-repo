@@ -1,4 +1,4 @@
-import type { BucketKey } from "./computeSplit";
+import type { BucketKey } from "./BucketKey";
 import type { BudgetConfig } from "./BudgetConfig";
 import type { ExpenseBucketKey, FinanceV2Transaction } from "./FinanceV2Transaction";
 import { computeBucketTotals } from "./budgetRollup";

@@ -1,4 +1,4 @@
-import type { BucketKey } from "./computeSplit";
+import type { BucketKey } from "./BucketKey";
 import type { BudgetCategory, BudgetSubcategory } from "./BudgetConfig";
 
 /** Makes "a parent has an amount input" unrepresentable in the UI: a leaf
