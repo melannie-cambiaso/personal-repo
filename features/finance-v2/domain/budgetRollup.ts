@@ -1,5 +1,4 @@
 import type { BucketKey } from "./BucketKey";
-import type { SplitResult } from "./computeSplit";
 import type { BudgetConfig } from "./BudgetConfig";
 
 export type BucketTotals = Record<BucketKey, number>;
@@ -25,48 +24,32 @@ export function computeBucketTotals(config: BudgetConfig): BucketTotals {
   return totals;
 }
 
-export type BudgetComparison =
-  | {
-      status: "with-targets";
-      rows: { key: BucketKey; budgeted: number; target: number }[];
-      total: { budgeted: number; target: number };
-    }
-  | {
-      status: "budget-only";
-      rows: { key: BucketKey; budgeted: number }[];
-      total: { budgeted: number };
-    };
+export interface BucketBudgetRow {
+  key: BucketKey;
+  budgeted: number;
+  sharePct: number;
+}
 
-/** Informational comparison of budgeted sums against tab 1's split targets.
- *  Degrades to budgeted-sum-only when `split` is invalid — never fabricates
- *  or reuses a stale target. */
-export function computeBudgetComparison(config: BudgetConfig, split: SplitResult): BudgetComparison {
+export interface BudgetComparison {
+  rows: BucketBudgetRow[];
+  total: { budgeted: number };
+}
+
+/** Bucket composition of the budget: each bucket's budgeted sum plus its integer
+ *  share of the total. */
+export function computeBudgetComparison(config: BudgetConfig): BudgetComparison {
   const totals = computeBucketTotals(config);
-
-  if (split.status === "invalid") {
-    const rows = BUCKET_ORDER.map((key) => ({ key, budgeted: totals[key] }));
-
-    return {
-      status: "budget-only",
-      rows,
-      total: { budgeted: rows.reduce((sum, row) => sum + row.budgeted, 0) },
-    };
-  }
-
-  const targetsByKey = new Map(split.buckets.map((bucket) => [bucket.key, bucket.amount]));
-
-  const rows = BUCKET_ORDER.map((key) => ({
-    key,
-    budgeted: totals[key],
-    target: targetsByKey.get(key) ?? 0,
-  }));
+  const rows = BUCKET_ORDER.map((key) => ({ key, budgeted: totals[key] }));
+  const budgeted = rows.reduce((sum, row) => sum + row.budgeted, 0);
 
   return {
-    status: "with-targets",
-    rows,
-    total: {
-      budgeted: rows.reduce((sum, row) => sum + row.budgeted, 0),
-      target: rows.reduce((sum, row) => sum + row.target, 0),
-    },
+    rows: rows.map((row) => ({ ...row, sharePct: toSharePct(row.budgeted, budgeted) })),
+    total: { budgeted },
   };
+}
+
+/** Integer share of total budget. Deliberately NOT normalized — rounded shares may
+ *  sum to 99 or 101; display-only. Zero total yields 0, never NaN/Infinity. */
+function toSharePct(budgeted: number, total: number): number {
+  return total === 0 ? 0 : Math.round((budgeted / total) * 100);
 }

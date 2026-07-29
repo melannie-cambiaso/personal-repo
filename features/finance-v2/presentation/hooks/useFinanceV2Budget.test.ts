@@ -12,12 +12,6 @@ const validSplit: SplitResult = {
   ],
 };
 
-const invalidSplit: SplitResult = {
-  status: "invalid",
-  reason: "percentages-must-sum-to-100",
-  totalPercentage: 110,
-};
-
 const onSave = vi.fn();
 
 describe("useFinanceV2Budget", () => {
@@ -25,7 +19,7 @@ describe("useFinanceV2Budget", () => {
     onSave.mockReset();
   });
 
-  it("initializes categories from initialBudget and derives comparison from split", () => {
+  it("initializes categories from initialBudget and derives comparison from the budgeted amounts", () => {
     const initialBudget: BudgetConfig = {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] }],
     };
@@ -34,7 +28,7 @@ describe("useFinanceV2Budget", () => {
     );
 
     expect(result.current.categories).toEqual(initialBudget.categories);
-    expect(result.current.comparison.status).toBe("with-targets");
+    expect(result.current.comparison.rows.find((r) => r.key === "fixed")?.budgeted).toBe(100_000);
   });
 
   it("addCategory appends a new childless category and calls onSave once with the resulting config", () => {
@@ -90,11 +84,7 @@ describe("useFinanceV2Budget", () => {
 
     expect(result.current.categories).toHaveLength(0);
     expect(onSave).toHaveBeenCalledOnce();
-    if (result.current.comparison.status === "with-targets") {
-      expect(result.current.comparison.rows.find((r) => r.key === "fixed")?.budgeted).toBe(0);
-    } else {
-      throw new Error("expected with-targets comparison");
-    }
+    expect(result.current.comparison.rows.find((r) => r.key === "fixed")?.budgeted).toBe(0);
   });
 
   it("deleteSubcategory removes only the targeted subcategory and calls onSave", () => {
@@ -160,19 +150,9 @@ describe("useFinanceV2Budget", () => {
     expect(onSave).toHaveBeenCalledOnce();
   });
 
-  it("comparison flips from with-targets to budget-only as the split prop changes", () => {
-    const initialBudget: BudgetConfig = { categories: [] };
-    const { result, rerender } = renderHook<
-      ReturnType<typeof useFinanceV2Budget>,
-      { split: SplitResult }
-    >(({ split }) => useFinanceV2Budget({ initialBudget, split, onSave }), {
-      initialProps: { split: validSplit },
-    });
-
-    expect(result.current.comparison.status).toBe("with-targets");
-
-    rerender({ split: invalidSplit });
-
-    expect(result.current.comparison.status).toBe("budget-only");
-  });
+  // The "comparison flips from with-targets to budget-only as the split prop changes"
+  // test is removed here: `computeBudgetComparison` no longer reads `split` at all
+  // (Phase 2 domain collapse), so the behavior it asserted no longer exists. `split`
+  // is still accepted on `Params` pending Phase 3's full unthreading — see
+  // useFinanceV2Budget.ts.
 });

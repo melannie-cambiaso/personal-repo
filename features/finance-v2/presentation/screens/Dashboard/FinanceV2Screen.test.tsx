@@ -87,7 +87,7 @@ describe("FinanceV2Screen", () => {
     fireEvent.click(screen.getByText("Presupuesto"));
 
     expect(screen.queryByLabelText("Ingreso mensual")).toBeNull();
-    expect(screen.getAllByText("Fijos").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Fijos (0%)").length).toBeGreaterThan(0);
   });
 
   it("preserves a budget category added on the Presupuesto tab after switching away and back", () => {

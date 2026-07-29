@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { computeBucketTotals, computeBudgetComparison } from "./budgetRollup";
 import type { BudgetConfig } from "./BudgetConfig";
-import type { SplitResult } from "./computeSplit";
 
 describe("computeBucketTotals", () => {
   it("returns all-zero totals for an empty config", () => {
@@ -70,21 +69,6 @@ describe("computeBucketTotals", () => {
 });
 
 describe("computeBudgetComparison", () => {
-  const validSplit: SplitResult = {
-    status: "valid",
-    buckets: [
-      { key: "fixed", percentage: 50, amount: 500000 },
-      { key: "variable", percentage: 30, amount: 300000 },
-      { key: "savings", percentage: 20, amount: 200000 },
-    ],
-  };
-
-  const invalidSplit: SplitResult = {
-    status: "invalid",
-    reason: "percentages-must-sum-to-100",
-    totalPercentage: 90,
-  };
-
   const config: BudgetConfig = {
     categories: [
       { id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] },
@@ -92,33 +76,45 @@ describe("computeBudgetComparison", () => {
     ],
   };
 
-  it("returns with-targets rows ordered fixed, variable, savings when the split is valid", () => {
-    expect(computeBudgetComparison(config, validSplit)).toEqual({
-      status: "with-targets",
+  it("returns rows ordered fixed, variable, savings with a per-row sharePct of the total budgeted", () => {
+    expect(computeBudgetComparison(config)).toEqual({
       rows: [
-        { key: "fixed", budgeted: 350000, target: 500000 },
-        { key: "variable", budgeted: 50000, target: 300000 },
-        { key: "savings", budgeted: 0, target: 200000 },
-      ],
-      total: { budgeted: 400000, target: 1000000 },
-    });
-  });
-
-  it("degrades to budget-only rows with no target key when the split is invalid", () => {
-    const result = computeBudgetComparison(config, invalidSplit);
-
-    expect(result).toEqual({
-      status: "budget-only",
-      rows: [
-        { key: "fixed", budgeted: 350000 },
-        { key: "variable", budgeted: 50000 },
-        { key: "savings", budgeted: 0 },
+        { key: "fixed", budgeted: 350000, sharePct: 88 },
+        { key: "variable", budgeted: 50000, sharePct: 13 },
+        { key: "savings", budgeted: 0, sharePct: 0 },
       ],
       total: { budgeted: 400000 },
     });
+  });
+
+  it("returns sharePct: 0 for every bucket when the total budgeted is 0, never NaN", () => {
+    const result = computeBudgetComparison({ categories: [] });
+
+    expect(result).toEqual({
+      rows: [
+        { key: "fixed", budgeted: 0, sharePct: 0 },
+        { key: "variable", budgeted: 0, sharePct: 0 },
+        { key: "savings", budgeted: 0, sharePct: 0 },
+      ],
+      total: { budgeted: 0 },
+    });
     for (const row of result.rows) {
-      expect(row).not.toHaveProperty("target");
+      expect(Number.isNaN(row.sharePct)).toBe(false);
     }
-    expect(result.total).not.toHaveProperty("target");
+  });
+
+  it("does not normalize rounded shares to sum to 100 — three equal buckets round to 33/33/33 (sums to 99)", () => {
+    const equalConfig: BudgetConfig = {
+      categories: [
+        { id: "c1", name: "Arriendo", bucket: "fixed", amount: 100, subcategories: [] },
+        { id: "c2", name: "Ocio", bucket: "variable", amount: 100, subcategories: [] },
+        { id: "c3", name: "Fondo", bucket: "savings", amount: 100, subcategories: [] },
+      ],
+    };
+
+    const result = computeBudgetComparison(equalConfig);
+
+    expect(result.rows.map((row) => row.sharePct)).toEqual([33, 33, 33]);
+    expect(result.rows.reduce((sum, row) => sum + row.sharePct, 0)).toBe(99);
   });
 });

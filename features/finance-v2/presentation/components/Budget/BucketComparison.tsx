@@ -18,32 +18,22 @@ function findBucketSpend(buckets: BucketSpendRow[], key: BucketKey): BucketSpend
   return row;
 }
 
-// Renders the `BudgetComparison` union: `with-targets` shows the budgeted sum next to
-// tab 1's target; `budget-only` shows ONLY the budgeted sum — the type gives us no
-// `target` field to render, so a stale/fabricated target is unrepresentable here
-// (design decision #3, mirrors SplitSummary's valid/invalid split).
-// The actual-spend column (design D8) is additive: a second line beneath the existing
-// budgeted/target pairing, driven entirely by `spend` — orthogonal to `comparison`'s
-// own with-targets/budget-only split (design D1).
+// Bucket rows show each bucket's share of the total budgeted amount inline in the
+// label (design D3/D4): "Fijos (50%)", computed in the domain layer alongside the
+// aggregate it derives from. The actual-spend column (design D8) is additive: a
+// second line beneath the budgeted figure, driven entirely by `spend`.
 export function BucketComparison({ comparison, spend }: Props) {
-  const withTargets = comparison.status === "with-targets";
-
   return (
     <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
       {comparison.rows.map((row) => {
         const bucketSpend = spend.status === "ready" ? findBucketSpend(spend.comparison.buckets, row.key) : null;
         return (
           <div key={row.key} className="flex items-center justify-between gap-2">
-            <span className="text-brown-500 text-sm">{BUCKET_LABELS[row.key]}</span>
+            <span className="text-brown-500 text-sm">
+              {BUCKET_LABELS[row.key]} ({row.sharePct}%)
+            </span>
             <div className="flex flex-col items-end gap-0.5">
-              <span className="text-brown-800 text-sm font-bold">
-                {formatCLP(row.budgeted)}
-                {withTargets && "target" in row && (
-                  <span className="text-2xs text-brown-400 ml-1 font-normal">
-                    de {formatCLP(row.target)}
-                  </span>
-                )}
-              </span>
+              <span className="text-brown-800 text-sm font-bold">{formatCLP(row.budgeted)}</span>
               {bucketSpend ? (
                 <>
                   <SpendPairing row={bucketSpend} />
@@ -61,14 +51,7 @@ export function BucketComparison({ comparison, spend }: Props) {
       <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
         <span className="text-brown-500 text-sm">{TOTAL_LABEL}</span>
         <div className="flex flex-col items-end gap-0.5">
-          <span className="text-brown-800 text-sm font-bold">
-            {formatCLP(comparison.total.budgeted)}
-            {withTargets && "target" in comparison.total && (
-              <span className="text-2xs text-brown-400 ml-1 font-normal">
-                de {formatCLP(comparison.total.target)}
-              </span>
-            )}
-          </span>
+          <span className="text-brown-800 text-sm font-bold">{formatCLP(comparison.total.budgeted)}</span>
           {spend.status === "ready" ? (
             <>
               <SpendPairing row={spend.comparison.total} />

@@ -2,23 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BudgetTab } from "./BudgetTab";
 import { computeBudgetComparison, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
-import type { BudgetCategory, SplitResult } from "@/features/finance-v2/domain";
+import type { BudgetCategory } from "@/features/finance-v2/domain";
 import type { SpendView } from "./spendView";
-
-const validSplit: SplitResult = {
-  status: "valid",
-  buckets: [
-    { key: "fixed", percentage: 50, amount: 500_000 },
-    { key: "variable", percentage: 30, amount: 300_000 },
-    { key: "savings", percentage: 20, amount: 200_000 },
-  ],
-};
-
-const invalidSplit: SplitResult = {
-  status: "invalid",
-  reason: "percentages-must-sum-to-100",
-  totalPercentage: 110,
-};
 
 const emptySpend: SpendView = {
   status: "ready",
@@ -45,7 +30,7 @@ describe("BudgetTab", () => {
         mode="edit"
         onToggleMode={noop}
         categories={[]}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG)}
         spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
@@ -55,7 +40,7 @@ describe("BudgetTab", () => {
       />
     );
 
-    expect(screen.getAllByText("Fijos").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Fijos (0%)").length).toBeGreaterThan(0);
     expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
     expect(screen.getByLabelText("Bucket de la categoría")).toBeTruthy();
   });
@@ -66,7 +51,7 @@ describe("BudgetTab", () => {
         mode="view"
         onToggleMode={noop}
         categories={[]}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG)}
         spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
@@ -83,7 +68,7 @@ describe("BudgetTab", () => {
         mode="edit"
         onToggleMode={noop}
         categories={[]}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG)}
         spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
@@ -101,7 +86,7 @@ describe("BudgetTab", () => {
         mode="view"
         onToggleMode={noop}
         categories={[]}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG)}
         spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
@@ -122,7 +107,7 @@ describe("BudgetTab", () => {
         mode="view"
         onToggleMode={onToggleMode}
         categories={[]}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG)}
         spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={noop}
@@ -140,27 +125,6 @@ describe("BudgetTab", () => {
     expect(onToggleMode).toHaveBeenCalledOnce();
   });
 
-  it("degrades to budget-only comparison when the split is invalid", () => {
-    render(
-      <BudgetTab
-        mode="view"
-        onToggleMode={noop}
-        categories={[]}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, invalidSplit)}
-        spend={emptySpend}
-        onAmountBlur={noop}
-        onAddCategory={noop}
-        onAddSubcategory={noop}
-        onDeleteCategory={noop}
-        onDeleteSubcategory={noop}
-      />
-    );
-
-    // No split "target" copy leaks through — the "de $" spend-pairing suffix is a
-    // separate, unrelated concern (design D1) and is expected to still render.
-    expect(screen.queryByText(/de \$1\.100\.000/)).toBeNull();
-  });
-
   it("renders one BudgetCategoryCard per category and clears the form on submit", () => {
     const onAddCategory = vi.fn();
     render(
@@ -168,7 +132,7 @@ describe("BudgetTab", () => {
         mode="edit"
         onToggleMode={noop}
         categories={[]}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG)}
         spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={onAddCategory}
@@ -194,7 +158,7 @@ describe("BudgetTab", () => {
         mode="edit"
         onToggleMode={noop}
         categories={[]}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, validSplit)}
+        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG)}
         spend={emptySpend}
         onAmountBlur={noop}
         onAddCategory={onAddCategory}
@@ -223,7 +187,7 @@ describe("BudgetTab", () => {
         mode="edit"
         onToggleMode={noop}
         categories={[category]}
-        comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
+        comparison={computeBudgetComparison({ categories: [category] })}
         spend={emptySpend}
         onAmountBlur={onAmountBlur}
         onAddCategory={noop}
@@ -266,7 +230,7 @@ describe("BudgetTab", () => {
           mode="view"
           onToggleMode={noop}
           categories={[category]}
-          comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
+          comparison={computeBudgetComparison({ categories: [category] })}
           spend={spendWithData}
           onAmountBlur={noop}
           onAddCategory={noop}
@@ -285,7 +249,7 @@ describe("BudgetTab", () => {
           mode="view"
           onToggleMode={noop}
           categories={[category]}
-          comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
+          comparison={computeBudgetComparison({ categories: [category] })}
           spend={spendWithData}
           onAmountBlur={noop}
           onAddCategory={noop}
@@ -304,7 +268,7 @@ describe("BudgetTab", () => {
           mode="view"
           onToggleMode={noop}
           categories={[category]}
-          comparison={computeBudgetComparison({ categories: [category] }, validSplit)}
+          comparison={computeBudgetComparison({ categories: [category] })}
           spend={loadingSpend}
           onAmountBlur={noop}
           onAddCategory={noop}
