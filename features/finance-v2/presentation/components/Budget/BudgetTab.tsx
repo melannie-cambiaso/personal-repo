@@ -28,7 +28,7 @@ interface Props {
   onDeleteSubcategory: (categoryId: string, subcategoryId: string) => void;
 }
 
-// Presentational only (mirrors `IncomeSplitTab`) — state lives in `useFinanceV2Budget`,
+// Presentational only — state lives in `useFinanceV2Budget`,
 // hoisted in `FinanceV2Screen` (design decision #1's reasoning applies here too: the tabs
 // are conditionally rendered, so an internally-owned hook would remount from the stale
 // `initialBudget` prop and lose anything added since page load on every tab switch).

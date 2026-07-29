@@ -141,8 +141,6 @@ describe("useFinanceV2Budget", () => {
     expect(onSave).toHaveBeenCalledOnce();
   });
 
-  // The "comparison flips from with-targets to budget-only as the split prop changes"
-  // test is removed here: `computeBudgetComparison` no longer reads `split` at all
-  // (Phase 2 domain collapse), so the behavior it asserted no longer exists. `split`
-  // is fully dropped from `Params` as of Phase 3 — see useFinanceV2Budget.ts.
+  // No test covers a `split`-driven comparison variant here: `computeBudgetComparison`
+  // no longer accepts a `split` input, so that behavior no longer exists.
 });

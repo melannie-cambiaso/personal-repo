@@ -85,7 +85,7 @@ export function BudgetCategoryCard({
         : { budgeted: view.total, spent: spend.comparison.categories[category.id].spent };
 
   // Uncontrolled amount inputs (`defaultValue`) only reflect fresh state on remount, so a
-  // counter bumped on every blur forces one — same trick as `IncomeSplitTab`'s `version`.
+  // counter bumped on every blur forces one.
   const [version, setVersion] = useState(0);
   const [subName, setSubName] = useState("");
   const [subBucket, setSubBucket] = useState<BucketKey>(category.bucket);

@@ -25,7 +25,7 @@ interface Props {
 }
 
 // Pure composition (math-free), consuming `useFinanceV2Transactions`'s hoisted state via
-// props — same hoisting rationale as `BudgetTab`/`IncomeSplitTab` (design decision #1):
+// props — same hoisting rationale as `BudgetTab` (design decision #1):
 // tabs are conditionally rendered, so this tab must not own any of its own domain state.
 // `MonthNav` and the add-transaction open flag both moved up to `FinanceV2Screen` (design
 // decision D6): `MonthNav` is now a single control shared with the Presupuesto tab, and

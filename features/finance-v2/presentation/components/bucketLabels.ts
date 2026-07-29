@@ -1,7 +1,7 @@
 import type { BucketKey } from "@/features/finance-v2/domain";
 
-// Single source of truth for bucket copy/order, shared by SplitSummary,
-// IncomeSplitTab, and BucketComparison (design decision #6).
+// Single source of truth for bucket copy/order, shared by BucketComparison,
+// BudgetTab, BudgetCategoryCard, and TransactionRow (design decision #6).
 export const BUCKET_LABELS: Record<BucketKey, string> = {
   fixed: "Fijos",
   variable: "Variables",
