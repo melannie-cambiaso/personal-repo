@@ -38,6 +38,7 @@ describe("MovementSummary", () => {
     render(<MovementSummary totals={totals} />);
 
     expect(screen.getByText("$1.000").className).toContain("text-green-700");
+    expect(screen.getByText("$1.000").className).toContain("font-bold");
   });
 
   it("colors the expense breakdown figure red", () => {
@@ -46,6 +47,7 @@ describe("MovementSummary", () => {
     render(<MovementSummary totals={totals} />);
 
     expect(screen.getByText("$400").className).toContain("text-red-700");
+    expect(screen.getByText("$400").className).toContain("font-bold");
   });
 
   it("groups income and expense as siblings in the same breakdown sub-line", () => {

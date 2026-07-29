@@ -17,9 +17,9 @@ export function MovementSummary({ totals }: Props) {
           <span className="text-brown-800 text-sm font-bold">{formatCLP(totals.balance)}</span>
         </div>
         <div className="flex items-center justify-end gap-1 text-xs">
-          <span className="text-green-700">{formatCLP(totals.income)}</span>
+          <span className="text-green-700 font-bold">{formatCLP(totals.income)}</span>
           <span className="text-brown-400">−</span>
-          <span className="text-red-700">{formatCLP(totals.expense)}</span>
+          <span className="text-red-700 font-bold">{formatCLP(totals.expense)}</span>
         </div>
       </div>
       <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
