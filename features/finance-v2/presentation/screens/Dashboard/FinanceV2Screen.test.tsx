@@ -110,14 +110,14 @@ describe("FinanceV2Screen", () => {
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
     fireEvent.click(screen.getByText("Agregar movimiento"));
 
-    // "$1.000" appears twice: once as the balance total, once as the row's own amount.
-    expect(screen.getAllByText("$1.000")).toHaveLength(2);
+    // "$1.000" appears three times: the balance total, its income breakdown figure, and the row's own amount.
+    expect(screen.getAllByText("$1.000")).toHaveLength(3);
     expect(screen.getByLabelText("Eliminar movimiento de $1.000")).toBeTruthy();
 
     fireEvent.click(screen.getByText("Presupuesto"));
     fireEvent.click(screen.getByText("Movimientos"));
 
-    expect(screen.getAllByText("$1.000")).toHaveLength(2);
+    expect(screen.getAllByText("$1.000")).toHaveLength(3);
     expect(screen.getByLabelText("Eliminar movimiento de $1.000")).toBeTruthy();
   });
 

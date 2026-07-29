@@ -11,9 +11,16 @@ interface Props {
 export function MovementSummary({ totals }: Props) {
   return (
     <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-500 text-sm">Balance</span>
-        <span className="text-brown-800 text-sm font-bold">{formatCLP(totals.balance)}</span>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-brown-500 text-sm">Balance</span>
+          <span className="text-brown-800 text-sm font-bold">{formatCLP(totals.balance)}</span>
+        </div>
+        <div className="flex items-center justify-end gap-1 text-xs">
+          <span className="text-green-700">{formatCLP(totals.income)}</span>
+          <span className="text-brown-400">−</span>
+          <span className="text-red-700">{formatCLP(totals.expense)}</span>
+        </div>
       </div>
       <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
         <span className="text-brown-500 text-sm">Ahorro</span>
