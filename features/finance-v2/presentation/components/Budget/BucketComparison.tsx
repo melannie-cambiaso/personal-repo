@@ -20,8 +20,8 @@ function findBucketSpend(buckets: BucketSpendRow[], key: BucketKey): BucketSpend
 
 // Bucket rows show each bucket's share of the total budgeted amount inline in the
 // label (design D3/D4): "Fijos (50%)", computed in the domain layer alongside the
-// aggregate it derives from. The actual-spend column (design D8) is additive: a
-// second line beneath the budgeted figure, driven entirely by `spend`.
+// aggregate it derives from. The budgeted amount itself only appears as the muted
+// "de $X" suffix inside `SpendPairing` — there is no standalone budgeted figure.
 export function BucketComparison({ comparison, spend }: Props) {
   return (
     <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
@@ -33,7 +33,6 @@ export function BucketComparison({ comparison, spend }: Props) {
               {BUCKET_LABELS[row.key]} ({row.sharePct}%)
             </span>
             <div className="flex flex-col items-end gap-0.5">
-              <span className="text-brown-800 text-sm font-bold">{formatCLP(row.budgeted)}</span>
               {bucketSpend ? (
                 <>
                   <SpendPairing row={bucketSpend} />
@@ -51,7 +50,6 @@ export function BucketComparison({ comparison, spend }: Props) {
       <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
         <span className="text-brown-500 text-sm">{TOTAL_LABEL}</span>
         <div className="flex flex-col items-end gap-0.5">
-          <span className="text-brown-800 text-sm font-bold">{formatCLP(comparison.total.budgeted)}</span>
           {spend.status === "ready" ? (
             <>
               <SpendPairing row={spend.comparison.total} />

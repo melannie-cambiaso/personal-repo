@@ -19,7 +19,7 @@ const readySpend: SpendView = { status: "ready", comparison: readyComparison };
 const loadingSpend: SpendView = { status: "loading" };
 
 describe("BucketComparison", () => {
-  it("renders each bucket label with its sharePct and the budgeted figure, no percentage on Total", () => {
+  it("renders each bucket label with its sharePct, no percentage on Total, and no standalone budgeted figure", () => {
     const comparison: BudgetComparison = {
       rows: [
         { key: "fixed", budgeted: 400_000, sharePct: 80 },
@@ -33,11 +33,12 @@ describe("BucketComparison", () => {
     expect(screen.getByText("Fijos (80%)")).toBeTruthy();
     expect(screen.getByText("Variables (20%)")).toBeTruthy();
     expect(screen.getByText("Ahorro (0%)")).toBeTruthy();
-    expect(screen.getByText("$400.000")).toBeTruthy();
-    expect(screen.getByText("$100.000")).toBeTruthy();
     expect(screen.getByText("Total")).toBeTruthy();
-    expect(screen.getByText("$500.000")).toBeTruthy();
     expect(screen.queryByText(/Total \(/)).toBeNull();
+    // The budgeted amount only appears inside the "de $X" spend pairing now, never on its own.
+    expect(screen.queryByText("$400.000")).toBeNull();
+    expect(screen.queryByText("$100.000")).toBeNull();
+    expect(screen.queryByText("$500.000")).toBeNull();
   });
 
   it("renders (0%) for every bucket when the total budgeted is 0, never NaN or Infinity", () => {
