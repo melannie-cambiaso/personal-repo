@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import type { BucketKey, BudgetConfig, SplitResult } from "@/features/finance-v2/domain";
+import type { BucketKey, BudgetConfig } from "@/features/finance-v2/domain";
 import {
   addCategory as domainAddCategory,
   addSubcategory as domainAddSubcategory,
@@ -14,16 +14,12 @@ import {
 
 interface Params {
   initialBudget: BudgetConfig;
-  split: SplitResult;
   onSave: (budget: BudgetConfig) => Promise<void> | void;
 }
 
 // Fire-and-forget persist on every mutation and on amount blur, no validity gate (design
 // decision #7) — unlike tab 1, no budget state is ever invalid. `configRef` avoids stale
 // closures across successive calls (same `persist*` pattern used across finance-v2 hooks).
-// `split` is intentionally not destructured: `computeBudgetComparison` no longer derives
-// from it (domain collapse). Still required on `Params` because `FinanceV2Screen` still
-// threads it — dropped for real when Phase 3 unthreads `split` end to end.
 export function useFinanceV2Budget({ initialBudget, onSave }: Params) {
   const [config, setConfig] = useState<BudgetConfig>(initialBudget);
   const configRef = useRef(initialBudget);

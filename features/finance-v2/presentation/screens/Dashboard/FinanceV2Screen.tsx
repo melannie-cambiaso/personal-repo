@@ -65,7 +65,7 @@ export function FinanceV2Screen({
     deleteCategory,
     deleteSubcategory,
     handleAmountBlur,
-  } = useFinanceV2Budget({ initialBudget, split, onSave: onSaveBudget });
+  } = useFinanceV2Budget({ initialBudget, onSave: onSaveBudget });
 
   // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
   // survive a tab switch. `setViewedMonth` is wired into `TransactionsTab`'s

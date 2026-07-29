@@ -1,16 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useFinanceV2Budget } from "./useFinanceV2Budget";
-import type { BudgetConfig, SplitResult } from "@/features/finance-v2/domain";
-
-const validSplit: SplitResult = {
-  status: "valid",
-  buckets: [
-    { key: "fixed", percentage: 50, amount: 500_000 },
-    { key: "variable", percentage: 30, amount: 300_000 },
-    { key: "savings", percentage: 20, amount: 200_000 },
-  ],
-};
+import type { BudgetConfig } from "@/features/finance-v2/domain";
 
 const onSave = vi.fn();
 
@@ -24,7 +15,7 @@ describe("useFinanceV2Budget", () => {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] }],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, split: validSplit, onSave })
+      useFinanceV2Budget({ initialBudget, onSave })
     );
 
     expect(result.current.categories).toEqual(initialBudget.categories);
@@ -34,7 +25,7 @@ describe("useFinanceV2Budget", () => {
   it("addCategory appends a new childless category and calls onSave once with the resulting config", () => {
     const initialBudget: BudgetConfig = { categories: [] };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, split: validSplit, onSave })
+      useFinanceV2Budget({ initialBudget, onSave })
     );
 
     act(() => result.current.addCategory("Arriendo", "fixed"));
@@ -48,7 +39,7 @@ describe("useFinanceV2Budget", () => {
   it("addCategory with a blank name does nothing and does not call onSave", () => {
     const initialBudget: BudgetConfig = { categories: [] };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, split: validSplit, onSave })
+      useFinanceV2Budget({ initialBudget, onSave })
     );
 
     act(() => result.current.addCategory("   ", "fixed"));
@@ -62,7 +53,7 @@ describe("useFinanceV2Budget", () => {
       categories: [{ id: "c1", name: "Servicios", bucket: "fixed", amount: 0, subcategories: [] }],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, split: validSplit, onSave })
+      useFinanceV2Budget({ initialBudget, onSave })
     );
 
     act(() => result.current.addSubcategory("c1", "Luz", "fixed"));
@@ -77,7 +68,7 @@ describe("useFinanceV2Budget", () => {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] }],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, split: validSplit, onSave })
+      useFinanceV2Budget({ initialBudget, onSave })
     );
 
     act(() => result.current.deleteCategory("c1"));
@@ -103,7 +94,7 @@ describe("useFinanceV2Budget", () => {
       ],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, split: validSplit, onSave })
+      useFinanceV2Budget({ initialBudget, onSave })
     );
 
     act(() => result.current.deleteSubcategory("c1", "s1"));
@@ -119,7 +110,7 @@ describe("useFinanceV2Budget", () => {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 0, subcategories: [] }],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, split: validSplit, onSave })
+      useFinanceV2Budget({ initialBudget, onSave })
     );
 
     act(() => result.current.handleAmountBlur("c1", null, "-500"));
@@ -141,7 +132,7 @@ describe("useFinanceV2Budget", () => {
       ],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, split: validSplit, onSave })
+      useFinanceV2Budget({ initialBudget, onSave })
     );
 
     act(() => result.current.handleAmountBlur("c1", "s1", "9000"));
@@ -153,6 +144,5 @@ describe("useFinanceV2Budget", () => {
   // The "comparison flips from with-targets to budget-only as the split prop changes"
   // test is removed here: `computeBudgetComparison` no longer reads `split` at all
   // (Phase 2 domain collapse), so the behavior it asserted no longer exists. `split`
-  // is still accepted on `Params` pending Phase 3's full unthreading — see
-  // useFinanceV2Budget.ts.
+  // is fully dropped from `Params` as of Phase 3 — see useFinanceV2Budget.ts.
 });
