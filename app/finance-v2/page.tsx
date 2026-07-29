@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {
-  loadDashboardConfig,
-  handleSaveDashboardConfig,
   loadBudgetConfig,
   handleSaveBudgetConfig,
   loadTransactions,
@@ -20,16 +18,13 @@ export default async function FinanceV2Page() {
 
   const month = currentMonth();
 
-  const [initialConfig, initialBudget, initialTransactions] = await Promise.all([
-    loadDashboardConfig(),
+  const [initialBudget, initialTransactions] = await Promise.all([
     loadBudgetConfig(),
     loadTransactions(month),
   ]);
 
   return (
     <FinanceV2Screen
-      initialConfig={initialConfig}
-      onSave={handleSaveDashboardConfig}
       initialBudget={initialBudget}
       onSaveBudget={handleSaveBudgetConfig}
       initialTransactions={initialTransactions}

@@ -1,9 +1,5 @@
-export type { FinanceV2Config } from "./FinanceV2Config";
-export { DEFAULT_FINANCE_V2_CONFIG } from "./FinanceV2Config";
-export { clampAmount, clampIncome, clampPercentage } from "./clamp";
+export { clampAmount } from "./clamp";
 export type { BucketKey } from "./BucketKey";
-export type { SplitBucket, SplitResult } from "./computeSplit";
-export { computeSplit } from "./computeSplit";
 export type { BudgetSubcategory, BudgetCategory, BudgetConfig } from "./BudgetConfig";
 export { DEFAULT_BUDGET_CONFIG } from "./BudgetConfig";
 export type { CategoryView } from "./categoryView";

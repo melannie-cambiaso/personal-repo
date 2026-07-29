@@ -1,12 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { BudgetConfig, FinanceV2Config, FinanceV2Transaction } from "@/features/finance-v2/domain";
+import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
 import { computeSpendComparison, listExpenseCategoryOptions } from "@/features/finance-v2/domain";
-import { useFinanceV2Dashboard } from "../../hooks/useFinanceV2Dashboard";
 import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
 import { useFinanceV2Transactions } from "../../hooks/useFinanceV2Transactions";
-import { IncomeSplitTab } from "./IncomeSplitTab";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
 import { TransactionsTab } from "../../components/Transactions/TransactionsTab";
 import type { BudgetMode } from "../../components/Budget/budgetMode";
@@ -15,17 +13,14 @@ import { PageHeader, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 
-type TabKey = "split" | "budget" | "movements";
+type TabKey = "budget" | "movements";
 
 const TABS: { key: TabKey; label: string }[] = [
-  { key: "split", label: "Distribución" },
   { key: "budget", label: "Presupuesto" },
   { key: "movements", label: "Movimientos" },
 ];
 
 interface Props {
-  initialConfig: FinanceV2Config;
-  onSave: (config: FinanceV2Config) => Promise<void> | void;
   initialBudget: BudgetConfig;
   onSaveBudget: (budget: BudgetConfig) => Promise<void> | void;
   initialTransactions: FinanceV2Transaction[];
@@ -35,15 +30,12 @@ interface Props {
   onLoadTransactions: (month: string) => Promise<FinanceV2Transaction[]>;
 }
 
-// `useFinanceV2Dashboard`, `useFinanceV2Budget`, and `useFinanceV2Transactions` all stay
-// hoisted here (design decision #1): tab 2's comparison needs the LIVE split target after
-// tab-1 edits, tab 3's category picker needs the LIVE budget categories after tab-2 edits,
-// and — since the tabs are conditionally rendered, not always-mounted — hoisting is what
-// keeps each tab's state alive across a switch away and back (an internally-owned hook
-// would remount from a now-stale `initial*` prop and lose anything added since page load).
+// `useFinanceV2Budget` and `useFinanceV2Transactions` stay hoisted here (design decision
+// #1): tab 2's category picker needs the LIVE budget categories after tab-1 edits, and —
+// since the tabs are conditionally rendered, not always-mounted — hoisting is what keeps
+// each tab's state alive across a switch away and back (an internally-owned hook would
+// remount from a now-stale `initial*` prop and lose anything added since page load).
 export function FinanceV2Screen({
-  initialConfig,
-  onSave,
   initialBudget,
   onSaveBudget,
   initialTransactions,
@@ -52,11 +44,6 @@ export function FinanceV2Screen({
   onSaveToOtherMonth,
   onLoadTransactions,
 }: Props) {
-  const { config, split, handleIncomeBlur, handlePercentageBlur } = useFinanceV2Dashboard({
-    initialConfig,
-    onSave,
-  });
-
   const {
     categories,
     comparison,
@@ -103,7 +90,7 @@ export function FinanceV2Screen({
   );
   const spend = toSpendView(isLoadingMonth, spendComparison);
 
-  const [activeTab, setActiveTab] = useState<TabKey>("split");
+  const [activeTab, setActiveTab] = useState<TabKey>("budget");
   // Hoisted beside `useFinanceV2Budget` (same remount rationale as design decision #1):
   // the Budget tab is conditionally rendered, so mode state must live here, not inside
   // `BudgetTab`, to survive a switch away and back. Default lives ONLY here — `mode` is
@@ -137,24 +124,12 @@ export function FinanceV2Screen({
           ))}
         </div>
 
-        {/* `split` has no month axis (design D6) — hidden there, shared by the other two. */}
-        {activeTab !== "split" && (
-          <MonthNav
-            label={formatMonth(viewedMonth)}
-            onPrev={() => setViewedMonth(prevMonth(viewedMonth))}
-            onNext={() => setViewedMonth(nextMonth(viewedMonth))}
-            disabled={isAddOpen}
-          />
-        )}
-
-        {activeTab === "split" && (
-          <IncomeSplitTab
-            config={config}
-            split={split}
-            onIncomeBlur={handleIncomeBlur}
-            onPercentageBlur={handlePercentageBlur}
-          />
-        )}
+        <MonthNav
+          label={formatMonth(viewedMonth)}
+          onPrev={() => setViewedMonth(prevMonth(viewedMonth))}
+          onNext={() => setViewedMonth(nextMonth(viewedMonth))}
+          disabled={isAddOpen}
+        />
 
         {activeTab === "budget" && (
           <BudgetTab
