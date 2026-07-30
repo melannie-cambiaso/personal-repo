@@ -150,7 +150,9 @@ export function BudgetCategoryCard({
       {view.kind === "parent" && (
         <div className="flex flex-col gap-2">
           {(mode === "edit" || subcategoriesExpanded) &&
-            view.subcategories.map((sub) => (
+            [...view.subcategories]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((sub) => (
               <div key={sub.id} className="flex items-center justify-between gap-2">
                 <span className="text-brown-700 min-w-0 truncate text-sm">{sub.name}</span>
                 <div className="flex shrink-0 items-center gap-2">

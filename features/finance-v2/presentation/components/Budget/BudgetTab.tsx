@@ -80,7 +80,9 @@ export function BudgetTab({
         <p className="text-brown-500 text-sm">No hay categorías cargadas</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {categories.map((category) => (
+          {[...categories]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((category) => (
             <BudgetCategoryCard
               key={category.id}
               mode={mode}
