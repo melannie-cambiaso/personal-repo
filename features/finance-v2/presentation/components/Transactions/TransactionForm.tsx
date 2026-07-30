@@ -37,8 +37,13 @@ export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) 
   const [note, setNote] = useState("");
   const [bucket, setBucket] = useState<ExpenseBucketKey>("fixed");
   const [categoryId, setCategoryId] = useState(NO_CATEGORY);
+  // Separate from `categoryId` on purpose (design D3): `type` switching does NOT
+  // reset either id, only submit does — sharing one id would let an expense pick
+  // silently reappear as a savings source (or vice versa) after switching type.
+  const [sourceCategoryId, setSourceCategoryId] = useState(NO_CATEGORY);
 
   const selectedCategory = categoryOptions.find((c) => c.id === categoryId) ?? null;
+  const selectedSourceCategory = categoryOptions.find((c) => c.id === sourceCategoryId) ?? null;
 
   // `date` and `month` are NOT reset — sticky like `type` (design decision #6): filing
   // several transactions into the same other month shouldn't require re-picking each time.
@@ -47,6 +52,7 @@ export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) 
     setNote("");
     setCategoryId(NO_CATEGORY);
     setBucket("fixed");
+    setSourceCategoryId(NO_CATEGORY);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -64,6 +70,23 @@ export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) 
         note: note.trim() || undefined,
         bucket: resolvedBucket,
         category: selectedCategory ? { id: selectedCategory.id, name: selectedCategory.name } : null,
+      });
+    } else if (type === "savings") {
+      onAdd({
+        type: "savings",
+        amount: parsedAmount,
+        date,
+        month,
+        note: note.trim() || undefined,
+        ...(selectedSourceCategory
+          ? {
+              sourceCategory: {
+                id: selectedSourceCategory.id,
+                name: selectedSourceCategory.name,
+                bucket: selectedSourceCategory.bucket,
+              },
+            }
+          : {}),
       });
     } else {
       onAdd({ type, amount: parsedAmount, date, month, note: note.trim() || undefined });
@@ -132,6 +155,20 @@ export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) 
               ]}
             />
           )}
+        </div>
+      )}
+
+      {type === "savings" && (
+        <div className="flex flex-wrap items-end gap-2">
+          <Select
+            aria-label="Origen del ahorro"
+            value={sourceCategoryId}
+            onChange={(e) => setSourceCategoryId(e.target.value)}
+            options={[
+              { value: NO_CATEGORY, label: "Sin origen" },
+              ...categoryOptions.map((c) => ({ value: c.id, label: c.name })),
+            ]}
+          />
         </div>
       )}
 

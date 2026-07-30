@@ -17,6 +17,19 @@ function expenseTx(overrides: Partial<Extract<FinanceV2Transaction, { type: "exp
   };
 }
 
+function savingsTx(
+  overrides: Partial<Extract<FinanceV2Transaction, { type: "savings" }>> = {},
+): FinanceV2Transaction {
+  return {
+    id: "tx-savings",
+    amount: 0,
+    date: "2026-07-01",
+    month: "2026-07",
+    type: "savings",
+    ...overrides,
+  };
+}
+
 describe("computeSpentByCategory", () => {
   it("returns empty totals for an empty transaction list", () => {
     expect(computeSpentByCategory([])).toEqual({
@@ -43,14 +56,36 @@ describe("computeSpentByCategory", () => {
     });
   });
 
-  it("excludes income and savings transactions", () => {
+  it("excludes income transactions", () => {
     const list: FinanceV2Transaction[] = [
       { id: "tx-income", amount: 500000, date: "2026-07-01", month: "2026-07", type: "income" },
-      { id: "tx-savings", amount: 50000, date: "2026-07-01", month: "2026-07", type: "savings" },
     ];
 
     expect(computeSpentByCategory(list)).toEqual({
       byLeafId: {},
+      unassignedByBucket: { fixed: 0, variable: 0 },
+    });
+  });
+
+  it("excludes a plain savings transaction with no sourceCategory", () => {
+    const list = [savingsTx({ amount: 50000 })];
+
+    expect(computeSpentByCategory(list)).toEqual({
+      byLeafId: {},
+      unassignedByBucket: { fixed: 0, variable: 0 },
+    });
+  });
+
+  it("attributes a savings transaction tagged with a sourceCategory to that leaf id", () => {
+    const list = [
+      savingsTx({
+        amount: 50000,
+        sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
+      }),
+    ];
+
+    expect(computeSpentByCategory(list)).toEqual({
+      byLeafId: { super: 50000 },
       unassignedByBucket: { fixed: 0, variable: 0 },
     });
   });
@@ -191,7 +226,7 @@ describe("computeSpendComparison", () => {
     expect(result.leaves.c1).toEqual({ budgeted: 10000, spent: 0 });
   });
 
-  it("total.spent always reconciles to the sum of every expense transaction, regardless of category state", () => {
+  it("total.spent always reconciles to the sum of every expense transaction plus every tagged-savings transaction, regardless of category state", () => {
     const config: BudgetConfig = {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] }],
     };
@@ -199,12 +234,34 @@ describe("computeSpendComparison", () => {
       expenseTx({ amount: 100000, bucket: "fixed", category: { id: "c1", name: "Arriendo" } }),
       expenseTx({ amount: 8000, bucket: "fixed", category: null }),
       expenseTx({ amount: 12000, bucket: "variable", category: { id: "gone", name: "Gone" } }),
+      savingsTx({
+        amount: 20000,
+        sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
+      }),
+      savingsTx({ amount: 5000 }),
       { id: "tx-income", amount: 500000, date: "2026-07-01", month: "2026-07", type: "income" as const },
     ];
 
     const result = computeSpendComparison(config, list);
 
-    expect(result.total.spent).toBe(120000);
+    expect(result.total.spent).toBe(140000);
+  });
+
+  it("routes a savings-only orphan's spend into its snapshotted bucket without throwing (regression)", () => {
+    const config: BudgetConfig = { categories: [] };
+    const list = [
+      savingsTx({
+        amount: 50000,
+        sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
+      }),
+    ];
+
+    expect(() => computeSpendComparison(config, list)).not.toThrow();
+
+    const result = computeSpendComparison(config, list);
+    const variableRow = result.buckets.find((row) => row.key === "variable");
+
+    expect(variableRow).toEqual({ key: "variable", budgeted: 0, spent: 50000, unassigned: 50000 });
   });
 });
 
@@ -245,6 +302,17 @@ describe("resolveUnassignedBucket", () => {
 
   it("throws instead of silently dropping the amount when no transaction resolves the leaf id", () => {
     expect(() => resolveUnassignedBucket([], "ghost-leaf")).toThrow(/ghost-leaf/);
+  });
+
+  it("resolves the bucket from a savings transaction's snapshotted sourceCategory when no expense produced the leaf (regression)", () => {
+    const list = [
+      savingsTx({
+        amount: 50000,
+        sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
+      }),
+    ];
+
+    expect(resolveUnassignedBucket(list, "super")).toBe("variable");
   });
 });
 

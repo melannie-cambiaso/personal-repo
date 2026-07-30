@@ -27,6 +27,11 @@ export function TransactionRow({ transaction, onDelete }: Props) {
         <span className="text-brown-800 truncate text-sm font-semibold">
           {primaryLabel(transaction)}
         </span>
+        {transaction.type === "savings" && transaction.sourceCategory && (
+          <span className="text-brown-500 truncate text-xs">
+            de {transaction.sourceCategory.name}
+          </span>
+        )}
         {transaction.note && (
           <span className="text-brown-500 truncate text-xs">{transaction.note}</span>
         )}

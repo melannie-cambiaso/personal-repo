@@ -30,10 +30,11 @@ export interface SpendComparison {
   total: { budgeted: number; spent: number; unassigned: number };
 }
 
-/** Groups actual spend by `category.id` only (never by name - see
- *  `TransactionCategoryRef`'s snapshot contract). A `category: null` expense,
- *  or one whose id no longer resolves to a live leaf, falls to its own
- *  transaction `bucket`'s unassigned total instead of being dropped. */
+/** Groups actual spend by `category.id`/`sourceCategory.id` only (never by
+ *  name - see `TransactionCategoryRef`'s snapshot contract). An `expense`
+ *  with `category: null` falls to its own transaction `bucket`'s unassigned
+ *  total instead of being dropped. A `savings` transaction with no
+ *  `sourceCategory`, and every `income` transaction, contributes nowhere. */
 export function computeSpentByCategory(transactions: FinanceV2Transaction[]): {
   byLeafId: Record<string, number>;
   unassignedByBucket: Record<ExpenseBucketKey, number>;
@@ -42,14 +43,15 @@ export function computeSpentByCategory(transactions: FinanceV2Transaction[]): {
   const unassignedByBucket: Record<ExpenseBucketKey, number> = { fixed: 0, variable: 0 };
 
   for (const tx of transactions) {
-    if (tx.type !== "expense") continue;
-
-    if (tx.category === null) {
-      unassignedByBucket[tx.bucket] += tx.amount;
+    const leaf = spendLeafRef(tx);
+    if (leaf !== null) {
+      byLeafId[leaf.id] = (byLeafId[leaf.id] ?? 0) + tx.amount;
       continue;
     }
-
-    byLeafId[tx.category.id] = (byLeafId[tx.category.id] ?? 0) + tx.amount;
+    // Only an EXPENSE falls to unassigned: an untagged savings/income tx
+    // consumes no expense budget at all, so it contributes nowhere —
+    // `spendLeafRef` returns null for both cases and this narrows them apart.
+    if (tx.type === "expense") unassignedByBucket[tx.bucket] += tx.amount;
   }
 
   return { byLeafId, unassignedByBucket };
@@ -133,18 +135,41 @@ export function isOverrun(row: SpendRow): boolean {
 }
 
 /** Resolves the bucket an unassigned leaf id's spend belongs to by locating
- *  the expense transaction that produced it. `byLeafId` is always built from
- *  this same `transactions` array (see `computeSpendComparison`), so a match
- *  should always exist - throws instead of silently dropping the amount if
- *  that invariant is ever violated (see `FinanceV2Transaction`'s fail-loudly
- *  convention). */
+ *  the transaction that produced it - an `expense` with matching `category`,
+ *  or a `savings` with matching `sourceCategory` - via the same `spendLeafRef`
+ *  predicate `computeSpentByCategory` uses to build `byLeafId`. That shared
+ *  predicate is what guarantees a match always exists here: the `throw` stays
+ *  as a fail-loudly guard (see `FinanceV2Transaction`'s convention), but is
+ *  unreachable by construction as long as both loops read the same predicate. */
 export function resolveUnassignedBucket(transactions: FinanceV2Transaction[], leafId: string): BucketKey {
   for (const tx of transactions) {
-    if (tx.type === "expense" && tx.category?.id === leafId) return tx.bucket;
+    const leaf = spendLeafRef(tx);
+    if (leaf?.id === leafId) return leaf.bucket;
   }
   throw new Error(
     `computeSpendComparison: no transaction found for unassigned leaf id "${leafId}" - cannot resolve its bucket.`,
   );
+}
+
+/** THE definition of "this transaction consumes an expense budget leaf", and
+ *  the only place either the attribution loop or the orphan resolver may
+ *  decide it. Returning a bucket alongside the id is what keeps the two in
+ *  sync: a variant cannot start contributing to `byLeafId` without also
+ *  becoming resolvable. `null` = contributes no leaf.
+ *  The declared return type deliberately excludes `undefined`, so adding a
+ *  4th transaction `type` fails to compile (TS2366) instead of throwing at
+ *  runtime in the Budget tab. */
+function spendLeafRef(tx: FinanceV2Transaction): { id: string; bucket: ExpenseBucketKey } | null {
+  switch (tx.type) {
+    case "expense":
+      return tx.category ? { id: tx.category.id, bucket: tx.bucket } : null;
+    case "savings":
+      return tx.sourceCategory
+        ? { id: tx.sourceCategory.id, bucket: tx.sourceCategory.bucket }
+        : null;
+    case "income":
+      return null;
+  }
 }
 
 function computeSpentByBucket(

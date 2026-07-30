@@ -143,4 +143,80 @@ describe("TransactionForm", () => {
 
     expect(onAdd).not.toHaveBeenCalled();
   });
+
+  it("submits a savings transaction with the picked source category as a snapshotted sourceCategory ref", () => {
+    const onAdd = vi.fn();
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
+
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "20000" } });
+    fireEvent.change(screen.getByLabelText("Origen del ahorro"), { target: { value: "s1" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd).toHaveBeenCalledWith({
+      type: "savings",
+      amount: 20000,
+      date: "2026-07-15",
+      month: "2026-07",
+      note: undefined,
+      sourceCategory: { id: "s1", name: "Luz", bucket: "fixed" },
+    });
+  });
+
+  it("submits a savings transaction with no sourceCategory key when the source picker is left unset", () => {
+    const onAdd = vi.fn();
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
+
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "20000" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd).toHaveBeenCalledWith({
+      type: "savings",
+      amount: 20000,
+      date: "2026-07-15",
+      month: "2026-07",
+      note: undefined,
+    });
+    expect(onAdd.mock.calls[0][0]).not.toHaveProperty("sourceCategory");
+  });
+
+  it("hides the source-category picker for income and expense types", () => {
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
+
+    expect(screen.queryByLabelText("Origen del ahorro")).toBeNull();
+
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
+    expect(screen.queryByLabelText("Origen del ahorro")).toBeNull();
+  });
+
+  it("does not leak an expense subcategory pick into a savings submission after switching type (cross-contamination guard)", () => {
+    const onAdd = vi.fn();
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
+
+    fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "s1" } });
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "5000" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "savings" }),
+    );
+    expect(onAdd.mock.calls[0][0]).not.toHaveProperty("sourceCategory");
+  });
+
+  it("does not leak a savings source-category pick into an expense submission after switching type (cross-contamination guard)", () => {
+    const onAdd = vi.fn();
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
+
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
+    fireEvent.change(screen.getByLabelText("Origen del ahorro"), { target: { value: "s1" } });
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "expense" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "5000" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "expense", category: null }),
+    );
+  });
 });

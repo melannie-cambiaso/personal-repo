@@ -13,6 +13,13 @@ export interface TransactionCategoryRef {
   name: string;
 }
 
+/** Snapshot taken at creation. `bucket` is NOT decoration: it is the only way
+ *  `resolveUnassignedBucket` can place this amount once the referenced leaf is
+ *  deleted from the config (the savings variant has no `bucket` of its own). */
+export interface TransactionSourceCategoryRef extends TransactionCategoryRef {
+  bucket: ExpenseBucketKey;
+}
+
 interface TransactionBase {
   id: string;
   amount: number;
@@ -23,11 +30,13 @@ interface TransactionBase {
   note?: string;
 }
 
-/** Discriminated on `type` so an income/savings record has no `bucket` field
- *  to set wrong — only the `expense` variant carries `bucket`/`category`. */
+/** Discriminated on `type`. The `expense` variant carries `bucket`/`category`
+ *  directly; `savings` optionally carries a `sourceCategory` snapshot (with
+ *  its own `bucket`) when tagged as reallocated leftover budget — `income`
+ *  never carries either. */
 export type FinanceV2Transaction =
   | (TransactionBase & { type: "income" })
-  | (TransactionBase & { type: "savings" })
+  | (TransactionBase & { type: "savings"; sourceCategory?: TransactionSourceCategoryRef })
   | (TransactionBase & {
       type: "expense";
       bucket: ExpenseBucketKey;

@@ -67,6 +67,52 @@ describe("TransactionRow", () => {
     expect(screen.getByText("Fondo de emergencia")).toBeTruthy();
   });
 
+  it("shows a secondary source line for a tagged savings transaction", () => {
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "savings",
+      amount: 20000,
+      date: "2026-07-01",
+      month: "2026-07",
+      sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
+    };
+
+    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+
+    expect(screen.getByText("de Supermercado")).toBeTruthy();
+  });
+
+  it("renders nothing extra for an untagged savings transaction", () => {
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "savings",
+      amount: 20000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
+
+    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+
+    expect(screen.queryByText(/^de /)).toBeNull();
+  });
+
+  it("shows BOTH the source line and the note when a tagged savings transaction has a note", () => {
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "savings",
+      amount: 20000,
+      date: "2026-07-01",
+      month: "2026-07",
+      note: "Fondo de emergencia",
+      sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
+    };
+
+    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+
+    expect(screen.getByText("de Supermercado")).toBeTruthy();
+    expect(screen.getByText("Fondo de emergencia")).toBeTruthy();
+  });
+
   it("shows the formatted amount", () => {
     const tx: FinanceV2Transaction = {
       id: "t1",
