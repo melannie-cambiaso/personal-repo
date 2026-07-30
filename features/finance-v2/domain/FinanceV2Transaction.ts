@@ -27,7 +27,7 @@ interface TransactionBase {
  *  to set wrong — only the `expense` variant carries `bucket`/`category`. */
 export type FinanceV2Transaction =
   | (TransactionBase & { type: "income" })
-  | (TransactionBase & { type: "savings" })
+  | (TransactionBase & { type: "savings"; category: TransactionCategoryRef | null })
   | (TransactionBase & {
       type: "expense";
       bucket: ExpenseBucketKey;

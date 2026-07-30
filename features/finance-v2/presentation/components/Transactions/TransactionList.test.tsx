@@ -22,7 +22,14 @@ describe("TransactionList", () => {
       {
         date: "2026-07-01",
         transactions: [
-          { id: "t1", type: "savings", amount: 100, date: "2026-07-01", month: "2026-07" },
+          {
+            id: "t1",
+            type: "savings",
+            amount: 100,
+            date: "2026-07-01",
+            month: "2026-07",
+            category: null,
+          },
         ],
       },
     ];

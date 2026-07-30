@@ -2,7 +2,11 @@
 
 import { useMemo, useState } from "react";
 import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
-import { computeSpendComparison, listExpenseCategoryOptions } from "@/features/finance-v2/domain";
+import {
+  computeSpendComparison,
+  listExpenseCategoryOptions,
+  listSavingsCategoryOptions,
+} from "@/features/finance-v2/domain";
 import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
 import { useFinanceV2Transactions } from "../../hooks/useFinanceV2Transactions";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
@@ -79,6 +83,12 @@ export function FinanceV2Screen({
   // Flows LIVE from the hoisted budget hook: a subcategory added in tab 2 is pickable in
   // tab 3 without a reload (same rationale as design decision #1).
   const categoryOptions = useMemo(() => listExpenseCategoryOptions({ categories }), [categories]);
+  // Same live-from-budget rationale as `categoryOptions` above — mirrors it for the
+  // `savings` bucket so a subcategory added in tab 2 is pickable in tab 3 without a reload.
+  const savingsCategoryOptions = useMemo(
+    () => listSavingsCategoryOptions({ categories }),
+    [categories]
+  );
 
   // Actuals counterpart to `comparison` (design D7): month-agnostic and pure, so it is
   // memoized on the same axes `useFinanceV2Budget`'s `comparison` already relies on plus
@@ -152,6 +162,7 @@ export function FinanceV2Screen({
             totals={totals}
             dayGroups={dayGroups}
             categoryOptions={categoryOptions}
+            savingsCategoryOptions={savingsCategoryOptions}
             onAdd={addTransaction}
             onDelete={deleteTransaction}
             lastCrossMonthSave={lastCrossMonthSave}

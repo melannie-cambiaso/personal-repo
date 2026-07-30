@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { AddTransactionModal } from "./AddTransactionModal";
-import type { ExpenseCategoryOption } from "@/features/finance-v2/domain";
+import type { ExpenseCategoryOption, TransactionCategoryRef } from "@/features/finance-v2/domain";
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
@@ -10,6 +10,7 @@ beforeAll(() => {
 
 describe("AddTransactionModal", () => {
   const categoryOptions: ExpenseCategoryOption[] = [];
+  const savingsCategoryOptions: TransactionCategoryRef[] = [];
 
   it("renders the transaction form fields when open", () => {
     render(
@@ -17,6 +18,7 @@ describe("AddTransactionModal", () => {
         isOpen
         viewedMonth="2026-07"
         categoryOptions={categoryOptions}
+        savingsCategoryOptions={savingsCategoryOptions}
         onClose={vi.fn()}
         onAdd={vi.fn()}
       />
@@ -34,6 +36,7 @@ describe("AddTransactionModal", () => {
         isOpen
         viewedMonth="2026-07"
         categoryOptions={categoryOptions}
+        savingsCategoryOptions={savingsCategoryOptions}
         onClose={onClose}
         onAdd={onAdd}
       />
@@ -55,6 +58,7 @@ describe("AddTransactionModal", () => {
         isOpen
         viewedMonth="2026-07"
         categoryOptions={categoryOptions}
+        savingsCategoryOptions={savingsCategoryOptions}
         onClose={onClose}
         onAdd={onAdd}
       />

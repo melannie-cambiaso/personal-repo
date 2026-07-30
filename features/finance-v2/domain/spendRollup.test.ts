@@ -1,10 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { computeSpentByCategory, computeSpendComparison, isOverrun, resolveUnassignedBucket } from "./spendRollup";
+import {
+  computeSpentByCategory,
+  computeSpendComparison,
+  isOverrun,
+  resolveUnassignedBucket,
+} from "./spendRollup";
 import { computeBucketTotals } from "./budgetRollup";
 import type { BudgetConfig } from "./BudgetConfig";
 import type { FinanceV2Transaction } from "./FinanceV2Transaction";
 
-function expenseTx(overrides: Partial<Extract<FinanceV2Transaction, { type: "expense" }>>): FinanceV2Transaction {
+function expenseTx(
+  overrides: Partial<Extract<FinanceV2Transaction, { type: "expense" }>>
+): FinanceV2Transaction {
   return {
     id: "tx-1",
     amount: 0,
@@ -46,7 +53,14 @@ describe("computeSpentByCategory", () => {
   it("excludes income and savings transactions", () => {
     const list: FinanceV2Transaction[] = [
       { id: "tx-income", amount: 500000, date: "2026-07-01", month: "2026-07", type: "income" },
-      { id: "tx-savings", amount: 50000, date: "2026-07-01", month: "2026-07", type: "savings" },
+      {
+        id: "tx-savings",
+        amount: 50000,
+        date: "2026-07-01",
+        month: "2026-07",
+        type: "savings",
+        category: null,
+      },
     ];
 
     expect(computeSpentByCategory(list)).toEqual({
@@ -74,9 +88,13 @@ describe("computeSpendComparison", () => {
 
   it("pairs a leaf-only category's budget against its actual spend", () => {
     const config: BudgetConfig = {
-      categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] },
+      ],
     };
-    const list = [expenseTx({ amount: 350000, bucket: "fixed", category: { id: "c1", name: "Arriendo" } })];
+    const list = [
+      expenseTx({ amount: 350000, bucket: "fixed", category: { id: "c1", name: "Arriendo" } }),
+    ];
 
     const result = computeSpendComparison(config, list);
 
@@ -124,7 +142,9 @@ describe("computeSpendComparison", () => {
 
   it("routes spend against a deleted leaf id into its bucket's unassigned residual", () => {
     const config: BudgetConfig = { categories: [] };
-    const list = [expenseTx({ amount: 12000, bucket: "fixed", category: { id: "cat-old", name: "Super" } })];
+    const list = [
+      expenseTx({ amount: 12000, bucket: "fixed", category: { id: "cat-old", name: "Super" } }),
+    ];
 
     const result = computeSpendComparison(config, list);
     const fixedRow = result.buckets.find((row) => row.key === "fixed");
@@ -145,7 +165,9 @@ describe("computeSpendComparison", () => {
       ],
     };
     // Historical transaction referencing "c1" back when it was a leaf, before a subcategory was added.
-    const list = [expenseTx({ amount: 7000, bucket: "fixed", category: { id: "c1", name: "Servicios" } })];
+    const list = [
+      expenseTx({ amount: 7000, bucket: "fixed", category: { id: "c1", name: "Servicios" } }),
+    ];
 
     const result = computeSpendComparison(config, list);
     const fixedRow = result.buckets.find((row) => row.key === "fixed");
@@ -157,9 +179,13 @@ describe("computeSpendComparison", () => {
 
   it("still matches a renamed leaf by id, ignoring the transaction's stale snapshotted name", () => {
     const config: BudgetConfig = {
-      categories: [{ id: "c1", name: "Supermercado", bucket: "fixed", amount: 50000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Supermercado", bucket: "fixed", amount: 50000, subcategories: [] },
+      ],
     };
-    const list = [expenseTx({ amount: 30000, bucket: "fixed", category: { id: "c1", name: "Super" } })];
+    const list = [
+      expenseTx({ amount: 30000, bucket: "fixed", category: { id: "c1", name: "Super" } }),
+    ];
 
     const result = computeSpendComparison(config, list);
 
@@ -170,7 +196,9 @@ describe("computeSpendComparison", () => {
 
   it("shows a savings-bucket leaf at zero spend, never excluded", () => {
     const config: BudgetConfig = {
-      categories: [{ id: "c1", name: "Fondo emergencia", bucket: "savings", amount: 30000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Fondo emergencia", bucket: "savings", amount: 30000, subcategories: [] },
+      ],
     };
 
     const result = computeSpendComparison(config, []);
@@ -182,7 +210,9 @@ describe("computeSpendComparison", () => {
 
   it("keeps every budget category and leaf present at zero spend when untouched", () => {
     const config: BudgetConfig = {
-      categories: [{ id: "c1", name: "Streaming", bucket: "variable", amount: 10000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Streaming", bucket: "variable", amount: 10000, subcategories: [] },
+      ],
     };
 
     const result = computeSpendComparison(config, []);
@@ -193,13 +223,21 @@ describe("computeSpendComparison", () => {
 
   it("total.spent always reconciles to the sum of every expense transaction, regardless of category state", () => {
     const config: BudgetConfig = {
-      categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] },
+      ],
     };
     const list = [
       expenseTx({ amount: 100000, bucket: "fixed", category: { id: "c1", name: "Arriendo" } }),
       expenseTx({ amount: 8000, bucket: "fixed", category: null }),
       expenseTx({ amount: 12000, bucket: "variable", category: { id: "gone", name: "Gone" } }),
-      { id: "tx-income", amount: 500000, date: "2026-07-01", month: "2026-07", type: "income" as const },
+      {
+        id: "tx-income",
+        amount: 500000,
+        date: "2026-07-01",
+        month: "2026-07",
+        type: "income" as const,
+      },
     ];
 
     const result = computeSpendComparison(config, list);
@@ -238,7 +276,9 @@ describe("computeSpendComparison budgeted totals", () => {
 
 describe("resolveUnassignedBucket", () => {
   it("resolves the bucket from the matching expense transaction's category id", () => {
-    const list = [expenseTx({ amount: 12000, bucket: "variable", category: { id: "cat-old", name: "Super" } })];
+    const list = [
+      expenseTx({ amount: 12000, bucket: "variable", category: { id: "cat-old", name: "Super" } }),
+    ];
 
     expect(resolveUnassignedBucket(list, "cat-old")).toBe("variable");
   });

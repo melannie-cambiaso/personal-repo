@@ -36,6 +36,7 @@ describe("addTransaction", () => {
       amount: 200,
       date: "2026-07-25",
       month: "2026-07",
+      category: null,
     };
 
     const next = addTransaction(list, tx);
@@ -60,6 +61,7 @@ describe("deleteTransaction", () => {
       amount: 200,
       date: "2026-07-02",
       month: "2026-07",
+      category: null,
     };
     const list = [t1, t2];
 
