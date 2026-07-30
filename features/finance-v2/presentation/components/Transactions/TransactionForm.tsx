@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type {
-  ExpenseBucketKey,
-  ExpenseCategoryOption,
-  TransactionCategoryRef,
-} from "@/features/finance-v2/domain";
+import type { ExpenseBucketKey, ExpenseCategoryOption } from "@/features/finance-v2/domain";
 import { toLocalISODate } from "@/features/finance-v2/domain";
 import { monthWindow } from "@/shared/utils/monthUtils";
 import { formatMonth } from "@/shared/utils/formatMonth";
@@ -26,18 +22,12 @@ const MONTH_RADIUS = 3;
 interface Props {
   viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
-  savingsCategoryOptions: TransactionCategoryRef[];
   onAdd: (input: NewTransactionInput) => void;
 }
 
 // Choosing a subcategory HIDES the bucket select entirely: bucket is unaskable twice
 // because the control simply isn't rendered, not because it's disabled.
-export function TransactionForm({
-  viewedMonth,
-  categoryOptions,
-  savingsCategoryOptions,
-  onAdd,
-}: Props) {
+export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) {
   const monthOptions = monthWindow(viewedMonth, MONTH_RADIUS);
 
   const [type, setType] = useState<TransactionType>("expense");
@@ -48,12 +38,7 @@ export function TransactionForm({
   const [bucket, setBucket] = useState<ExpenseBucketKey>("fixed");
   const [categoryId, setCategoryId] = useState(NO_CATEGORY);
 
-  // Only used to decide whether the category `<Select>`/Bucket toggle should render for the
-  // CURRENT `type` — the actual expense/savings category refs submitted below are looked up
-  // separately in `handleSubmit`, each against its own correctly-typed options list.
-  const activeCategoryOptions: TransactionCategoryRef[] =
-    type === "expense" ? categoryOptions : type === "savings" ? savingsCategoryOptions : [];
-  const selectedCategory = activeCategoryOptions.find((c) => c.id === categoryId) ?? null;
+  const selectedCategory = categoryOptions.find((c) => c.id === categoryId) ?? null;
 
   // `date` and `month` are NOT reset — sticky like `type` (design decision #6): filing
   // several transactions into the same other month shouldn't require re-picking each time.
@@ -70,8 +55,7 @@ export function TransactionForm({
     if (!parsedAmount || parsedAmount <= 0) return;
 
     if (type === "expense") {
-      const selectedExpenseCategory = categoryOptions.find((c) => c.id === categoryId) ?? null;
-      const resolvedBucket = selectedExpenseCategory ? selectedExpenseCategory.bucket : bucket;
+      const resolvedBucket = selectedCategory ? selectedCategory.bucket : bucket;
       onAdd({
         type: "expense",
         amount: parsedAmount,
@@ -79,20 +63,7 @@ export function TransactionForm({
         month,
         note: note.trim() || undefined,
         bucket: resolvedBucket,
-        category: selectedExpenseCategory
-          ? { id: selectedExpenseCategory.id, name: selectedExpenseCategory.name }
-          : null,
-      });
-    } else if (type === "savings") {
-      const selectedSavingsCategory =
-        savingsCategoryOptions.find((c) => c.id === categoryId) ?? null;
-      onAdd({
-        type: "savings",
-        amount: parsedAmount,
-        date,
-        month,
-        note: note.trim() || undefined,
-        category: selectedSavingsCategory,
+        category: selectedCategory ? { id: selectedCategory.id, name: selectedCategory.name } : null,
       });
     } else {
       onAdd({ type, amount: parsedAmount, date, month, note: note.trim() || undefined });
@@ -139,7 +110,7 @@ export function TransactionForm({
         />
       </div>
 
-      {(type === "expense" || type === "savings") && (
+      {type === "expense" && (
         <div className="flex flex-wrap items-end gap-2">
           <Select
             aria-label="Subcategoría"
@@ -147,10 +118,10 @@ export function TransactionForm({
             onChange={(e) => setCategoryId(e.target.value)}
             options={[
               { value: NO_CATEGORY, label: "Sin subcategoría" },
-              ...activeCategoryOptions.map((c) => ({ value: c.id, label: c.name })),
+              ...categoryOptions.map((c) => ({ value: c.id, label: c.name })),
             ]}
           />
-          {type === "expense" && !selectedCategory && (
+          {!selectedCategory && (
             <Select
               aria-label="Bucket"
               value={bucket}

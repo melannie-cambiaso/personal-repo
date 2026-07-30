@@ -14,9 +14,6 @@ interface Props {
  *  perform a live lookup, so a deleted Budget-tab subcategory can never break
  *  this row (locked design decision). */
 function primaryLabel(transaction: FinanceV2Transaction): string {
-  if (transaction.type === "savings") {
-    return transaction.category ? transaction.category.name : TRANSACTION_TYPE_LABELS.savings;
-  }
   if (transaction.type !== "expense") {
     return TRANSACTION_TYPE_LABELS[transaction.type];
   }
@@ -40,7 +37,7 @@ export function TransactionRow({ transaction, onDelete }: Props) {
           type="button"
           onClick={() => onDelete(transaction.id)}
           aria-label={`Eliminar movimiento de ${formatCLP(transaction.amount)}`}
-          className="text-2xs text-brown-400 cursor-pointer font-semibold transition-colors hover:text-red-600"
+          className="text-2xs text-brown-400 hover:text-red-600 cursor-pointer font-semibold transition-colors"
         >
           Eliminar
         </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ExpenseCategoryOption, TransactionCategoryRef } from "@/features/finance-v2/domain";
+import type { ExpenseCategoryOption } from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
 import { ModalShell } from "@/shared/components";
 import { TransactionForm } from "./TransactionForm";
@@ -9,19 +9,11 @@ interface Props {
   isOpen: boolean;
   viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
-  savingsCategoryOptions: TransactionCategoryRef[];
   onClose: () => void;
   onAdd: (input: NewTransactionInput) => void;
 }
 
-export function AddTransactionModal({
-  isOpen,
-  viewedMonth,
-  categoryOptions,
-  savingsCategoryOptions,
-  onClose,
-  onAdd,
-}: Props) {
+export function AddTransactionModal({ isOpen, viewedMonth, categoryOptions, onClose, onAdd }: Props) {
   const handleAdd = (input: NewTransactionInput) => {
     onAdd(input);
     onClose();
@@ -34,7 +26,6 @@ export function AddTransactionModal({
         key={viewedMonth}
         viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={handleAdd}
       />
     </ModalShell>

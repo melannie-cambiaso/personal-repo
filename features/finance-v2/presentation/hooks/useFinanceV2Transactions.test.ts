@@ -118,14 +118,7 @@ describe("useFinanceV2Transactions", () => {
   it("deleteTransaction removes the targeted transaction and calls onSave once with the resulting list", () => {
     const initialTransactions: FinanceV2Transaction[] = [
       { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
-      {
-        id: "t2",
-        type: "savings",
-        amount: 200,
-        date: "2026-07-02",
-        month: "2026-07",
-        category: null,
-      },
+      { id: "t2", type: "savings", amount: 200, date: "2026-07-02", month: "2026-07" },
     ];
     const { result } = renderHook(() =>
       useFinanceV2Transactions({
@@ -290,15 +283,7 @@ describe("useFinanceV2Transactions", () => {
     ];
     const augustTransactions: FinanceV2Transaction[] = [
       { id: "t2", type: "income", amount: 2000, date: "2026-08-01", month: "2026-08" },
-      {
-        id: "t3",
-        type: "expense",
-        amount: 500,
-        date: "2026-08-02",
-        month: "2026-08",
-        bucket: "fixed",
-        category: null,
-      },
+      { id: "t3", type: "expense", amount: 500, date: "2026-08-02", month: "2026-08", bucket: "fixed", category: null },
     ];
     onLoad.mockResolvedValueOnce(augustTransactions);
 
@@ -323,12 +308,7 @@ describe("useFinanceV2Transactions", () => {
 
     expect(onLoad).toHaveBeenCalledWith("2026-08");
     expect(result.current.transactions).toEqual(augustTransactions);
-    expect(result.current.totals).toEqual({
-      income: 2000,
-      expense: 500,
-      savings: 0,
-      balance: 1500,
-    });
+    expect(result.current.totals).toEqual({ income: 2000, expense: 500, savings: 0, balance: 1500 });
     expect(result.current.dayGroups.map((g) => g.date)).toEqual(["2026-08-02", "2026-08-01"]);
   });
 

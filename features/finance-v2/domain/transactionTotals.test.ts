@@ -24,14 +24,7 @@ describe("computeTransactionTotals", () => {
         bucket: "fixed",
         category: null,
       },
-      {
-        id: "t3",
-        type: "savings",
-        amount: 200,
-        date: "2026-07-03",
-        month: "2026-07",
-        category: null,
-      },
+      { id: "t3", type: "savings", amount: 200, date: "2026-07-03", month: "2026-07" },
     ];
 
     const totals = computeTransactionTotals(list);

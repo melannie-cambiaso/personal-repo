@@ -120,7 +120,6 @@ describe("handleAppendTransactionToMonth", () => {
       amount: 300,
       date: "2026-07-31",
       month: "2026-08",
-      category: null,
     };
 
     await handleAppendTransactionToMonth(tx);

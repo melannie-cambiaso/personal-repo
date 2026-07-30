@@ -1,11 +1,6 @@
 "use client";
 
-import type {
-  DayGroup,
-  ExpenseCategoryOption,
-  TransactionCategoryRef,
-  TransactionTotals,
-} from "@/features/finance-v2/domain";
+import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
 import { Button } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
@@ -18,7 +13,6 @@ interface Props {
   totals: TransactionTotals;
   dayGroups: DayGroup[];
   categoryOptions: ExpenseCategoryOption[];
-  savingsCategoryOptions: TransactionCategoryRef[];
   onAdd: (input: NewTransactionInput) => void;
   onDelete: (id: string) => void;
   /** Set by the hook right after a transaction was saved to a month other than
@@ -44,7 +38,6 @@ export function TransactionsTab({
   totals,
   dayGroups,
   categoryOptions,
-  savingsCategoryOptions,
   onAdd,
   onDelete,
   lastCrossMonthSave,
@@ -79,7 +72,6 @@ export function TransactionsTab({
         isOpen={isAddOpen}
         viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onClose={onCloseAdd}
         onAdd={onAdd}
       />

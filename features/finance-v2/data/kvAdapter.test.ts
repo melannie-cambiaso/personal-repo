@@ -97,9 +97,7 @@ describe("loadTransactions", () => {
     const legacy = [{ id: "t1", type: "income", amount: 1000, date: "2026-06-15" }];
     redisMock.get.mockResolvedValue(legacy);
     const result = await loadTransactions("2026-06");
-    expect(result).toEqual([
-      { id: "t1", type: "income", amount: 1000, date: "2026-06-15", month: "2026-06" },
-    ]);
+    expect(result).toEqual([{ id: "t1", type: "income", amount: 1000, date: "2026-06-15", month: "2026-06" }]);
   });
 
   it("preserves an already-present month instead of overwriting it with the key's month", async () => {
@@ -142,14 +140,7 @@ describe("saveTransactions", () => {
 
   it("saves transactions under the month-scoped key", async () => {
     const list: FinanceV2Transaction[] = [
-      {
-        id: "t1",
-        type: "savings",
-        amount: 200,
-        date: "2026-07-25",
-        month: "2026-07",
-        category: null,
-      },
+      { id: "t1", type: "savings", amount: 200, date: "2026-07-25", month: "2026-07" },
     ];
     await saveTransactions("2026-07", list);
     expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-07", list);
@@ -177,17 +168,13 @@ describe("appendTransactionToMonth", () => {
       amount: 300,
       date: "2026-07-31",
       month: "2026-08",
-      category: null,
     };
 
     await appendTransactionToMonth("2026-08", tx);
 
     expect(redisMock.get).toHaveBeenCalledWith("finance-v2-transactions:2026-08");
     expect(redisMock.set).toHaveBeenCalledTimes(1);
-    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-08", [
-      ...existing,
-      tx,
-    ]);
+    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-08", [...existing, tx]);
   });
 
   it("appends to an empty list when the target month has no stored transactions yet", async () => {

@@ -1,12 +1,7 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TransactionsTab } from "./TransactionsTab";
-import type {
-  DayGroup,
-  ExpenseCategoryOption,
-  TransactionCategoryRef,
-  TransactionTotals,
-} from "@/features/finance-v2/domain";
+import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
@@ -16,7 +11,6 @@ beforeAll(() => {
 describe("TransactionsTab", () => {
   const totals: TransactionTotals = { income: 1000, expense: 400, savings: 200, balance: 600 };
   const categoryOptions: ExpenseCategoryOption[] = [];
-  const savingsCategoryOptions: TransactionCategoryRef[] = [];
 
   it("wires the summary — shows balance and savings from the given totals", () => {
     render(
@@ -27,7 +21,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={false}
@@ -54,7 +47,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={onAdd}
         onDelete={vi.fn()}
         isAddOpen={true}
@@ -89,7 +81,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={dayGroups}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={onDelete}
         isAddOpen={false}
@@ -112,7 +103,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={false}
@@ -133,7 +123,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={false}
@@ -154,7 +143,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={false}
@@ -178,7 +166,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={false}
@@ -202,7 +189,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={false}
@@ -225,7 +211,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={true}
@@ -247,7 +232,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={true}
@@ -270,7 +254,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={false}
@@ -292,7 +275,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={true}
@@ -309,7 +291,6 @@ describe("TransactionsTab", () => {
         totals={totals}
         dayGroups={[]}
         categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
         onAdd={vi.fn()}
         onDelete={vi.fn()}
         isAddOpen={true}

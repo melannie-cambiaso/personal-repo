@@ -52,36 +52,6 @@ describe("TransactionRow", () => {
     expect(screen.getByText("Variables")).toBeTruthy();
   });
 
-  it("renders the assigned category's name for a savings transaction with a category", () => {
-    const tx: FinanceV2Transaction = {
-      id: "t1",
-      type: "savings",
-      amount: 200,
-      date: "2026-07-01",
-      month: "2026-07",
-      category: { id: "sv1", name: "Fondo emergencia" },
-    };
-
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
-
-    expect(screen.getByText("Fondo emergencia")).toBeTruthy();
-  });
-
-  it("falls back to the type label for a savings transaction with no category", () => {
-    const tx: FinanceV2Transaction = {
-      id: "t1",
-      type: "savings",
-      amount: 200,
-      date: "2026-07-01",
-      month: "2026-07",
-      category: null,
-    };
-
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
-
-    expect(screen.getByText("Ahorro")).toBeTruthy();
-  });
-
   it("shows the transaction's note when present", () => {
     const tx: FinanceV2Transaction = {
       id: "t1",
@@ -90,7 +60,6 @@ describe("TransactionRow", () => {
       date: "2026-07-01",
       month: "2026-07",
       note: "Fondo de emergencia",
-      category: null,
     };
 
     render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);

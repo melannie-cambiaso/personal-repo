@@ -1,16 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TransactionForm } from "./TransactionForm";
-import type { ExpenseCategoryOption, TransactionCategoryRef } from "@/features/finance-v2/domain";
+import type { ExpenseCategoryOption } from "@/features/finance-v2/domain";
 
 const categoryOptions: ExpenseCategoryOption[] = [
   { id: "s1", name: "Luz", bucket: "fixed" },
   { id: "s2", name: "Ocio", bucket: "variable" },
-];
-
-const savingsCategoryOptions: TransactionCategoryRef[] = [
-  { id: "sv1", name: "Viaje" },
-  { id: "sv2", name: "Emergencia" },
 ];
 
 describe("TransactionForm", () => {
@@ -24,14 +19,7 @@ describe("TransactionForm", () => {
   });
 
   it("defaults the date input to today, with no min/max bound (date is unbounded)", () => {
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={vi.fn()}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     const dateInput = screen.getByLabelText("Fecha") as HTMLInputElement;
     expect(dateInput.value).toBe("2026-07-15");
@@ -40,14 +28,7 @@ describe("TransactionForm", () => {
   });
 
   it("offers exactly 7 month options, viewedMonth ± 3 months, defaulting to viewedMonth", () => {
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={vi.fn()}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     const monthSelect = screen.getByLabelText("Mes") as HTMLSelectElement;
     const optionValues = Array.from(monthSelect.options).map((o) => o.value);
@@ -65,27 +46,13 @@ describe("TransactionForm", () => {
   });
 
   it("shows the bucket select for an expense with no subcategory chosen", () => {
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={vi.fn()}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     expect(screen.getByLabelText("Bucket")).toBeTruthy();
   });
 
   it("HIDES the bucket select once a subcategory is chosen — bucket is inferred, not asked twice", () => {
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={vi.fn()}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "s1" } });
 
@@ -93,14 +60,7 @@ describe("TransactionForm", () => {
   });
 
   it("re-shows the bucket select if the subcategory is cleared back to 'Sin subcategoría'", () => {
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={vi.fn()}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "s1" } });
     expect(screen.queryByLabelText("Bucket")).toBeNull();
@@ -110,14 +70,7 @@ describe("TransactionForm", () => {
   });
 
   it("does not show subcategory or bucket controls for income/savings types", () => {
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={vi.fn()}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={vi.fn()} />);
 
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
 
@@ -127,14 +80,7 @@ describe("TransactionForm", () => {
 
   it("submits an income transaction with the entered amount/date and resets the amount field", () => {
     const onAdd = vi.fn();
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={onAdd}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
 
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
@@ -153,14 +99,7 @@ describe("TransactionForm", () => {
 
   it("submits an expense linked to a subcategory with the inferred bucket and a snapshotted category ref", () => {
     const onAdd = vi.fn();
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={onAdd}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
 
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "5000" } });
     fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "s2" } });
@@ -179,14 +118,7 @@ describe("TransactionForm", () => {
 
   it("submits a loose expense (no subcategory) using the manually chosen bucket", () => {
     const onAdd = vi.fn();
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={onAdd}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
 
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "300" } });
     fireEvent.change(screen.getByLabelText("Bucket"), { target: { value: "variable" } });
@@ -203,99 +135,9 @@ describe("TransactionForm", () => {
     });
   });
 
-  it("shows the category select for a savings transaction, populated from savings category options", () => {
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={vi.fn()}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
-
-    const select = screen.getByLabelText("Subcategoría") as HTMLSelectElement;
-    const optionLabels = Array.from(select.options).map((o) => o.label);
-    expect(optionLabels).toEqual(["Sin subcategoría", "Viaje", "Emergencia"]);
-  });
-
-  it("does not show the bucket select for a savings transaction", () => {
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={vi.fn()}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
-
-    expect(screen.queryByLabelText("Bucket")).toBeNull();
-  });
-
-  it("submits a savings transaction with category: null when 'Sin subcategoría' is selected", () => {
-    const onAdd = vi.fn();
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={onAdd}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
-    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
-    fireEvent.click(screen.getByText("Agregar movimiento"));
-
-    expect(onAdd).toHaveBeenCalledWith({
-      type: "savings",
-      amount: 1000,
-      date: "2026-07-15",
-      month: "2026-07",
-      note: undefined,
-      category: null,
-    });
-  });
-
-  it("submits a savings transaction with the chosen category ref", () => {
-    const onAdd = vi.fn();
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={onAdd}
-      />
-    );
-
-    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
-    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "2000" } });
-    fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: "sv2" } });
-    fireEvent.click(screen.getByText("Agregar movimiento"));
-
-    expect(onAdd).toHaveBeenCalledWith({
-      type: "savings",
-      amount: 2000,
-      date: "2026-07-15",
-      month: "2026-07",
-      note: undefined,
-      category: { id: "sv2", name: "Emergencia" },
-    });
-  });
-
   it("does not submit when the amount is blank or zero", () => {
     const onAdd = vi.fn();
-    render(
-      <TransactionForm
-        viewedMonth="2026-07"
-        categoryOptions={categoryOptions}
-        savingsCategoryOptions={savingsCategoryOptions}
-        onAdd={onAdd}
-      />
-    );
+    render(<TransactionForm viewedMonth="2026-07" categoryOptions={categoryOptions} onAdd={onAdd} />);
 
     fireEvent.click(screen.getByText("Agregar movimiento"));
 
