@@ -12,7 +12,7 @@ describe("computeTransactionTotals", () => {
     });
   });
 
-  it("balance is income minus expense; savings is summed separately and never enters balance", () => {
+  it("balance is income minus expense minus savings", () => {
     const list: FinanceV2Transaction[] = [
       { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
       {
@@ -24,12 +24,12 @@ describe("computeTransactionTotals", () => {
         bucket: "fixed",
         category: null,
       },
-      { id: "t3", type: "savings", amount: 200, date: "2026-07-03", month: "2026-07" },
+      { id: "t3", type: "savings", amount: 250, date: "2026-07-03", month: "2026-07" },
     ];
 
     const totals = computeTransactionTotals(list);
 
-    expect(totals).toEqual({ income: 1000, expense: 400, savings: 200, balance: 600 });
+    expect(totals).toEqual({ income: 1000, expense: 400, savings: 250, balance: 350 });
   });
 
   it("sums multiple transactions of the same type", () => {

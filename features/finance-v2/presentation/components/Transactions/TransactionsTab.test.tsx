@@ -9,7 +9,7 @@ beforeAll(() => {
 });
 
 describe("TransactionsTab", () => {
-  const totals: TransactionTotals = { income: 1000, expense: 400, savings: 200, balance: 600 };
+  const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, balance: 350 };
   const categoryOptions: ExpenseCategoryOption[] = [];
 
   it("wires the summary — shows balance and savings from the given totals", () => {
@@ -31,10 +31,12 @@ describe("TransactionsTab", () => {
 
     // "Ahorro" also appears as a select option in the wired form, so the summary's own
     // "Ahorro" label is asserted in MovementSummary.test.tsx instead — here we only need
-    // to confirm the totals passed through, via their (unique) formatted amounts.
+    // to confirm the totals passed through. Savings intentionally renders twice (breakdown
+    // segment + Ahorro row), so its formatted amount is disambiguated via getAllByText
+    // rather than the plain getByText used for Balance.
     expect(screen.getByText("Balance")).toBeTruthy();
-    expect(screen.getByText("$600")).toBeTruthy();
-    expect(screen.getByText("$200")).toBeTruthy();
+    expect(screen.getByText("$350")).toBeTruthy();
+    expect(screen.getAllByText("$250")).toHaveLength(2);
   });
 
   it("wires the form — submitting calls onAdd with the entered transaction", () => {
