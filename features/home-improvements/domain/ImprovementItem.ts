@@ -17,7 +17,6 @@ export interface ImprovementItem {
   quantity?: number;
   purchaseUrl?: string;
   done: boolean;
-  plannedMonth?: string;
   createdAt: string;
   description?: string;
   notes?: string;

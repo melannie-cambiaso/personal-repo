@@ -45,15 +45,6 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
           >
             {item.type}
           </span>
-          {item.plannedMonth && !item.done && (
-            <span className="text-2xs bg-cream-300 text-brown-700 rounded-full px-2 py-0.5 font-semibold">
-              📅{" "}
-              {new Date(`${item.plannedMonth}-01T12:00:00`).toLocaleString("es-CL", {
-                month: "short",
-                year: "numeric",
-              })}
-            </span>
-          )}
           {item.estimatedCost !== null && (
             <span className="text-2xs text-brown-800 font-bold">
               {item.quantity && item.quantity > 1

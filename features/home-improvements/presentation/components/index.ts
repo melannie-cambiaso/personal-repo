@@ -6,4 +6,3 @@ export {
   EditItemModal,
   DeleteZoneConfirmModal,
 } from "./Modals";
-export { MonthlyPlanTab } from "./MonthlyPlan/MonthlyPlanTab";
