@@ -1,22 +1,32 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
-import { computeSpendComparison, listExpenseCategoryOptions } from "@/features/finance-v2/domain";
+import type { BudgetConfig, FinanceV2Transaction, PendingOverrides } from "@/features/finance-v2/domain";
+import {
+  computeSpendComparison,
+  computePendingView,
+  listExpenseCategoryOptions,
+} from "@/features/finance-v2/domain";
 import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
 import { useFinanceV2Transactions } from "../../hooks/useFinanceV2Transactions";
+import { useFinanceV2Pending } from "../../hooks/useFinanceV2Pending";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
+import { PendingTab } from "../../components/Budget/PendingTab";
 import { TransactionsTab } from "../../components/Transactions/TransactionsTab";
 import type { BudgetMode } from "../../components/Budget/budgetMode";
 import { toSpendView } from "../../components/Budget/spendView";
+import { toPendingTabView } from "../../components/Budget/pendingTabView";
 import { PageHeader, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 
-type TabKey = "budget" | "movements";
+type TabKey = "budget" | "pending" | "movements";
 
+// Tab order (design D9): Presupuesto -> Pendientes -> Movimientos — semantically
+// adjacent to Presupuesto, trivially reversible (array order).
 const TABS: { key: TabKey; label: string }[] = [
   { key: "budget", label: "Presupuesto" },
+  { key: "pending", label: "Pendientes" },
   { key: "movements", label: "Movimientos" },
 ];
 
@@ -28,6 +38,9 @@ interface Props {
   onSaveTransactions: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
   onSaveToOtherMonth: (tx: FinanceV2Transaction) => Promise<void> | void;
   onLoadTransactions: (month: string) => Promise<FinanceV2Transaction[]>;
+  initialPendingOverrides: PendingOverrides;
+  onSavePendingOverrides: (month: string, overrides: PendingOverrides) => Promise<void> | void;
+  onLoadPendingOverrides: (month: string) => Promise<PendingOverrides>;
 }
 
 // `useFinanceV2Budget` and `useFinanceV2Transactions` stay hoisted here (design decision
@@ -43,6 +56,9 @@ export function FinanceV2Screen({
   onSaveTransactions,
   onSaveToOtherMonth,
   onLoadTransactions,
+  initialPendingOverrides,
+  onSavePendingOverrides,
+  onLoadPendingOverrides,
 }: Props) {
   const {
     categories,
@@ -90,6 +106,22 @@ export function FinanceV2Screen({
   );
   const spend = toSpendView(isLoadingMonth, spendComparison);
 
+  const { overrides, setOverride, isLoadingPending } = useFinanceV2Pending({
+    initialOverrides: initialPendingOverrides,
+    viewedMonth,
+    onSave: onSavePendingOverrides,
+    onLoad: onLoadPendingOverrides,
+  });
+
+  // Memo gotcha (design memo-identity note): depends on `spendComparison` (stable
+  // reference, memoized above), NEVER on `spend` — `toSpendView` returns a NEW object
+  // every render, which would defeat this memo entirely.
+  const pendingView = useMemo(
+    () => computePendingView(categoryOptions, spendComparison.leaves, overrides),
+    [categoryOptions, spendComparison, isLoadingMonth, isLoadingPending, overrides]
+  );
+  const pendingTabView = toPendingTabView(isLoadingMonth, isLoadingPending, pendingView);
+
   const [activeTab, setActiveTab] = useState<TabKey>("budget");
   // Hoisted beside `useFinanceV2Budget` (same remount rationale as design decision #1):
   // the Budget tab is conditionally rendered, so mode state must live here, not inside
@@ -97,6 +129,12 @@ export function FinanceV2Screen({
   // a required prop everywhere else.
   const [budgetMode, setBudgetMode] = useState<BudgetMode>("view");
   const toggleBudgetMode = () => setBudgetMode((m) => (m === "view" ? "edit" : "view"));
+
+  // Own hoisted state (design D7) — reuses the `BudgetMode` type + `BUDGET_MODE_LABEL`
+  // copy for the same "Ver"/"Editar" semantics, but independent from `budgetMode`: toggling
+  // edit mode on Presupuesto must not also flip Pendientes into edit mode, and vice versa.
+  const [pendingMode, setPendingMode] = useState<BudgetMode>("view");
+  const togglePendingMode = () => setPendingMode((m) => (m === "view" ? "edit" : "view"));
 
   // Lifted from `TransactionsTab` (design D6): `MonthNav` is now a single control shared
   // by the Presupuesto and Movimientos tabs, so this flag — its `disabled` guard — had to
@@ -143,6 +181,15 @@ export function FinanceV2Screen({
             onAddSubcategory={addSubcategory}
             onDeleteCategory={deleteCategory}
             onDeleteSubcategory={deleteSubcategory}
+          />
+        )}
+
+        {activeTab === "pending" && (
+          <PendingTab
+            mode={pendingMode}
+            onToggleMode={togglePendingMode}
+            view={pendingTabView}
+            onOverrideBlur={setOverride}
           />
         )}
 

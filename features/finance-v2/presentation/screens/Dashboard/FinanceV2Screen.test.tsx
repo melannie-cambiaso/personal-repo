@@ -18,6 +18,9 @@ const defaultProps = () => ({
   onSaveTransactions: vi.fn(),
   onSaveToOtherMonth: vi.fn(),
   onLoadTransactions: vi.fn().mockResolvedValue([]),
+  initialPendingOverrides: {},
+  onSavePendingOverrides: vi.fn(),
+  onLoadPendingOverrides: vi.fn().mockResolvedValue({}),
 });
 
 describe("FinanceV2Screen", () => {
@@ -32,7 +35,28 @@ describe("FinanceV2Screen", () => {
 
     expect(screen.queryByText("Distribución")).toBeNull();
     expect(screen.getByText("Presupuesto")).toBeTruthy();
+    expect(screen.getByText("Pendientes")).toBeTruthy();
     expect(screen.getByText("Movimientos")).toBeTruthy();
+  });
+
+  it("switches to the Pendientes tab, showing the pending total and hiding the Presupuesto view", () => {
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    fireEvent.click(screen.getByText("Pendientes"));
+
+    expect(screen.queryByText("Fijos (0%)")).toBeNull();
+    expect(screen.getByText("Total pendiente")).toBeTruthy();
+  });
+
+  it("Pendientes mode is independent from the Presupuesto mode", () => {
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
+
+    fireEvent.click(screen.getByText("Pendientes"));
+
+    expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
   });
 
   it("switches to the Movimientos tab, hiding the Presupuesto view", () => {

@@ -7,6 +7,9 @@ import {
   handleSaveTransactions,
   handleAppendTransactionToMonth,
   handleLoadTransactions,
+  loadPendingOverrides,
+  handleSavePendingOverrides,
+  handleLoadPendingOverrides,
 } from "@/features/finance-v2/data";
 import { FinanceV2Screen } from "@/features/finance-v2/presentation/screens/Dashboard/FinanceV2Screen";
 import { currentMonth } from "@/shared/utils/monthUtils";
@@ -18,9 +21,10 @@ export default async function FinanceV2Page() {
 
   const month = currentMonth();
 
-  const [initialBudget, initialTransactions] = await Promise.all([
+  const [initialBudget, initialTransactions, initialPendingOverrides] = await Promise.all([
     loadBudgetConfig(),
     loadTransactions(month),
+    loadPendingOverrides(month),
   ]);
 
   return (
@@ -32,6 +36,9 @@ export default async function FinanceV2Page() {
       onSaveTransactions={handleSaveTransactions}
       onSaveToOtherMonth={handleAppendTransactionToMonth}
       onLoadTransactions={handleLoadTransactions}
+      initialPendingOverrides={initialPendingOverrides}
+      onSavePendingOverrides={handleSavePendingOverrides}
+      onLoadPendingOverrides={handleLoadPendingOverrides}
     />
   );
 }
