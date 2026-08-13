@@ -25,14 +25,15 @@ export interface PendingView {
  *  leaves currently in `BudgetConfig`, so a savings leaf can never appear here
  *  and an override for a deleted leaf is structurally never looked up
  *  (Orphaned Override Inertness). Rows sorted by name so presentation stays
- *  math- and sort-free. `total` is derived from the same rows, never
- *  independently computed or persisted. */
+ *  math- and sort-free. `total` sums every leaf (hidden or not), then `rows`
+ *  drops the zero-amount ones — a fully paid-off category has nothing left to
+ *  act on, so it's noise in the list, but it never silently changes the total. */
 export function computePendingView(
   options: ExpenseCategoryOption[],
   leaves: Record<string, SpendRow>,
   overrides: PendingOverrides,
 ): PendingView {
-  const rows: PendingRow[] = options
+  const allRows: PendingRow[] = options
     .map((option) => {
       const spend = leaves[option.id] ?? { budgeted: 0, spent: 0 };
       const computed = clampAmount(spend.budgeted - spend.spent);
@@ -44,7 +45,8 @@ export function computePendingView(
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  const total = rows.reduce((sum, row) => sum + row.amount, 0);
+  const total = allRows.reduce((sum, row) => sum + row.amount, 0);
+  const rows = allRows.filter((row) => row.amount !== 0);
 
   return { rows, total };
 }

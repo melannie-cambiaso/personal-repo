@@ -22,8 +22,7 @@ describe("computePendingView", () => {
 
     const view = computePendingView(options, leaves, {});
 
-    expect(view.rows[0].computed).toBe(0);
-    expect(view.rows[0].amount).toBe(0);
+    expect(view.total).toBe(0);
   });
 
   it("an override replaces the computed default entirely (not a delta)", () => {
@@ -50,7 +49,7 @@ describe("computePendingView", () => {
 
     const view = computePendingView(options, leaves, overrides);
 
-    expect(view.rows[0].amount).toBe(0);
+    expect(view.total).toBe(0);
   });
 
   it("never renders a savings-bucket leaf, even if it appears in leaves/overrides", () => {
@@ -119,13 +118,39 @@ describe("computePendingView", () => {
 
     const view = computePendingView(options, {}, {});
 
-    expect(view.rows[0]).toEqual({
-      id: "c1",
-      name: "Nueva",
-      bucket: "fixed",
-      computed: 0,
-      amount: 0,
-      isOverridden: false,
-    });
+    expect(view.total).toBe(0);
+  });
+
+  it("hides a leaf whose displayed amount is 0, whether computed or overridden to 0", () => {
+    const options: ExpenseCategoryOption[] = [
+      { id: "c1", name: "Arriendo", bucket: "fixed" },
+      { id: "c2", name: "Ocio", bucket: "variable" },
+      { id: "c3", name: "Salud", bucket: "variable" },
+    ];
+    const leaves: Record<string, SpendRow> = {
+      c1: { budgeted: 50000, spent: 20000 },
+      c2: { budgeted: 10000, spent: 15000 },
+    };
+    const overrides: PendingOverrides = { c3: 0 };
+
+    const view = computePendingView(options, leaves, overrides);
+
+    expect(view.rows.map((r) => r.id)).toEqual(["c1"]);
+  });
+
+  it("keeps total correct when some leaves are hidden for being 0", () => {
+    const options: ExpenseCategoryOption[] = [
+      { id: "c1", name: "Arriendo", bucket: "fixed" },
+      { id: "c2", name: "Ocio", bucket: "variable" },
+    ];
+    const leaves: Record<string, SpendRow> = {
+      c1: { budgeted: 50000, spent: 20000 },
+      c2: { budgeted: 10000, spent: 15000 },
+    };
+
+    const view = computePendingView(options, leaves, {});
+
+    expect(view.rows.map((r) => r.id)).toEqual(["c1"]);
+    expect(view.total).toBe(30000);
   });
 });
