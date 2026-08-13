@@ -29,17 +29,19 @@ export function PendingLeafRow({ mode, row, onOverrideBlur }: Props) {
       {mode === "view" ? (
         <span className="text-brown-800 text-sm font-bold">{formatCLP(row.amount)}</span>
       ) : (
-        <Input
-          type="number"
-          min="0"
-          aria-label={`Pendiente de ${row.name}`}
-          defaultValue={row.amount || ""}
-          key={`pending-${row.id}-${version}`}
-          placeholder="0"
-          autoComplete="off"
-          className="w-24 text-right"
-          onBlur={handleBlur}
-        />
+        <div className="flex shrink-0 items-center">
+          <Input
+            type="number"
+            min="0"
+            aria-label={`Pendiente de ${row.name}`}
+            defaultValue={row.amount || ""}
+            key={`pending-${row.id}-${version}`}
+            placeholder="0"
+            autoComplete="off"
+            className="w-24 text-right"
+            onBlur={handleBlur}
+          />
+        </div>
       )}
     </div>
   );
