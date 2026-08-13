@@ -1,13 +1,15 @@
 "use server";
 
 import { cookies } from "next/headers";
-import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
+import type { BudgetConfig, FinanceV2Transaction, PendingOverrides } from "@/features/finance-v2/domain";
 import { isTransactionMonth } from "@/features/finance-v2/domain";
 import {
   saveBudgetConfig,
   saveTransactions,
   appendTransactionToMonth,
   loadTransactions,
+  savePendingOverrides,
+  loadPendingOverrides,
 } from "./kvAdapter";
 
 export async function handleSaveBudgetConfig(config: BudgetConfig): Promise<void> {
@@ -52,4 +54,25 @@ export async function handleLoadTransactions(month: string): Promise<FinanceV2Tr
   if (!cookieStore.get("wishlist_auth")?.value) return [];
   if (!isTransactionMonth(month)) return [];
   return loadTransactions(month);
+}
+
+// Unlike `handleSaveTransactions` above (validates only on load), this validates `month`
+// on BOTH save and load (D8): both build a redis key from user input and are POST-reachable
+// on their own via the client hook. Do NOT retro-fix `handleSaveTransactions` here — out of
+// scope for this capability.
+export async function handleSavePendingOverrides(
+  month: string,
+  overrides: PendingOverrides,
+): Promise<void> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isTransactionMonth(month)) return;
+  await savePendingOverrides(month, overrides);
+}
+
+export async function handleLoadPendingOverrides(month: string): Promise<PendingOverrides> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return {};
+  if (!isTransactionMonth(month)) return {};
+  return loadPendingOverrides(month);
 }
