@@ -11,12 +11,9 @@ import {
   loadTransactions,
   saveTransactions,
   appendTransactionToMonth,
-  pendingKey,
-  loadPendingOverrides,
-  savePendingOverrides,
 } from "./kvAdapter";
 import { DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
-import type { BudgetConfig, FinanceV2Transaction, PendingOverrides } from "@/features/finance-v2/domain";
+import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
 
 describe("loadBudgetConfig", () => {
   beforeEach(() => {
@@ -195,59 +192,5 @@ describe("appendTransactionToMonth", () => {
     await appendTransactionToMonth("2026-09", tx);
 
     expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-09", [tx]);
-  });
-});
-
-describe("pendingKey", () => {
-  it("builds the month-scoped key finance-v2-pending:YYYY-MM", () => {
-    expect(pendingKey("2026-07")).toBe("finance-v2-pending:2026-07");
-  });
-});
-
-describe("loadPendingOverrides", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("returns an empty object when the month's key is missing (default-on-miss)", async () => {
-    redisMock.get.mockResolvedValue(null);
-    const result = await loadPendingOverrides("2026-07");
-    expect(result).toEqual({});
-  });
-
-  it("returns the stored overrides for the given month", async () => {
-    const stored: PendingOverrides = { s1: 12000 };
-    redisMock.get.mockResolvedValue(stored);
-    const result = await loadPendingOverrides("2026-07");
-    expect(result).toEqual(stored);
-  });
-
-  it("uses the month-scoped key finance-v2-pending:YYYY-MM", async () => {
-    redisMock.get.mockResolvedValue(null);
-    await loadPendingOverrides("2026-07");
-    expect(redisMock.get).toHaveBeenCalledWith("finance-v2-pending:2026-07");
-  });
-
-  it("returns an empty object (default) when redis.get throws (throw-swallow)", async () => {
-    redisMock.get.mockRejectedValue(new Error("connection lost"));
-    const result = await loadPendingOverrides("2026-07");
-    expect(result).toEqual({});
-  });
-});
-
-describe("savePendingOverrides", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("saves overrides under the month-scoped key", async () => {
-    const overrides: PendingOverrides = { s1: 12000 };
-    await savePendingOverrides("2026-07", overrides);
-    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-pending:2026-07", overrides);
-  });
-
-  it("swallows redis errors on save (throw-swallow)", async () => {
-    redisMock.set.mockRejectedValue(new Error("connection lost"));
-    await expect(savePendingOverrides("2026-07", {})).resolves.toBeUndefined();
   });
 });

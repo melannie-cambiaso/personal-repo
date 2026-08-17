@@ -6,12 +6,10 @@
 // loader runs. `handleLoadTransactions` is the exception: the client hook calls it
 // directly on every month change, so it is POST-reachable on its own and gates auth
 // itself.
-export { loadBudgetConfig, loadTransactions, loadPendingOverrides } from "./kvAdapter";
+export { loadBudgetConfig, loadTransactions } from "./kvAdapter";
 export {
   handleSaveBudgetConfig,
   handleSaveTransactions,
   handleAppendTransactionToMonth,
   handleLoadTransactions,
-  handleSavePendingOverrides,
-  handleLoadPendingOverrides,
 } from "./financeV2Actions";

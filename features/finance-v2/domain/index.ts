@@ -29,7 +29,3 @@ export type { DayGroup } from "./groupTransactionsByDay";
 export { groupTransactionsByDay } from "./groupTransactionsByDay";
 export type { ExpenseCategoryOption } from "./expenseCategoryOptions";
 export { listExpenseCategoryOptions } from "./expenseCategoryOptions";
-export type { PendingOverrides } from "./pendingOverrides";
-export { setPendingOverride } from "./pendingOverrides";
-export type { PendingRow, PendingView } from "./pendingView";
-export { computePendingView } from "./pendingView";

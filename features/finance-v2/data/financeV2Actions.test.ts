@@ -1,13 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { BudgetConfig, FinanceV2Transaction, PendingOverrides } from "@/features/finance-v2/domain";
+import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
 
 const cookiesGetMock = vi.hoisted(() => vi.fn());
 const saveBudgetConfigMock = vi.hoisted(() => vi.fn());
 const saveTransactionsMock = vi.hoisted(() => vi.fn());
 const appendTransactionToMonthMock = vi.hoisted(() => vi.fn());
 const loadTransactionsMock = vi.hoisted(() => vi.fn());
-const savePendingOverridesMock = vi.hoisted(() => vi.fn());
-const loadPendingOverridesMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -20,8 +18,6 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     saveTransactions: saveTransactionsMock,
     appendTransactionToMonth: appendTransactionToMonthMock,
     loadTransactions: loadTransactionsMock,
-    savePendingOverrides: savePendingOverridesMock,
-    loadPendingOverrides: loadPendingOverridesMock,
   };
 });
 
@@ -30,8 +26,6 @@ import {
   handleSaveTransactions,
   handleAppendTransactionToMonth,
   handleLoadTransactions,
-  handleSavePendingOverrides,
-  handleLoadPendingOverrides,
 } from "./financeV2Actions";
 
 const withAuth = () => cookiesGetMock.mockReturnValue({ value: "token" });
@@ -166,69 +160,5 @@ describe("handleLoadTransactions", () => {
 
     expect(loadTransactionsMock).toHaveBeenCalledWith("2026-07");
     expect(result).toBe(list);
-  });
-});
-
-describe("handleSavePendingOverrides", () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it("does nothing without auth and does not write KV", async () => {
-    withoutAuth();
-    const overrides: PendingOverrides = { s1: 12000 };
-
-    await handleSavePendingOverrides("2026-07", overrides);
-
-    expect(savePendingOverridesMock).not.toHaveBeenCalled();
-  });
-
-  it("does nothing and does not write KV when month is malformed", async () => {
-    withAuth();
-    const overrides: PendingOverrides = { s1: 12000 };
-
-    await handleSavePendingOverrides("2026-13", overrides);
-
-    expect(savePendingOverridesMock).not.toHaveBeenCalled();
-  });
-
-  it("delegates to kvAdapter's savePendingOverrides when authenticated and month is well-formed", async () => {
-    withAuth();
-    const overrides: PendingOverrides = { s1: 12000 };
-
-    await handleSavePendingOverrides("2026-07", overrides);
-
-    expect(savePendingOverridesMock).toHaveBeenCalledWith("2026-07", overrides);
-  });
-});
-
-describe("handleLoadPendingOverrides", () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it("returns {} without auth and does not call loadPendingOverrides", async () => {
-    withoutAuth();
-
-    const result = await handleLoadPendingOverrides("2026-07");
-
-    expect(result).toEqual({});
-    expect(loadPendingOverridesMock).not.toHaveBeenCalled();
-  });
-
-  it("returns {} for a malformed month even when authenticated", async () => {
-    withAuth();
-
-    const result = await handleLoadPendingOverrides("2026-13");
-
-    expect(result).toEqual({});
-    expect(loadPendingOverridesMock).not.toHaveBeenCalled();
-  });
-
-  it("delegates to loadPendingOverrides(month) and returns its result when authenticated and month is well-formed", async () => {
-    withAuth();
-    const overrides: PendingOverrides = { s1: 12000 };
-    loadPendingOverridesMock.mockResolvedValue(overrides);
-
-    const result = await handleLoadPendingOverrides("2026-07");
-
-    expect(loadPendingOverridesMock).toHaveBeenCalledWith("2026-07");
-    expect(result).toBe(overrides);
   });
 });

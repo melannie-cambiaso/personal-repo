@@ -1,7 +1,7 @@
 import "server-only";
 import { redis } from "@/shared/kv";
 import { DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
-import type { BudgetConfig, FinanceV2Transaction, PendingOverrides } from "@/features/finance-v2/domain";
+import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
 
 // Global, not month-scoped, distinct from all v1 finance keys — same try/catch-swallow
 // + default-on-miss pattern.
@@ -23,10 +23,9 @@ export async function saveBudgetConfig(config: BudgetConfig): Promise<void> {
   }
 }
 
-// Two month-scoped stores in v2 (transactions below, pending overrides further down) —
-// a factory (like v1's `monthlyKvStore`) would be premature: they differ in shape and
-// default-on-miss (`[]` + legacy backfill vs `{}`). Revisit at a 3rd store.
-// This is the ONLY place `finance-v2-transactions:{month}` keys are built.
+// The only month-scoped store in v2 — a key factory (like v1's `monthlyKvStore`) would be
+// premature for a single store. This is the ONLY place `finance-v2-transactions:{month}`
+// keys are built.
 export const transactionsKey = (month: string): string => `finance-v2-transactions:${month}`;
 
 export async function loadTransactions(month: string): Promise<FinanceV2Transaction[]> {
@@ -62,28 +61,4 @@ export async function appendTransactionToMonth(
 ): Promise<void> {
   const list = await loadTransactions(month);
   await saveTransactions(month, [...list, tx]);
-}
-
-// The 2nd month-scoped store — independent of `BudgetConfig`'s global key by design
-// (budget is a stable plan, pendiente is a per-month fact). This is the ONLY place
-// `finance-v2-pending:{month}` keys are built.
-export const pendingKey = (month: string): string => `finance-v2-pending:${month}`;
-
-export async function loadPendingOverrides(month: string): Promise<PendingOverrides> {
-  try {
-    return (await redis.get<PendingOverrides>(pendingKey(month))) ?? {};
-  } catch {
-    return {};
-  }
-}
-
-export async function savePendingOverrides(
-  month: string,
-  overrides: PendingOverrides,
-): Promise<void> {
-  try {
-    await redis.set(pendingKey(month), overrides);
-  } catch {
-    // swallow — caller has no recovery path; overrides revert to in-memory state on next load
-  }
 }
