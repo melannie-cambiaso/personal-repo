@@ -2,6 +2,7 @@ import type { BucketKey } from "./BucketKey";
 import type { BudgetConfig } from "./BudgetConfig";
 import type { ExpenseBucketKey, FinanceV2Transaction } from "./FinanceV2Transaction";
 import { computeBucketTotals } from "./budgetRollup";
+import { resolveLeafMonthlyAmount } from "./budgetAmount";
 
 const BUCKET_ORDER: BucketKey[] = ["fixed", "variable", "savings"];
 
@@ -66,6 +67,7 @@ export function computeSpentByCategory(transactions: FinanceV2Transaction[]): {
 export function computeSpendComparison(
   config: BudgetConfig,
   transactions: FinanceV2Transaction[],
+  month: string,
 ): SpendComparison {
   const { byLeafId, unassignedByBucket } = computeSpentByCategory(transactions);
 
@@ -77,7 +79,7 @@ export function computeSpendComparison(
     if (category.subcategories.length === 0) {
       const spent = byLeafId[category.id] ?? 0;
       claimedLeafIds.add(category.id);
-      const row: SpendRow = { budgeted: category.amount, spent };
+      const row: SpendRow = { budgeted: resolveLeafMonthlyAmount(category, month), spent };
       categories[category.id] = row;
       leaves[category.id] = row;
       continue;
@@ -87,7 +89,7 @@ export function computeSpendComparison(
     for (const sub of category.subcategories) {
       const subSpent = byLeafId[sub.id] ?? 0;
       claimedLeafIds.add(sub.id);
-      leaves[sub.id] = { budgeted: sub.amount, spent: subSpent };
+      leaves[sub.id] = { budgeted: resolveLeafMonthlyAmount(sub, month), spent: subSpent };
       parentSpent += subSpent;
     }
     categories[category.id] = { budgeted: 0, spent: parentSpent };
@@ -107,7 +109,7 @@ export function computeSpendComparison(
     unassignedTotals[bucket] += spent;
   }
 
-  const budgetedByBucket = computeBucketTotals(config);
+  const budgetedByBucket = computeBucketTotals(config, month);
   const spentByBucket = computeSpentByBucket(config, byLeafId, unassignedTotals);
 
   const buckets: BucketSpendRow[] = BUCKET_ORDER.map((key) => ({

@@ -33,3 +33,20 @@ export function monthWindow(center: string, radius: number): string[] {
 
   return [...before, center, ...after];
 }
+
+/** Returns the number of weekly cycles (Mondays) in the given "YYYY-MM" month.
+ *  Crucial for weekly recurring expenses like food, cleaning, DBT, and chefcito. */
+export function getWeeksInMonth(month: string): number {
+  const [y, m] = month.split("-").map(Number);
+  if (isNaN(y) || isNaN(m) || m < 1 || m > 12) return 4;
+  const date = new Date(y, m - 1, 1);
+  let count = 0;
+  while (date.getMonth() === m - 1) {
+    if (date.getDay() === 1) {
+      count++;
+    }
+    date.setDate(date.getDate() + 1);
+  }
+  return count > 0 ? count : 4;
+}
+

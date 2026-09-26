@@ -95,7 +95,7 @@ describe("computeSpendComparison", () => {
   it("returns all-zero rows for an empty config with no transactions", () => {
     const config: BudgetConfig = { categories: [] };
 
-    expect(computeSpendComparison(config, [])).toEqual({
+    expect(computeSpendComparison(config, [], "2026-07")).toEqual({
       categories: {},
       leaves: {},
       buckets: [
@@ -113,7 +113,7 @@ describe("computeSpendComparison", () => {
     };
     const list = [expenseTx({ amount: 350000, bucket: "fixed", category: { id: "c1", name: "Arriendo" } })];
 
-    const result = computeSpendComparison(config, list);
+    const result = computeSpendComparison(config, list, "2026-07");
 
     expect(result.categories.c1).toEqual({ budgeted: 350000, spent: 350000 });
     expect(result.leaves.c1).toEqual({ budgeted: 350000, spent: 350000 });
@@ -139,7 +139,7 @@ describe("computeSpendComparison", () => {
       expenseTx({ amount: 5000, bucket: "variable", category: { id: "s2", name: "Ocio" } }),
     ];
 
-    const result = computeSpendComparison(config, list);
+    const result = computeSpendComparison(config, list, "2026-07");
 
     expect(result.categories.c1).toEqual({ budgeted: 0, spent: 25000 });
     expect(result.leaves.s1).toEqual({ budgeted: 20000, spent: 20000 });
@@ -150,7 +150,7 @@ describe("computeSpendComparison", () => {
     const config: BudgetConfig = { categories: [] };
     const list = [expenseTx({ amount: 8000, bucket: "fixed", category: null })];
 
-    const result = computeSpendComparison(config, list);
+    const result = computeSpendComparison(config, list, "2026-07");
     const fixedRow = result.buckets.find((row) => row.key === "fixed");
 
     expect(fixedRow).toEqual({ key: "fixed", budgeted: 0, spent: 8000, unassigned: 8000 });
@@ -161,7 +161,7 @@ describe("computeSpendComparison", () => {
     const config: BudgetConfig = { categories: [] };
     const list = [expenseTx({ amount: 12000, bucket: "fixed", category: { id: "cat-old", name: "Super" } })];
 
-    const result = computeSpendComparison(config, list);
+    const result = computeSpendComparison(config, list, "2026-07");
     const fixedRow = result.buckets.find((row) => row.key === "fixed");
 
     expect(fixedRow).toEqual({ key: "fixed", budgeted: 0, spent: 12000, unassigned: 12000 });
@@ -182,7 +182,7 @@ describe("computeSpendComparison", () => {
     // Historical transaction referencing "c1" back when it was a leaf, before a subcategory was added.
     const list = [expenseTx({ amount: 7000, bucket: "fixed", category: { id: "c1", name: "Servicios" } })];
 
-    const result = computeSpendComparison(config, list);
+    const result = computeSpendComparison(config, list, "2026-07");
     const fixedRow = result.buckets.find((row) => row.key === "fixed");
 
     expect(result.categories.c1).toEqual({ budgeted: 0, spent: 0 });
@@ -196,7 +196,7 @@ describe("computeSpendComparison", () => {
     };
     const list = [expenseTx({ amount: 30000, bucket: "fixed", category: { id: "c1", name: "Super" } })];
 
-    const result = computeSpendComparison(config, list);
+    const result = computeSpendComparison(config, list, "2026-07");
 
     expect(result.leaves.c1).toEqual({ budgeted: 50000, spent: 30000 });
     const fixedRow = result.buckets.find((row) => row.key === "fixed");
@@ -208,7 +208,7 @@ describe("computeSpendComparison", () => {
       categories: [{ id: "c1", name: "Fondo emergencia", bucket: "savings", amount: 30000, subcategories: [] }],
     };
 
-    const result = computeSpendComparison(config, []);
+    const result = computeSpendComparison(config, [], "2026-07");
 
     expect(result.leaves.c1).toEqual({ budgeted: 30000, spent: 0 });
     const savingsRow = result.buckets.find((row) => row.key === "savings");
@@ -220,7 +220,7 @@ describe("computeSpendComparison", () => {
       categories: [{ id: "c1", name: "Streaming", bucket: "variable", amount: 10000, subcategories: [] }],
     };
 
-    const result = computeSpendComparison(config, []);
+    const result = computeSpendComparison(config, [], "2026-07");
 
     expect(result.categories.c1).toEqual({ budgeted: 10000, spent: 0 });
     expect(result.leaves.c1).toEqual({ budgeted: 10000, spent: 0 });
@@ -242,7 +242,7 @@ describe("computeSpendComparison", () => {
       { id: "tx-income", amount: 500000, date: "2026-07-01", month: "2026-07", type: "income" as const },
     ];
 
-    const result = computeSpendComparison(config, list);
+    const result = computeSpendComparison(config, list, "2026-07");
 
     expect(result.total.spent).toBe(140000);
   });
@@ -256,12 +256,50 @@ describe("computeSpendComparison", () => {
       }),
     ];
 
-    expect(() => computeSpendComparison(config, list)).not.toThrow();
+    expect(() => computeSpendComparison(config, list, "2026-07")).not.toThrow();
 
-    const result = computeSpendComparison(config, list);
+    const result = computeSpendComparison(config, list, "2026-07");
     const variableRow = result.buckets.find((row) => row.key === "variable");
 
     expect(variableRow).toEqual({ key: "variable", budgeted: 0, spent: 50000, unassigned: 50000 });
+  });
+});
+
+describe("computeSpendComparison with weekly leaves", () => {
+  it("budgets a weekly leaf scaled by the number of weeks in the given month", () => {
+    const config: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Comida",
+          bucket: "variable",
+          amount: 20000,
+          frequency: "weekly",
+          subcategories: [],
+        },
+      ],
+    };
+    const list = [
+      expenseTx({ amount: 15000, bucket: "variable", category: { id: "c1", name: "Comida" } }),
+    ];
+
+    const result5Weeks = computeSpendComparison(config, list, "2026-08");
+    expect(result5Weeks.leaves.c1).toEqual({ budgeted: 100000, spent: 15000 });
+
+    const result4Weeks = computeSpendComparison(config, list, "2026-09");
+    expect(result4Weeks.leaves.c1).toEqual({ budgeted: 80000, spent: 15000 });
+  });
+
+  it("keeps a legacy leaf with no frequency field budgeting exactly its raw amount", () => {
+    const config: BudgetConfig = {
+      categories: [
+        { id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] },
+      ],
+    };
+
+    const result = computeSpendComparison(config, [], "2026-08");
+
+    expect(result.leaves.c1).toEqual({ budgeted: 350000, spent: 0 });
   });
 });
 
@@ -284,8 +322,8 @@ describe("computeSpendComparison budgeted totals", () => {
       ],
     };
 
-    const result = computeSpendComparison(config, []);
-    const expected = computeBucketTotals(config);
+    const result = computeSpendComparison(config, [], "2026-07");
+    const expected = computeBucketTotals(config, "2026-07");
 
     for (const row of result.buckets) {
       expect(row.budgeted).toBe(expected[row.key]);

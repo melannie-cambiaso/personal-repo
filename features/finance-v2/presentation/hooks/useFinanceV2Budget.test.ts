@@ -15,7 +15,7 @@ describe("useFinanceV2Budget", () => {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] }],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, onSave })
+      useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
     );
 
     expect(result.current.categories).toEqual(initialBudget.categories);
@@ -25,7 +25,7 @@ describe("useFinanceV2Budget", () => {
   it("addCategory appends a new childless category and calls onSave once with the resulting config", () => {
     const initialBudget: BudgetConfig = { categories: [] };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, onSave })
+      useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
     );
 
     act(() => result.current.addCategory("Arriendo", "fixed"));
@@ -39,7 +39,7 @@ describe("useFinanceV2Budget", () => {
   it("addCategory with a blank name does nothing and does not call onSave", () => {
     const initialBudget: BudgetConfig = { categories: [] };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, onSave })
+      useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
     );
 
     act(() => result.current.addCategory("   ", "fixed"));
@@ -53,7 +53,7 @@ describe("useFinanceV2Budget", () => {
       categories: [{ id: "c1", name: "Servicios", bucket: "fixed", amount: 0, subcategories: [] }],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, onSave })
+      useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
     );
 
     act(() => result.current.addSubcategory("c1", "Luz", "fixed"));
@@ -68,7 +68,7 @@ describe("useFinanceV2Budget", () => {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] }],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, onSave })
+      useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
     );
 
     act(() => result.current.deleteCategory("c1"));
@@ -94,7 +94,7 @@ describe("useFinanceV2Budget", () => {
       ],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, onSave })
+      useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
     );
 
     act(() => result.current.deleteSubcategory("c1", "s1"));
@@ -110,7 +110,7 @@ describe("useFinanceV2Budget", () => {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 0, subcategories: [] }],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, onSave })
+      useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
     );
 
     act(() => result.current.handleAmountBlur("c1", null, "-500"));
@@ -132,7 +132,7 @@ describe("useFinanceV2Budget", () => {
       ],
     };
     const { result } = renderHook(() =>
-      useFinanceV2Budget({ initialBudget, onSave })
+      useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
     );
 
     act(() => result.current.handleAmountBlur("c1", "s1", "9000"));
@@ -143,4 +143,33 @@ describe("useFinanceV2Budget", () => {
 
   // No test covers a `split`-driven comparison variant here: `computeBudgetComparison`
   // no longer accepts a `split` input, so that behavior no longer exists.
+
+  it("derives comparison from a weekly leaf scaled by the viewed month's number of weeks", () => {
+    const initialBudget: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Comida",
+          bucket: "variable",
+          amount: 20_000,
+          frequency: "weekly",
+          subcategories: [],
+        },
+      ],
+    };
+    const { result, rerender } = renderHook(
+      ({ month }) => useFinanceV2Budget({ initialBudget, month, onSave }),
+      { initialProps: { month: "2026-08" } },
+    );
+
+    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(
+      100_000,
+    );
+
+    rerender({ month: "2026-09" });
+
+    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(
+      80_000,
+    );
+  });
 });

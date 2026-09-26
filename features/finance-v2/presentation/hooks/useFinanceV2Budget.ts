@@ -14,17 +14,20 @@ import {
 
 interface Params {
   initialBudget: BudgetConfig;
+  /** The viewed month — weekly leaves' monthly budget depends on it (see
+   *  `resolveLeafMonthlyAmount`). */
+  month: string;
   onSave: (budget: BudgetConfig) => Promise<void> | void;
 }
 
 // Fire-and-forget persist on every mutation and on amount blur, no validity gate (design
 // decision #7) — unlike tab 1, no budget state is ever invalid. `configRef` avoids stale
 // closures across successive calls (same `persist*` pattern used across finance-v2 hooks).
-export function useFinanceV2Budget({ initialBudget, onSave }: Params) {
+export function useFinanceV2Budget({ initialBudget, month, onSave }: Params) {
   const [config, setConfig] = useState<BudgetConfig>(initialBudget);
   const configRef = useRef(initialBudget);
 
-  const comparison = useMemo(() => computeBudgetComparison(config), [config]);
+  const comparison = useMemo(() => computeBudgetComparison(config, month), [config, month]);
 
   const persist = (next: BudgetConfig) => {
     configRef.current = next;

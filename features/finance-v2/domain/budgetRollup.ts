@@ -1,23 +1,26 @@
 import type { BucketKey } from "./BucketKey";
 import type { BudgetConfig } from "./BudgetConfig";
+import { resolveLeafMonthlyAmount } from "./budgetAmount";
 
 export type BucketTotals = Record<BucketKey, number>;
 
 const BUCKET_ORDER: BucketKey[] = ["fixed", "variable", "savings"];
 
-/** Sums only leaf nodes: a childless category's own amount, and every
- *  subcategory's own amount, each keyed by ITS OWN bucket tag. A parent
- *  category's own `bucket`/`amount` never contributes. */
-export function computeBucketTotals(config: BudgetConfig): BucketTotals {
+/** Sums only leaf nodes: a childless category's own MONTHLY amount for
+ *  `month`, and every subcategory's own monthly amount for `month`, each
+ *  keyed by ITS OWN bucket tag. A parent category's own `bucket`/`amount`
+ *  never contributes. Monthly leaves are month-independent (backward
+ *  compatible); weekly leaves are scaled via `resolveLeafMonthlyAmount`. */
+export function computeBucketTotals(config: BudgetConfig, month: string): BucketTotals {
   const totals: BucketTotals = { fixed: 0, variable: 0, savings: 0 };
 
   for (const category of config.categories) {
     if (category.subcategories.length === 0) {
-      totals[category.bucket] += category.amount;
+      totals[category.bucket] += resolveLeafMonthlyAmount(category, month);
       continue;
     }
     for (const sub of category.subcategories) {
-      totals[sub.bucket] += sub.amount;
+      totals[sub.bucket] += resolveLeafMonthlyAmount(sub, month);
     }
   }
 
@@ -35,10 +38,10 @@ export interface BudgetComparison {
   total: { budgeted: number };
 }
 
-/** Bucket composition of the budget: each bucket's budgeted sum plus its integer
- *  share of the total. */
-export function computeBudgetComparison(config: BudgetConfig): BudgetComparison {
-  const totals = computeBucketTotals(config);
+/** Bucket composition of the budget for `month`: each bucket's budgeted sum
+ *  plus its integer share of the total. */
+export function computeBudgetComparison(config: BudgetConfig, month: string): BudgetComparison {
+  const totals = computeBucketTotals(config, month);
   const rows = BUCKET_ORDER.map((key) => ({ key, budgeted: totals[key] }));
   const budgeted = rows.reduce((sum, row) => sum + row.budgeted, 0);
 

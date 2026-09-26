@@ -1,7 +1,9 @@
 export { clampAmount } from "./clamp";
 export type { BucketKey } from "./BucketKey";
-export type { BudgetSubcategory, BudgetCategory, BudgetConfig } from "./BudgetConfig";
+export type { BudgetSubcategory, BudgetCategory, BudgetConfig, BudgetFrequency } from "./BudgetConfig";
 export { DEFAULT_BUDGET_CONFIG } from "./BudgetConfig";
+export type { BudgetLeafAmount } from "./budgetAmount";
+export { resolveLeafMonthlyAmount } from "./budgetAmount";
 export type { CategoryView } from "./categoryView";
 export { toCategoryView } from "./categoryView";
 export type { BucketTotals, BudgetComparison } from "./budgetRollup";
@@ -14,6 +16,7 @@ export {
   deleteCategory,
   deleteSubcategory,
   setLeafAmount,
+  setLeafFrequency,
 } from "./budgetMutations";
 export type {
   ExpenseBucketKey,

@@ -44,6 +44,13 @@ export function FinanceV2Screen({
   onSaveToOtherMonth,
   onLoadTransactions,
 }: Props) {
+  // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
+  // survive a tab switch. `setViewedMonth` is wired into `TransactionsTab`'s
+  // `onChangeMonth` below, driving the prev/next controls. Declared before
+  // `useFinanceV2Budget` because that hook's `comparison` is month-aware (weekly budget
+  // leaves depend on the number of weeks in the viewed month).
+  const [viewedMonth, setViewedMonth] = useState(initialMonth);
+
   const {
     categories,
     comparison,
@@ -52,12 +59,7 @@ export function FinanceV2Screen({
     deleteCategory,
     deleteSubcategory,
     handleAmountBlur,
-  } = useFinanceV2Budget({ initialBudget, onSave: onSaveBudget });
-
-  // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
-  // survive a tab switch. `setViewedMonth` is wired into `TransactionsTab`'s
-  // `onChangeMonth` below, driving the prev/next controls.
-  const [viewedMonth, setViewedMonth] = useState(initialMonth);
+  } = useFinanceV2Budget({ initialBudget, month: viewedMonth, onSave: onSaveBudget });
 
   const {
     transactions,
@@ -85,8 +87,8 @@ export function FinanceV2Screen({
   // the loaded transaction list. `isLoadingMonth` is applied OUTSIDE the memo (via
   // `toSpendView`) — it is a cheap wrap, not worth widening the memo's dependency list.
   const spendComparison = useMemo(
-    () => computeSpendComparison({ categories }, transactions),
-    [categories, transactions]
+    () => computeSpendComparison({ categories }, transactions, viewedMonth),
+    [categories, transactions, viewedMonth]
   );
   const spend = toSpendView(isLoadingMonth, spendComparison);
 

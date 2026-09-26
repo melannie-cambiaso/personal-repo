@@ -5,6 +5,7 @@ import {
   deleteCategory,
   deleteSubcategory,
   setLeafAmount,
+  setLeafFrequency,
 } from "./budgetMutations";
 import type { BudgetConfig } from "./BudgetConfig";
 
@@ -142,5 +143,58 @@ describe("setLeafAmount", () => {
 
     expect(next).not.toBe(config);
     expect(config.categories[0].amount).toBe(0);
+  });
+});
+
+describe("setLeafFrequency", () => {
+  it("sets a childless category's frequency when subcategoryId is null", () => {
+    const config: BudgetConfig = {
+      categories: [{ id: "c1", name: "Comida", bucket: "variable", amount: 20000, subcategories: [] }],
+    };
+
+    const next = setLeafFrequency(config, {
+      categoryId: "c1",
+      subcategoryId: null,
+      frequency: "weekly",
+    });
+
+    expect(next.categories[0].frequency).toBe("weekly");
+    expect(config.categories[0].frequency).toBeUndefined(); // input untouched
+  });
+
+  it("sets a subcategory's frequency when subcategoryId is provided", () => {
+    const config: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Servicios",
+          bucket: "fixed",
+          amount: 0,
+          subcategories: [{ id: "s1", name: "Limpieza", bucket: "fixed", amount: 5000 }],
+        },
+      ],
+    };
+
+    const next = setLeafFrequency(config, {
+      categoryId: "c1",
+      subcategoryId: "s1",
+      frequency: "weekly",
+    });
+
+    expect(next.categories[0].subcategories[0].frequency).toBe("weekly");
+  });
+
+  it("returns the config unchanged (no throw) when the category id is unknown", () => {
+    const config: BudgetConfig = {
+      categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 0, subcategories: [] }],
+    };
+
+    const next = setLeafFrequency(config, {
+      categoryId: "missing",
+      subcategoryId: null,
+      frequency: "weekly",
+    });
+
+    expect(next).toEqual(config);
   });
 });

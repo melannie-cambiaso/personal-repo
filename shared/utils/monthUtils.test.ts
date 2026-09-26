@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { monthWindow } from "./monthUtils";
+import { getWeeksInMonth, monthWindow } from "./monthUtils";
 
 describe("monthWindow", () => {
   it("returns 7 months, ascending, centered on `center` at index `radius`", () => {
@@ -44,5 +44,19 @@ describe("monthWindow", () => {
       "2027-01",
       "2027-02",
     ]);
+  });
+});
+
+describe("getWeeksInMonth", () => {
+  it("counts 5 Mondays in a 5-Monday month (2026-08)", () => {
+    expect(getWeeksInMonth("2026-08")).toBe(5);
+  });
+
+  it("counts 4 Mondays in a 4-Monday month (2026-09)", () => {
+    expect(getWeeksInMonth("2026-09")).toBe(4);
+  });
+
+  it("falls back to 4 for an invalid month string", () => {
+    expect(getWeeksInMonth("not-a-month")).toBe(4);
   });
 });

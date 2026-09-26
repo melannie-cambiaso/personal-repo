@@ -6,7 +6,7 @@ describe("computeBucketTotals", () => {
   it("returns all-zero totals for an empty config", () => {
     const config: BudgetConfig = { categories: [] };
 
-    expect(computeBucketTotals(config)).toEqual({ fixed: 0, variable: 0, savings: 0 });
+    expect(computeBucketTotals(config, "2026-07")).toEqual({ fixed: 0, variable: 0, savings: 0 });
   });
 
   it("counts a childless category's own bucket and amount", () => {
@@ -16,7 +16,11 @@ describe("computeBucketTotals", () => {
       ],
     };
 
-    expect(computeBucketTotals(config)).toEqual({ fixed: 350000, variable: 0, savings: 0 });
+    expect(computeBucketTotals(config, "2026-07")).toEqual({
+      fixed: 350000,
+      variable: 0,
+      savings: 0,
+    });
   });
 
   it("never counts a parent category's own bucket or amount", () => {
@@ -32,7 +36,11 @@ describe("computeBucketTotals", () => {
       ],
     };
 
-    expect(computeBucketTotals(config)).toEqual({ fixed: 10000, variable: 0, savings: 0 });
+    expect(computeBucketTotals(config, "2026-07")).toEqual({
+      fixed: 10000,
+      variable: 0,
+      savings: 0,
+    });
   });
 
   it("splits mixed-bucket subcategories under one parent across buckets, no validation error", () => {
@@ -51,7 +59,11 @@ describe("computeBucketTotals", () => {
       ],
     };
 
-    expect(computeBucketTotals(config)).toEqual({ fixed: 5000, variable: 3000, savings: 0 });
+    expect(computeBucketTotals(config, "2026-07")).toEqual({
+      fixed: 5000,
+      variable: 3000,
+      savings: 0,
+    });
   });
 
   it("returns 0 (not undefined) for a bucket with no leaves", () => {
@@ -61,10 +73,62 @@ describe("computeBucketTotals", () => {
       ],
     };
 
-    const totals = computeBucketTotals(config);
+    const totals = computeBucketTotals(config, "2026-07");
 
     expect(totals.savings).toBe(0);
     expect(totals.variable).toBe(0);
+  });
+
+  it("scales a weekly leaf by the number of weeks in the given month (5-Monday month)", () => {
+    const config: BudgetConfig = {
+      categories: [
+        { id: "c1", name: "Comida", bucket: "variable", amount: 20000, frequency: "weekly", subcategories: [] },
+      ],
+    };
+
+    expect(computeBucketTotals(config, "2026-08")).toEqual({ fixed: 0, variable: 100000, savings: 0 });
+  });
+
+  it("scales the same weekly leaf differently in a 4-Monday month", () => {
+    const config: BudgetConfig = {
+      categories: [
+        { id: "c1", name: "Comida", bucket: "variable", amount: 20000, frequency: "weekly", subcategories: [] },
+      ],
+    };
+
+    expect(computeBucketTotals(config, "2026-09")).toEqual({ fixed: 0, variable: 80000, savings: 0 });
+  });
+
+  it("scales a weekly subcategory's amount the same way as a weekly leaf category", () => {
+    const config: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Servicios",
+          bucket: "fixed",
+          amount: 0,
+          subcategories: [
+            { id: "s1", name: "Limpieza", bucket: "fixed", amount: 5000, frequency: "weekly" },
+          ],
+        },
+      ],
+    };
+
+    expect(computeBucketTotals(config, "2026-08")).toEqual({ fixed: 25000, variable: 0, savings: 0 });
+  });
+
+  it("keeps a legacy leaf with no frequency field behaving exactly as monthly", () => {
+    const config: BudgetConfig = {
+      categories: [
+        { id: "c1", name: "Arriendo", bucket: "fixed", amount: 350000, subcategories: [] },
+      ],
+    };
+
+    expect(computeBucketTotals(config, "2026-08")).toEqual({
+      fixed: 350000,
+      variable: 0,
+      savings: 0,
+    });
   });
 });
 
@@ -77,7 +141,7 @@ describe("computeBudgetComparison", () => {
   };
 
   it("returns rows ordered fixed, variable, savings with a per-row sharePct of the total budgeted", () => {
-    expect(computeBudgetComparison(config)).toEqual({
+    expect(computeBudgetComparison(config, "2026-07")).toEqual({
       rows: [
         { key: "fixed", budgeted: 350000, sharePct: 88 },
         { key: "variable", budgeted: 50000, sharePct: 13 },
@@ -88,7 +152,7 @@ describe("computeBudgetComparison", () => {
   });
 
   it("returns sharePct: 0 for every bucket when the total budgeted is 0, never NaN", () => {
-    const result = computeBudgetComparison({ categories: [] });
+    const result = computeBudgetComparison({ categories: [] }, "2026-07");
 
     expect(result).toEqual({
       rows: [
@@ -112,7 +176,7 @@ describe("computeBudgetComparison", () => {
       ],
     };
 
-    const result = computeBudgetComparison(equalConfig);
+    const result = computeBudgetComparison(equalConfig, "2026-07");
 
     expect(result.rows.map((row) => row.sharePct)).toEqual([33, 33, 33]);
     expect(result.rows.reduce((sum, row) => sum + row.sharePct, 0)).toBe(99);

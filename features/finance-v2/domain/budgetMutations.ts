@@ -1,5 +1,5 @@
 import type { BucketKey } from "./BucketKey";
-import type { BudgetConfig } from "./BudgetConfig";
+import type { BudgetConfig, BudgetFrequency } from "./BudgetConfig";
 
 /** Pure tree edits over `BudgetConfig`. Callers supply ids (e.g.
  *  `crypto.randomUUID()`) so this module stays side-effect free. Every
@@ -77,6 +77,34 @@ export function setLeafAmount(
         ...category,
         subcategories: category.subcategories.map((sub) =>
           sub.id === args.subcategoryId ? { ...sub, amount: args.amount } : sub,
+        ),
+      };
+    }),
+  };
+}
+
+/** Sets a leaf's frequency: the category's own frequency when
+ *  `subcategoryId` is `null`, or a subcategory's frequency when
+ *  `subcategoryId` is provided. Unknown ids leave the config unchanged (no
+ *  throw) — mirrors `setLeafAmount`. The amount itself is untouched: a leaf
+ *  switching frequency keeps its raw `amount` figure, only its MEANING (per
+ *  month vs. per week) changes, resolved later by `resolveLeafMonthlyAmount`. */
+export function setLeafFrequency(
+  config: BudgetConfig,
+  args: { categoryId: string; subcategoryId: string | null; frequency: BudgetFrequency },
+): BudgetConfig {
+  return {
+    categories: config.categories.map((category) => {
+      if (category.id !== args.categoryId) return category;
+
+      if (args.subcategoryId === null) {
+        return { ...category, frequency: args.frequency };
+      }
+
+      return {
+        ...category,
+        subcategories: category.subcategories.map((sub) =>
+          sub.id === args.subcategoryId ? { ...sub, frequency: args.frequency } : sub,
         ),
       };
     }),
