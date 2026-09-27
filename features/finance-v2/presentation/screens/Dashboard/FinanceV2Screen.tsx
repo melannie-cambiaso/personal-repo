@@ -2,10 +2,15 @@
 
 import { useMemo, useState } from "react";
 import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
-import { computeSpendComparison, listExpenseCategoryOptions } from "@/features/finance-v2/domain";
+import {
+  computeMonthAnalysis,
+  computeSpendComparison,
+  listExpenseCategoryOptions,
+} from "@/features/finance-v2/domain";
 import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
 import { useFinanceV2Transactions } from "../../hooks/useFinanceV2Transactions";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
+import { AnalysisTab } from "../../components/Analysis/AnalysisTab";
 import { TransactionsTab } from "../../components/Transactions/TransactionsTab";
 import type { BudgetMode } from "../../components/Budget/budgetMode";
 import { toSpendView } from "../../components/Budget/spendView";
@@ -13,11 +18,12 @@ import { PageHeader, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
 
-type TabKey = "budget" | "movements";
+type TabKey = "budget" | "movements" | "analysis";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "budget", label: "Presupuesto" },
   { key: "movements", label: "Movimientos" },
+  { key: "analysis", label: "Análisis" },
 ];
 
 interface Props {
@@ -94,6 +100,15 @@ export function FinanceV2Screen({
   );
   const spend = toSpendView(isLoadingMonth, spendComparison);
 
+  // Memoized on the same axes as `spendComparison` — it composes the very same
+  // rollups, so the Analysis tab can never disagree with the Budget tab. As with
+  // `toSpendView` above, `isLoadingMonth` stays OUT of the dependency list and is
+  // applied where the prop is passed.
+  const monthAnalysis = useMemo(
+    () => computeMonthAnalysis({ categories }, transactions, viewedMonth),
+    [categories, transactions, viewedMonth]
+  );
+
   const [activeTab, setActiveTab] = useState<TabKey>("budget");
   // Hoisted beside `useFinanceV2Budget` (same remount rationale as design decision #1):
   // the Budget tab is conditionally rendered, so mode state must live here, not inside
@@ -151,6 +166,10 @@ export function FinanceV2Screen({
             onFrequencyChange={handleFrequencyChange}
             onWeekdayChange={handleWeekdayChange}
           />
+        )}
+
+        {activeTab === "analysis" && (
+          <AnalysisTab analysis={isLoadingMonth ? null : monthAnalysis} />
         )}
 
         {activeTab === "movements" && (

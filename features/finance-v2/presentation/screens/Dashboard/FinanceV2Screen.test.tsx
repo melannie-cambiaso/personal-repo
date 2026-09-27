@@ -34,6 +34,59 @@ describe("FinanceV2Screen", () => {
     expect(screen.getByText("Presupuesto")).toBeTruthy();
     expect(screen.queryByText("Pendientes")).toBeNull();
     expect(screen.getByText("Movimientos")).toBeTruthy();
+    expect(screen.getByText("Análisis")).toBeTruthy();
+  });
+
+  describe("Análisis tab", () => {
+    const budgetedProps = () => ({
+      ...defaultProps(),
+      initialBudget: {
+        categories: [
+          {
+            id: "c1",
+            name: "Arriendo",
+            bucket: "fixed" as const,
+            amount: 350_000,
+            subcategories: [],
+          },
+        ],
+      },
+    });
+
+    it("is reachable and replaces the Presupuesto view", () => {
+      render(<FinanceV2Screen {...defaultProps()} />);
+
+      fireEvent.click(screen.getByText("Análisis"));
+
+      expect(screen.getByText("Resumen del mes")).toBeTruthy();
+      expect(screen.queryByText("Fijos (0%)")).toBeNull();
+    });
+
+    // Proves the tab reads the LIVE hoisted budget config rather than analyzing an
+    // empty one, which would report every figure as zero and look like it worked.
+    it("summarizes the budget it was given", () => {
+      render(<FinanceV2Screen {...budgetedProps()} />);
+
+      fireEvent.click(screen.getByText("Análisis"));
+
+      expect(screen.getByText("Presupuestado").nextSibling?.textContent).toBe("$350.000");
+    });
+
+    // The shared `MonthNav` drives every tab (design D6): the projection must follow
+    // the month actually being viewed, not the month the screen was mounted with.
+    // Awaited, not synchronous: changing the month puts the transaction hook into
+    // its loading state, and the tab withholds the analysis until the new month's
+    // transactions land rather than report a month with no spend.
+    it("projects the month after the viewed one, not after the initial one", async () => {
+      render(<FinanceV2Screen {...budgetedProps()} initialMonth="2026-07" />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
+      fireEvent.click(screen.getByText("Análisis"));
+      expect(screen.getByText("Cargando el análisis del mes…")).toBeTruthy();
+
+      const heading = await screen.findByText(/Próximo mes/);
+      expect(heading.textContent).toContain(formatMonth("2026-09"));
+    });
   });
 
   it("switches to the Movimientos tab, hiding the Presupuesto view", () => {
