@@ -180,6 +180,57 @@ describe("useFinanceV2Budget", () => {
     expect(onSave).toHaveBeenCalledOnce();
   });
 
+  it("handleWeekdayChange rescales a weekly leaf by its new weekday and saves once", () => {
+    const initialBudget: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Limpieza",
+          bucket: "variable",
+          amount: 20_000,
+          frequency: "weekly",
+          subcategories: [],
+        },
+      ],
+    };
+    // 2026-05 has 4 Mondays but 5 Sundays (weekday 0 = Sunday).
+    const { result } = renderHook(() =>
+      useFinanceV2Budget({ initialBudget, month: "2026-05", onSave })
+    );
+    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(80_000);
+
+    act(() => result.current.handleWeekdayChange("c1", null, 0));
+
+    expect(result.current.categories[0]).toMatchObject({ amount: 20_000, frequency: "weekly", weekday: 0 });
+    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(100_000);
+    expect(onSave).toHaveBeenCalledOnce();
+    expect((onSave.mock.calls[0][0] as BudgetConfig).categories[0].weekday).toBe(0);
+  });
+
+  it("handleWeekdayChange sets a subcategory's weekday when subcategoryId is provided", () => {
+    const initialBudget: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Hogar",
+          bucket: "variable",
+          amount: 0,
+          subcategories: [
+            { id: "s1", name: "Limpieza", bucket: "variable", amount: 5000, frequency: "weekly" },
+          ],
+        },
+      ],
+    };
+    const { result } = renderHook(() =>
+      useFinanceV2Budget({ initialBudget, month: "2026-05", onSave })
+    );
+
+    act(() => result.current.handleWeekdayChange("c1", "s1", 0));
+
+    expect(result.current.categories[0].subcategories[0].weekday).toBe(0);
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+
   // No test covers a `split`-driven comparison variant here: `computeBudgetComparison`
   // no longer accepts a `split` input, so that behavior no longer exists.
 

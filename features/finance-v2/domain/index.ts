@@ -2,6 +2,9 @@ export { clampAmount } from "./clamp";
 export type { BucketKey } from "./BucketKey";
 export type { BudgetSubcategory, BudgetCategory, BudgetConfig, BudgetFrequency } from "./BudgetConfig";
 export { DEFAULT_BUDGET_CONFIG } from "./BudgetConfig";
+// Part of the budget leaf shape (`BudgetCategory.weekday`), re-exported so
+// presentation code types weekdays through the domain barrel.
+export type { Weekday } from "@/shared/utils/monthUtils";
 export type { BudgetLeafAmount } from "./budgetAmount";
 export { resolveLeafMonthlyAmount } from "./budgetAmount";
 export type { CategoryView } from "./categoryView";
@@ -17,6 +20,7 @@ export {
   deleteSubcategory,
   setLeafAmount,
   setLeafFrequency,
+  setLeafWeekday,
 } from "./budgetMutations";
 export type {
   ExpenseBucketKey,
