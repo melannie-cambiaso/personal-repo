@@ -462,7 +462,10 @@ describe("BudgetCategoryCard", () => {
       expect(screen.getByText(/de \$8\.000/)).toBeTruthy();
     });
 
-    it("an overrun subcategory shows the excedido suffix, a within-budget one does not", () => {
+    // Pinned to the exact suffix, including the excess: an unanchored
+    // `/de \$5\.000 · excedido/` matched whatever followed, so it could not tell a
+    // bare "excedido" from one that names the amount.
+    it("an overrun subcategory shows how much it exceeded by, a within-budget one shows no suffix", () => {
       render(
         <BudgetCategoryCard
           mode="view"
@@ -481,9 +484,9 @@ describe("BudgetCategoryCard", () => {
       fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
 
       expect(screen.getByText("$6.000")).toBeTruthy();
-      expect(screen.getByText(/de \$5\.000 · excedido/)).toBeTruthy();
+      expect(screen.getByText("de $5.000 · excedido en $1.000")).toBeTruthy();
       expect(screen.getByText("$1.000")).toBeTruthy();
-      expect(screen.getByText(/de \$3\.000/)).toBeTruthy();
+      expect(screen.getByText("de $3.000")).toBeTruthy();
       expect(screen.getAllByText(/excedido/)).toHaveLength(1);
     });
 
