@@ -25,12 +25,15 @@ const EMPTY = {
   categoryKey: "food" as CategoryColor,
 };
 
+// The optional fields fall back to "" because these inputs are controlled: an item
+// saved through the quick path carries none of them, and feeding `undefined` into a
+// controlled input would make React switch it to uncontrolled mid-edit.
 function formFromItem(item: WishlistItem) {
   return {
     title: item.title,
-    brand: item.brand,
-    description: item.description,
-    emoji: item.emoji,
+    brand: item.brand ?? "",
+    description: item.description ?? "",
+    emoji: item.emoji ?? "",
     price: item.price?.toString() ?? "",
     tag: item.tag ?? "",
     url: item.url ?? "",
@@ -47,10 +50,12 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
     const item: WishlistItem = {
       id: editItem?.id ?? crypto.randomUUID(),
       category: CATEGORIES[form.categoryKey],
-      emoji: form.emoji,
-      brand: form.brand,
+      // `|| undefined`, not the raw value: a blank optional must be absent, not an
+      // empty string, or the card renders an empty brand line instead of no line.
+      emoji: form.emoji || undefined,
+      brand: form.brand || undefined,
       title: form.title,
-      description: form.description,
+      description: form.description || undefined,
       tag: form.tag || undefined,
       price: form.price.trim() === "" ? null : Number(form.price),
       url: form.url || undefined,
@@ -68,18 +73,25 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
       title={editItem ? "Editar item" : "Nuevo item"}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Título *">
-            <Input value={form.title} onChange={set("title")} required />
-          </Field>
-          <Field label="Marca / Tienda *">
-            <Input value={form.brand} onChange={set("brand")} required />
-          </Field>
+        {/* Title stands alone above the divider: it is the whole cost of capturing
+            an idea, and pairing it with another field made the form read as if both
+            were due at once. */}
+        <Field label="Título *">
+          <Input value={form.title} onChange={set("title")} required autoFocus />
+        </Field>
+
+        <div className="border-cream-300 flex items-center gap-2 border-t pt-4">
+          <span className="text-2xs text-brown-400">
+            Lo demás es opcional — podés completarlo después
+          </span>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Categoría *">
-            <Select value={form.categoryKey} onChange={set("categoryKey")} required>
+          <Field label="Marca / Tienda">
+            <Input value={form.brand} onChange={set("brand")} />
+          </Field>
+          <Field label="Categoría">
+            <Select value={form.categoryKey} onChange={set("categoryKey")}>
               {Object.entries(CATEGORIES).map(([key, cat]) => (
                 <option key={key} value={key}>
                   {cat.name}
@@ -87,16 +99,12 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
               ))}
             </Select>
           </Field>
-          <Field label="Emoji *">
-            <Input value={form.emoji} onChange={set("emoji")} required placeholder="☕" />
-          </Field>
         </div>
 
-        <Field label="Descripción *">
-          <Textarea rows={3} value={form.description} onChange={set("description")} required />
-        </Field>
-
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Emoji">
+            <Input value={form.emoji} onChange={set("emoji")} placeholder="☕" />
+          </Field>
           <Field label="Precio (CLP)">
             <Input
               type="number"
@@ -106,10 +114,15 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
               placeholder="23990"
             />
           </Field>
-          <Field label="Tag">
-            <Input value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
-          </Field>
         </div>
+
+        <Field label="Descripción">
+          <Textarea rows={2} value={form.description} onChange={set("description")} />
+        </Field>
+
+        <Field label="Tag">
+          <Input value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
+        </Field>
 
         <Field label="URL del producto">
           <Input type="url" value={form.url} onChange={set("url")} placeholder="https://..." />
