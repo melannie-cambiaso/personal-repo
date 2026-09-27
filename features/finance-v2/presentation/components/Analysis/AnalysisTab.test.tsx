@@ -77,6 +77,16 @@ describe("AnalysisTab", () => {
       expect(screen.getByText("Diferencia").nextSibling?.textContent).toBe("-$40.000");
     });
 
+    // `spent` already contains `unassigned`, so `difference` nets it too. Pinned
+    // because the tab must never re-subtract it: 500.000 - 540.000 is -40.000, not
+    // -52.000, and the uncategorized 12.000 is part of that 540.000.
+    it("nets unassigned spend into the difference exactly once", () => {
+      render(<AnalysisTab analysis={analysis} />);
+
+      expect(screen.getByText("Diferencia").nextSibling?.textContent).toBe("-$40.000");
+      expect(screen.getByText("incluye sin categoría: $12.000")).toBeTruthy();
+    });
+
     it("shows a positive difference when the month came in under budget", () => {
       const underBudget: MonthAnalysis = {
         ...analysis,
@@ -88,10 +98,12 @@ describe("AnalysisTab", () => {
     });
 
     // Unassigned spend is already inside `spent`, so without it on screen the
-    // per-leaf rows silently fail to add up to the total.
-    it("discloses unassigned spend only when there is some", () => {
+    // per-leaf rows silently fail to add up to the total. It reads as "incluye"
+    // precisely because a bare "sin categoría: $12.000" left it ambiguous whether
+    // the figure was already counted in `Gastado` or still had to be added to it.
+    it("discloses unassigned spend as part of the total, only when there is some", () => {
       render(<AnalysisTab analysis={analysis} />);
-      expect(screen.getByText("sin categoría: $12.000")).toBeTruthy();
+      expect(screen.getByText("incluye sin categoría: $12.000")).toBeTruthy();
       cleanup();
 
       render(

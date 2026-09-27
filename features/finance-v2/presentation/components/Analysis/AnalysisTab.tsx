@@ -129,9 +129,12 @@ export function AnalysisTab({ analysis }: Props) {
       <Section title="Resumen del mes">
         <SummaryRow label="Presupuestado" value={formatCLP(summary.budgeted)} />
         <SummaryRow label="Gastado" value={formatCLP(summary.spent)} />
+        {/* "incluye" is doing real work here: this amount is already inside
+            `Gastado`, so a bare "sin categoría: $X" left a reader unable to tell
+            whether it still had to be added on top to get the true total. */}
         {summary.unassigned > 0 && (
           <span className="text-2xs text-brown-400 -mt-2 self-end">
-            sin categoría: {formatCLP(summary.unassigned)}
+            incluye sin categoría: {formatCLP(summary.unassigned)}
           </span>
         )}
         <div className="border-cream-300 border-t pt-3">
