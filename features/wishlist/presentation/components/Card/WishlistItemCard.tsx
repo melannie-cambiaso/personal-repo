@@ -6,6 +6,11 @@ import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
 import Image from "next/image";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
+// Stands in when an item has neither image nor emoji — the state every item
+// captured through the quick path starts in. The image area is a fixed-height
+// block, so without it the top of the card is a blank rectangle.
+const PLACEHOLDER_EMOJI = "🎁";
+
 const categoryBg: Record<CategoryColor, string> = {
   food: "bg-cat-food",
   sport: "bg-cat-sport",
@@ -43,7 +48,7 @@ export function WishlistItemCard({ owned, onToggle, onEdit, onDelete, ...props }
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <span className="text-5xl">{props.emoji}</span>
+            <span className="text-5xl">{props.emoji || PLACEHOLDER_EMOJI}</span>
           </div>
         )}
 
@@ -62,11 +67,27 @@ export function WishlistItemCard({ owned, onToggle, onEdit, onDelete, ...props }
 
       {/* Body */}
       <div className="flex flex-1 flex-col px-5 pt-4.5 pb-5">
-        <p className="text-2xs text-brown-400 tracking-store mb-1 font-semibold uppercase">
-          {props.brand}
-        </p>
+        {/* Omitted entirely rather than rendered empty: an absent brand should cost
+            no vertical space, not show a blank uppercase line above the title. */}
+        {props.brand && (
+          <p
+            data-testid="item-brand"
+            className="text-2xs text-brown-400 tracking-store mb-1 font-semibold uppercase"
+          >
+            {props.brand}
+          </p>
+        )}
         <h2 className="text-product text-brown-900 mb-2 leading-snug font-bold">{props.title}</h2>
-        <p className="text-brown-600 mb-4 flex-1 text-sm leading-[1.55]">{props.description}</p>
+        {/* The growing wrapper, not the paragraph, carries `flex-1` and the bottom
+            margin, so the footer stays pinned to the bottom of the card whether or
+            not there is a description to show. */}
+        <div className="mb-4 flex-1">
+          {props.description && (
+            <p data-testid="item-description" className="text-brown-600 text-sm leading-[1.55]">
+              {props.description}
+            </p>
+          )}
+        </div>
 
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
