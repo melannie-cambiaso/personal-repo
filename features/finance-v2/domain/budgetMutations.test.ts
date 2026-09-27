@@ -6,6 +6,7 @@ import {
   deleteSubcategory,
   setLeafAmount,
   setLeafFrequency,
+  setLeafWeekday,
 } from "./budgetMutations";
 import type { BudgetConfig } from "./BudgetConfig";
 
@@ -194,6 +195,59 @@ describe("setLeafFrequency", () => {
       subcategoryId: null,
       frequency: "weekly",
     });
+
+    expect(next).toEqual(config);
+  });
+});
+
+// weekday uses `Date#getDay` numbering: 0 = Sunday.
+describe("setLeafWeekday", () => {
+  it("sets a childless category's weekday when subcategoryId is null, keeping amount and frequency", () => {
+    const config: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Limpieza",
+          bucket: "variable",
+          amount: 20000,
+          frequency: "weekly",
+          subcategories: [],
+        },
+      ],
+    };
+
+    const next = setLeafWeekday(config, { categoryId: "c1", subcategoryId: null, weekday: 0 });
+
+    expect(next.categories[0]).toMatchObject({ amount: 20000, frequency: "weekly", weekday: 0 });
+    expect(config.categories[0].weekday).toBeUndefined(); // input untouched
+  });
+
+  it("sets a subcategory's weekday when subcategoryId is provided", () => {
+    const config: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Hogar",
+          bucket: "variable",
+          amount: 0,
+          subcategories: [
+            { id: "s1", name: "Limpieza", bucket: "variable", amount: 5000, frequency: "weekly" },
+          ],
+        },
+      ],
+    };
+
+    const next = setLeafWeekday(config, { categoryId: "c1", subcategoryId: "s1", weekday: 0 });
+
+    expect(next.categories[0].subcategories[0].weekday).toBe(0);
+  });
+
+  it("returns the config unchanged (no throw) when the category id is unknown", () => {
+    const config: BudgetConfig = {
+      categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 0, subcategories: [] }],
+    };
+
+    const next = setLeafWeekday(config, { categoryId: "missing", subcategoryId: null, weekday: 0 });
 
     expect(next).toEqual(config);
   });
