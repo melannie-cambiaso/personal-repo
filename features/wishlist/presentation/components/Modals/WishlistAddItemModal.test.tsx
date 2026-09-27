@@ -35,6 +35,14 @@ describe("WishlistAddItemModal", () => {
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).required).toBe(false);
   });
 
+  // The `*` alone is a subtle signal. This line is what actually tells the reader
+  // they may stop after the title, so it is pinned like any other behavior.
+  it("tells the reader the rest of the form can wait", () => {
+    render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} />);
+
+    expect(screen.getByText("Lo demás es opcional — podés completarlo después")).toBeTruthy();
+  });
+
   it("lets the user type into every field", () => {
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} />);
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
