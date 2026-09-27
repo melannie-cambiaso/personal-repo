@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { resolveLeafMonthlyAmount } from "./budgetAmount";
+import { resolveLeafMonthlyAmount, resolveLeafWeeks } from "./budgetAmount";
+
+// 2026-05 has 5 Sundays but 4 Mondays (weekday uses `Date#getDay`: 0 = Sunday).
 
 describe("resolveLeafMonthlyAmount", () => {
   it("returns the amount as-is for a monthly leaf (frequency omitted)", () => {
@@ -26,5 +28,30 @@ describe("resolveLeafMonthlyAmount", () => {
 
   it("returns 0 for a zero-amount weekly leaf regardless of weeks in month", () => {
     expect(resolveLeafMonthlyAmount({ amount: 0, frequency: "weekly" }, "2026-08")).toBe(0);
+  });
+
+  it("scales a weekly leaf by the occurrences of its own weekday, not Mondays", () => {
+    expect(
+      resolveLeafMonthlyAmount({ amount: 20_000, frequency: "weekly", weekday: 0 }, "2026-05"),
+    ).toBe(100_000);
+    expect(resolveLeafMonthlyAmount({ amount: 20_000, frequency: "weekly" }, "2026-05")).toBe(
+      80_000,
+    );
+  });
+
+  it("ignores weekday for a monthly leaf", () => {
+    expect(
+      resolveLeafMonthlyAmount({ amount: 100_000, frequency: "monthly", weekday: 0 }, "2026-05"),
+    ).toBe(100_000);
+  });
+});
+
+describe("resolveLeafWeeks", () => {
+  it("counts the leaf's weekday in the month", () => {
+    expect(resolveLeafWeeks({ amount: 0, frequency: "weekly", weekday: 0 }, "2026-05")).toBe(5);
+  });
+
+  it("defaults to Mondays when weekday is absent (backward compatible)", () => {
+    expect(resolveLeafWeeks({ amount: 0, frequency: "weekly" }, "2026-05")).toBe(4);
   });
 });

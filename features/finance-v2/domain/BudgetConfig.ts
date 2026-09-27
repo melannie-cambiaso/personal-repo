@@ -1,4 +1,5 @@
 import type { BucketKey } from "./BucketKey";
+import type { Weekday } from "@/shared/utils/monthUtils";
 
 /** How often a budget leaf's `amount` recurs. Absent/`"monthly"` means `amount`
  *  IS the monthly budget. `"weekly"` means `amount` is PER WEEK, and the
@@ -14,6 +15,10 @@ export interface BudgetSubcategory {
   /** Absent means `"monthly"` (backward compatible with configs persisted
    *  before this field existed). */
   frequency?: BudgetFrequency;
+  /** Day a weekly leaf recurs on; its weeks in a month are that day's
+   *  occurrences. Ignored for monthly leaves. Absent means Monday (backward
+   *  compatible). See `resolveLeafWeeks`. */
+  weekday?: Weekday;
 }
 
 export interface BudgetCategory {
@@ -28,6 +33,9 @@ export interface BudgetCategory {
   /** Meaningful only when `subcategories` is empty. Absent means `"monthly"`
    *  (backward compatible with configs persisted before this field existed). */
   frequency?: BudgetFrequency;
+  /** Meaningful only when `subcategories` is empty and `frequency` is
+   *  `"weekly"`. Absent means Monday. See `resolveLeafWeeks`. */
+  weekday?: Weekday;
   subcategories: BudgetSubcategory[];
 }
 
