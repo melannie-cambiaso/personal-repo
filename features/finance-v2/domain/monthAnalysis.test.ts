@@ -6,6 +6,9 @@ import type { FinanceV2Transaction } from "./FinanceV2Transaction";
 // 2026-08 has 5 Mondays, 2026-09 has 4 — the whole point of this feature.
 const FIVE_WEEK_MONTH = "2026-08";
 const FOUR_WEEK_MONTH = "2026-09";
+// 2026-05 has 5 Sundays but 4 Mondays; 2026-06 has 4 Sundays but 5 Mondays
+// (weekday uses `Date#getDay`: 0 = Sunday).
+const FIVE_SUNDAY_MONTH = "2026-05";
 
 function expense(
   id: string,
@@ -28,11 +31,12 @@ const EMPTY_CONFIG: BudgetConfig = { categories: [] };
 
 describe("computeMonthAnalysis", () => {
   describe("summary", () => {
-    it("reports the analyzed month and its number of weeks", () => {
+    it("reports the analyzed month without a month-wide week count", () => {
       const analysis = computeMonthAnalysis(EMPTY_CONFIG, [], FIVE_WEEK_MONTH);
 
       expect(analysis.summary.month).toBe(FIVE_WEEK_MONTH);
-      expect(analysis.summary.weeks).toBe(5);
+      // Weeks depend on each weekly leaf's weekday, so they live per leaf.
+      expect(analysis.summary).not.toHaveProperty("weeks");
     });
 
     it("reports the week-adjusted budget, the actual spend and the difference", () => {
@@ -139,7 +143,7 @@ describe("computeMonthAnalysis", () => {
       const analysis = computeMonthAnalysis(config, transactions, FIVE_WEEK_MONTH);
 
       expect(analysis.deviations[0].budgeted).toBe(100_000);
-      expect(analysis.deviations[0].perWeek).toEqual({ budgeted: 20_000, spentAvg: 25_000 });
+      expect(analysis.deviations[0].perWeek).toEqual({ budgeted: 20_000, spentAvg: 25_000, weeks: 5 });
     });
 
     it("leaves the per-week block null for a monthly leaf", () => {
@@ -202,11 +206,11 @@ describe("computeMonthAnalysis", () => {
   });
 
   describe("next month", () => {
-    it("reports the following month and its number of weeks", () => {
+    it("reports the following month without a month-wide week count", () => {
       const analysis = computeMonthAnalysis(EMPTY_CONFIG, [], FIVE_WEEK_MONTH);
 
       expect(analysis.nextMonth.month).toBe("2026-09");
-      expect(analysis.nextMonth.weeks).toBe(4);
+      expect(analysis.nextMonth).not.toHaveProperty("weeks");
     });
 
     it("rolls the year over at december", () => {
@@ -241,7 +245,7 @@ describe("computeMonthAnalysis", () => {
       const analysis = computeMonthAnalysis(config, transactions, FIVE_WEEK_MONTH);
 
       expect(analysis.nextMonth.overruns).toEqual([
-        { id: "food", name: "Comida", parentName: undefined, budgeted: 80_000, projectedSpend: 100_000, projectedOverrun: 20_000 },
+        { id: "food", name: "Comida", parentName: undefined, weeks: 4, budgeted: 80_000, projectedSpend: 100_000, projectedOverrun: 20_000 },
       ]);
     });
 
@@ -254,6 +258,7 @@ describe("computeMonthAnalysis", () => {
       const analysis = computeMonthAnalysis(config, transactions, FIVE_WEEK_MONTH);
 
       expect(analysis.nextMonth.overruns[0]).toMatchObject({
+        weeks: null,
         budgeted: 30_000,
         projectedSpend: 45_000,
         projectedOverrun: 15_000,
@@ -304,8 +309,8 @@ describe("computeMonthAnalysis", () => {
       const analysis = computeMonthAnalysis(config, transactions, FOUR_WEEK_MONTH);
 
       // Next month (2026-10) has 4 Mondays: 25.000 x 4 = 100.000 projected vs 80.000 budget.
-      expect(analysis.nextMonth.weeks).toBe(4);
       expect(analysis.nextMonth.overruns[0]).toMatchObject({
+        weeks: 4,
         projectedSpend: 100_000,
         projectedOverrun: 20_000,
       });
@@ -319,6 +324,48 @@ describe("computeMonthAnalysis", () => {
       const analysis = computeMonthAnalysis(config, [], FIVE_WEEK_MONTH);
 
       expect(analysis.nextMonth.overruns).toEqual([]);
+    });
+  });
+
+  describe("weekday-aware weeks", () => {
+    // Cleaning every Sunday: 20.000/week, 125.000 spent in May 2026.
+    const config: BudgetConfig = {
+      categories: [
+        {
+          id: "clean",
+          name: "Limpieza",
+          bucket: "variable",
+          amount: 20_000,
+          frequency: "weekly",
+          weekday: 0,
+          subcategories: [],
+        },
+      ],
+    };
+    const transactions = [
+      { ...expense("t1", 125_000, { id: "clean", name: "Limpieza" }), month: FIVE_SUNDAY_MONTH },
+    ];
+
+    it("averages a weekly leaf's spend over its own weekday's occurrences", () => {
+      const analysis = computeMonthAnalysis(config, transactions, FIVE_SUNDAY_MONTH);
+
+      // 5 Sundays: 125.000 / 5 = 25.000, not 125.000 / 4 Mondays = 31.250.
+      expect(analysis.deviations[0]).toMatchObject({
+        budgeted: 100_000,
+        perWeek: { budgeted: 20_000, spentAvg: 25_000, weeks: 5 },
+      });
+    });
+
+    it("projects next month with the leaf's own weekday count", () => {
+      const analysis = computeMonthAnalysis(config, transactions, FIVE_SUNDAY_MONTH);
+
+      // 2026-06 has 4 Sundays: 25.000 x 4 = 100.000 projected vs 20.000 x 4 = 80.000.
+      expect(analysis.nextMonth.overruns[0]).toMatchObject({
+        weeks: 4,
+        budgeted: 80_000,
+        projectedSpend: 100_000,
+        projectedOverrun: 20_000,
+      });
     });
   });
 

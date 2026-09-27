@@ -1,15 +1,16 @@
 import type { BucketKey } from "./BucketKey";
 import type { BudgetConfig, BudgetFrequency } from "./BudgetConfig";
 import type { FinanceV2Transaction } from "./FinanceV2Transaction";
-import { resolveLeafMonthlyAmount } from "./budgetAmount";
+import { resolveLeafMonthlyAmount, resolveLeafWeeks } from "./budgetAmount";
 import { computeBudgetComparison } from "./budgetRollup";
 import { computeSpendComparison, isOverrun } from "./spendRollup";
-import { getWeeksInMonth, nextMonth } from "@/shared/utils/monthUtils";
+import { nextMonth, type Weekday } from "@/shared/utils/monthUtils";
 
+/** Carries no month-wide week count: weekly leaves recurring on different
+ *  weekdays can have different weeks in the same month, so weeks are reported
+ *  per leaf (`LeafPerWeek.weeks`, `NextMonthOverrun.weeks`). */
 export interface MonthAnalysisSummary {
   month: string;
-  /** Weekly cycles in `month` — the multiplier behind every weekly budget. */
-  weeks: number;
   /** Week-adjusted budget for `month` (weekly leaves already scaled). */
   budgeted: number;
   spent: number;
@@ -26,6 +27,8 @@ export interface LeafPerWeek {
   budgeted: number;
   /** This month's actual spend divided by its weeks, rounded to whole money. */
   spentAvg: number;
+  /** This leaf's weeks in the analyzed month: occurrences of its weekday. */
+  weeks: number;
 }
 
 export interface LeafDeviation {
@@ -51,6 +54,9 @@ export interface NextMonthOverrun {
   id: string;
   name: string;
   parentName?: string;
+  /** This leaf's weeks in NEXT month for a weekly leaf, `null` for a monthly
+   *  one (mirrors `LeafDeviation.perWeek`). */
+  weeks: number | null;
   /** This leaf's budget for NEXT month (weeks already applied). */
   budgeted: number;
   /** Spend if this month's pace holds: flat for a monthly leaf, re-scaled to
@@ -63,8 +69,7 @@ export interface NextMonthOverrun {
 
 export interface NextMonthProjection {
   month: string;
-  weeks: number;
-  /** Same config, next month's week count. */
+  /** Same config, each weekly leaf scaled by its weeks in next month. */
   budgeted: number;
   /** Leaves that overran THIS month, biggest projected overrun first. */
   overruns: NextMonthOverrun[];
@@ -86,6 +91,8 @@ interface LeafRef {
   parentName?: string;
   bucket: BucketKey;
   frequency: BudgetFrequency;
+  /** Raw persisted weekday; `resolveLeafWeeks` applies the Monday default. */
+  weekday?: Weekday;
   /** Raw persisted amount: per-week for a weekly leaf, monthly otherwise. */
   amount: number;
 }
@@ -100,33 +107,31 @@ export function computeMonthAnalysis(
   transactions: FinanceV2Transaction[],
   month: string,
 ): MonthAnalysis {
-  const weeks = getWeeksInMonth(month);
   const comparison = computeSpendComparison(config, transactions, month);
   const leaves = listBudgetLeaves(config);
 
   const deviations = leaves
-    .map((leaf) => toLeafDeviation(leaf, comparison.leaves[leaf.id], weeks))
+    .map((leaf) => toLeafDeviation(leaf, comparison.leaves[leaf.id], month))
     .filter((row) => row.budgeted !== 0 || row.spent !== 0)
     .sort((a, b) => b.deviation - a.deviation);
 
   return {
     summary: {
       month,
-      weeks,
       budgeted: comparison.total.budgeted,
       spent: comparison.total.spent,
       difference: comparison.total.budgeted - comparison.total.spent,
       unassigned: comparison.total.unassigned,
     },
     deviations,
-    nextMonth: projectNextMonth(config, leaves, deviations, month, weeks),
+    nextMonth: projectNextMonth(config, leaves, deviations, month),
   };
 }
 
 function toLeafDeviation(
   leaf: LeafRef,
   row: { budgeted: number; spent: number } | undefined,
-  weeks: number,
+  month: string,
 ): LeafDeviation {
   // `computeSpendComparison` walks this same leaf set, so the fallback is
   // unreachable by construction; it stays as a fail-soft guard.
@@ -142,11 +147,13 @@ function toLeafDeviation(
     budgeted,
     spent,
     deviation: spent - budgeted,
-    perWeek:
-      leaf.frequency === "weekly"
-        ? { budgeted: leaf.amount, spentAvg: perWeek(spent, weeks) }
-        : null,
+    perWeek: leaf.frequency === "weekly" ? toLeafPerWeek(leaf, spent, month) : null,
   };
+}
+
+function toLeafPerWeek(leaf: LeafRef, spent: number, month: string): LeafPerWeek {
+  const weeks = resolveLeafWeeks(leaf, month);
+  return { budgeted: leaf.amount, spentAvg: perWeek(spent, weeks), weeks };
 }
 
 function projectNextMonth(
@@ -154,10 +161,8 @@ function projectNextMonth(
   leaves: LeafRef[],
   deviations: LeafDeviation[],
   month: string,
-  weeks: number,
 ): NextMonthProjection {
   const target = nextMonth(month);
-  const targetWeeks = getWeeksInMonth(target);
   const byId = new Map(leaves.map((leaf) => [leaf.id, leaf]));
 
   const overruns = deviations
@@ -167,13 +172,19 @@ function projectNextMonth(
       const budgeted = leaf ? resolveLeafMonthlyAmount(leaf, target) : 0;
       // A monthly commitment repeats at the same amount; a weekly habit repeats
       // at the same PER-WEEK pace, which a longer or shorter month re-scales.
+      // Both week counts are the leaf's own weekday occurrences.
+      const isWeekly = leaf?.frequency === "weekly";
+      const targetWeeks = isWeekly ? resolveLeafWeeks(leaf, target) : null;
       const projectedSpend =
-        leaf?.frequency === "weekly" ? perWeek(row.spent, weeks) * targetWeeks : row.spent;
+        isWeekly && targetWeeks !== null
+          ? perWeek(row.spent, resolveLeafWeeks(leaf, month)) * targetWeeks
+          : row.spent;
 
       return {
         id: row.id,
         name: row.name,
         parentName: row.parentName,
+        weeks: targetWeeks,
         budgeted,
         projectedSpend,
         projectedOverrun: projectedSpend - budgeted,
@@ -183,14 +194,13 @@ function projectNextMonth(
 
   return {
     month: target,
-    weeks: targetWeeks,
     budgeted: computeBudgetComparison(config, target).total.budgeted,
     overruns,
   };
 }
 
 /** Rounded to whole money: these figures are displayed, and a raw division
- *  would surface floating-point tails in the UI. `getWeeksInMonth` never
+ *  would surface floating-point tails in the UI. `resolveLeafWeeks` never
  *  returns 0, so this cannot divide by zero. */
 function perWeek(spent: number, weeks: number): number {
   return Math.round(spent / weeks);
@@ -208,6 +218,7 @@ function listBudgetLeaves(config: BudgetConfig): LeafRef[] {
         name: category.name,
         bucket: category.bucket,
         frequency: category.frequency ?? "monthly",
+        weekday: category.weekday,
         amount: category.amount,
       });
       continue;
@@ -219,6 +230,7 @@ function listBudgetLeaves(config: BudgetConfig): LeafRef[] {
         parentName: category.name,
         bucket: sub.bucket,
         frequency: sub.frequency ?? "monthly",
+        weekday: sub.weekday,
         amount: sub.amount,
       });
     }
