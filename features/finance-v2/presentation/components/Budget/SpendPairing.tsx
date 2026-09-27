@@ -19,7 +19,10 @@ export function SpendPairing({ row }: Props) {
       {formatCLP(row.spent)}
       <span className={`text-2xs ml-1 font-normal ${overrun ? "text-red-600" : "text-brown-400"}`}>
         de {formatCLP(row.budgeted)}
-        {overrun && " · excedido"}
+        {/* The excess is spelled out, not left as "spent minus budgeted" for the
+            reader to work out: it is the one figure that says how much to cut, and
+            both numbers it comes from are already on screen beside it. */}
+        {overrun && ` · excedido en ${formatCLP(row.spent - row.budgeted)}`}
       </span>
     </span>
   );

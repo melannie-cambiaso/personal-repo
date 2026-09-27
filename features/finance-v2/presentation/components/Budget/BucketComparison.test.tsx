@@ -80,7 +80,10 @@ describe("BucketComparison", () => {
       expect(screen.getAllByText(/de \$500\.000/).length).toBeGreaterThan(0);
     });
 
-    it("flags an overrun bucket with the excedido suffix", () => {
+    // The suffix carries the EXCESS, not just the fact of an overrun: pairing
+    // "$450.000 de $400.000" with a bare "excedido" leaves the reader to subtract
+    // the one figure that actually drives a decision.
+    it("flags an overrun bucket with the excedido suffix and by how much", () => {
       const overrunComparison: SpendComparison = {
         categories: {},
         leaves: {},
@@ -95,7 +98,7 @@ describe("BucketComparison", () => {
         <BucketComparison comparison={comparison} spend={{ status: "ready", comparison: overrunComparison }} />
       );
 
-      expect(screen.getByText(/excedido/)).toBeTruthy();
+      expect(screen.getByText("de $400.000 · excedido en $50.000")).toBeTruthy();
     });
 
     it("does not flag a bucket whose spend exactly equals its budget", () => {
