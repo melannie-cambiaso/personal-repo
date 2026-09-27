@@ -18,6 +18,11 @@ function findBucketSpend(buckets: BucketSpendRow[], key: BucketKey): BucketSpend
   return row;
 }
 
+// The unassigned note reads "incluye ..." because that spend is ALREADY part of the
+// `spent` figure it sits under (see `BucketSpendRow.unassigned`); without the word a
+// reader cannot tell whether it still has to be added on to reach the true total.
+// Same wording as the Analysis tab's month summary, which carries the same figure.
+//
 // Bucket rows show each bucket's share of the total budgeted amount inline in the
 // label (design D3/D4): "Fijos (50%)", computed in the domain layer alongside the
 // aggregate it derives from. The budgeted amount itself only appears as the muted
@@ -37,7 +42,7 @@ export function BucketComparison({ comparison, spend }: Props) {
                 <>
                   <SpendPairing row={bucketSpend} />
                   {bucketSpend.unassigned > 0 && (
-                    <span className="text-2xs text-brown-400">sin categoría: {formatCLP(bucketSpend.unassigned)}</span>
+                    <span className="text-2xs text-brown-400">incluye sin categoría: {formatCLP(bucketSpend.unassigned)}</span>
                   )}
                 </>
               ) : (
@@ -55,7 +60,7 @@ export function BucketComparison({ comparison, spend }: Props) {
               <SpendPairing row={spend.comparison.total} />
               {spend.comparison.total.unassigned > 0 && (
                 <span className="text-2xs text-brown-400">
-                  sin categoría: {formatCLP(spend.comparison.total.unassigned)}
+                  incluye sin categoría: {formatCLP(spend.comparison.total.unassigned)}
                 </span>
               )}
             </>

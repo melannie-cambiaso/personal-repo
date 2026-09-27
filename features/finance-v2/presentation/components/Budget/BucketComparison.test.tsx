@@ -104,6 +104,9 @@ describe("BucketComparison", () => {
       expect(screen.queryByText(/excedido/)).toBeNull();
     });
 
+    // Asserted as exact copy, not a loose /sin categoría/ match: the point of the
+    // note is the word "incluye", which tells the reader the amount is ALREADY
+    // inside the spent figure above it rather than pending addition to it.
     it("renders a sin categoría note when a bucket carries unassigned spend", () => {
       const withUnassigned: SpendComparison = {
         categories: {},
@@ -119,8 +122,8 @@ describe("BucketComparison", () => {
         <BucketComparison comparison={comparison} spend={{ status: "ready", comparison: withUnassigned }} />
       );
 
-      expect(screen.getAllByText(/sin categoría/).length).toBeGreaterThan(0);
-      expect(screen.getAllByText(/\$8\.000/).length).toBeGreaterThan(0);
+      // Twice: once on the `fixed` bucket row, once on the total row.
+      expect(screen.getAllByText("incluye sin categoría: $8.000")).toHaveLength(2);
     });
 
     it("omits the sin categoría note when a bucket has no unassigned spend", () => {
