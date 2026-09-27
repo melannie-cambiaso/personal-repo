@@ -60,6 +60,7 @@ export function FinanceV2Screen({
     deleteSubcategory,
     handleAmountBlur,
     handleFrequencyChange,
+    handleWeekdayChange,
   } = useFinanceV2Budget({ initialBudget, month: viewedMonth, onSave: onSaveBudget });
 
   const {
@@ -148,6 +149,7 @@ export function FinanceV2Screen({
             onDeleteCategory={deleteCategory}
             onDeleteSubcategory={deleteSubcategory}
             onFrequencyChange={handleFrequencyChange}
+            onWeekdayChange={handleWeekdayChange}
           />
         )}
 

@@ -43,6 +43,7 @@ describe("BudgetTab", () => {
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -66,6 +67,7 @@ describe("BudgetTab", () => {
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
     expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
@@ -85,6 +87,7 @@ describe("BudgetTab", () => {
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
     expect(screen.getByRole("button", { name: "Listo" })).toBeTruthy();
@@ -105,6 +108,7 @@ describe("BudgetTab", () => {
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -128,6 +132,7 @@ describe("BudgetTab", () => {
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -155,6 +160,7 @@ describe("BudgetTab", () => {
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -183,6 +189,7 @@ describe("BudgetTab", () => {
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -214,6 +221,7 @@ describe("BudgetTab", () => {
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -259,6 +267,7 @@ describe("BudgetTab", () => {
           onDeleteCategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -280,6 +289,7 @@ describe("BudgetTab", () => {
           onDeleteCategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -301,6 +311,7 @@ describe("BudgetTab", () => {
           onDeleteCategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 

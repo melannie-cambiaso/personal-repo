@@ -6,6 +6,7 @@ import type {
   BudgetCategory,
   BudgetComparison as BudgetComparisonResult,
   BudgetFrequency,
+  Weekday,
 } from "@/features/finance-v2/domain";
 import { BucketComparison } from "./BucketComparison";
 import { BudgetCategoryCard } from "./BudgetCategoryCard";
@@ -34,6 +35,11 @@ interface Props {
     subcategoryId: string | null,
     frequency: BudgetFrequency
   ) => void;
+  onWeekdayChange: (
+    categoryId: string,
+    subcategoryId: string | null,
+    weekday: Weekday
+  ) => void;
 }
 
 // Presentational only — state lives in `useFinanceV2Budget`,
@@ -56,6 +62,7 @@ export function BudgetTab({
   onDeleteCategory,
   onDeleteSubcategory,
   onFrequencyChange,
+  onWeekdayChange,
 }: Props) {
   const [name, setName] = useState("");
   const [bucket, setBucket] = useState<BucketKey>("fixed");
@@ -104,6 +111,7 @@ export function BudgetTab({
               onAddSubcategory={onAddSubcategory}
               onDeleteSubcategory={onDeleteSubcategory}
               onFrequencyChange={onFrequencyChange}
+              onWeekdayChange={onWeekdayChange}
             />
           ))}
         </div>

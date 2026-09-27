@@ -76,6 +76,7 @@ describe("BudgetCategoryCard", () => {
         onAddSubcategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -97,6 +98,7 @@ describe("BudgetCategoryCard", () => {
         onAddSubcategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -119,6 +121,7 @@ describe("BudgetCategoryCard", () => {
         onAddSubcategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -139,6 +142,7 @@ describe("BudgetCategoryCard", () => {
         onAddSubcategory={noop}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -159,6 +163,7 @@ describe("BudgetCategoryCard", () => {
         onAddSubcategory={onAddSubcategory}
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -185,6 +190,7 @@ describe("BudgetCategoryCard", () => {
         onAddSubcategory={noop}
         onDeleteSubcategory={onDeleteSubcategory}
         onFrequencyChange={noop}
+        onWeekdayChange={noop}
       />
     );
 
@@ -216,6 +222,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -239,6 +246,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -261,6 +269,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -279,6 +288,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -298,6 +308,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -321,6 +332,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -342,6 +354,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -365,6 +378,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
       expect(screen.getByText("Arriendo")).toBeTruthy();
@@ -381,6 +395,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
       expect(screen.getByText("Arriendo")).toBeTruthy();
@@ -400,6 +415,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -419,6 +435,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -437,6 +454,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -456,6 +474,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -480,6 +499,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -499,6 +519,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -519,6 +540,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -544,6 +566,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={onFrequencyChange}
+          onWeekdayChange={noop}
         />
       );
 
@@ -568,6 +591,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={onFrequencyChange}
+          onWeekdayChange={noop}
         />
       );
 
@@ -588,6 +612,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -605,6 +630,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -630,6 +656,7 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
@@ -649,10 +676,134 @@ describe("BudgetCategoryCard", () => {
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
+          onWeekdayChange={noop}
         />
       );
 
       expect(screen.queryByLabelText(/Frecuencia de/)).toBeNull();
+    });
+  });
+
+  // MONTH (2026-09) has 4 Mondays and 4 Sundays but 5 Tuesdays, so a leaf's own
+  // weekday — not a month-wide week count — decides how many weeks it budgets.
+  describe("weekday", () => {
+    const weeklyLeaf: BudgetCategory = {
+      ...leafCategory,
+      name: "Comida",
+      amount: 20_000,
+      frequency: "weekly",
+    };
+
+    it("a weekly leaf shows a weekday selector defaulting to Monday and changing it calls onWeekdayChange", () => {
+      const onWeekdayChange = vi.fn();
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={weeklyLeaf}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+          onWeekdayChange={onWeekdayChange}
+        />
+      );
+
+      const select = screen.getByLabelText("Día de Comida") as HTMLSelectElement;
+      expect(select.value).toBe("1");
+
+      fireEvent.change(select, { target: { value: "0" } });
+
+      expect(onWeekdayChange).toHaveBeenCalledWith("c1", null, 0);
+    });
+
+    it("a monthly leaf shows no weekday selector", () => {
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={leafCategory}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+          onWeekdayChange={noop}
+        />
+      );
+
+      expect(screen.queryByLabelText(/^Día de/)).toBeNull();
+    });
+
+    it("changing a weekly subcategory's weekday passes its subcategoryId", () => {
+      const onWeekdayChange = vi.fn();
+      const parentWithWeeklySub: BudgetCategory = {
+        ...parentCategory,
+        subcategories: [
+          { id: "s1", name: "Luz", bucket: "fixed", amount: 5000, frequency: "weekly" },
+          { id: "s2", name: "Agua", bucket: "variable", amount: 3000 },
+        ],
+      };
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={parentWithWeeklySub}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+          onWeekdayChange={onWeekdayChange}
+        />
+      );
+
+      expect(screen.queryByLabelText("Día de Agua")).toBeNull();
+      fireEvent.change(screen.getByLabelText("Día de Luz"), { target: { value: "6" } });
+
+      expect(onWeekdayChange).toHaveBeenCalledWith("c2", "s1", 6);
+    });
+
+    it("the weekly hint counts the leaf's own weekday, not the month's Mondays", () => {
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={{ ...weeklyLeaf, weekday: 2 }}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+          onWeekdayChange={noop}
+        />
+      );
+
+      expect(screen.getByText("por semana · × 5 semanas = $100.000")).toBeTruthy();
+    });
+
+    it("view mode never shows the weekday selector", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={weeklyLeaf}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+          onWeekdayChange={noop}
+        />
+      );
+
+      expect(screen.queryByLabelText(/^Día de/)).toBeNull();
     });
   });
 });

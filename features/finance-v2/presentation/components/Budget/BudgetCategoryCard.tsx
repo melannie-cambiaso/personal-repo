@@ -6,10 +6,10 @@ import type {
   BudgetCategory,
   BudgetFrequency,
   SpendRow,
+  Weekday,
 } from "@/features/finance-v2/domain";
 import { toCategoryView } from "@/features/finance-v2/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
-import { getWeeksInMonth } from "@/shared/utils/monthUtils";
 import { Button, Input, Select } from "@/shared/components";
 import { BUCKET_LABELS, BUCKET_ORDER } from "../bucketLabels";
 import type { BudgetMode } from "./budgetMode";
@@ -31,11 +31,28 @@ interface Props {
     subcategoryId: string | null,
     frequency: BudgetFrequency
   ) => void;
+  onWeekdayChange: (
+    categoryId: string,
+    subcategoryId: string | null,
+    weekday: Weekday
+  ) => void;
 }
 
 const FREQUENCY_OPTIONS: { value: BudgetFrequency; label: string }[] = [
   { value: "monthly", label: "Mensual" },
   { value: "weekly", label: "Semanal" },
+];
+
+// Listed Monday-first for reading, not in `Weekday`'s numeric order (0 = Sunday):
+// the value carries the number, so Sunday sorts last here without renumbering.
+const WEEKDAY_OPTIONS: { value: string; label: string }[] = [
+  { value: "1", label: "Lun" },
+  { value: "2", label: "Mar" },
+  { value: "3", label: "Mié" },
+  { value: "4", label: "Jue" },
+  { value: "5", label: "Vie" },
+  { value: "6", label: "Sáb" },
+  { value: "0", label: "Dom" },
 ];
 
 // Controlled (unlike the amount inputs): the value always mirrors the persisted leaf, so
@@ -56,6 +73,28 @@ function FrequencyField({
       className="w-auto"
       onChange={(e) => onChange(e.target.value as BudgetFrequency)}
       options={FREQUENCY_OPTIONS}
+    />
+  );
+}
+
+// Rendered only for a weekly leaf: a monthly leaf has no recurring weekday, and
+// showing one would imply its budget depends on a day it never reads.
+function WeekdayField({
+  label,
+  weekday,
+  onChange,
+}: {
+  label: string;
+  weekday: Weekday;
+  onChange: (weekday: Weekday) => void;
+}) {
+  return (
+    <Select
+      aria-label={`Día de ${label}`}
+      value={String(weekday)}
+      className="w-auto"
+      onChange={(e) => onChange(Number(e.target.value) as Weekday)}
+      options={WEEKDAY_OPTIONS}
     />
   );
 }
@@ -119,9 +158,9 @@ export function BudgetCategoryCard({
   onAddSubcategory,
   onDeleteSubcategory,
   onFrequencyChange,
+  onWeekdayChange,
 }: Props) {
   const view = toCategoryView(category, month);
-  const weeks = getWeeksInMonth(month);
 
   // Header row lookup (design D8): a leaf's own id doubles as its `categories` entry
   // (`computeSpendComparison` stores the same row under both `categories` and `leaves`
@@ -153,6 +192,10 @@ export function BudgetCategoryCard({
 
   const handleFrequencyChange = (subcategoryId: string | null, frequency: BudgetFrequency) => {
     onFrequencyChange(category.id, subcategoryId, frequency);
+  };
+
+  const handleWeekdayChange = (subcategoryId: string | null, weekday: Weekday) => {
+    onWeekdayChange(category.id, subcategoryId, weekday);
   };
 
   const handleDeleteCategory = () => {
@@ -188,11 +231,20 @@ export function BudgetCategoryCard({
                 onBlur={(e) => handleAmountBlur(null, e.target.value)}
               />
               {mode === "edit" && (
-                <FrequencyField
-                  label={category.name}
-                  frequency={view.frequency}
-                  onChange={(frequency) => handleFrequencyChange(null, frequency)}
-                />
+                <>
+                  <FrequencyField
+                    label={category.name}
+                    frequency={view.frequency}
+                    onChange={(frequency) => handleFrequencyChange(null, frequency)}
+                  />
+                  {view.frequency === "weekly" && (
+                    <WeekdayField
+                      label={category.name}
+                      weekday={view.weekday}
+                      onChange={(weekday) => handleWeekdayChange(null, weekday)}
+                    />
+                  )}
+                </>
               )}
             </>
           ) : mode === "view" ? (
@@ -214,7 +266,7 @@ export function BudgetCategoryCard({
       </div>
 
       {mode === "edit" && view.kind === "leaf" && view.frequency === "weekly" && (
-        <WeeklyHint weeks={weeks} monthlyAmount={view.monthlyAmount} />
+        <WeeklyHint weeks={view.weeks} monthlyAmount={view.monthlyAmount} />
       )}
 
       {view.kind === "parent" && (
@@ -243,6 +295,13 @@ export function BudgetCategoryCard({
                           frequency={sub.frequency}
                           onChange={(frequency) => handleFrequencyChange(sub.id, frequency)}
                         />
+                        {sub.frequency === "weekly" && (
+                          <WeekdayField
+                            label={sub.name}
+                            weekday={sub.weekday}
+                            onChange={(weekday) => handleWeekdayChange(sub.id, weekday)}
+                          />
+                        )}
                         <button
                           type="button"
                           onClick={() => onDeleteSubcategory(category.id, sub.id)}
@@ -256,7 +315,7 @@ export function BudgetCategoryCard({
                   </div>
                 </div>
                 {mode === "edit" && sub.frequency === "weekly" && (
-                  <WeeklyHint weeks={weeks} monthlyAmount={sub.monthlyAmount} />
+                  <WeeklyHint weeks={sub.weeks} monthlyAmount={sub.monthlyAmount} />
                 )}
               </div>
             ))}
