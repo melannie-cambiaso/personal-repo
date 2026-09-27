@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getWeeksInMonth, monthWindow } from "./monthUtils";
+import { countWeekdayInMonth, getWeeksInMonth, monthWindow } from "./monthUtils";
 
 describe("monthWindow", () => {
   it("returns 7 months, ascending, centered on `center` at index `radius`", () => {
@@ -58,5 +58,27 @@ describe("getWeeksInMonth", () => {
 
   it("falls back to 4 for an invalid month string", () => {
     expect(getWeeksInMonth("not-a-month")).toBe(4);
+  });
+});
+
+// Weekday uses JS `Date#getDay` numbering: 0 = Sunday … 6 = Saturday.
+describe("countWeekdayInMonth", () => {
+  it("counts the given weekday, which can differ from the Monday count (2026-05: 5 Sundays, 4 Mondays)", () => {
+    expect(countWeekdayInMonth("2026-05", 0)).toBe(5);
+    expect(countWeekdayInMonth("2026-05", 1)).toBe(4);
+  });
+
+  it("counts a mid-week weekday (2026-09: 5 Tuesdays)", () => {
+    expect(countWeekdayInMonth("2026-09", 2)).toBe(5);
+  });
+
+  it("counts 4 of every weekday in a 28-day month starting on Sunday (2026-02)", () => {
+    for (const weekday of [0, 1, 2, 3, 4, 5, 6] as const) {
+      expect(countWeekdayInMonth("2026-02", weekday)).toBe(4);
+    }
+  });
+
+  it("falls back to 4 for an invalid month string, like getWeeksInMonth", () => {
+    expect(countWeekdayInMonth("not-a-month", 0)).toBe(4);
   });
 });

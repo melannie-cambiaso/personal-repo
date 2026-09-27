@@ -34,19 +34,29 @@ export function monthWindow(center: string, radius: number): string[] {
   return [...before, center, ...after];
 }
 
-/** Returns the number of weekly cycles (Mondays) in the given "YYYY-MM" month.
- *  Crucial for weekly recurring expenses like food, cleaning, DBT, and chefcito. */
-export function getWeeksInMonth(month: string): number {
+/** Day of the week in JS `Date#getDay` numbering: 0 = Sunday … 6 = Saturday. */
+export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+/** Returns how many times `weekday` occurs in the given "YYYY-MM" month (4 or 5),
+ *  i.e. the weekly cycles of an expense that recurs on that day. Falls back to 4
+ *  for an invalid month string. */
+export function countWeekdayInMonth(month: string, weekday: Weekday): number {
   const [y, m] = month.split("-").map(Number);
   if (isNaN(y) || isNaN(m) || m < 1 || m > 12) return 4;
   const date = new Date(y, m - 1, 1);
   let count = 0;
   while (date.getMonth() === m - 1) {
-    if (date.getDay() === 1) {
+    if (date.getDay() === weekday) {
       count++;
     }
     date.setDate(date.getDate() + 1);
   }
   return count > 0 ? count : 4;
+}
+
+/** Returns the number of weekly cycles (Mondays) in the given "YYYY-MM" month —
+ *  the default for weekly expenses with no specific weekday. */
+export function getWeeksInMonth(month: string): number {
+  return countWeekdayInMonth(month, 1);
 }
 
