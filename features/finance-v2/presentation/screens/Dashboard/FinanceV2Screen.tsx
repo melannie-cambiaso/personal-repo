@@ -138,6 +138,7 @@ export function FinanceV2Screen({
             mode={budgetMode}
             onToggleMode={toggleBudgetMode}
             categories={categories}
+            month={viewedMonth}
             comparison={comparison}
             spend={spend}
             onAmountBlur={handleAmountBlur}

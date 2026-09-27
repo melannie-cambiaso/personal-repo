@@ -17,6 +17,8 @@ interface Props {
   mode: BudgetMode;
   onToggleMode: () => void;
   categories: BudgetCategory[];
+  /** The viewed month — weekly leaves' monthly budget depends on it. */
+  month: string;
   comparison: BudgetComparisonResult;
   /** Threaded from `FinanceV2Screen` (design D7/D8) into both `BucketComparison` and
    *  every `BudgetCategoryCard`. */
@@ -39,6 +41,7 @@ export function BudgetTab({
   mode,
   onToggleMode,
   categories,
+  month,
   comparison,
   spend,
   onAmountBlur,
@@ -87,6 +90,7 @@ export function BudgetTab({
               key={category.id}
               mode={mode}
               category={category}
+              month={month}
               spend={spend}
               onAmountBlur={onAmountBlur}
               onDeleteCategory={onDeleteCategory}

@@ -56,6 +56,10 @@ const readySpend: SpendView = {
 
 const loadingSpend: SpendView = { status: "loading" };
 
+// A 4-Monday month (see `getWeeksInMonth`); every fixture here is monthly, so it
+// does not change any figure.
+const MONTH = "2026-09";
+
 const noop = () => {};
 
 describe("BudgetCategoryCard", () => {
@@ -65,6 +69,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={leafCategory}
+        month={MONTH}
         spend={readySpend}
         onAmountBlur={onAmountBlur}
         onDeleteCategory={noop}
@@ -84,6 +89,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={parentCategory}
+        month={MONTH}
         spend={readySpend}
         onAmountBlur={noop}
         onDeleteCategory={noop}
@@ -104,6 +110,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={parentCategory}
+        month={MONTH}
         spend={readySpend}
         onAmountBlur={onAmountBlur}
         onDeleteCategory={noop}
@@ -122,6 +129,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={parentCategory}
+        month={MONTH}
         spend={readySpend}
         onAmountBlur={noop}
         onDeleteCategory={noop}
@@ -140,6 +148,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={leafCategory}
+        month={MONTH}
         spend={readySpend}
         onAmountBlur={noop}
         onDeleteCategory={noop}
@@ -164,6 +173,7 @@ describe("BudgetCategoryCard", () => {
       <BudgetCategoryCard
         mode="edit"
         category={parentCategory}
+        month={MONTH}
         spend={readySpend}
         onAmountBlur={noop}
         onDeleteCategory={noop}
@@ -193,6 +203,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="edit"
           category={leafCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={onDeleteCategory}
@@ -214,6 +225,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="edit"
           category={leafCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={onDeleteCategory}
@@ -234,6 +246,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={leafCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -250,6 +263,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -267,6 +281,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -288,6 +303,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="edit"
           category={parentCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -307,6 +323,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -328,6 +345,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="edit"
           category={leafCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -342,6 +360,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={leafCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -359,6 +378,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={leafCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -376,6 +396,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={zeroLeafCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -392,6 +413,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -409,6 +431,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -431,6 +454,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="edit"
           category={parentCategory}
+          month={MONTH}
           spend={readySpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -448,6 +472,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={leafCategory}
+          month={MONTH}
           spend={loadingSpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}
@@ -466,6 +491,7 @@ describe("BudgetCategoryCard", () => {
         <BudgetCategoryCard
           mode="view"
           category={parentCategory}
+          month={MONTH}
           spend={loadingSpend}
           onAmountBlur={noop}
           onDeleteCategory={noop}

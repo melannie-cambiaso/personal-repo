@@ -13,6 +13,8 @@ import { SpendPairing, LoadingSpend } from "./SpendPairing";
 interface Props {
   mode: BudgetMode;
   category: BudgetCategory;
+  /** The viewed month — weekly leaves' monthly budget depends on it. */
+  month: string;
   spend: SpendView;
   onAmountBlur: (categoryId: string, subcategoryId: string | null, raw: string) => void;
   onDeleteCategory: (categoryId: string) => void;
@@ -62,13 +64,14 @@ function AmountField({ mode, label, amount, className, onBlur, spendRow }: Amoun
 export function BudgetCategoryCard({
   mode,
   category,
+  month,
   spend,
   onAmountBlur,
   onDeleteCategory,
   onAddSubcategory,
   onDeleteSubcategory,
 }: Props) {
-  const view = toCategoryView(category);
+  const view = toCategoryView(category, month);
 
   // Header row lookup (design D8): a leaf's own id doubles as its `categories` entry
   // (`computeSpendComparison` stores the same row under both `categories` and `leaves`
