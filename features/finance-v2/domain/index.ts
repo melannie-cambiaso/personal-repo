@@ -13,6 +13,15 @@ export type { BucketTotals, BudgetComparison } from "./budgetRollup";
 export { computeBucketTotals, computeBudgetComparison } from "./budgetRollup";
 export type { SpendRow, BucketSpendRow, SpendComparison } from "./spendRollup";
 export { computeSpentByCategory, computeSpendComparison, isOverrun } from "./spendRollup";
+export type {
+  MonthAnalysis,
+  MonthAnalysisSummary,
+  LeafDeviation,
+  LeafPerWeek,
+  NextMonthProjection,
+  NextMonthOverrun,
+} from "./monthAnalysis";
+export { computeMonthAnalysis } from "./monthAnalysis";
 export {
   addCategory,
   addSubcategory,
