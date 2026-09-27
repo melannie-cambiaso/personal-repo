@@ -10,8 +10,9 @@ export interface BudgetLeafAmount {
 }
 
 /** Monday — the weekday assumed for weekly leaves persisted before `weekday`
- *  existed, which keeps their original Mondays-based week count. */
-const DEFAULT_WEEKDAY: Weekday = 1;
+ *  existed, which keeps their original Mondays-based week count. Single source
+ *  of truth for every place that defaults a leaf's weekday. */
+export const DEFAULT_WEEKDAY: Weekday = 1;
 
 /** Resolves how many weekly cycles a leaf has in `month`: the occurrences of
  *  its `weekday` (Monday when absent). Only meaningful for weekly leaves. */

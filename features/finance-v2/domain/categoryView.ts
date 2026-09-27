@@ -1,11 +1,14 @@
 import type { BucketKey } from "./BucketKey";
 import type { BudgetCategory, BudgetFrequency, BudgetSubcategory } from "./BudgetConfig";
-import { resolveLeafMonthlyAmount } from "./budgetAmount";
+import { DEFAULT_WEEKDAY, resolveLeafMonthlyAmount, resolveLeafWeeks } from "./budgetAmount";
+import type { Weekday } from "@/shared/utils/monthUtils";
 
-/** A subcategory with its frequency defaulted and its budget resolved for the
- *  viewed month, so the UI never has to repeat the weekly math. */
+/** A subcategory with its frequency/weekday defaulted and its weeks and budget
+ *  resolved for the viewed month, so the UI never has to repeat the weekly math. */
 export type SubcategoryView = BudgetSubcategory & {
   frequency: BudgetFrequency;
+  weekday: Weekday;
+  weeks: number;
   monthlyAmount: number;
 };
 
@@ -22,6 +25,8 @@ export type CategoryView =
       bucket: BucketKey;
       amount: number;
       frequency: BudgetFrequency;
+      weekday: Weekday;
+      weeks: number;
       monthlyAmount: number;
     }
   | {
@@ -42,6 +47,8 @@ export function toCategoryView(category: BudgetCategory, month: string): Categor
       bucket: category.bucket,
       amount: category.amount,
       frequency: category.frequency ?? "monthly",
+      weekday: category.weekday ?? DEFAULT_WEEKDAY,
+      weeks: resolveLeafWeeks(category, month),
       monthlyAmount: resolveLeafMonthlyAmount(category, month),
     };
   }
@@ -49,6 +56,8 @@ export function toCategoryView(category: BudgetCategory, month: string): Categor
   const subcategories: SubcategoryView[] = category.subcategories.map((sub) => ({
     ...sub,
     frequency: sub.frequency ?? "monthly",
+    weekday: sub.weekday ?? DEFAULT_WEEKDAY,
+    weeks: resolveLeafWeeks(sub, month),
     monthlyAmount: resolveLeafMonthlyAmount(sub, month),
   }));
 

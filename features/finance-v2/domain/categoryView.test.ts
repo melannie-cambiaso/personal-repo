@@ -5,6 +5,8 @@ import type { BudgetCategory } from "./BudgetConfig";
 // 2026-08 has 5 Mondays, 2026-09 has 4 (see `getWeeksInMonth`).
 const FIVE_WEEK_MONTH = "2026-08";
 const FOUR_WEEK_MONTH = "2026-09";
+// 2026-05 has 5 Sundays but 4 Mondays (weekday uses `Date#getDay`: 0 = Sunday).
+const FIVE_SUNDAY_MONTH = "2026-05";
 
 describe("toCategoryView", () => {
   it("maps a childless category to a leaf view carrying its own bucket and amount", () => {
@@ -23,6 +25,8 @@ describe("toCategoryView", () => {
       bucket: "fixed",
       amount: 350000,
       frequency: "monthly",
+      weekday: 1,
+      weeks: 5,
       monthlyAmount: 350000,
     });
   });
@@ -70,8 +74,8 @@ describe("toCategoryView", () => {
       defaultBucket: "fixed",
       total: 30000,
       subcategories: [
-        { id: "sub-1", name: "Luz", bucket: "fixed", amount: 10000, frequency: "monthly", monthlyAmount: 10000 },
-        { id: "sub-2", name: "Agua", bucket: "variable", amount: 20000, frequency: "monthly", monthlyAmount: 20000 },
+        { id: "sub-1", name: "Luz", bucket: "fixed", amount: 10000, frequency: "monthly", weekday: 1, weeks: 5, monthlyAmount: 10000 },
+        { id: "sub-2", name: "Agua", bucket: "variable", amount: 20000, frequency: "monthly", weekday: 1, weeks: 5, monthlyAmount: 20000 },
       ],
     });
     expect(view).not.toHaveProperty("amount");
@@ -100,5 +104,40 @@ describe("toCategoryView", () => {
       frequency: "weekly",
       monthlyAmount: 25000,
     });
+  });
+
+  it("resolves weeks from each leaf's own weekday, defaulting to Monday", () => {
+    const sundayLeaf: BudgetCategory = {
+      id: "cat-4",
+      name: "Limpieza",
+      bucket: "variable",
+      amount: 20000,
+      frequency: "weekly",
+      weekday: 0,
+      subcategories: [],
+    };
+    const parent: BudgetCategory = {
+      id: "cat-5",
+      name: "Hogar",
+      bucket: "variable",
+      amount: 0,
+      subcategories: [
+        { id: "sub-1", name: "Limpieza", bucket: "variable", amount: 5000, frequency: "weekly", weekday: 0 },
+        { id: "sub-2", name: "Comida", bucket: "variable", amount: 10000, frequency: "weekly" },
+      ],
+    };
+
+    expect(toCategoryView(sundayLeaf, FIVE_SUNDAY_MONTH)).toMatchObject({
+      weekday: 0,
+      weeks: 5,
+      monthlyAmount: 100000,
+    });
+
+    const view = toCategoryView(parent, FIVE_SUNDAY_MONTH);
+    expect(view.kind === "parent" && view.subcategories).toMatchObject([
+      { weekday: 0, weeks: 5, monthlyAmount: 25000 },
+      { weekday: 1, weeks: 4, monthlyAmount: 40000 },
+    ]);
+    expect(view).toMatchObject({ total: 65000 });
   });
 });
