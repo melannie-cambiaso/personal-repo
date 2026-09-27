@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import type { BucketKey, BudgetConfig } from "@/features/finance-v2/domain";
+import type { BucketKey, BudgetConfig, BudgetFrequency } from "@/features/finance-v2/domain";
 import {
   addCategory as domainAddCategory,
   addSubcategory as domainAddSubcategory,
@@ -10,6 +10,7 @@ import {
   deleteCategory as domainDeleteCategory,
   deleteSubcategory as domainDeleteSubcategory,
   setLeafAmount,
+  setLeafFrequency,
 } from "@/features/finance-v2/domain";
 
 interface Params {
@@ -68,6 +69,14 @@ export function useFinanceV2Budget({ initialBudget, month, onSave }: Params) {
     );
   };
 
+  const handleFrequencyChange = (
+    categoryId: string,
+    subcategoryId: string | null,
+    frequency: BudgetFrequency
+  ) => {
+    persist(setLeafFrequency(configRef.current, { categoryId, subcategoryId, frequency }));
+  };
+
   return {
     categories: config.categories,
     comparison,
@@ -76,5 +85,6 @@ export function useFinanceV2Budget({ initialBudget, month, onSave }: Params) {
     deleteCategory,
     deleteSubcategory,
     handleAmountBlur,
+    handleFrequencyChange,
   };
 }

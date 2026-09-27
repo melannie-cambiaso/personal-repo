@@ -141,6 +141,45 @@ describe("useFinanceV2Budget", () => {
     expect(onSave).toHaveBeenCalledOnce();
   });
 
+  it("handleFrequencyChange makes a leaf weekly, keeps its raw amount, rescales the comparison and saves once", () => {
+    const initialBudget: BudgetConfig = {
+      categories: [{ id: "c1", name: "Comida", bucket: "variable", amount: 20_000, subcategories: [] }],
+    };
+    // 2026-08 has 5 Mondays (see `getWeeksInMonth`).
+    const { result } = renderHook(() =>
+      useFinanceV2Budget({ initialBudget, month: "2026-08", onSave })
+    );
+
+    act(() => result.current.handleFrequencyChange("c1", null, "weekly"));
+
+    expect(result.current.categories[0]).toMatchObject({ amount: 20_000, frequency: "weekly" });
+    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(100_000);
+    expect(onSave).toHaveBeenCalledOnce();
+    expect((onSave.mock.calls[0][0] as BudgetConfig).categories[0].frequency).toBe("weekly");
+  });
+
+  it("handleFrequencyChange sets a subcategory's frequency when subcategoryId is provided", () => {
+    const initialBudget: BudgetConfig = {
+      categories: [
+        {
+          id: "c1",
+          name: "Hogar",
+          bucket: "variable",
+          amount: 0,
+          subcategories: [{ id: "s1", name: "Limpieza", bucket: "variable", amount: 5000 }],
+        },
+      ],
+    };
+    const { result } = renderHook(() =>
+      useFinanceV2Budget({ initialBudget, month: "2026-08", onSave })
+    );
+
+    act(() => result.current.handleFrequencyChange("c1", "s1", "weekly"));
+
+    expect(result.current.categories[0].subcategories[0].frequency).toBe("weekly");
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+
   // No test covers a `split`-driven comparison variant here: `computeBudgetComparison`
   // no longer accepts a `split` input, so that behavior no longer exists.
 
