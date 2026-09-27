@@ -75,6 +75,7 @@ describe("BudgetCategoryCard", () => {
         onDeleteCategory={noop}
         onAddSubcategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -95,6 +96,7 @@ describe("BudgetCategoryCard", () => {
         onDeleteCategory={noop}
         onAddSubcategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -116,6 +118,7 @@ describe("BudgetCategoryCard", () => {
         onDeleteCategory={noop}
         onAddSubcategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -135,6 +138,7 @@ describe("BudgetCategoryCard", () => {
         onDeleteCategory={noop}
         onAddSubcategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -154,6 +158,7 @@ describe("BudgetCategoryCard", () => {
         onDeleteCategory={noop}
         onAddSubcategory={onAddSubcategory}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -179,6 +184,7 @@ describe("BudgetCategoryCard", () => {
         onDeleteCategory={noop}
         onAddSubcategory={noop}
         onDeleteSubcategory={onDeleteSubcategory}
+        onFrequencyChange={noop}
       />
     );
 
@@ -209,6 +215,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={onDeleteCategory}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -231,6 +238,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={onDeleteCategory}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -252,6 +260,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -269,6 +278,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -287,6 +297,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -309,6 +320,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -329,6 +341,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -351,6 +364,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
       expect(screen.getByText("Arriendo")).toBeTruthy();
@@ -366,6 +380,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
       expect(screen.getByText("Arriendo")).toBeTruthy();
@@ -384,6 +399,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -402,6 +418,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -419,6 +436,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -437,6 +455,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -460,6 +479,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -478,6 +498,7 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -497,11 +518,141 @@ describe("BudgetCategoryCard", () => {
           onDeleteCategory={noop}
           onAddSubcategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
       expect(screen.getByText("—")).toBeTruthy();
       expect(screen.queryByText("$8.000")).toBeNull();
+    });
+  });
+
+  // MONTH (2026-09) has 4 Mondays, so a weekly leaf budgets amount × 4.
+  describe("frequency", () => {
+    const weeklyLeaf: BudgetCategory = { ...leafCategory, name: "Comida", amount: 20_000, frequency: "weekly" };
+
+    it("edit mode shows a frequency selector per leaf and changing it calls onFrequencyChange", () => {
+      const onFrequencyChange = vi.fn();
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={leafCategory}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={onFrequencyChange}
+        />
+      );
+
+      const select = screen.getByLabelText("Frecuencia de Arriendo") as HTMLSelectElement;
+      expect(select.value).toBe("monthly");
+
+      fireEvent.change(select, { target: { value: "weekly" } });
+
+      expect(onFrequencyChange).toHaveBeenCalledWith("c1", null, "weekly");
+    });
+
+    it("changing a subcategory's frequency passes its subcategoryId", () => {
+      const onFrequencyChange = vi.fn();
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={parentCategory}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={onFrequencyChange}
+        />
+      );
+
+      fireEvent.change(screen.getByLabelText("Frecuencia de Luz"), { target: { value: "weekly" } });
+
+      expect(onFrequencyChange).toHaveBeenCalledWith("c2", "s1", "weekly");
+    });
+
+    it("a weekly leaf shows its per-week meaning and the month total; a monthly leaf does not", () => {
+      const { unmount } = render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={weeklyLeaf}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+        />
+      );
+
+      expect(screen.getByText("por semana · × 4 semanas = $80.000")).toBeTruthy();
+      unmount();
+
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={leafCategory}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+        />
+      );
+
+      expect(screen.queryByText(/por semana/)).toBeNull();
+    });
+
+    it("a weekly subcategory shows its month total and the parent total is month-resolved", () => {
+      const parentWithWeeklySub: BudgetCategory = {
+        ...parentCategory,
+        subcategories: [
+          { id: "s1", name: "Luz", bucket: "fixed", amount: 5000, frequency: "weekly" },
+          { id: "s2", name: "Agua", bucket: "variable", amount: 3000 },
+        ],
+      };
+      render(
+        <BudgetCategoryCard
+          mode="edit"
+          category={parentWithWeeklySub}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+        />
+      );
+
+      expect(screen.getByText("por semana · × 4 semanas = $20.000")).toBeTruthy();
+      expect(screen.getByText("$23.000")).toBeTruthy();
+    });
+
+    it("view mode never shows the frequency selector", () => {
+      render(
+        <BudgetCategoryCard
+          mode="view"
+          category={weeklyLeaf}
+          month={MONTH}
+          spend={readySpend}
+          onAmountBlur={noop}
+          onDeleteCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+        />
+      );
+
+      expect(screen.queryByLabelText(/Frecuencia de/)).toBeNull();
     });
   });
 });

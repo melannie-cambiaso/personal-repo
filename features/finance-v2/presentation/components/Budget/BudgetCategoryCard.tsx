@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import type { BucketKey, BudgetCategory, SpendRow } from "@/features/finance-v2/domain";
+import type {
+  BucketKey,
+  BudgetCategory,
+  BudgetFrequency,
+  SpendRow,
+} from "@/features/finance-v2/domain";
 import { toCategoryView } from "@/features/finance-v2/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
+import { getWeeksInMonth } from "@/shared/utils/monthUtils";
 import { Button, Input, Select } from "@/shared/components";
 import { BUCKET_LABELS, BUCKET_ORDER } from "../bucketLabels";
 import type { BudgetMode } from "./budgetMode";
@@ -20,6 +26,48 @@ interface Props {
   onDeleteCategory: (categoryId: string) => void;
   onAddSubcategory: (categoryId: string, name: string, bucket: BucketKey) => void;
   onDeleteSubcategory: (categoryId: string, subcategoryId: string) => void;
+  onFrequencyChange: (
+    categoryId: string,
+    subcategoryId: string | null,
+    frequency: BudgetFrequency
+  ) => void;
+}
+
+const FREQUENCY_OPTIONS: { value: BudgetFrequency; label: string }[] = [
+  { value: "monthly", label: "Mensual" },
+  { value: "weekly", label: "Semanal" },
+];
+
+// Controlled (unlike the amount inputs): the value always mirrors the persisted leaf, so
+// no remount counter is needed. Edit mode only — view mode shows spend, not settings.
+function FrequencyField({
+  label,
+  frequency,
+  onChange,
+}: {
+  label: string;
+  frequency: BudgetFrequency;
+  onChange: (frequency: BudgetFrequency) => void;
+}) {
+  return (
+    <Select
+      aria-label={`Frecuencia de ${label}`}
+      value={frequency}
+      className="w-auto"
+      onChange={(e) => onChange(e.target.value as BudgetFrequency)}
+      options={FREQUENCY_OPTIONS}
+    />
+  );
+}
+
+// A weekly leaf's raw amount is PER WEEK; this spells out what it adds up to in the
+// viewed month so the figure in the input is never mistaken for the monthly budget.
+function WeeklyHint({ weeks, monthlyAmount }: { weeks: number; monthlyAmount: number }) {
+  return (
+    <span className="text-2xs text-brown-500 self-end">
+      {`por semana · × ${weeks} semanas = ${formatCLP(monthlyAmount)}`}
+    </span>
+  );
 }
 
 interface AmountFieldProps {
@@ -70,8 +118,10 @@ export function BudgetCategoryCard({
   onDeleteCategory,
   onAddSubcategory,
   onDeleteSubcategory,
+  onFrequencyChange,
 }: Props) {
   const view = toCategoryView(category, month);
+  const weeks = getWeeksInMonth(month);
 
   // Header row lookup (design D8): a leaf's own id doubles as its `categories` entry
   // (`computeSpendComparison` stores the same row under both `categories` and `leaves`
@@ -101,6 +151,10 @@ export function BudgetCategoryCard({
     setVersion((v) => v + 1);
   };
 
+  const handleFrequencyChange = (subcategoryId: string | null, frequency: BudgetFrequency) => {
+    onFrequencyChange(category.id, subcategoryId, frequency);
+  };
+
   const handleDeleteCategory = () => {
     if (window.confirm(`¿Eliminar "${category.name}" y todas sus subcategorías?`)) {
       onDeleteCategory(category.id);
@@ -123,15 +177,24 @@ export function BudgetCategoryCard({
         </span>
         <div className="flex shrink-0 items-center gap-2">
           {view.kind === "leaf" ? (
-            <AmountField
-              mode={mode}
-              label={category.name}
-              amount={view.amount}
-              key={`amt-${category.id}-${version}`}
-              className="w-24 text-right"
-              spendRow={headerSpendRow}
-              onBlur={(e) => handleAmountBlur(null, e.target.value)}
-            />
+            <>
+              <AmountField
+                mode={mode}
+                label={category.name}
+                amount={view.amount}
+                key={`amt-${category.id}-${version}`}
+                className="w-24 text-right"
+                spendRow={headerSpendRow}
+                onBlur={(e) => handleAmountBlur(null, e.target.value)}
+              />
+              {mode === "edit" && (
+                <FrequencyField
+                  label={category.name}
+                  frequency={view.frequency}
+                  onChange={(frequency) => handleFrequencyChange(null, frequency)}
+                />
+              )}
+            </>
           ) : mode === "view" ? (
             headerSpendRow ? <SpendPairing row={headerSpendRow} /> : <LoadingSpend />
           ) : (
@@ -150,35 +213,51 @@ export function BudgetCategoryCard({
         </div>
       </div>
 
+      {mode === "edit" && view.kind === "leaf" && view.frequency === "weekly" && (
+        <WeeklyHint weeks={weeks} monthlyAmount={view.monthlyAmount} />
+      )}
+
       {view.kind === "parent" && (
         <div className="flex flex-col gap-2">
           {(mode === "edit" || subcategoriesExpanded) &&
             [...view.subcategories]
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((sub) => (
-              <div key={sub.id} className="flex items-center justify-between gap-2">
-                <span className="text-brown-700 min-w-0 truncate text-sm">{sub.name}</span>
-                <div className="flex shrink-0 items-center gap-2">
-                  <AmountField
-                    mode={mode}
-                    label={sub.name}
-                    amount={sub.amount}
-                    key={`amt-${sub.id}-${version}`}
-                    className="w-24 text-right"
-                    spendRow={spend.status === "ready" ? spend.comparison.leaves[sub.id] : undefined}
-                    onBlur={(e) => handleAmountBlur(sub.id, e.target.value)}
-                  />
-                  {mode === "edit" && (
-                    <button
-                      type="button"
-                      onClick={() => onDeleteSubcategory(category.id, sub.id)}
-                      aria-label={`Eliminar ${sub.name}`}
-                      className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-1.5 py-0.5 text-xs transition-colors"
-                    >
-                      ×
-                    </button>
-                  )}
+              <div key={sub.id} className="flex flex-col gap-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-brown-700 min-w-0 truncate text-sm">{sub.name}</span>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <AmountField
+                      mode={mode}
+                      label={sub.name}
+                      amount={sub.amount}
+                      key={`amt-${sub.id}-${version}`}
+                      className="w-24 text-right"
+                      spendRow={spend.status === "ready" ? spend.comparison.leaves[sub.id] : undefined}
+                      onBlur={(e) => handleAmountBlur(sub.id, e.target.value)}
+                    />
+                    {mode === "edit" && (
+                      <>
+                        <FrequencyField
+                          label={sub.name}
+                          frequency={sub.frequency}
+                          onChange={(frequency) => handleFrequencyChange(sub.id, frequency)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => onDeleteSubcategory(category.id, sub.id)}
+                          aria-label={`Eliminar ${sub.name}`}
+                          className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-1.5 py-0.5 text-xs transition-colors"
+                        >
+                          ×
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
+                {mode === "edit" && sub.frequency === "weekly" && (
+                  <WeeklyHint weeks={weeks} monthlyAmount={sub.monthlyAmount} />
+                )}
               </div>
             ))}
           {mode === "view" && (

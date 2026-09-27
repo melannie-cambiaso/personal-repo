@@ -42,6 +42,7 @@ describe("BudgetTab", () => {
         onAddSubcategory={noop}
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -64,6 +65,7 @@ describe("BudgetTab", () => {
         onAddSubcategory={noop}
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
     expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
@@ -82,6 +84,7 @@ describe("BudgetTab", () => {
         onAddSubcategory={noop}
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
     expect(screen.getByRole("button", { name: "Listo" })).toBeTruthy();
@@ -101,6 +104,7 @@ describe("BudgetTab", () => {
         onAddSubcategory={noop}
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -123,6 +127,7 @@ describe("BudgetTab", () => {
         onAddSubcategory={noop}
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -149,6 +154,7 @@ describe("BudgetTab", () => {
         onAddSubcategory={noop}
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -176,6 +182,7 @@ describe("BudgetTab", () => {
         onAddSubcategory={noop}
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -206,6 +213,7 @@ describe("BudgetTab", () => {
         onAddSubcategory={noop}
         onDeleteCategory={noop}
         onDeleteSubcategory={noop}
+        onFrequencyChange={noop}
       />
     );
 
@@ -250,6 +258,7 @@ describe("BudgetTab", () => {
           onAddSubcategory={noop}
           onDeleteCategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -270,6 +279,7 @@ describe("BudgetTab", () => {
           onAddSubcategory={noop}
           onDeleteCategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 
@@ -290,6 +300,7 @@ describe("BudgetTab", () => {
           onAddSubcategory={noop}
           onDeleteCategory={noop}
           onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
         />
       );
 

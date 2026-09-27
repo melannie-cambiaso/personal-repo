@@ -5,6 +5,7 @@ import type {
   BucketKey,
   BudgetCategory,
   BudgetComparison as BudgetComparisonResult,
+  BudgetFrequency,
 } from "@/features/finance-v2/domain";
 import { BucketComparison } from "./BucketComparison";
 import { BudgetCategoryCard } from "./BudgetCategoryCard";
@@ -28,6 +29,11 @@ interface Props {
   onAddSubcategory: (categoryId: string, name: string, bucket: BucketKey) => void;
   onDeleteCategory: (categoryId: string) => void;
   onDeleteSubcategory: (categoryId: string, subcategoryId: string) => void;
+  onFrequencyChange: (
+    categoryId: string,
+    subcategoryId: string | null,
+    frequency: BudgetFrequency
+  ) => void;
 }
 
 // Presentational only — state lives in `useFinanceV2Budget`,
@@ -49,6 +55,7 @@ export function BudgetTab({
   onAddSubcategory,
   onDeleteCategory,
   onDeleteSubcategory,
+  onFrequencyChange,
 }: Props) {
   const [name, setName] = useState("");
   const [bucket, setBucket] = useState<BucketKey>("fixed");
@@ -96,6 +103,7 @@ export function BudgetTab({
               onDeleteCategory={onDeleteCategory}
               onAddSubcategory={onAddSubcategory}
               onDeleteSubcategory={onDeleteSubcategory}
+              onFrequencyChange={onFrequencyChange}
             />
           ))}
         </div>
