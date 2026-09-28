@@ -45,10 +45,14 @@ Strategy: single branch with chained work-unit commits, no PR split (user-confir
 - A Sunday weekly category budgets 5 weeks in May 2026 (5 Sundays, 4 Mondays).
 - Legacy configs without `frequency` behave exactly as before.
 - Analysis tab shows the three blocks for the viewed month; overrun categories show next-month pace projection.
-- `npm test` green; `tsc` / lint clean.
+- `npm test` green; `tsc` clean; eslint clean on the directories this feature touched. Not
+  the whole feature: `npx eslint features/finance-v2` fails on a pre-existing violation this
+  work neither introduced nor was scoped to fix — see Known debt.
 
 ## Checks
-`npm test`, `npx tsc --noEmit`, `npm run lint`
+`npm test`, `npx tsc --noEmit`, and `npm run lint` (`eslint`) scoped to the touched
+directories. Running it over all of `features/finance-v2` reports the Known debt failure,
+which is not a regression from this feature.
 
 ## Progress / Evidence
 - T1 done — commit `47be5b7` feat(finance-v2): support weekly budget categories scaled by weeks in month.
