@@ -31,14 +31,21 @@ interface TransactionBase {
 }
 
 /** Discriminated on `type`. The `expense` variant carries `bucket`/`category`
- *  directly; `savings` optionally carries a `sourceCategory` snapshot (with
- *  its own `bucket`) when tagged as reallocated leftover budget — `income`
- *  never carries either. */
+ *  directly (plus an optional `paidFrom` funding snapshot); `savings`
+ *  optionally carries a `sourceCategory` snapshot (with its own `bucket`) when
+ *  tagged as reallocated leftover budget — `income` never carries either.
+ *  `transfer` is money moved from the main account into the envelope (see
+ *  `EnvelopeConfig`): not an expense, not savings, consumes no budget leaf. */
 export type FinanceV2Transaction =
   | (TransactionBase & { type: "income" })
   | (TransactionBase & { type: "savings"; sourceCategory?: TransactionSourceCategoryRef })
+  | (TransactionBase & { type: "transfer" })
   | (TransactionBase & {
       type: "expense";
       bucket: ExpenseBucketKey;
       category: TransactionCategoryRef | null;
+      /** Snapshot at creation (see `resolvePaidFrom`), never recomputed from the
+       *  current envelope/budget config. Absent = paid from the main account —
+       *  also every legacy record persisted before the envelope existed. */
+      paidFrom?: "envelope";
     });

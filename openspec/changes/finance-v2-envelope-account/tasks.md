@@ -8,10 +8,10 @@
 | 400-line budget risk | High |
 | Chained PRs recommended | Yes |
 | Suggested split | PR 1 domain → PR 2 data/actions/hooks → PR 3 UI |
-| Delivery strategy | ask-on-risk |
-| Chain strategy | pending |
+| Delivery strategy | single branch, one commit per phase (user-confirmed) |
+| Chain strategy | single branch, one commit per phase (user-confirmed) |
 
-Decision needed before apply: Yes (chain strategy)
+Decision needed before apply: No
 
 ### Suggested Work Units
 
@@ -23,18 +23,19 @@ Decision needed before apply: Yes (chain strategy)
 
 ## Phase 1: Domain (PR 1)
 
-- [ ] 1.1 RED/GREEN: `FinanceV2Transaction.ts` — add `transfer` variant and `paidFrom?: "envelope"`
+- [x] 1.1 RED/GREEN: `FinanceV2Transaction.ts` — add `transfer` variant and `paidFrom?: "envelope"`
   on expense; `spendLeafRef` `case "transfer": return null` + test that a transfer contributes to no
   leaf and no bucket, and that an envelope-paid expense still counts on its leaf.
-- [ ] 1.2 RED/GREEN: `transactionTotals.ts` — `transfer` sum, main-only `expense`, new `balance`;
+- [x] 1.2 RED/GREEN: `transactionTotals.ts` — `transfer` sum, main-only `expense`, new `balance`;
   tests from the spec scenario (1000000/116000/43000/20000 → 864000) plus legacy expense without
   `paidFrom`.
-- [ ] 1.3 RED/GREEN: `EnvelopeConfig.ts` + `envelope.ts` — `computeEnvelopeFlows`, `monthsFromTo`,
+- [x] 1.3 RED/GREEN: `EnvelopeConfig.ts` + `envelope.ts` — `computeEnvelopeFlows`, `monthsFromTo`,
   `resolvePaidFrom`, `suggestedTransfer` with the cases in design's testing table. Export from
   `domain/index.ts`.
-- [ ] 1.4 `transactionLabels.ts` — `transfer: "Transferencia"` in labels and order (compile-forced);
-  update any label snapshot tests.
-- [ ] 1.5 `npm run test` + `npx tsc --noEmit` green.
+- [x] 1.4 `transactionLabels.ts` — `transfer: "Transferencia"` in labels (compile-forced);
+  update any label snapshot tests. NOT added to `TRANSACTION_TYPE_ORDER` (not compile-forced):
+  the form must not offer it until 3.4 gates it on `hasEnvelope`.
+- [x] 1.5 `npm run test` + `npx tsc --noEmit` green.
 
 ## Phase 2: Data, actions, hooks (PR 2)
 

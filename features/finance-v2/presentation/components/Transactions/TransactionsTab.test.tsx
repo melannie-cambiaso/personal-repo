@@ -9,7 +9,7 @@ beforeAll(() => {
 });
 
 describe("TransactionsTab", () => {
-  const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, balance: 350 };
+  const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
   const categoryOptions: ExpenseCategoryOption[] = [];
 
   it("wires the summary — shows balance and savings from the given totals", () => {

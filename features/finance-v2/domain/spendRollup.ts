@@ -35,7 +35,9 @@ export interface SpendComparison {
  *  name - see `TransactionCategoryRef`'s snapshot contract). An `expense`
  *  with `category: null` falls to its own transaction `bucket`'s unassigned
  *  total instead of being dropped. A `savings` transaction with no
- *  `sourceCategory`, and every `income` transaction, contributes nowhere. */
+ *  `sourceCategory`, and every `income`/`transfer` transaction, contributes
+ *  nowhere. `paidFrom` is ignored: an envelope-paid expense still consumes
+ *  its leaf (the envelope is a funding mechanism, not a budget change). */
 export function computeSpentByCategory(transactions: FinanceV2Transaction[]): {
   byLeafId: Record<string, number>;
   unassignedByBucket: Record<ExpenseBucketKey, number>;
@@ -49,9 +51,9 @@ export function computeSpentByCategory(transactions: FinanceV2Transaction[]): {
       byLeafId[leaf.id] = (byLeafId[leaf.id] ?? 0) + tx.amount;
       continue;
     }
-    // Only an EXPENSE falls to unassigned: an untagged savings/income tx
-    // consumes no expense budget at all, so it contributes nowhere —
-    // `spendLeafRef` returns null for both cases and this narrows them apart.
+    // Only an EXPENSE falls to unassigned: an untagged savings, income or
+    // transfer tx consumes no expense budget at all, so it contributes nowhere —
+    // `spendLeafRef` returns null for all of them and this narrows them apart.
     if (tx.type === "expense") unassignedByBucket[tx.bucket] += tx.amount;
   }
 
@@ -159,8 +161,8 @@ export function resolveUnassignedBucket(transactions: FinanceV2Transaction[], le
  *  sync: a variant cannot start contributing to `byLeafId` without also
  *  becoming resolvable. `null` = contributes no leaf.
  *  The declared return type deliberately excludes `undefined`, so adding a
- *  4th transaction `type` fails to compile (TS2366) instead of throwing at
- *  runtime in the Budget tab. */
+ *  new transaction `type` fails to compile (TS2366) instead of throwing at
+ *  runtime in the Budget tab (exactly what forced the `transfer` case). */
 function spendLeafRef(tx: FinanceV2Transaction): { id: string; bucket: ExpenseBucketKey } | null {
   switch (tx.type) {
     case "expense":
@@ -170,6 +172,7 @@ function spendLeafRef(tx: FinanceV2Transaction): { id: string; bucket: ExpenseBu
         ? { id: tx.sourceCategory.id, bucket: tx.sourceCategory.bucket }
         : null;
     case "income":
+    case "transfer":
       return null;
   }
 }

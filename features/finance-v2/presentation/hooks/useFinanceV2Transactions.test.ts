@@ -51,7 +51,13 @@ describe("useFinanceV2Transactions", () => {
     );
 
     expect(result.current.transactions).toEqual(initialTransactions);
-    expect(result.current.totals).toEqual({ income: 1000, expense: 400, savings: 0, balance: 600 });
+    expect(result.current.totals).toEqual({
+      income: 1000,
+      expense: 400,
+      savings: 0,
+      transfer: 0,
+      balance: 600,
+    });
     expect(result.current.dayGroups.map((g) => g.date)).toEqual(["2026-07-02", "2026-07-01"]);
   });
 
@@ -308,7 +314,13 @@ describe("useFinanceV2Transactions", () => {
 
     expect(onLoad).toHaveBeenCalledWith("2026-08");
     expect(result.current.transactions).toEqual(augustTransactions);
-    expect(result.current.totals).toEqual({ income: 2000, expense: 500, savings: 0, balance: 1500 });
+    expect(result.current.totals).toEqual({
+      income: 2000,
+      expense: 500,
+      savings: 0,
+      transfer: 0,
+      balance: 1500,
+    });
     expect(result.current.dayGroups.map((g) => g.date)).toEqual(["2026-08-02", "2026-08-01"]);
   });
 

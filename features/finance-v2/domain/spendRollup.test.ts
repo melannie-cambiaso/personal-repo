@@ -89,6 +89,28 @@ describe("computeSpentByCategory", () => {
       unassignedByBucket: { fixed: 0, variable: 0 },
     });
   });
+
+  it("excludes transfer transactions from every leaf and every bucket", () => {
+    const list: FinanceV2Transaction[] = [
+      { id: "tx-transfer", amount: 116000, date: "2026-07-01", month: "2026-07", type: "transfer" },
+    ];
+
+    expect(computeSpentByCategory(list)).toEqual({
+      byLeafId: {},
+      unassignedByBucket: { fixed: 0, variable: 0 },
+    });
+  });
+
+  it("attributes an envelope-paid expense to its leaf id exactly like a main-account one", () => {
+    const list = [
+      expenseTx({ amount: 43000, category: { id: "luz", name: "Luz" }, paidFrom: "envelope" }),
+    ];
+
+    expect(computeSpentByCategory(list)).toEqual({
+      byLeafId: { luz: 43000 },
+      unassignedByBucket: { fixed: 0, variable: 0 },
+    });
+  });
 });
 
 describe("computeSpendComparison", () => {
@@ -262,6 +284,32 @@ describe("computeSpendComparison", () => {
     const variableRow = result.buckets.find((row) => row.key === "variable");
 
     expect(variableRow).toEqual({ key: "variable", budgeted: 0, spent: 50000, unassigned: 50000 });
+  });
+});
+
+describe("computeSpendComparison with envelope activity", () => {
+  it("counts an envelope-paid expense on its leaf and ignores a transfer entirely", () => {
+    const config: BudgetConfig = {
+      categories: [
+        {
+          id: "cuentas",
+          name: "Cuentas",
+          bucket: "fixed",
+          amount: 0,
+          subcategories: [{ id: "luz", name: "Luz", bucket: "fixed", amount: 45000 }],
+        },
+      ],
+    };
+    const list: FinanceV2Transaction[] = [
+      { id: "tx-transfer", amount: 116000, date: "2026-07-01", month: "2026-07", type: "transfer" },
+      expenseTx({ amount: 43000, category: { id: "luz", name: "Luz" }, paidFrom: "envelope" }),
+    ];
+
+    const result = computeSpendComparison(config, list, "2026-07");
+
+    expect(result.leaves.luz).toEqual({ budgeted: 45000, spent: 43000 });
+    expect(result.categories.cuentas).toEqual({ budgeted: 0, spent: 43000 });
+    expect(result.total).toEqual({ budgeted: 45000, spent: 43000, unassigned: 0 });
   });
 });
 

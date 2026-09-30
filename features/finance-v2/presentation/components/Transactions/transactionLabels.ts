@@ -5,8 +5,11 @@ export const TRANSACTION_TYPE_LABELS: Record<FinanceV2Transaction["type"], strin
   income: "Ingreso",
   expense: "Gasto",
   savings: "Ahorro",
+  transfer: "Transferencia",
 };
 
+// `transfer` is deliberately absent: the form may only offer it once an envelope
+// is configured, so that option is added conditionally at the call site.
 export const TRANSACTION_TYPE_ORDER: FinanceV2Transaction["type"][] = [
   "income",
   "expense",
