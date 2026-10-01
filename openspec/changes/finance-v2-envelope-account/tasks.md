@@ -63,12 +63,15 @@ Decision needed before apply: No
 
 ## Phase 3: UI (PR 3)
 
-- [ ] 3.1 RED/GREEN: `EnvelopeCard.tsx` — four figures, negative warning, hidden when loading/null.
-- [ ] 3.2 RED/GREEN: `EnvelopeReminder.tsx` — visibility rule, suggested amount, missing-category text.
-- [ ] 3.3 RED/GREEN: `EnvelopeConfigModal.tsx` — top-level category select, opening balance,
+- [x] 3.1 RED/GREEN: `EnvelopeCard.tsx` — four figures, negative warning, hidden when loading/null.
+- [x] 3.2 RED/GREEN: `EnvelopeReminder.tsx` — visibility rule, suggested amount, missing-category text.
+- [x] 3.3 RED/GREEN: `EnvelopeConfigModal.tsx` — top-level category select, opening balance,
   `openingMonth` set only on creation.
-- [ ] 3.4 RED/GREEN: `TransactionForm.tsx` — transfer option gated by `hasEnvelope`, submit branch.
-- [ ] 3.5 RED/GREEN: `TransactionRow.tsx` + `MovementSummary.tsx` — transfer/envelope labels,
+- [x] 3.4 RED/GREEN: `TransactionForm.tsx` — transfer option gated by `hasEnvelope`, submit branch.
+- [x] 3.5 RED/GREEN: `TransactionRow.tsx` + `MovementSummary.tsx` — transfer/envelope labels,
   "Transferencias" line.
-- [ ] 3.6 `TransactionsTab.tsx` — compose card, reminder, config entry point; tab tests.
+- [x] 3.6 `TransactionsTab.tsx` — compose card, reminder, config entry point; tab tests.
+  `FinanceV2Screen` derives the view via `toEnvelopeView` and hoists `isEnvelopeConfigOpen`
+  (it also disables `MonthNav`, since creation stamps `openingMonth` from the viewed month).
 - [ ] 3.7 `npm run test` + `npm run build` green; manual check with the spec scenarios.
+  Tests (864), `tsc --noEmit`, and `npm run build` green. Manual check PENDING.

@@ -4,12 +4,13 @@ import { TransactionRow } from "./TransactionRow";
 interface Props {
   dayGroups: DayGroup[];
   onDelete: (id: string) => void;
+  envelopeName: string | null;
 }
 
 // Purely presentational — renders `dayGroups` in the order given. Ordering (day desc,
 // reverse insertion order within a day) is entirely `groupTransactionsByDay`'s job; this
 // component never re-sorts.
-export function TransactionList({ dayGroups, onDelete }: Props) {
+export function TransactionList({ dayGroups, onDelete, envelopeName }: Props) {
   if (dayGroups.length === 0) {
     return <p className="text-brown-500 text-sm">No hay movimientos este mes</p>;
   }
@@ -21,7 +22,12 @@ export function TransactionList({ dayGroups, onDelete }: Props) {
           <p className="text-brown-500 mb-2 text-xs font-semibold">{group.date}</p>
           <div className="flex flex-col gap-3">
             {group.transactions.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} onDelete={onDelete} />
+              <TransactionRow
+                key={transaction.id}
+                transaction={transaction}
+                envelopeName={envelopeName}
+                onDelete={onDelete}
+              />
             ))}
           </div>
         </div>

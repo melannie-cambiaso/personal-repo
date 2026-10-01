@@ -9,11 +9,19 @@ interface Props {
   isOpen: boolean;
   viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
+  hasEnvelope: boolean;
   onClose: () => void;
   onAdd: (input: NewTransactionInput) => void;
 }
 
-export function AddTransactionModal({ isOpen, viewedMonth, categoryOptions, onClose, onAdd }: Props) {
+export function AddTransactionModal({
+  isOpen,
+  viewedMonth,
+  categoryOptions,
+  hasEnvelope,
+  onClose,
+  onAdd,
+}: Props) {
   const handleAdd = (input: NewTransactionInput) => {
     onAdd(input);
     onClose();
@@ -26,6 +34,7 @@ export function AddTransactionModal({ isOpen, viewedMonth, categoryOptions, onCl
         key={viewedMonth}
         viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
+        hasEnvelope={hasEnvelope}
         onAdd={handleAdd}
       />
     </ModalShell>

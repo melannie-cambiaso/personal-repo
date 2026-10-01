@@ -1,6 +1,8 @@
+import type { ComponentProps } from "react";
 import { describe, it, expect, vi, beforeAll } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { TransactionsTab } from "./TransactionsTab";
+import type { EnvelopeView } from "./Envelope/envelopeView";
 import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
 
 beforeAll(() => {
@@ -8,26 +10,45 @@ beforeAll(() => {
   HTMLDialogElement.prototype.close = vi.fn();
 });
 
+type Props = ComponentProps<typeof TransactionsTab>;
+
 describe("TransactionsTab", () => {
   const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
   const categoryOptions: ExpenseCategoryOption[] = [];
 
+  const tabProps = (overrides: Partial<Props> = {}): Props => ({
+    viewedMonth: "2026-07",
+    lastCrossMonthSave: null,
+    onDismissCrossMonthSave: vi.fn(),
+    totals,
+    dayGroups: [],
+    categoryOptions,
+    onAdd: vi.fn(),
+    onDelete: vi.fn(),
+    isAddOpen: false,
+    onOpenAdd: vi.fn(),
+    onCloseAdd: vi.fn(),
+    envelope: null,
+    budgetCategories: [],
+    onSaveEnvelopeConfig: vi.fn(),
+    isEnvelopeConfigOpen: false,
+    onOpenEnvelopeConfig: vi.fn(),
+    onCloseEnvelopeConfig: vi.fn(),
+    ...overrides,
+  });
+
+  const renderTab = (overrides: Partial<Props> = {}) =>
+    render(<TransactionsTab {...tabProps(overrides)} />);
+
+  const envelope: EnvelopeView = {
+    config: { name: "Servicios", boundCategoryId: "cuentas", openingBalance: 0, openingMonth: "2026-07" },
+    carriedIn: 7_000,
+    flows: { transferred: 0, paid: 0 },
+    suggestedTransfer: 116_000,
+  };
+
   it("wires the summary — shows balance and savings from the given totals", () => {
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={false}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab();
 
     // "Ahorro" also appears as a select option in the wired form, so the summary's own
     // "Ahorro" label is asserted in MovementSummary.test.tsx instead — here we only need
@@ -41,21 +62,7 @@ describe("TransactionsTab", () => {
 
   it("wires the form — submitting calls onAdd with the entered transaction", () => {
     const onAdd = vi.fn();
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={onAdd}
-        onDelete={vi.fn()}
-        isAddOpen={true}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab({ onAdd, isAddOpen: true });
 
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "500" } });
@@ -75,21 +82,7 @@ describe("TransactionsTab", () => {
       },
     ];
 
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={dayGroups}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={onDelete}
-        isAddOpen={false}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab({ dayGroups, onDelete });
 
     fireEvent.click(screen.getByRole("button", { name: /eliminar/i }));
 
@@ -97,61 +90,19 @@ describe("TransactionsTab", () => {
   });
 
   it("shows the empty-state message from the list when there are no transactions", () => {
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={false}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab();
 
     expect(screen.getByText(/no hay movimientos/i)).toBeTruthy();
   });
 
   it("shows no confirmation banner when lastCrossMonthSave is null", () => {
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={false}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab();
 
     expect(screen.queryByRole("status")).toBeNull();
   });
 
   it("shows a dismissible confirmation banner naming the destination month when lastCrossMonthSave is set", () => {
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave="2026-08"
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={false}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab({ lastCrossMonthSave: "2026-08" });
 
     const banner = screen.getByRole("status");
     expect(banner.textContent).toMatch(/Guardado en/);
@@ -160,21 +111,7 @@ describe("TransactionsTab", () => {
 
   it("dismissing the banner calls onDismissCrossMonthSave", () => {
     const onDismissCrossMonthSave = vi.fn();
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave="2026-08"
-        onDismissCrossMonthSave={onDismissCrossMonthSave}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={false}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab({ lastCrossMonthSave: "2026-08", onDismissCrossMonthSave });
 
     fireEvent.click(screen.getByLabelText("Cerrar aviso"));
 
@@ -183,21 +120,7 @@ describe("TransactionsTab", () => {
 
   it("clicking 'Nuevo movimiento' calls onOpenAdd instead of owning its own open state", () => {
     const onOpenAdd = vi.fn();
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={false}
-        onOpenAdd={onOpenAdd}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab({ onOpenAdd });
 
     fireEvent.click(screen.getByText("Nuevo movimiento"));
 
@@ -205,102 +128,63 @@ describe("TransactionsTab", () => {
   });
 
   it("renders the Add-Transaction modal open when isAddOpen is true, without any internal open state", () => {
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={true}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab({ isAddOpen: true });
 
     expect(screen.getByLabelText("Tipo de movimiento")).toBeTruthy();
   });
 
   it("closing the Add-Transaction modal calls onCloseAdd", () => {
     const onCloseAdd = vi.fn();
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={true}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={onCloseAdd}
-      />
-    );
+    renderTab({ isAddOpen: true, onCloseAdd });
 
-    fireEvent.click(screen.getByLabelText("Cerrar"));
+    // Both modals' <dialog>s are always mounted, so scope to the Add-Transaction one.
+    const addDialog = screen.getByLabelText("Tipo de movimiento").closest("dialog")!;
+    fireEvent.click(within(addDialog).getByLabelText("Cerrar"));
 
     expect(onCloseAdd).toHaveBeenCalledOnce();
   });
 
   it("no longer owns MonthNav — there is no month label or prev/next control here", () => {
-    render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={false}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    renderTab();
 
     expect(screen.queryByRole("button", { name: "← Anterior" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Siguiente →" })).toBeNull();
   });
 
   it("the Add-Transaction form's month select reseeds after a month change", () => {
-    const { rerender } = render(
-      <TransactionsTab
-        viewedMonth="2026-07"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={true}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    const { rerender } = renderTab({ isAddOpen: true });
 
-    rerender(
-      <TransactionsTab
-        viewedMonth="2026-09"
-        lastCrossMonthSave={null}
-        onDismissCrossMonthSave={vi.fn()}
-        totals={totals}
-        dayGroups={[]}
-        categoryOptions={categoryOptions}
-        onAdd={vi.fn()}
-        onDelete={vi.fn()}
-        isAddOpen={true}
-        onOpenAdd={vi.fn()}
-        onCloseAdd={vi.fn()}
-      />
-    );
+    rerender(<TransactionsTab {...tabProps({ viewedMonth: "2026-09", isAddOpen: true })} />);
 
     expect((screen.getByLabelText("Mes") as HTMLSelectElement).value).toBe("2026-09");
+  });
+
+  it("with no envelope, offers 'Configurar cuenta separada' and shows no transfer figures", () => {
+    const onOpenEnvelopeConfig = vi.fn();
+    renderTab({ onOpenEnvelopeConfig });
+
+    fireEvent.click(screen.getByRole("button", { name: "Configurar cuenta separada" }));
+
+    expect(onOpenEnvelopeConfig).toHaveBeenCalledOnce();
+    expect(screen.queryByText("Transferencias")).toBeNull();
+  });
+
+  it("with an envelope, shows the reminder and the card, and the card's edit button opens the config", () => {
+    const onOpenEnvelopeConfig = vi.fn();
+    renderTab({ envelope, onOpenEnvelopeConfig });
+
+    expect(screen.getByRole("status").textContent).toContain("Todavía no transferiste");
+    expect(screen.getByText("Saldo inicial del mes")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Configurar cuenta separada" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar cuenta" }));
+
+    expect(onOpenEnvelopeConfig).toHaveBeenCalledOnce();
+  });
+
+  it("renders the envelope config modal open when isEnvelopeConfigOpen is true", () => {
+    renderTab({ isEnvelopeConfigOpen: true });
+
+    expect(screen.getByLabelText("Nombre de la cuenta")).toBeTruthy();
   });
 });

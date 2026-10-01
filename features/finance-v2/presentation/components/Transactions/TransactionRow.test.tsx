@@ -14,7 +14,7 @@ describe("TransactionRow", () => {
       month: "2026-07",
     };
 
-    render(<TransactionRow transaction={tx} onDelete={onDelete} />);
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={onDelete} />);
     fireEvent.click(screen.getByRole("button", { name: /eliminar/i }));
 
     expect(onDelete).toHaveBeenCalledWith("t1");
@@ -31,7 +31,7 @@ describe("TransactionRow", () => {
       category: { id: "deleted-subcategory-id", name: "Renta" },
     };
 
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
 
     expect(screen.getByText("Renta")).toBeTruthy();
   });
@@ -47,7 +47,7 @@ describe("TransactionRow", () => {
       category: null,
     };
 
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
 
     expect(screen.getByText("Variables")).toBeTruthy();
   });
@@ -62,7 +62,7 @@ describe("TransactionRow", () => {
       note: "Fondo de emergencia",
     };
 
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
 
     expect(screen.getByText("Fondo de emergencia")).toBeTruthy();
   });
@@ -77,7 +77,7 @@ describe("TransactionRow", () => {
       sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
     };
 
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
 
     expect(screen.getByText("de Supermercado")).toBeTruthy();
   });
@@ -91,7 +91,7 @@ describe("TransactionRow", () => {
       month: "2026-07",
     };
 
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
 
     expect(screen.queryByText(/^de /)).toBeNull();
   });
@@ -107,7 +107,7 @@ describe("TransactionRow", () => {
       sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
     };
 
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
 
     expect(screen.getByText("de Supermercado")).toBeTruthy();
     expect(screen.getByText("Fondo de emergencia")).toBeTruthy();
@@ -122,8 +122,70 @@ describe("TransactionRow", () => {
       month: "2026-07",
     };
 
-    render(<TransactionRow transaction={tx} onDelete={vi.fn()} />);
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
 
     expect(screen.getByText("$1.000")).toBeTruthy();
+  });
+
+  it("labels a transfer with the configured envelope's name", () => {
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "transfer",
+      amount: 116000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
+
+    render(<TransactionRow transaction={tx} envelopeName="Servicios" onDelete={vi.fn()} />);
+
+    expect(screen.getByText("Transferencia → Servicios")).toBeTruthy();
+  });
+
+  it("falls back to the plain type label for a transfer when no envelope is configured", () => {
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "transfer",
+      amount: 116000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
+
+    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+
+    expect(screen.getByText("Transferencia")).toBeTruthy();
+  });
+
+  it("shows a secondary funding line for an envelope-paid expense", () => {
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "expense",
+      amount: 43000,
+      date: "2026-07-01",
+      month: "2026-07",
+      bucket: "fixed",
+      category: { id: "luz", name: "Luz" },
+      paidFrom: "envelope",
+    };
+
+    render(<TransactionRow transaction={tx} envelopeName="Servicios" onDelete={vi.fn()} />);
+
+    expect(screen.getByText("Luz")).toBeTruthy();
+    expect(screen.getByText("desde Servicios")).toBeTruthy();
+  });
+
+  it("shows no funding line for a main-account expense", () => {
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "expense",
+      amount: 20000,
+      date: "2026-07-01",
+      month: "2026-07",
+      bucket: "variable",
+      category: null,
+    };
+
+    render(<TransactionRow transaction={tx} envelopeName="Servicios" onDelete={vi.fn()} />);
+
+    expect(screen.queryByText(/^desde /)).toBeNull();
   });
 });

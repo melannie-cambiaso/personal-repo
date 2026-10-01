@@ -422,5 +422,58 @@ describe("FinanceV2Screen", () => {
 
       await waitFor(() => expect(onLoadEnvelopeCarriedBalance).toHaveBeenCalledWith("2026-08"));
     });
+
+    it("shows the envelope card with the server-loaded carried-in balance on the Movimientos tab", () => {
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={cuentasWithLuz}
+          initialEnvelopeConfig={envelope}
+          initialCarriedIn={7000}
+        />
+      );
+
+      fireEvent.click(screen.getByText("Movimientos"));
+
+      expect(screen.getByText("Saldo inicial del mes").nextSibling?.textContent).toBe("$7.000");
+    });
+
+    // Spec: `openingMonth` is set once, on creation, to the viewed month.
+    it("creating the envelope from the Movimientos tab saves it with openingMonth = the viewed month", () => {
+      const onSaveEnvelopeConfig = vi.fn();
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={{
+            categories: [
+              { id: "cuentas", name: "Cuentas", bucket: "fixed", amount: 0, subcategories: [] },
+            ],
+          }}
+          onSaveEnvelopeConfig={onSaveEnvelopeConfig}
+        />
+      );
+
+      fireEvent.click(screen.getByText("Movimientos"));
+      fireEvent.click(screen.getByText("Configurar cuenta separada"));
+      fireEvent.change(screen.getByLabelText("Nombre de la cuenta"), {
+        target: { value: "Servicios" },
+      });
+      fireEvent.click(screen.getByText("Guardar cuenta"));
+
+      expect(onSaveEnvelopeConfig).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "Servicios", openingMonth: "2026-07" })
+      );
+    });
+
+    it("opening the envelope config modal disables the shared MonthNav", () => {
+      render(<FinanceV2Screen {...defaultProps()} initialBudget={cuentasWithLuz} />);
+
+      fireEvent.click(screen.getByText("Movimientos"));
+      fireEvent.click(screen.getByText("Configurar cuenta separada"));
+
+      expect(
+        (screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled
+      ).toBe(true);
+    });
   });
 });

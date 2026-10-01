@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { ExpenseBucketKey, ExpenseCategoryOption } from "@/features/finance-v2/domain";
+import type {
+  ExpenseBucketKey,
+  ExpenseCategoryOption,
+  FinanceV2Transaction,
+} from "@/features/finance-v2/domain";
 import { toLocalISODate } from "@/features/finance-v2/domain";
 import { monthWindow } from "@/shared/utils/monthUtils";
 import { formatMonth } from "@/shared/utils/formatMonth";
@@ -10,7 +14,7 @@ import { Button, Input, Select } from "@/shared/components";
 import { TRANSACTION_TYPE_LABELS, TRANSACTION_TYPE_ORDER } from "./transactionLabels";
 import { BUCKET_LABELS } from "../bucketLabels";
 
-type TransactionType = (typeof TRANSACTION_TYPE_ORDER)[number];
+type TransactionType = FinanceV2Transaction["type"];
 
 const NO_CATEGORY = "";
 
@@ -22,13 +26,18 @@ const MONTH_RADIUS = 3;
 interface Props {
   viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
+  hasEnvelope: boolean;
   onAdd: (input: NewTransactionInput) => void;
 }
 
 // Choosing a subcategory HIDES the bucket select entirely: bucket is unaskable twice
 // because the control simply isn't rendered, not because it's disabled.
-export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) {
+export function TransactionForm({ viewedMonth, categoryOptions, hasEnvelope, onAdd }: Props) {
   const monthOptions = monthWindow(viewedMonth, MONTH_RADIUS);
+  // The form only offers a transfer once an envelope exists (spec).
+  const typeOptions: TransactionType[] = hasEnvelope
+    ? [...TRANSACTION_TYPE_ORDER, "transfer"]
+    : TRANSACTION_TYPE_ORDER;
 
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
@@ -105,7 +114,7 @@ export function TransactionForm({ viewedMonth, categoryOptions, onAdd }: Props) 
           aria-label="Tipo de movimiento"
           value={type}
           onChange={(e) => setType(e.target.value as TransactionType)}
-          options={TRANSACTION_TYPE_ORDER.map((key) => ({
+          options={typeOptions.map((key) => ({
             value: key,
             label: TRANSACTION_TYPE_LABELS[key],
           }))}

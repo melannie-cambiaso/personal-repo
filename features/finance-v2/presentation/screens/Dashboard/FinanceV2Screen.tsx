@@ -20,6 +20,7 @@ import { AnalysisTab } from "../../components/Analysis/AnalysisTab";
 import { TransactionsTab } from "../../components/Transactions/TransactionsTab";
 import type { BudgetMode } from "../../components/Budget/budgetMode";
 import { toSpendView } from "../../components/Budget/spendView";
+import { toEnvelopeView } from "../../components/Transactions/Envelope/envelopeView";
 import { PageHeader, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
@@ -85,7 +86,13 @@ export function FinanceV2Screen({
 
   // Hoisted for the same reason as the two hooks around it. Declared before
   // `useFinanceV2Transactions`, which needs its config to stamp new expenses.
-  const { config: envelopeConfig, refreshCarried } = useFinanceV2Envelope({
+  const {
+    config: envelopeConfig,
+    saveConfig: saveEnvelopeConfig,
+    carriedIn,
+    isLoadingCarried,
+    refreshCarried,
+  } = useFinanceV2Envelope({
     initialConfig: initialEnvelopeConfig,
     initialCarriedIn,
     viewedMonth,
@@ -140,6 +147,17 @@ export function FinanceV2Screen({
     [categories, transactions, viewedMonth]
   );
 
+  // Derived on every render (cheap, no memo): the flows read the possibly-optimistic
+  // list, and either loading flag hides the card and reminder via `carriedIn: null`.
+  const envelope = toEnvelopeView({
+    config: envelopeConfig,
+    carriedIn,
+    isLoading: isLoadingMonth || isLoadingCarried,
+    transactions,
+    budget: { categories },
+    month: viewedMonth,
+  });
+
   const [activeTab, setActiveTab] = useState<TabKey>("budget");
   // Hoisted beside `useFinanceV2Budget` (same remount rationale as design decision #1):
   // the Budget tab is conditionally rendered, so mode state must live here, not inside
@@ -152,6 +170,8 @@ export function FinanceV2Screen({
   // by the Presupuesto and Movimientos tabs, so this flag — its `disabled` guard — had to
   // move up with it (see `TransactionsTab`'s header comment for the correctness rationale).
   const [isAddOpen, setIsAddOpen] = useState(false);
+  // Same guard: creating the envelope stamps `openingMonth` from `viewedMonth`.
+  const [isEnvelopeConfigOpen, setIsEnvelopeConfigOpen] = useState(false);
 
   return (
     <main className="flex flex-1 flex-col">
@@ -178,7 +198,7 @@ export function FinanceV2Screen({
           label={formatMonth(viewedMonth)}
           onPrev={() => setViewedMonth(prevMonth(viewedMonth))}
           onNext={() => setViewedMonth(nextMonth(viewedMonth))}
-          disabled={isAddOpen}
+          disabled={isAddOpen || isEnvelopeConfigOpen}
         />
 
         {activeTab === "budget" && (
@@ -216,6 +236,12 @@ export function FinanceV2Screen({
             isAddOpen={isAddOpen}
             onOpenAdd={() => setIsAddOpen(true)}
             onCloseAdd={() => setIsAddOpen(false)}
+            envelope={envelope}
+            budgetCategories={categories}
+            onSaveEnvelopeConfig={saveEnvelopeConfig}
+            isEnvelopeConfigOpen={isEnvelopeConfigOpen}
+            onOpenEnvelopeConfig={() => setIsEnvelopeConfigOpen(true)}
+            onCloseEnvelopeConfig={() => setIsEnvelopeConfigOpen(false)}
           />
         )}
       </div>

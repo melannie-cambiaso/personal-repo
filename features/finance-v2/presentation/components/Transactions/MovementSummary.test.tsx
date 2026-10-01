@@ -7,7 +7,7 @@ describe("MovementSummary", () => {
   it("shows balance (income minus expense minus savings) alongside savings reported as its own separate total", () => {
     const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     expect(screen.getByText("Balance")).toBeTruthy();
     expect(screen.getByText("$350")).toBeTruthy();
@@ -23,7 +23,7 @@ describe("MovementSummary", () => {
   it("renders zeroes for an empty month", () => {
     const totals: TransactionTotals = { income: 0, expense: 0, savings: 0, transfer: 0, balance: 0 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     expect(screen.getAllByText("$0")).toHaveLength(5);
   });
@@ -31,7 +31,7 @@ describe("MovementSummary", () => {
   it("renders the income/expense/savings breakdown below the Balance row, reconciling with Balance", () => {
     const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     expect(screen.getByText("$1.000")).toBeTruthy();
     expect(screen.getByText("$400")).toBeTruthy();
@@ -46,7 +46,7 @@ describe("MovementSummary", () => {
   it("colors the income breakdown figure green", () => {
     const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     expect(screen.getByText("$1.000").className).toContain("text-green-700");
     expect(screen.getByText("$1.000").className).toContain("font-bold");
@@ -55,7 +55,7 @@ describe("MovementSummary", () => {
   it("colors the expense breakdown figure red", () => {
     const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     expect(screen.getByText("$400").className).toContain("text-red-700");
     expect(screen.getByText("$400").className).toContain("font-bold");
@@ -64,7 +64,7 @@ describe("MovementSummary", () => {
   it("colors the savings breakdown figure amber, distinct from income and expense", () => {
     const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     const breakdownLine = screen.getByText("$1.000").parentElement;
     const segment = screen.getAllByText("$250").find((el) => el.parentElement === breakdownLine)!;
@@ -77,7 +77,7 @@ describe("MovementSummary", () => {
   it("renders the savings segment even when savings is 0", () => {
     const totals: TransactionTotals = { income: 800, expense: 500, savings: 0, transfer: 0, balance: 300 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     const breakdownLine = screen.getByText("$800").parentElement;
     const segment = screen.getAllByText("$0").find((el) => el.parentElement === breakdownLine);
@@ -88,7 +88,7 @@ describe("MovementSummary", () => {
   it("groups income, expense, and savings as siblings in the same breakdown sub-line", () => {
     const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     const income = screen.getByText("$1.000");
     const expense = screen.getByText("$400");
@@ -103,7 +103,7 @@ describe("MovementSummary", () => {
   it("keeps the net Balance figure neutral, not colored by sign", () => {
     const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     const balance = screen.getByText("$350");
     expect(balance.className).toContain("text-brown-800");
@@ -115,12 +115,40 @@ describe("MovementSummary", () => {
   it("keeps the Ahorro figure styling unchanged", () => {
     const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
 
-    render(<MovementSummary totals={totals} />);
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     const breakdownLine = screen.getByText("$1.000").parentElement;
     const savingsFigures = screen.getAllByText("$250");
     const ahorro = savingsFigures.find((el) => el.parentElement !== breakdownLine)!;
     expect(ahorro.className).toContain("text-brown-800");
     expect(ahorro.className).toContain("font-bold");
+  });
+
+  it("with an envelope, adds the transfer to the breakdown and a Transferencias row", () => {
+    const totals: TransactionTotals = {
+      income: 1_000_000,
+      expense: 20_000,
+      savings: 0,
+      transfer: 116_000,
+      balance: 864_000,
+    };
+
+    render(<MovementSummary totals={totals} hasEnvelope />);
+
+    expect(screen.getByText("Transferencias")).toBeTruthy();
+    expect(screen.getAllByText("$116.000")).toHaveLength(2);
+    expect(screen.getByText("$864.000")).toBeTruthy();
+
+    const breakdownLine = screen.getByText("$1.000.000").parentElement;
+    const segment = screen.getAllByText("$116.000").find((el) => el.parentElement === breakdownLine)!;
+    expect(segment.className).toContain("text-sky-700");
+  });
+
+  it("without an envelope, renders no Transferencias row", () => {
+    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+
+    render(<MovementSummary totals={totals} hasEnvelope={false} />);
+
+    expect(screen.queryByText("Transferencias")).toBeNull();
   });
 });

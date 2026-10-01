@@ -5,7 +5,7 @@ import type { DayGroup } from "@/features/finance-v2/domain";
 
 describe("TransactionList", () => {
   it("shows an empty-state message when there are no groups", () => {
-    render(<TransactionList dayGroups={[]} onDelete={vi.fn()} />);
+    render(<TransactionList dayGroups={[]} onDelete={vi.fn()} envelopeName={null} />);
 
     expect(screen.getByText(/no hay movimientos/i)).toBeTruthy();
   });
@@ -27,7 +27,7 @@ describe("TransactionList", () => {
       },
     ];
 
-    render(<TransactionList dayGroups={dayGroups} onDelete={vi.fn()} />);
+    render(<TransactionList dayGroups={dayGroups} onDelete={vi.fn()} envelopeName={null} />);
 
     expect(screen.getByText("2026-07-25")).toBeTruthy();
     expect(screen.getByText("2026-07-01")).toBeTruthy();

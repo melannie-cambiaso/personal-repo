@@ -1,12 +1,22 @@
 "use client";
 
-import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
+import type {
+  BudgetCategory,
+  DayGroup,
+  ExpenseCategoryOption,
+  TransactionTotals,
+} from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
+import type { EnvelopeConfigInput } from "../../hooks/useFinanceV2Envelope";
 import { Button } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { AddTransactionModal } from "./AddTransactionModal";
 import { MovementSummary } from "./MovementSummary";
 import { TransactionList } from "./TransactionList";
+import { EnvelopeCard } from "./Envelope/EnvelopeCard";
+import { EnvelopeConfigModal } from "./Envelope/EnvelopeConfigModal";
+import { EnvelopeReminder } from "./Envelope/EnvelopeReminder";
+import type { EnvelopeView } from "./Envelope/envelopeView";
 
 interface Props {
   viewedMonth: string;
@@ -22,6 +32,16 @@ interface Props {
   isAddOpen: boolean;
   onOpenAdd: () => void;
   onCloseAdd: () => void;
+  /** `null` = no envelope configured (see `toEnvelopeView`). */
+  envelope: EnvelopeView | null;
+  /** Top-level budget categories the envelope can bind to. */
+  budgetCategories: BudgetCategory[];
+  onSaveEnvelopeConfig: (input: EnvelopeConfigInput) => void;
+  /** Hoisted like `isAddOpen`: `MonthNav` must be disabled while it is open, because
+   *  creating the envelope stamps `openingMonth` from `viewedMonth`. */
+  isEnvelopeConfigOpen: boolean;
+  onOpenEnvelopeConfig: () => void;
+  onCloseEnvelopeConfig: () => void;
 }
 
 // Pure composition (math-free), consuming `useFinanceV2Transactions`'s hoisted state via
@@ -45,7 +65,15 @@ export function TransactionsTab({
   isAddOpen,
   onOpenAdd,
   onCloseAdd,
+  envelope,
+  budgetCategories,
+  onSaveEnvelopeConfig,
+  isEnvelopeConfigOpen,
+  onOpenEnvelopeConfig,
+  onCloseEnvelopeConfig,
 }: Props) {
+  const hasEnvelope = envelope !== null;
+
   return (
     <div className="flex flex-col gap-6">
       {lastCrossMonthSave && (
@@ -64,7 +92,15 @@ export function TransactionsTab({
           </button>
         </div>
       )}
-      <MovementSummary totals={totals} />
+      {envelope && <EnvelopeReminder view={envelope} />}
+      <MovementSummary totals={totals} hasEnvelope={hasEnvelope} />
+      {envelope ? (
+        <EnvelopeCard view={envelope} onEdit={onOpenEnvelopeConfig} />
+      ) : (
+        <Button type="button" variant="secondary" onPress={onOpenEnvelopeConfig}>
+          Configurar cuenta separada
+        </Button>
+      )}
       <Button type="button" variant="primary" onPress={onOpenAdd}>
         Nuevo movimiento
       </Button>
@@ -72,10 +108,22 @@ export function TransactionsTab({
         isOpen={isAddOpen}
         viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
+        hasEnvelope={hasEnvelope}
         onClose={onCloseAdd}
         onAdd={onAdd}
       />
-      <TransactionList dayGroups={dayGroups} onDelete={onDelete} />
+      <EnvelopeConfigModal
+        isOpen={isEnvelopeConfigOpen}
+        config={envelope?.config ?? null}
+        categories={budgetCategories}
+        onClose={onCloseEnvelopeConfig}
+        onSave={onSaveEnvelopeConfig}
+      />
+      <TransactionList
+        dayGroups={dayGroups}
+        onDelete={onDelete}
+        envelopeName={envelope?.config.name ?? null}
+      />
     </div>
   );
 }
