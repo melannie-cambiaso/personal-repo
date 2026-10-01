@@ -1,13 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
+import type {
+  BudgetConfig,
+  EnvelopeConfig,
+  FinanceV2Transaction,
+} from "@/features/finance-v2/domain";
 import {
   computeMonthAnalysis,
   computeSpendComparison,
   listExpenseCategoryOptions,
+  resolvePaidFrom,
 } from "@/features/finance-v2/domain";
 import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
+import { useFinanceV2Envelope } from "../../hooks/useFinanceV2Envelope";
 import { useFinanceV2Transactions } from "../../hooks/useFinanceV2Transactions";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
 import { AnalysisTab } from "../../components/Analysis/AnalysisTab";
@@ -34,6 +40,10 @@ interface Props {
   onSaveTransactions: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
   onSaveToOtherMonth: (tx: FinanceV2Transaction) => Promise<void> | void;
   onLoadTransactions: (month: string) => Promise<FinanceV2Transaction[]>;
+  initialEnvelopeConfig: EnvelopeConfig | null;
+  initialCarriedIn: number | null;
+  onSaveEnvelopeConfig: (config: EnvelopeConfig) => Promise<void> | void;
+  onLoadEnvelopeCarriedBalance: (month: string) => Promise<number | null>;
 }
 
 // `useFinanceV2Budget` and `useFinanceV2Transactions` stay hoisted here (design decision
@@ -49,6 +59,10 @@ export function FinanceV2Screen({
   onSaveTransactions,
   onSaveToOtherMonth,
   onLoadTransactions,
+  initialEnvelopeConfig,
+  initialCarriedIn,
+  onSaveEnvelopeConfig,
+  onLoadEnvelopeCarriedBalance,
 }: Props) {
   // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
   // survive a tab switch. `setViewedMonth` is wired into `TransactionsTab`'s
@@ -69,6 +83,16 @@ export function FinanceV2Screen({
     handleWeekdayChange,
   } = useFinanceV2Budget({ initialBudget, month: viewedMonth, onSave: onSaveBudget });
 
+  // Hoisted for the same reason as the two hooks around it. Declared before
+  // `useFinanceV2Transactions`, which needs its config to stamp new expenses.
+  const { config: envelopeConfig, refreshCarried } = useFinanceV2Envelope({
+    initialConfig: initialEnvelopeConfig,
+    initialCarriedIn,
+    viewedMonth,
+    onSaveConfig: onSaveEnvelopeConfig,
+    onLoadCarriedBalance: onLoadEnvelopeCarriedBalance,
+  });
+
   const {
     transactions,
     totals,
@@ -84,6 +108,13 @@ export function FinanceV2Screen({
     onSave: onSaveTransactions,
     onSaveToOtherMonth,
     onLoad: onLoadTransactions,
+    // Against the LIVE budget (design D1): a subcategory added in the Presupuesto tab
+    // this session must already be envelope-paid.
+    resolvePaidFrom: (categoryId) => resolvePaidFrom(envelopeConfig, { categories }, categoryId),
+    // Only an earlier month feeds the viewed month's carried-in balance.
+    onCrossMonthSaved: (month) => {
+      if (month < viewedMonth) refreshCarried();
+    },
   });
 
   // Flows LIVE from the hoisted budget hook: a subcategory added in tab 2 is pickable in

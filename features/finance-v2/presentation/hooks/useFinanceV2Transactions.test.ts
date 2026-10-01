@@ -597,4 +597,249 @@ describe("useFinanceV2Transactions", () => {
 
     expect(result.current.transactions).toEqual([]);
   });
+
+  describe("envelope funding stamp (resolvePaidFrom)", () => {
+    const expenseInput = (categoryId: string | null) => ({
+      type: "expense" as const,
+      amount: 43_000,
+      date: "2026-07-05",
+      month: "2026-07",
+      bucket: "fixed" as const,
+      category: categoryId === null ? null : { id: categoryId, name: "Luz" },
+    });
+
+    it("stamps paidFrom on an expense the resolver assigns to the envelope", () => {
+      const resolvePaidFrom = vi.fn().mockReturnValue("envelope");
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          resolvePaidFrom,
+        })
+      );
+
+      act(() => result.current.addTransaction(expenseInput("luz")));
+
+      expect(resolvePaidFrom).toHaveBeenCalledWith("luz");
+      expect(result.current.transactions[0]).toMatchObject({ paidFrom: "envelope" });
+      expect(onSave.mock.calls[0][1][0]).toMatchObject({ paidFrom: "envelope" });
+    });
+
+    it("passes null to the resolver for an uncategorized expense", () => {
+      const resolvePaidFrom = vi.fn().mockReturnValue(undefined);
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          resolvePaidFrom,
+        })
+      );
+
+      act(() => result.current.addTransaction(expenseInput(null)));
+
+      expect(resolvePaidFrom).toHaveBeenCalledWith(null);
+    });
+
+    // Absent, not `paidFrom: undefined`: legacy records have no key at all, and the
+    // stored shape should not depend on whether an envelope exists.
+    it("never adds the paidFrom key when the resolver returns undefined", () => {
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          resolvePaidFrom: () => undefined,
+        })
+      );
+
+      act(() => result.current.addTransaction(expenseInput("ocio")));
+
+      expect("paidFrom" in result.current.transactions[0]).toBe(false);
+    });
+
+    it("never adds the paidFrom key when no resolver is given", () => {
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+        })
+      );
+
+      act(() => result.current.addTransaction(expenseInput("luz")));
+
+      expect("paidFrom" in result.current.transactions[0]).toBe(false);
+    });
+
+    it("only consults the resolver for expenses", () => {
+      const resolvePaidFrom = vi.fn().mockReturnValue("envelope");
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          resolvePaidFrom,
+        })
+      );
+
+      act(() => {
+        result.current.addTransaction({
+          type: "savings",
+          amount: 100,
+          date: "2026-07-01",
+          month: "2026-07",
+          sourceCategory: { id: "luz", name: "Luz", bucket: "fixed" },
+        });
+        result.current.addTransaction({
+          type: "transfer",
+          amount: 116_000,
+          date: "2026-07-01",
+          month: "2026-07",
+        });
+      });
+
+      expect(resolvePaidFrom).not.toHaveBeenCalled();
+      expect(result.current.transactions.some((tx) => "paidFrom" in tx)).toBe(false);
+    });
+
+    it("stamps a cross-month expense too, before it is appended to its own month", () => {
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          resolvePaidFrom: () => "envelope",
+        })
+      );
+
+      act(() => result.current.addTransaction({ ...expenseInput("luz"), month: "2026-06" }));
+
+      expect(onSaveToOtherMonth).toHaveBeenCalledWith(
+        expect.objectContaining({ month: "2026-06", paidFrom: "envelope" })
+      );
+    });
+  });
+
+  describe("onCrossMonthSaved", () => {
+    const crossMonthInput = {
+      type: "income" as const,
+      amount: 500,
+      date: "2026-06-30",
+      month: "2026-06",
+    };
+
+    it("is called with the target month only AFTER onSaveToOtherMonth resolves", async () => {
+      const save = createDeferred<void>();
+      onSaveToOtherMonth.mockReturnValueOnce(save.promise);
+      const onCrossMonthSaved = vi.fn();
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          onCrossMonthSaved,
+        })
+      );
+
+      act(() => result.current.addTransaction(crossMonthInput));
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(onCrossMonthSaved).not.toHaveBeenCalled();
+
+      await act(async () => {
+        save.resolve();
+        await save.promise;
+      });
+
+      expect(onCrossMonthSaved).toHaveBeenCalledOnce();
+      expect(onCrossMonthSaved).toHaveBeenCalledWith("2026-06");
+    });
+
+    it("works with a synchronous (void) onSaveToOtherMonth", async () => {
+      const onCrossMonthSaved = vi.fn();
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          onCrossMonthSaved,
+        })
+      );
+
+      await act(async () => {
+        result.current.addTransaction(crossMonthInput);
+        await Promise.resolve();
+      });
+
+      expect(onCrossMonthSaved).toHaveBeenCalledWith("2026-06");
+    });
+
+    it("is not called when onSaveToOtherMonth rejects", async () => {
+      const save = createDeferred<void>();
+      onSaveToOtherMonth.mockReturnValueOnce(save.promise);
+      const onCrossMonthSaved = vi.fn();
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          onCrossMonthSaved,
+        })
+      );
+
+      act(() => result.current.addTransaction(crossMonthInput));
+      await act(async () => {
+        save.reject(new Error("transport failure"));
+        await save.promise.catch(() => {});
+        await Promise.resolve();
+      });
+
+      expect(onCrossMonthSaved).not.toHaveBeenCalled();
+      consoleError.mockRestore();
+    });
+
+    it("is not called for a same-month add", async () => {
+      const onCrossMonthSaved = vi.fn();
+      const { result } = renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions: [],
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          onCrossMonthSaved,
+        })
+      );
+
+      await act(async () => {
+        result.current.addTransaction({ ...crossMonthInput, month: "2026-07" });
+        await Promise.resolve();
+      });
+
+      expect(onCrossMonthSaved).not.toHaveBeenCalled();
+    });
+  });
 });

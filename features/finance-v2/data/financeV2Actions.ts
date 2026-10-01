@@ -1,14 +1,21 @@
 "use server";
 
 import { cookies } from "next/headers";
-import type { BudgetConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
+import type {
+  BudgetConfig,
+  EnvelopeConfig,
+  FinanceV2Transaction,
+} from "@/features/finance-v2/domain";
 import { isTransactionMonth } from "@/features/finance-v2/domain";
 import {
   saveBudgetConfig,
   saveTransactions,
   appendTransactionToMonth,
   loadTransactions,
+  saveEnvelopeConfig,
+  loadEnvelopeConfig,
 } from "./kvAdapter";
+import { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
 
 export async function handleSaveBudgetConfig(config: BudgetConfig): Promise<void> {
   const cookieStore = await cookies();
@@ -45,11 +52,44 @@ export async function handleAppendTransactionToMonth(tx: FinanceV2Transaction): 
 // Unlike the RSC's direct `loadTransactions` call (already gated by the page-level
 // redirect before it runs), this is invoked directly by the client hook on every month
 // change and is therefore POST-reachable on its own — it must gate auth and validate
-// `month` itself, making it the second `isTransactionMonth` call site (see
-// `transactionDate.ts`).
+// `month` itself with `isTransactionMonth` (see `transactionDate.ts`).
 export async function handleLoadTransactions(month: string): Promise<FinanceV2Transaction[]> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return [];
   if (!isTransactionMonth(month)) return [];
   return loadTransactions(month);
+}
+
+// Unlike the budget config, every field here feeds arithmetic or a comparison against
+// month strings later, so a malformed config is dropped rather than persisted. The
+// checks are runtime ones: the argument is whatever the POST sent, not the TS type.
+export async function handleSaveEnvelopeConfig(config: EnvelopeConfig): Promise<void> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isValidEnvelopeConfig(config)) return;
+  await saveEnvelopeConfig(config);
+}
+
+function isValidEnvelopeConfig(config: EnvelopeConfig | null): boolean {
+  if (typeof config !== "object" || config === null) return false;
+  return (
+    typeof config.name === "string" &&
+    config.name.trim() !== "" &&
+    typeof config.boundCategoryId === "string" &&
+    config.boundCategoryId !== "" &&
+    typeof config.openingBalance === "number" &&
+    Number.isFinite(config.openingBalance) &&
+    typeof config.openingMonth === "string" &&
+    isTransactionMonth(config.openingMonth)
+  );
+}
+
+// Called by the client hook on every month change, like `handleLoadTransactions`, so it
+// gates auth and validates `month` itself. The math lives in `loadEnvelopeCarriedBalance`,
+// shared with the RSC page's initial load.
+export async function handleLoadEnvelopeCarriedBalance(month: string): Promise<number | null> {
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return null;
+  if (!isTransactionMonth(month)) return null;
+  return loadEnvelopeCarriedBalance(await loadEnvelopeConfig(), month);
 }

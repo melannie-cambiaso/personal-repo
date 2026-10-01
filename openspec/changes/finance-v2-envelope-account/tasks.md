@@ -39,19 +39,27 @@ Decision needed before apply: No
 
 ## Phase 2: Data, actions, hooks (PR 2)
 
-- [ ] 2.1 Re-read `use-server.md` (AGENTS.md gate); note any deprecation.
-- [ ] 2.2 RED/GREEN: `kvAdapter.ts` — `loadEnvelopeConfig` / `saveEnvelopeConfig` /
-  `loadTransactionsForMonths` (mget, backfill, error → []).
-- [ ] 2.3 RED/GREEN: `financeV2Actions.ts` — `handleSaveEnvelopeConfig`,
+- [x] 2.1 Re-read `use-server.md` (AGENTS.md gate); note any deprecation. No deprecation notice
+  (nor in the linked `data-security.md` "Mutating Data" section); guidance unchanged: auth
+  inside every action, validate inputs, return only what the UI needs.
+- [x] 2.2 RED/GREEN: `kvAdapter.ts` — `loadEnvelopeConfig` / `saveEnvelopeConfig` /
+  `loadTransactionsForMonths` (mget, backfill, error → []; empty `months` → [] without redis).
+- [x] 2.3 RED/GREEN: `financeV2Actions.ts` — `handleSaveEnvelopeConfig`,
   `handleLoadEnvelopeCarriedBalance` (auth, month validation, null before opening, opening month
-  short-circuit, carried math). Export via `data/index.ts`; fix its barrel comment.
-- [ ] 2.4 RED/GREEN: `useFinanceV2Envelope.ts` — config state + save, `carriedIn` fetch per
-  `viewedMonth` with request-token guard, `refreshCarried()`.
-- [ ] 2.5 RED/GREEN: `useFinanceV2Transactions.ts` — accept `resolvePaidFrom` input (config + budget)
-  and stamp expenses in `addTransaction`; optional `onCrossMonthSaved` after append resolves.
-- [ ] 2.6 `page.tsx` + `FinanceV2Screen.tsx` — load config in the parallel `Promise.all`, thread
-  actions, wire cross-month refresh for earlier months only. Update screen tests.
-- [ ] 2.7 `npm run test` green.
+  short-circuit, carried math). Export via `data/index.ts`; fix its barrel comment. The math
+  lives in the non-action server helper `data/envelopeCarriedBalance.ts`
+  (`loadEnvelopeCarriedBalance(config, month)`), shared by the action and the RSC page.
+- [x] 2.4 RED/GREEN: `useFinanceV2Envelope.ts` — config state + save, `carriedIn` fetch per
+  `viewedMonth` with request-token guard, `refreshCarried()`, render-derived `isLoadingCarried`.
+  Seeded with a server-loaded `initialCarriedIn` (no client fetch on first render); every
+  carried load waits for the latest config save to land.
+- [x] 2.5 RED/GREEN: `useFinanceV2Transactions.ts` — accept a `resolvePaidFrom(categoryId)`
+  callback (the screen binds config + live budget) and stamp expenses in `addTransaction`;
+  optional `onCrossMonthSaved` after append resolves.
+- [x] 2.6 `page.tsx` + `FinanceV2Screen.tsx` — load config in the parallel `Promise.all` (then
+  the initial carried-in balance), thread actions, wire cross-month refresh for earlier months
+  only. Update screen tests.
+- [x] 2.7 `npm run test` green.
 
 ## Phase 3: UI (PR 3)
 

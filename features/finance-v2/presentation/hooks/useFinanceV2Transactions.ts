@@ -23,6 +23,12 @@ interface Params {
   onSave: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
   onSaveToOtherMonth: (tx: FinanceV2Transaction) => Promise<void> | void;
   onLoad: (month: string) => Promise<FinanceV2Transaction[]>;
+  /** Decides an expense's funding at creation (design D1) — the screen binds it to the
+   *  envelope config and the live budget. Absent = every expense is main-account. */
+  resolvePaidFrom?: (categoryId: string | null) => "envelope" | undefined;
+  /** Called with the target month once a cross-month append has been persisted — the
+   *  envelope's carried-in balance may depend on that month. */
+  onCrossMonthSaved?: (month: string) => void;
 }
 
 // Fire-and-forget persist on every mutation (mirrors `useFinanceV2Budget`). `listRef`
@@ -39,6 +45,8 @@ export function useFinanceV2Transactions({
   onSave,
   onSaveToOtherMonth,
   onLoad,
+  resolvePaidFrom,
+  onCrossMonthSaved,
 }: Params) {
   const [transactions, setTransactions] = useState<FinanceV2Transaction[]>(initialTransactions);
   const listRef = useRef(initialTransactions);
@@ -101,7 +109,13 @@ export function useFinanceV2Transactions({
   };
 
   const addTransaction = (input: NewTransactionInput) => {
-    const tx = { ...input, id: crypto.randomUUID() } as FinanceV2Transaction;
+    // Stamped ONLY when envelope-paid: a main-account expense keeps no `paidFrom` key,
+    // exactly like every legacy record.
+    const funded =
+      input.type === "expense" && resolvePaidFrom?.(input.category?.id ?? null) === "envelope"
+        ? { ...input, paidFrom: "envelope" as const }
+        : input;
+    const tx = { ...funded, id: crypto.randomUUID() } as FinanceV2Transaction;
 
     if (tx.month === loadedMonthRef.current) {
       setLastCrossMonthSave(null);
@@ -109,7 +123,12 @@ export function useFinanceV2Transactions({
       return;
     }
 
-    void onSaveToOtherMonth(tx);
+    void Promise.resolve(onSaveToOtherMonth(tx)).then(
+      () => onCrossMonthSaved?.(tx.month),
+      (error) => {
+        console.error(`useFinanceV2Transactions: failed to save into month "${tx.month}"`, error);
+      }
+    );
     setLastCrossMonthSave(tx.month);
   };
 

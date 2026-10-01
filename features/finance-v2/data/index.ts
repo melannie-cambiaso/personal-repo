@@ -1,15 +1,21 @@
-// Mirrors features/finance/data/index.ts: barrel exposes the direct kvAdapter loaders
-// (consumed by the RSC page after its own cookie gate) plus the auth-gated save actions
-// (consumed by the client hooks). The RSC uses `loadBudgetConfig`/`loadTransactions`
-// directly, same as v1's `loadBudget` — there is no separate auth-gated read action for
-// either of those two, since the page-level redirect already gates access before the
-// loader runs. `handleLoadTransactions` is the exception: the client hook calls it
-// directly on every month change, so it is POST-reachable on its own and gates auth
-// itself.
-export { loadBudgetConfig, loadTransactions } from "./kvAdapter";
+// Mirrors features/finance/data/index.ts: barrel exposes the direct server-side loaders
+// (consumed by the RSC page after its own cookie gate) plus the auth-gated actions
+// (consumed by the client hooks). The RSC uses `loadBudgetConfig`/`loadTransactions`/
+// `loadEnvelopeConfig`/`loadEnvelopeCarriedBalance` directly, same as v1's `loadBudget` —
+// the page-level redirect already gates access before those loaders run. The two
+// `handleLoad*` actions are the exception: the client hooks call them directly on every
+// month change, so they are POST-reachable on their own and gate auth themselves.
+export {
+  loadBudgetConfig,
+  loadTransactions,
+  loadEnvelopeConfig,
+} from "./kvAdapter";
+export { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
 export {
   handleSaveBudgetConfig,
   handleSaveTransactions,
   handleAppendTransactionToMonth,
   handleLoadTransactions,
+  handleSaveEnvelopeConfig,
+  handleLoadEnvelopeCarriedBalance,
 } from "./financeV2Actions";

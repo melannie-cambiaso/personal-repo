@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import { FinanceV2Screen } from "./FinanceV2Screen";
 import { DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
-import type { FinanceV2Transaction } from "@/features/finance-v2/domain";
+import type {
+  BudgetConfig,
+  EnvelopeConfig,
+  FinanceV2Transaction,
+} from "@/features/finance-v2/domain";
 import { formatMonth } from "@/shared/utils/formatMonth";
 
 beforeAll(() => {
@@ -18,6 +22,10 @@ const defaultProps = () => ({
   onSaveTransactions: vi.fn(),
   onSaveToOtherMonth: vi.fn(),
   onLoadTransactions: vi.fn().mockResolvedValue([]),
+  initialEnvelopeConfig: null as EnvelopeConfig | null,
+  initialCarriedIn: null as number | null,
+  onSaveEnvelopeConfig: vi.fn(),
+  onLoadEnvelopeCarriedBalance: vi.fn().mockResolvedValue(null),
 });
 
 describe("FinanceV2Screen", () => {
@@ -243,5 +251,176 @@ describe("FinanceV2Screen", () => {
     expect(onSaveTransactions).not.toHaveBeenCalled();
     expect(screen.queryByText(/no hay movimientos/i)).toBeTruthy();
     expect(screen.getByRole("status").textContent).toMatch(/Guardado en/);
+  });
+  describe("envelope wiring", () => {
+    const envelope: EnvelopeConfig = {
+      name: "Servicios",
+      boundCategoryId: "cuentas",
+      openingBalance: 0,
+      openingMonth: "2026-07",
+    };
+    const cuentasWithLuz: BudgetConfig = {
+      categories: [
+        {
+          id: "cuentas",
+          name: "Cuentas",
+          bucket: "fixed",
+          amount: 0,
+          subcategories: [{ id: "luz", name: "Luz", bucket: "fixed", amount: 50_000 }],
+        },
+        { id: "ocio", name: "Ocio", bucket: "variable", amount: 20_000, subcategories: [] },
+      ],
+    };
+
+    const addExpense = (categoryId: string, month?: string) => {
+      fireEvent.click(screen.getByText("Movimientos"));
+      fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "43000" } });
+      fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: categoryId } });
+      if (month) fireEvent.change(screen.getByLabelText("Mes"), { target: { value: month } });
+      fireEvent.click(screen.getByText("Agregar movimiento"));
+    };
+
+    const flush = () =>
+      act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+    // Spec: "Paying the electricity bill".
+    it("stamps an expense in a bound subcategory as envelope-paid", () => {
+      const onSaveTransactions = vi.fn();
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={cuentasWithLuz}
+          initialEnvelopeConfig={envelope}
+          onSaveTransactions={onSaveTransactions}
+        />
+      );
+
+      addExpense("luz");
+
+      expect(onSaveTransactions).toHaveBeenCalledWith("2026-07", [
+        expect.objectContaining({ type: "expense", paidFrom: "envelope" }),
+      ]);
+    });
+
+    // Spec: "Expense outside the bound category".
+    it("does not stamp an expense outside the bound category", () => {
+      const onSaveTransactions = vi.fn();
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={cuentasWithLuz}
+          initialEnvelopeConfig={envelope}
+          onSaveTransactions={onSaveTransactions}
+        />
+      );
+
+      addExpense("ocio");
+
+      expect("paidFrom" in onSaveTransactions.mock.calls[0][1][0]).toBe(false);
+    });
+
+    it("does not stamp anything when no envelope is configured", () => {
+      const onSaveTransactions = vi.fn();
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={cuentasWithLuz}
+          onSaveTransactions={onSaveTransactions}
+        />
+      );
+
+      addExpense("luz");
+
+      expect("paidFrom" in onSaveTransactions.mock.calls[0][1][0]).toBe(false);
+    });
+
+    // The resolver must read the LIVE budget: "Luz" does not exist in the initial
+    // budget, so a resolver bound to `initialBudget` would leave it unstamped.
+    it("resolves funding against the live budget, including a subcategory added this session", () => {
+      const onSaveTransactions = vi.fn();
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={{
+            categories: [
+              { id: "cuentas", name: "Cuentas", bucket: "fixed", amount: 0, subcategories: [] },
+            ],
+          }}
+          initialEnvelopeConfig={envelope}
+          onSaveTransactions={onSaveTransactions}
+        />
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+      fireEvent.change(screen.getByLabelText("Nombre de la subcategoría"), {
+        target: { value: "Luz" },
+      });
+      fireEvent.click(screen.getByText("Agregar subcategoría"));
+      fireEvent.click(screen.getByText("Movimientos"));
+      const categorySelect = screen.getByLabelText("Subcategoría") as HTMLSelectElement;
+      const luzId = Array.from(categorySelect.options).find((o) => o.text === "Luz")!.value;
+
+      addExpense(luzId);
+
+      expect(onSaveTransactions).toHaveBeenCalledWith("2026-07", [
+        expect.objectContaining({ paidFrom: "envelope" }),
+      ]);
+    });
+
+    it("refreshes the carried-in balance after a save into an EARLIER month has landed", async () => {
+      const onLoadEnvelopeCarriedBalance = vi.fn().mockResolvedValue(0);
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={cuentasWithLuz}
+          initialEnvelopeConfig={{ ...envelope, openingMonth: "2026-05" }}
+          initialCarriedIn={0}
+          onSaveToOtherMonth={vi.fn().mockResolvedValue(undefined)}
+          onLoadEnvelopeCarriedBalance={onLoadEnvelopeCarriedBalance}
+        />
+      );
+
+      addExpense("luz", "2026-06");
+
+      await waitFor(() => expect(onLoadEnvelopeCarriedBalance).toHaveBeenCalledWith("2026-07"));
+    });
+
+    // A later month can never feed the viewed month's carried-in balance.
+    it("does not refresh the carried-in balance after a save into a LATER month", async () => {
+      const onLoadEnvelopeCarriedBalance = vi.fn().mockResolvedValue(0);
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={cuentasWithLuz}
+          initialEnvelopeConfig={envelope}
+          initialCarriedIn={0}
+          onSaveToOtherMonth={vi.fn().mockResolvedValue(undefined)}
+          onLoadEnvelopeCarriedBalance={onLoadEnvelopeCarriedBalance}
+        />
+      );
+
+      addExpense("luz", "2026-08");
+      await flush();
+
+      expect(onLoadEnvelopeCarriedBalance).not.toHaveBeenCalled();
+    });
+
+    it("loads the carried-in balance for the newly viewed month on navigation", async () => {
+      const onLoadEnvelopeCarriedBalance = vi.fn().mockResolvedValue(0);
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialEnvelopeConfig={envelope}
+          initialCarriedIn={0}
+          onLoadEnvelopeCarriedBalance={onLoadEnvelopeCarriedBalance}
+        />
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
+
+      await waitFor(() => expect(onLoadEnvelopeCarriedBalance).toHaveBeenCalledWith("2026-08"));
+    });
   });
 });

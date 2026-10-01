@@ -13,10 +13,10 @@ export interface EnvelopeFlows {
 
 /** `paid` reads only the `paidFrom` snapshot, never the current bound
  *  category: rebinding or deleting a subcategory must not rewrite history. */
-export function computeEnvelopeFlows(list: FinanceV2Transaction[]): EnvelopeFlows {
+export function computeEnvelopeFlows(transactions: FinanceV2Transaction[]): EnvelopeFlows {
   let transferred = 0;
   let paid = 0;
-  for (const tx of list) {
+  for (const tx of transactions) {
     if (tx.type === "transfer") transferred += tx.amount;
     else if (tx.type === "expense" && tx.paidFrom === "envelope") paid += tx.amount;
   }
