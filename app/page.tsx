@@ -3,18 +3,25 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { loadHomeFinanceSummary } from "@/features/finance-v2/data";
 import { FinanceSummaryCard } from "@/features/finance-v2/presentation/components/Home/FinanceSummaryCard";
+import { loadHomeWishlistSummary } from "@/features/wishlist/data/homeWishlistSummary";
+import { WishlistSummaryCard } from "@/features/wishlist/presentation/components/Home/WishlistSummaryCard";
 import { FEATURE_NAV_ITEMS } from "@/shared/navigation/features";
 import { currentMonth } from "@/shared/utils/monthUtils";
 
-// Finance is covered by the summary card, so it is left out of the shortcuts.
-const SHORTCUTS = FEATURE_NAV_ITEMS.filter((item) => !item.disabled && item.href !== "/finance-v2");
+// Finance and the wishlist are covered by their summary cards, so they are left out
+// of the shortcuts.
+const CARD_HREFS = new Set(["/finance-v2", "/wishlist"]);
+const SHORTCUTS = FEATURE_NAV_ITEMS.filter((item) => !item.disabled && !CARD_HREFS.has(item.href));
 
 export default async function HomePage() {
   const cookieStore = await cookies();
   const isOwner = !!cookieStore.get("wishlist_auth")?.value;
   if (!isOwner) redirect("/login");
 
-  const summary = await loadHomeFinanceSummary(currentMonth());
+  const [summary, wishlist] = await Promise.all([
+    loadHomeFinanceSummary(currentMonth()),
+    loadHomeWishlistSummary(),
+  ]);
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center">
@@ -26,7 +33,14 @@ export default async function HomePage() {
           balance={summary.balance}
           pending={summary.pending}
         />
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-4">
+          <WishlistSummaryCard
+            pendingCount={wishlist.pendingCount}
+            total={wishlist.total}
+            topHigh={wishlist.topHigh}
+          />
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3">
           {SHORTCUTS.map((item) => (
             <Link
               key={item.href}
