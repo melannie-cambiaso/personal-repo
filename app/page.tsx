@@ -59,7 +59,7 @@ export default async function HomePage() {
               loading="eager"
               // The drawing sits in a wide band with empty paper above and below;
               // cropping to 2:1 keeps the bubble text readable at this width.
-              className="border-lilac-300 aspect-[2/1] h-auto w-72 rounded-3xl border-2 object-cover lg:w-96"
+              className="aspect-[2/1] h-auto w-72 object-cover lg:w-96"
             />
           </h1>
           <p className="border-butter-300 bg-butter-100 text-butter-800 -rotate-2 rounded-lg border-2 px-3 py-1 shadow-sm">
