@@ -7,37 +7,59 @@ import { formatCLP } from "@/shared/utils/formatCurrency";
 // full list. Styled as a sibling of `FinanceSummaryCard`.
 export function WishlistSummaryCard({ pendingCount, total, topHigh }: WishlistSummary) {
   return (
-    <div className="border-cream-300 flex flex-col gap-3 rounded-2xl border bg-white p-5 text-left shadow-sm">
-      <span className="font-dancing text-brown-900 text-2xl font-bold">Wishlist</span>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-500 text-sm">Pendientes</span>
-        <span className="text-brown-800 text-sm font-bold">{pendingCount}</span>
+    <div className="border-blush-300 bg-blush-100 flex flex-col gap-4 rounded-3xl border-2 p-5 text-left">
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden
+          className="bg-blush-500 flex size-10 shrink-0 items-center justify-center rounded-full text-xl"
+        >
+          🛍️
+        </span>
+        <h2 className="font-dancing text-brown-900 underline-wavy decoration-blush-500 text-2xl">
+          Wishlist
+        </h2>
       </div>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-500 text-sm">Total aprox.</span>
-        <span className="text-brown-800 text-sm font-bold">{formatCLP(total)}</span>
+      <div className="border-blush-300 bg-cream-50/70 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-brown-600">Pendientes</span>
+          <span className="font-figure text-brown-900 text-sm font-semibold">{pendingCount}</span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-brown-600">Total aprox.</span>
+          <span className="font-figure text-brown-900 text-sm font-semibold">
+            {formatCLP(total)}
+          </span>
+        </div>
       </div>
-      <div className="border-cream-300 flex flex-col gap-2 border-t pt-3">
-        <span className="text-brown-400 text-xs">Prioridad alta</span>
+      <div className="flex flex-col gap-2">
+        <span className="bg-blush-300 text-blush-800 self-start rounded-full px-3 py-0.5 text-sm">
+          Prioridad alta
+        </span>
         {topHigh.length === 0 ? (
-          <span className="text-brown-400 text-sm">Nada con prioridad alta</span>
+          <span className="text-brown-500">Nada con prioridad alta</span>
         ) : (
-          topHigh.map((item) => (
-            <div key={item.id} className="flex items-center justify-between gap-2">
-              <span className="text-brown-800 truncate text-sm">{item.title}</span>
-              {item.price !== null ? (
-                <span className="text-brown-800 shrink-0 text-sm font-bold">
-                  {formatCLP(item.price)}
-                </span>
-              ) : (
-                <span className="shrink-0 text-sm font-bold text-red-600">Falta precio</span>
-              )}
-            </div>
-          ))
+          <ul className="flex flex-col gap-1">
+            {topHigh.map((item) => (
+              <li key={item.id} className="flex items-center gap-2">
+                <span aria-hidden className="bg-blush-500 size-2 shrink-0 rounded-full" />
+                <span className="text-brown-800 min-w-0 flex-1 truncate">{item.title}</span>
+                {item.price !== null ? (
+                  <span className="font-figure text-brown-900 shrink-0 text-sm font-semibold">
+                    {formatCLP(item.price)}
+                  </span>
+                ) : (
+                  <span className="shrink-0 text-red-600">Falta precio</span>
+                )}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
-      <div className="border-cream-300 mt-auto flex items-center justify-between gap-2 border-t pt-3">
-        <Link href="/wishlist" className="text-brown-500 hover:text-brown-800 text-sm">
+      <div className="mt-auto flex items-center justify-between gap-2">
+        <Link
+          href="/wishlist"
+          className="bg-blush-300 text-blush-800 hover:bg-blush-500 rounded-full px-3 py-0.5 transition-colors"
+        >
           Ver más →
         </Link>
       </div>

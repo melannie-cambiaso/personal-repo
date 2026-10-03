@@ -15,28 +15,49 @@ export function FinanceSummaryCard({ month, balance, pending }: Props) {
   const diff = balance - pending;
 
   return (
-    <div className="border-cream-300 flex flex-col gap-3 rounded-2xl border bg-white p-5 text-left shadow-sm">
-      <span className="font-dancing text-brown-900 text-2xl font-bold">
-        Finanzas · {formatMonth(month)}
-      </span>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-500 text-sm">Balance del mes</span>
-        <span className="text-brown-800 text-sm font-bold">{formatCLP(balance)}</span>
+    <div className="border-sage-300 bg-sage-100 flex flex-col gap-4 rounded-3xl border-2 p-5 text-left">
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden
+          className="bg-sage-500 flex size-10 shrink-0 items-center justify-center rounded-full text-xl"
+        >
+          💸
+        </span>
+        <h2 className="font-dancing text-brown-900 underline-wavy decoration-sage-500 text-2xl">
+          Finanzas · {formatMonth(month)}
+        </h2>
       </div>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-500 text-sm">Pendiente por pagar</span>
-        <span className="text-brown-800 text-sm font-bold">{formatCLP(pending)}</span>
+      <div className="border-sage-300 bg-cream-50/70 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-brown-600">Balance del mes</span>
+          <span className="font-figure text-brown-900 text-sm font-semibold">
+            {formatCLP(balance)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-brown-600">Pendiente por pagar</span>
+          <span className="font-figure text-brown-900 text-sm font-semibold">
+            {formatCLP(pending)}
+          </span>
+        </div>
       </div>
       {/* `mt-auto` pins the footer to the bottom when a taller sibling card stretches
           this one in the home grid. */}
-      <div className="border-cream-300 mt-auto flex items-center justify-between gap-2 border-t pt-3">
-        <Link href="/finance-v2" className="text-brown-500 hover:text-brown-800 text-sm">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
+        <Link
+          href="/finance-v2"
+          className="bg-sage-300 text-sage-800 hover:bg-sage-500 rounded-full px-3 py-0.5 transition-colors"
+        >
           Ver más →
         </Link>
         {diff >= 0 ? (
-          <span className="text-sm font-bold text-green-700">Te sobran {formatCLP(diff)}</span>
+          <span className="font-figure text-sm font-semibold text-green-700">
+            Te sobran {formatCLP(diff)}
+          </span>
         ) : (
-          <span className="text-sm font-bold text-red-600">Te faltan {formatCLP(-diff)}</span>
+          <span className="font-figure text-sm font-semibold text-red-600">
+            Te faltan {formatCLP(-diff)}
+          </span>
         )}
       </div>
     </div>
