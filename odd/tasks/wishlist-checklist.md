@@ -33,5 +33,5 @@ Mode: on · Runner: `vitest run` (`npm run test`)
 ## Tasks
 - [x] T1 — Domain: `priority` field + resolver (legacy → Media), priority sort (default) with owned-last + tests. `sortItems(items, key, ownedIds?)`; `"default"` kept (insertion order). RED→GREEN, wishlist 48/48. Commit `cc02ab6`.
 - [x] T2 — Modal: price required, priority select (default Media) + tests. Price moved above the optional divider; `parsePrice` guard blocks blank/negative/NaN. RED→GREEN, wishlist 56/56. Commit `cbe4c24`.
-- [x] T3 — List UI: replace the card grid with checklist rows, sort select with priority, remove the card + tests. `WishlistItemRow` in one list container; visitors keep the toggle (pre-existing behavior), edit/delete owner-only. RED→GREEN, wishlist 66/66.
-- [ ] T4 — Verify: full `npm run test`, `npm run build`.
+- [x] T3 — List UI: replace the card grid with checklist rows, sort select with priority, remove the card + tests. `WishlistItemRow` in one list container; visitors keep the toggle (pre-existing behavior), edit/delete owner-only. RED→GREEN, wishlist 66/66. Commit `8ecfb4c`.
+- [x] T4 — Verify: full `npm run test`, `npm run build`. Tests 934/934, build green, eslint wishlist clean.
