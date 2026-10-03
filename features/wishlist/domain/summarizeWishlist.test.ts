@@ -37,7 +37,7 @@ describe("summarizeWishlist", () => {
     expect(result.total).toBe(85000);
   });
 
-  it("lists only pending Alta items in priority-sort order", () => {
+  it("lists only pending Alta items in manual (array) order", () => {
     const items = [
       item("1", "Zapatillas", 30000, "high"),
       item("2", "Bicicleta", 150000, "high"),
@@ -48,7 +48,13 @@ describe("summarizeWishlist", () => {
 
     const result = summarizeWishlist(items, new Set(["2"]));
 
-    expect(ids(result.topHigh)).toEqual(["3", "1"]);
+    expect(ids(result.topHigh)).toEqual(["1", "3"]);
+  });
+
+  it("keeps a pricier Alta item first when it comes first in the array", () => {
+    const items = [item("1", "Caro", 900000, "high"), item("2", "Barato", 10, "high")];
+
+    expect(ids(summarizeWishlist(items, new Set()).topHigh)).toEqual(["1", "2"]);
   });
 
   it("caps the top list at 3 by default and honours a custom limit", () => {
@@ -59,8 +65,8 @@ describe("summarizeWishlist", () => {
       item("4", "A", 100, "high"),
     ];
 
-    expect(ids(summarizeWishlist(items, new Set()).topHigh)).toEqual(["4", "3", "2"]);
-    expect(ids(summarizeWishlist(items, new Set(), 1).topHigh)).toEqual(["4"]);
+    expect(ids(summarizeWishlist(items, new Set()).topHigh)).toEqual(["1", "2", "3"]);
+    expect(ids(summarizeWishlist(items, new Set(), 1).topHigh)).toEqual(["1"]);
   });
 
   it("does not treat legacy items without priority as Alta", () => {
