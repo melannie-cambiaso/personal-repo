@@ -36,5 +36,5 @@ wavy underlines and a handwritten font.
 - [x] T3 — finance-v2 screens. Sage base, mist envelope, butter reminder note, Analysis sage/lilac/blush; 26 `font-figure` sites; finance-v2 469/469 unchanged, tsc, eslint 0, build green. Commit `8dfa1c7`.
 - [x] T4 — Wishlist screens and modals. One blush panel, priority pills per group, readable header stats; wishlist 89/89 unchanged, tsc, eslint 0, build green. Commit `aadef3c`.
 - [x] T5 — Savings screens and modals. Butter base, lilac goals, sage deposits, blush withdrawals, mist archive; 15 money `font-figure` sites; savings 169/169 unchanged, tsc, eslint 0, build green. Commit `6495eae`.
-- [x] T6 — Home improvements screens and modals. Mist base, readable header chips, Hecho/Pendiente pills, pastel type pills; home-improvements 18/18 unchanged, tsc, eslint 0, build green.
-- [ ] T7 — Verify: `npm run test`, `npm run build`, `npx eslint .`, prettier.
+- [x] T6 — Home improvements screens and modals. Mist base, readable header chips, Hecho/Pendiente pills, pastel type pills; home-improvements 18/18 unchanged, tsc, eslint 0, build green. Commit `10053f9`.
+- [x] T7 — Verify: `npm run test`, `npm run build`, `npx eslint .`, prettier. Tests 965/965, build green, eslint 0, prettier clean; no `text-cream-100` or `bg-white` left in the restyled sections.
