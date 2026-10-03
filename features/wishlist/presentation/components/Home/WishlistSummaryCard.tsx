@@ -36,7 +36,7 @@ export function WishlistSummaryCard({ pendingCount, total, topHigh }: WishlistSu
           ))
         )}
       </div>
-      <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
+      <div className="border-cream-300 mt-auto flex items-center justify-between gap-2 border-t pt-3">
         <Link href="/wishlist" className="text-brown-500 hover:text-brown-800 text-sm">
           Ver más →
         </Link>

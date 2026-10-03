@@ -25,15 +25,17 @@ export default async function HomePage() {
 
   return (
     <main className="flex flex-1 flex-col items-center justify-center">
-      <div className="w-full max-w-2xl px-6 py-12 text-center">
+      {/* Wide screens put the summary cards side by side so the whole home fits
+          without scrolling; phones keep the single stacked column. */}
+      <div className="w-full max-w-2xl px-6 py-12 text-center lg:max-w-5xl lg:py-8">
         <h1 className="font-dancing text-brown-900 mb-2 text-5xl font-bold">Hola 👋</h1>
-        <p className="text-brown-400 mb-8 text-sm">¿Qué querés ver hoy?</p>
-        <FinanceSummaryCard
-          month={summary.month}
-          balance={summary.balance}
-          pending={summary.pending}
-        />
-        <div className="mt-4">
+        <p className="text-brown-400 mb-8 text-sm lg:mb-6">¿Qué querés ver hoy?</p>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <FinanceSummaryCard
+            month={summary.month}
+            balance={summary.balance}
+            pending={summary.pending}
+          />
           <WishlistSummaryCard
             pendingCount={wishlist.pendingCount}
             total={wishlist.total}

@@ -27,7 +27,9 @@ export function FinanceSummaryCard({ month, balance, pending }: Props) {
         <span className="text-brown-500 text-sm">Pendiente por pagar</span>
         <span className="text-brown-800 text-sm font-bold">{formatCLP(pending)}</span>
       </div>
-      <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
+      {/* `mt-auto` pins the footer to the bottom when a taller sibling card stretches
+          this one in the home grid. */}
+      <div className="border-cream-300 mt-auto flex items-center justify-between gap-2 border-t pt-3">
         <Link href="/finance-v2" className="text-brown-500 hover:text-brown-800 text-sm">
           Ver más →
         </Link>
