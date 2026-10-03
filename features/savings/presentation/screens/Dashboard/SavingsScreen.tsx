@@ -23,6 +23,15 @@ import {
 } from "../../components";
 import { PageHeader, AddButton, Button } from "@/shared/components";
 
+type TabKey = "history" | "goals" | "monthly" | "archived";
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: "history", label: "Historial" },
+  { key: "goals", label: "Metas" },
+  { key: "monthly", label: "Por mes" },
+  { key: "archived", label: "Archivados" },
+];
+
 interface Props {
   initialEntries: SavingsEntry[];
   initialGoals?: SavingsGoal[];
@@ -68,9 +77,7 @@ export function SavingsScreen({
 
   const activeGoals = distributed.filter((g) => g.isDone !== true);
 
-  const [activeTab, setActiveTab] = useState<"history" | "goals" | "monthly" | "archived">(
-    "history"
-  );
+  const [activeTab, setActiveTab] = useState<TabKey>("history");
 
   // Entry modal state
   const [addOpen, setAddOpen] = useState(false);
@@ -88,43 +95,34 @@ export function SavingsScreen({
   return (
     <main className="flex flex-1 flex-col">
       <PageHeader eyebrow="Tu bolsillo" title="Ahorros">
-        <div className="text-cream-100/80 flex justify-center gap-6 text-sm">
-          <span>
-            {entries.length} registro{entries.length !== 1 ? "s" : ""}
-          </span>
+        <div className="flex justify-center">
+          <div className="border-butter-300 bg-cream-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
+            <span className="font-figure text-brown-900 text-lg font-semibold">
+              {entries.length}
+            </span>
+            <span className="text-butter-800 text-sm">
+              registro{entries.length !== 1 ? "s" : ""}
+            </span>
+          </div>
         </div>
       </PageHeader>
 
-      <div className="mx-auto w-full max-w-2xl px-6 py-10">
-        <div className="border-cream-300 mb-8 flex gap-2 border-b">
-          <button
-            type="button"
-            onClick={() => setActiveTab("history")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "history" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
-          >
-            Historial
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("goals")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "goals" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
-          >
-            Metas
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("monthly")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "monthly" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
-          >
-            Por mes
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("archived")}
-            className={`cursor-pointer px-4 py-2 text-sm font-semibold transition-colors ${activeTab === "archived" ? "border-brown-800 text-brown-900 border-b-2" : "text-brown-400 hover:text-brown-700"}`}
-          >
-            Archivados
-          </button>
+      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
+        <div className="mb-8 flex flex-wrap gap-2">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
+                activeTab === tab.key
+                  ? "border-butter-500 bg-butter-500 text-butter-800"
+                  : "border-butter-300 bg-cream-50 text-brown-600 hover:bg-butter-100"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {activeTab === "history" && (
@@ -139,7 +137,7 @@ export function SavingsScreen({
               />
             </div>
 
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
               {isOwner ? (
                 <Button type="button" variant="secondary" onPress={() => setArchiveOpen(true)}>
                   Archivar período

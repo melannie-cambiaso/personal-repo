@@ -33,16 +33,16 @@ export function SavingsGoalCard({
     <div
       data-testid="savings-goal-card"
       aria-disabled={isDone}
-      className={`flex flex-col gap-3 rounded-2xl border bg-white px-5 py-4 shadow-sm transition-all ${isOwner ? "hover:border-brown-300 hover:shadow-card-hover cursor-pointer" : ""} border-cream-300 ${isDone ? "opacity-50" : ""}`}
+      className={`border-lilac-300 bg-lilac-100 flex flex-col gap-3 rounded-2xl border-2 px-4 py-3 transition-all ${isOwner ? "hover:border-lilac-500 hover:shadow-card-hover cursor-pointer" : ""} ${isDone ? "opacity-50" : ""}`}
       onClick={() => isOwner && onEdit(goal)}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className={`text-brown-900 text-sm font-semibold ${isDone ? "line-through" : ""}`}>
+          <span className={`text-brown-900 text-lg break-words ${isDone ? "line-through" : ""}`}>
             {goal.name}
           </span>
           <ProgressBar value={goal.progress} />
-          <span className="text-brown-400 text-xs">
+          <span className="font-figure text-brown-600 text-xs">
             {formatCLP(goal.currentAmount)} / {formatCLP(goal.targetAmount)}
           </span>
         </div>
@@ -57,7 +57,7 @@ export function SavingsGoalCard({
               }}
               disabled={isFirst}
               aria-label="Subir prioridad"
-              className="text-brown-500 hover:text-brown-800 cursor-pointer text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-30"
+              className="text-lilac-800 hover:text-brown-900 cursor-pointer text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-30"
             >
               ▲
             </button>
@@ -69,7 +69,7 @@ export function SavingsGoalCard({
               }}
               disabled={isLast}
               aria-label="Bajar prioridad"
-              className="text-brown-500 hover:text-brown-800 cursor-pointer text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-30"
+              className="text-lilac-800 hover:text-brown-900 cursor-pointer text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-30"
             >
               ▼
             </button>
@@ -87,7 +87,7 @@ export function SavingsGoalCard({
             }}
             aria-pressed={isDone}
             aria-label={isDone ? "Reabrir" : "Marcar como hecha"}
-            className="text-2xs border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 rounded-full border px-2 py-0.5 font-semibold transition-colors"
+            className="border-lilac-300 bg-cream-50 text-lilac-800 hover:bg-lilac-300 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
           >
             {isDone ? "Reabrir ↺" : "Marcar como hecha ✓"}
           </button>
@@ -97,7 +97,7 @@ export function SavingsGoalCard({
               e.stopPropagation();
               onDelete(goal.id);
             }}
-            className="text-brown-300 cursor-pointer text-sm transition-colors hover:text-red-500"
+            className="text-brown-400 cursor-pointer text-sm transition-colors hover:text-red-500"
             aria-label="Eliminar"
           >
             ✕

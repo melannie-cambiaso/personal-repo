@@ -15,13 +15,16 @@ export function DeleteEntryConfirmModal({ entry, onConfirm, onCancel }: Props) {
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
-      <h2 className="font-dancing text-brown-900 mb-3 text-2xl font-bold">¿Eliminar registro?</h2>
+      <h2 className="font-dancing text-brown-900 underline-wavy mb-4 text-3xl">
+        ¿Eliminar registro?
+      </h2>
       <p className="text-brown-600 mb-5 text-sm leading-relaxed">
         {entry && (
           <>
             {entry.type === "deposito" ? "Depósito" : "Gasto"} de{" "}
-            <strong>{formatCLP(entry.amount)}</strong> del <strong>{entry.date}</strong>. Esta
-            acción no se puede deshacer.
+            <strong className="font-figure text-brown-900">{formatCLP(entry.amount)}</strong> del{" "}
+            <strong className="font-figure text-brown-900">{entry.date}</strong>. Esta acción no se
+            puede deshacer.
           </>
         )}
       </p>

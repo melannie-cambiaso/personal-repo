@@ -10,6 +10,28 @@ interface Props {
   initialAmount?: number;
 }
 
+// Label and value are siblings so each value keeps its own semantic color class.
+function Stat({
+  label,
+  value,
+  border,
+  tone,
+}: {
+  label: string;
+  value: string;
+  border: string;
+  tone: string;
+}) {
+  return (
+    <div
+      className={`${border} bg-cream-50/70 flex min-w-0 flex-col rounded-2xl border-2 px-3 py-2`}
+    >
+      <p className="text-brown-500 text-sm">{label}</p>
+      <p className={`font-figure text-base font-bold sm:text-lg ${tone}`}>{value}</p>
+    </div>
+  );
+}
+
 export function SavingsSummaryCards({
   balance,
   totalToReplenish,
@@ -21,41 +43,39 @@ export function SavingsSummaryCards({
     balance > 0 ? "text-green-700" : balance < 0 ? "text-red-600" : "text-brown-600";
 
   return (
-    <>
+    <div className="border-butter-300 bg-butter-100 flex flex-col gap-3 rounded-3xl border-2 p-4">
       {typeof initialAmount === "number" && initialAmount > 0 && (
-        <div className="border-cream-300 mb-4 rounded-2xl border bg-white px-5 py-4 shadow-sm">
-          <p className="text-2xs tracking-store text-brown-400 mb-1 font-semibold uppercase">
-            Monto inicial
-          </p>
-          <p className="text-brown-900 text-xl font-bold">{formatCLP(initialAmount)}</p>
+        <div className="border-butter-300 bg-cream-50/70 flex items-center justify-between gap-2 rounded-2xl border-2 px-4 py-2">
+          <p className="text-butter-800">Monto inicial</p>
+          <p className="font-figure text-brown-900 text-lg font-bold">{formatCLP(initialAmount)}</p>
         </div>
       )}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-2xl border border-green-200 bg-white px-5 py-4 shadow-sm">
-          <p className="text-2xs tracking-store text-brown-400 mb-1 font-semibold uppercase">
-            Ingresos
-          </p>
-          <p className="text-xl font-bold text-green-700">{formatCLP(totalDepositos)}</p>
-        </div>
-        <div className="rounded-2xl border border-red-200 bg-white px-5 py-4 shadow-sm">
-          <p className="text-2xs tracking-store text-brown-400 mb-1 font-semibold uppercase">
-            Gastos
-          </p>
-          <p className="text-xl font-bold text-red-700">{formatCLP(totalGastos)}</p>
-        </div>
-        <div className="border-cream-300 rounded-2xl border bg-white px-5 py-4 shadow-sm">
-          <p className="text-2xs tracking-store text-brown-400 mb-1 font-semibold uppercase">
-            Balance
-          </p>
-          <p className={`text-xl font-bold ${balanceColor}`}>{formatCLP(balance)}</p>
-        </div>
-        <div className="border-cream-300 rounded-2xl border bg-white px-5 py-4 shadow-sm">
-          <p className="text-2xs tracking-store text-brown-400 mb-1 font-semibold uppercase">
-            A reponer
-          </p>
-          <p className="text-xl font-bold text-amber-600">{formatCLP(totalToReplenish)}</p>
-        </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat
+          label="Ingresos"
+          value={formatCLP(totalDepositos)}
+          border="border-sage-300"
+          tone="text-green-700"
+        />
+        <Stat
+          label="Gastos"
+          value={formatCLP(totalGastos)}
+          border="border-blush-300"
+          tone="text-red-700"
+        />
+        <Stat
+          label="Balance"
+          value={formatCLP(balance)}
+          border="border-butter-300"
+          tone={balanceColor}
+        />
+        <Stat
+          label="A reponer"
+          value={formatCLP(totalToReplenish)}
+          border="border-blush-300"
+          tone="text-blush-800"
+        />
       </div>
-    </>
+    </div>
   );
 }
