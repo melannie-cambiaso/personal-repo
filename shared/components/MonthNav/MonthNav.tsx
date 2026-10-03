@@ -14,16 +14,18 @@ export function MonthNav({ label, onPrev, onNext, disabled = false }: Props) {
         type="button"
         onClick={onPrev}
         disabled={disabled}
-        className="border-cream-400 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="border-cream-400 bg-cream-50 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-full border-2 px-4 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         ← Anterior
       </button>
-      <span className="font-dancing text-brown-900 text-xl font-bold capitalize">{label}</span>
+      <span className="font-dancing text-brown-900 underline-wavy text-2xl capitalize">
+        {label}
+      </span>
       <button
         type="button"
         onClick={onNext}
         disabled={disabled}
-        className="border-cream-400 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-lg border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="border-cream-400 bg-cream-50 text-brown-600 hover:border-brown-400 hover:text-brown-900 cursor-pointer rounded-full border-2 px-4 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         Siguiente →
       </button>

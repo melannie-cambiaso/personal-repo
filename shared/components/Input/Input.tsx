@@ -1,5 +1,5 @@
 const inputClass =
-  "w-full rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-brown-900 outline-none transition-colors focus:border-brown-600";
+  "w-full rounded-xl border-2 border-cream-400 bg-cream-50 px-3 py-2 text-base text-brown-900 outline-none transition-colors placeholder:text-brown-300 focus:border-lilac-500 focus:ring-2 focus:ring-lilac-300";
 
 export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input className={className ? `${inputClass} ${className}` : inputClass} {...props} />;

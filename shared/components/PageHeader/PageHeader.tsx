@@ -15,7 +15,7 @@ export function PageHeader({ eyebrow, title, children }: Props) {
       <div className="absolute top-6 left-6">
         <Link
           href="/"
-          className="text-cream-100/70 hover:text-cream-100 flex items-center gap-1.5 text-sm font-medium transition-colors"
+          className="text-brown-500 hover:text-brown-900 flex items-center gap-1.5 text-base transition-colors"
         >
           <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
             <path
@@ -31,11 +31,11 @@ export function PageHeader({ eyebrow, title, children }: Props) {
       </div>
 
       {eyebrow && (
-        <p className="text-2xs tracking-eyebrow text-brown-200 mb-3 font-semibold uppercase">
+        <p className="bg-lilac-500/50 text-lilac-800 mb-3 inline-block rounded-full px-3 py-0.5 text-sm">
           {eyebrow}
         </p>
       )}
-      <h1 className="font-dancing text-cream-100 mb-8 text-6xl font-bold">{title}</h1>
+      <h1 className="font-dancing text-brown-900 underline-wavy mb-8 text-6xl">{title}</h1>
       {children}
     </header>
   );

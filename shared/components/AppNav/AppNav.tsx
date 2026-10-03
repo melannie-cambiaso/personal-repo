@@ -38,7 +38,7 @@ export function AppNav() {
         aria-expanded={open}
         aria-label="Menú"
         onClick={() => setOpen(true)}
-        className="bg-brown-900 text-cream-100 fixed top-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full shadow-md lg:hidden"
+        className="bg-brown-900 text-cream-50 shadow-card-hover fixed top-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full lg:hidden"
       >
         <svg className="h-5 w-5" viewBox="0 0 20 20" fill="none">
           <path
@@ -52,7 +52,7 @@ export function AppNav() {
 
       <dialog
         ref={dialogRef}
-        className="bg-cream-50 shadow-card-hover backdrop:bg-brown-900/40 m-0 ml-0 h-full max-h-full w-64 max-w-[80vw] p-0"
+        className="bg-cream-50 border-cream-400 shadow-card-hover backdrop:bg-brown-900/40 m-0 ml-0 h-full max-h-full w-64 max-w-[80vw] rounded-r-3xl border-r-2 p-0"
         style={{ left: 0, top: 0 }}
         onCancel={(e) => {
           e.preventDefault();
@@ -64,7 +64,7 @@ export function AppNav() {
       >
         <div className="flex h-full flex-col px-6 py-6">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="font-dancing text-brown-900 text-2xl font-bold">Menú</h2>
+            <h2 className="font-dancing text-brown-900 underline-wavy text-3xl">Menú</h2>
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -82,8 +82,10 @@ export function AppNav() {
                   key={item.href}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors ${
-                    isActive ? "bg-brown-900 text-cream-100" : "text-brown-800 hover:bg-cream-200"
+                  className={`flex items-center gap-3 rounded-full border-2 px-4 py-2.5 text-base transition-colors ${
+                    isActive
+                      ? "border-lilac-300 bg-lilac-100 text-brown-900"
+                      : "text-brown-800 hover:bg-cream-200 border-transparent"
                   }`}
                 >
                   <span className="text-lg">{item.icon}</span>

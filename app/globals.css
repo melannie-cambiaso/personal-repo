@@ -1,23 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  /* Neutrals */
-  --color-cream-50: #fdfaf6;
-  --color-cream-100: #faf0e6;
-  --color-cream-200: #f5ede3;
-  --color-cream-300: #ede0d0;
-  --color-cream-400: #e5d5bf;
-  --color-cream-500: #f0e4d4;
+  /* Paper (lightest = card/paper, darker = subtle borders/dividers) */
+  --color-cream-50: #fffdf8;
+  --color-cream-100: #fcf7ec;
+  --color-cream-200: #f7f0e1;
+  --color-cream-300: #eee4d0;
+  --color-cream-400: #e2d5bc;
+  --color-cream-500: #d3c4a6;
 
-  /* Browns */
-  --color-brown-900: #3d2b1a;
-  --color-brown-800: #6b4f3a;
-  --color-brown-700: #8b6650;
-  --color-brown-600: #7a6050;
-  --color-brown-500: #8a7060;
-  --color-brown-400: #a07850;
-  --color-brown-300: #c4956a;
-  --color-brown-200: #d4a87a;
+  /* Ink (900 = main ink, 500–400 = muted secondary text, 300–200 = light accents) */
+  --color-brown-900: #2f3640;
+  --color-brown-800: #3d4652;
+  --color-brown-700: #4d5764;
+  --color-brown-600: #5b6573;
+  --color-brown-500: #6a7380;
+  --color-brown-400: #7e8792;
+  --color-brown-300: #a3aab3;
+  --color-brown-200: #c4c9cf;
+
+  /* Pastels: 100 = panel fill, 300 = panel border, 500 = pill/icon circle, 800 = text on tone */
+  --color-lilac-100: #ece6f6;
+  --color-lilac-300: #cbbfe3;
+  --color-lilac-500: #b5a3da;
+  --color-lilac-800: #574780;
+
+  --color-blush-100: #fbe3de;
+  --color-blush-300: #ecb5aa;
+  --color-blush-500: #f1a596;
+  --color-blush-800: #8a4336;
+
+  --color-mist-100: #e0eef7;
+  --color-mist-300: #a9cde3;
+  --color-mist-500: #8bbfdf;
+  --color-mist-800: #2e5c7a;
+
+  --color-sage-100: #e4f0dd;
+  --color-sage-300: #b3d1a6;
+  --color-sage-500: #98c585;
+  --color-sage-800: #3d6831;
+
+  --color-butter-100: #fcf1bf;
+  --color-butter-300: #e6cf6e;
+  --color-butter-500: #f3d65a;
+  --color-butter-800: #735c10;
 
   /* Categories */
   --color-cat-food: #c4956a;
@@ -39,8 +65,8 @@
   --tracking-eyebrow: 0.15em;
 
   /* Shadows */
-  --shadow-card: 0 2px 12px rgba(107, 79, 58, 0.1);
-  --shadow-card-hover: 0 8px 24px rgba(107, 79, 58, 0.18);
+  --shadow-card: 0 1px 3px rgba(47, 54, 64, 0.06);
+  --shadow-card-hover: 0 4px 12px rgba(47, 54, 64, 0.1);
 
   /* Border radius */
   --radius-card: 1rem;
@@ -49,16 +75,31 @@
 
 @theme inline {
   --font-sans: var(--font-primary);
-  --font-dancing: var(--font-display);
+  --font-dancing: var(--font-primary);
+  --font-figure: var(--font-figure-src);
+}
+
+@utility font-figure {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility underline-wavy {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  text-decoration-color: var(--color-lilac-500);
 }
 
 :root {
-  --gradient-bg: linear-gradient(160deg, #f5ede3 0%, #ede0d0 60%, #e5d5bf 100%);
-  --gradient-header: linear-gradient(135deg, #6b4f3a 0%, #8b6650 100%);
+  --gradient-bg: linear-gradient(180deg, #faf5ea 0%, #f6efdf 100%);
+  --gradient-header: linear-gradient(135deg, #ece6f6 0%, #ddd2f0 100%);
 }
 
 body {
   background: var(--gradient-bg);
+  background-attachment: fixed;
   color: var(--color-brown-900);
   font-family: var(--font-sans), Arial, sans-serif;
+  font-size: 1.0625rem;
 }
