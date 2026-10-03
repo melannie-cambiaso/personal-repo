@@ -306,7 +306,9 @@ describe("BudgetTab", () => {
         />
       );
 
-      expect(screen.getAllByText(/de \$350\.000/).length).toBeGreaterThan(0);
+      // The fixed bucket row and the bucket total carry the same remainder; the third
+      // occurrence is the category card's own pairing.
+      expect(screen.getAllByText("quedan $250.000")).toHaveLength(3);
     });
 
     it("threads a loading spend down to both children, showing — instead of a figure", () => {

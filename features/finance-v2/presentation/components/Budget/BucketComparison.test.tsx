@@ -35,7 +35,7 @@ describe("BucketComparison", () => {
     expect(screen.getByText("Ahorro (0%)")).toBeTruthy();
     expect(screen.getByText("Total")).toBeTruthy();
     expect(screen.queryByText(/Total \(/)).toBeNull();
-    // The budgeted amount only appears inside the "de $X" spend pairing now, never on its own.
+    // The budgeted amount is never displayed; it only feeds the spend pairing's suffix.
     expect(screen.queryByText("$400.000")).toBeNull();
     expect(screen.queryByText("$100.000")).toBeNull();
     expect(screen.queryByText("$500.000")).toBeNull();
@@ -69,28 +69,29 @@ describe("BucketComparison", () => {
   };
 
   describe("actual spend column", () => {
-    it("renders the actual spend figure paired with the budgeted amount for each bucket and the total", () => {
-      render(<BucketComparison comparison={comparison} spend={readySpend} />);
+    it("renders the actual spend figure for each bucket and the total, without the budgeted amount", () => {
+      const { container } = render(<BucketComparison comparison={comparison} spend={readySpend} />);
 
       expect(screen.getByText("$200.000")).toBeTruthy();
-      expect(screen.getAllByText(/de \$400\.000/).length).toBeGreaterThan(0);
       expect(screen.getByText("$50.000")).toBeTruthy();
-      expect(screen.getAllByText(/de \$100\.000/).length).toBeGreaterThan(0);
       expect(screen.getByText("$250.000")).toBeTruthy();
-      expect(screen.getAllByText(/de \$500\.000/).length).toBeGreaterThan(0);
+      expect(container.textContent).not.toContain("$400.000");
+      expect(container.textContent).not.toContain("$100.000");
+      expect(container.textContent).not.toContain("$500.000");
     });
 
     it("spells out what is left on under-budget rows and adds nothing to the empty 0 de 0 bucket", () => {
       render(<BucketComparison comparison={comparison} spend={readySpend} />);
 
-      expect(screen.getByText("de $400.000 · quedan $200.000")).toBeTruthy();
-      expect(screen.getByText("de $100.000 · quedan $50.000")).toBeTruthy();
-      expect(screen.getByText("de $500.000 · quedan $250.000")).toBeTruthy();
-      expect(screen.getByText("de $0")).toBeTruthy();
+      expect(screen.getByText("quedan $200.000")).toBeTruthy();
+      expect(screen.getByText("quedan $50.000")).toBeTruthy();
+      expect(screen.getByText("quedan $250.000")).toBeTruthy();
+      // The empty savings bucket shows its bare $0, with no suffix element at all.
+      expect(screen.getByText("$0").textContent).toBe("$0");
     });
 
     // The suffix carries the EXCESS, not just the fact of an overrun: pairing
-    // "$450.000 de $400.000" with a bare "excedido" leaves the reader to subtract
+    // "$450.000" with a bare "excedido" leaves the reader to subtract
     // the one figure that actually drives a decision.
     it("flags an overrun bucket with the excedido suffix and by how much", () => {
       const overrunComparison: SpendComparison = {
@@ -107,7 +108,7 @@ describe("BucketComparison", () => {
         <BucketComparison comparison={comparison} spend={{ status: "ready", comparison: overrunComparison }} />
       );
 
-      expect(screen.getByText("de $400.000 · excedido en $50.000")).toBeTruthy();
+      expect(screen.getByText("excedido en $50.000")).toBeTruthy();
     });
 
     it("does not flag a bucket whose spend exactly equals its budget", () => {

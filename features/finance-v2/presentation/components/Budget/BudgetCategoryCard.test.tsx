@@ -403,7 +403,7 @@ describe("BudgetCategoryCard", () => {
   });
 
   describe("view mode spend pairing", () => {
-    it("leaf pairs its actual spend against its budgeted amount", () => {
+    it("leaf pairs its actual spend with what is left of its budgeted amount", () => {
       render(
         <BudgetCategoryCard
           mode="view"
@@ -420,7 +420,7 @@ describe("BudgetCategoryCard", () => {
       );
 
       expect(screen.getByText("$100.000")).toBeTruthy();
-      expect(screen.getByText(/de \$350\.000/)).toBeTruthy();
+      expect(screen.getByText("quedan $250.000")).toBeTruthy();
     });
 
     it("a zero-spend leaf still shows $0, never hidden", () => {
@@ -442,7 +442,9 @@ describe("BudgetCategoryCard", () => {
       expect(screen.getByText("$0")).toBeTruthy();
     });
 
-    it("parent header pairs the derived actual spend against the derived budgeted total", () => {
+    // "quedan $1.000" only holds against the DERIVED $8.000 total: the parent's own
+    // `categories` budgeted is 0, which would read "excedido en $7.000" instead.
+    it("parent header pairs the derived actual spend with what is left of the derived budgeted total", () => {
       render(
         <BudgetCategoryCard
           mode="view"
@@ -459,11 +461,11 @@ describe("BudgetCategoryCard", () => {
       );
 
       expect(screen.getByText("$7.000")).toBeTruthy();
-      expect(screen.getByText(/de \$8\.000/)).toBeTruthy();
+      expect(screen.getByText("quedan $1.000")).toBeTruthy();
     });
 
     // Pinned to the exact suffix, including the excess: an unanchored
-    // `/de \$5\.000 · excedido/` matched whatever followed, so it could not tell a
+    // `/excedido/` matched whatever followed, so it could not tell a
     // bare "excedido" from one that names the amount.
     it("an overrun subcategory shows how much it exceeded by, a within-budget one shows what is left", () => {
       render(
@@ -484,9 +486,9 @@ describe("BudgetCategoryCard", () => {
       fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
 
       expect(screen.getByText("$6.000")).toBeTruthy();
-      expect(screen.getByText("de $5.000 · excedido en $1.000")).toBeTruthy();
+      expect(screen.getByText("excedido en $1.000")).toBeTruthy();
       expect(screen.getByText("$1.000")).toBeTruthy();
-      expect(screen.getByText("de $3.000 · quedan $2.000")).toBeTruthy();
+      expect(screen.getByText("quedan $2.000")).toBeTruthy();
       expect(screen.getAllByText(/excedido/)).toHaveLength(1);
     });
 

@@ -6,30 +6,33 @@ describe("SpendPairing", () => {
   // The symmetric figure to "excedido en": how much is still left to spend,
   // spelled out so the reader does not have to subtract it.
   it("spells out what is left to spend when under budget", () => {
-    render(<SpendPairing row={{ budgeted: 400_000, spent: 250_000 }} />);
+    const { container } = render(<SpendPairing row={{ budgeted: 400_000, spent: 250_000 }} />);
 
     expect(screen.getByText("$250.000")).toBeTruthy();
-    expect(screen.getByText("de $400.000 · quedan $150.000")).toBeTruthy();
+    expect(screen.getByText("quedan $150.000")).toBeTruthy();
+    // The budgeted amount itself is not shown: the remainder already carries it.
+    expect(container.textContent).not.toContain("$400.000");
   });
 
-  it("shows no suffix when the spend exactly equals the budget", () => {
-    render(<SpendPairing row={{ budgeted: 400_000, spent: 400_000 }} />);
+  it("shows only the spent amount when the spend exactly equals the budget", () => {
+    const { container } = render(<SpendPairing row={{ budgeted: 400_000, spent: 400_000 }} />);
 
-    expect(screen.getByText("de $400.000")).toBeTruthy();
-    expect(screen.queryByText(/quedan|excedido/)).toBeNull();
+    expect(container.textContent).toBe("$400.000");
+    expect(container.querySelectorAll("span")).toHaveLength(1);
   });
 
-  it("shows no suffix for an empty 0 de 0 row", () => {
-    render(<SpendPairing row={{ budgeted: 0, spent: 0 }} />);
+  it("shows only the spent amount for an empty 0 de 0 row", () => {
+    const { container } = render(<SpendPairing row={{ budgeted: 0, spent: 0 }} />);
 
-    expect(screen.getByText("de $0")).toBeTruthy();
-    expect(screen.queryByText(/quedan|excedido/)).toBeNull();
+    expect(container.textContent).toBe("$0");
+    expect(container.querySelectorAll("span")).toHaveLength(1);
   });
 
   it("keeps the excedido suffix, and never a quedan one, when overrun", () => {
-    render(<SpendPairing row={{ budgeted: 400_000, spent: 450_000 }} />);
+    const { container } = render(<SpendPairing row={{ budgeted: 400_000, spent: 450_000 }} />);
 
-    expect(screen.getByText("de $400.000 · excedido en $50.000")).toBeTruthy();
+    expect(screen.getByText("excedido en $50.000")).toBeTruthy();
     expect(screen.queryByText(/quedan/)).toBeNull();
+    expect(container.textContent).not.toContain("$400.000");
   });
 });

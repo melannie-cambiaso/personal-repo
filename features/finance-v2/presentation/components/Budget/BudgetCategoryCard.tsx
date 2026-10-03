@@ -123,8 +123,8 @@ interface AmountFieldProps {
 // Mode branch written ONCE, consumed by both the leaf cell and every subcategory row —
 // avoids duplicating the view/edit split per leaf/parent/sub kind (design decision).
 // View mode pairs actual spend against budget (design D4/D8): spent is the primary
-// figure, budgeted is the muted suffix — never the plain budgeted-only figure edit
-// mode still shows.
+// figure, followed by what is left (or the excess) — never the plain budgeted-only
+// figure edit mode still shows.
 function AmountField({ mode, label, amount, className, onBlur, spendRow }: AmountFieldProps) {
   if (mode === "view") {
     return spendRow ? <SpendPairing row={spendRow} /> : <LoadingSpend />;
@@ -166,9 +166,9 @@ export function BudgetCategoryCard({
   // (`computeSpendComparison` stores the same row under both `categories` and `leaves`
   // for a childless category). A parent's `categories[id].budgeted` is intentionally 0
   // in the domain (it must never double-count into bucket totals - see
-  // `spendRollup.ts`), so the DISPLAYED budgeted figure is paired from `view.total`
-  // (already the derived sum `toCategoryView` computes) instead, with only `spent`
-  // sourced from the comparison.
+  // `spendRollup.ts`), so the budgeted figure the remainder/excess is computed
+  // against is paired from `view.total` (already the derived sum `toCategoryView`
+  // computes) instead, with only `spent` sourced from the comparison.
   const headerSpendRow: SpendRow | undefined =
     spend.status !== "ready"
       ? undefined

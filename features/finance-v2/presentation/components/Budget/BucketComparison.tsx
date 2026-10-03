@@ -25,8 +25,8 @@ function findBucketSpend(buckets: BucketSpendRow[], key: BucketKey): BucketSpend
 //
 // Bucket rows show each bucket's share of the total budgeted amount inline in the
 // label (design D3/D4): "Fijos (50%)", computed in the domain layer alongside the
-// aggregate it derives from. The budgeted amount itself only appears as the muted
-// "de $X" suffix inside `SpendPairing` — there is no standalone budgeted figure.
+// aggregate it derives from. The budgeted amount itself is never displayed: it only
+// feeds the "quedan"/"excedido en" suffix `SpendPairing` computes from it.
 export function BucketComparison({ comparison, spend }: Props) {
   return (
     <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
