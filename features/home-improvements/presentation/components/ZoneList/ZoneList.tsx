@@ -33,7 +33,7 @@ export function ZoneList({
 }: Props) {
   if (zones.length === 0) {
     return (
-      <div className="text-brown-400 py-16 text-center">
+      <div className="rounded-3xl border-2 border-mist-300 bg-mist-100 px-4 py-12 text-center text-mist-800">
         <p className="mb-1 text-4xl">🏠</p>
         <p className="text-sm">Todavía no hay zonas. ¡Agregá la primera!</p>
       </div>

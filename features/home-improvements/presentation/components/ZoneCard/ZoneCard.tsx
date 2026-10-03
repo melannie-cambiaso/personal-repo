@@ -6,6 +6,10 @@ import { ImprovementItemCard } from "../ItemCard/ImprovementItemCard";
 import { AddButton } from "@/shared/components";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
+// Small round buttons in the zone's mist tone, shared with the item rows' look.
+const roundButton =
+  "border-mist-300 bg-cream-50 text-mist-800 hover:bg-mist-100 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
+
 interface Props {
   zone: Zone;
   items: ImprovementItem[];
@@ -34,25 +38,37 @@ export function ZoneCard({
   onDeleteItem,
 }: Props) {
   return (
-    <section className="border-cream-300 bg-cream-50 shadow-card rounded-2xl border">
+    <section className="flex flex-col gap-4 rounded-3xl border-2 border-mist-300 bg-mist-100 p-3 sm:p-5">
       {/* Zone header */}
-      <div className="border-cream-300 flex items-center gap-3 border-b px-5 py-4">
-        {zone.emoji && <span className="text-2xl">{zone.emoji}</span>}
-        <div className="flex-1">
-          <h2 className="font-dancing text-brown-900 text-xl font-bold">{zone.name}</h2>
-          <div className="text-brown-400 mt-0.5 flex gap-3 text-xs">
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-mist-500 text-xl"
+        >
+          {zone.emoji || "🏠"}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-dancing text-brown-900 underline-wavy text-2xl break-words decoration-mist-500">
+            {zone.name}
+          </h2>
+          <div className="mt-2 flex flex-wrap gap-x-3 text-sm text-mist-800">
             <span>
               {pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}
             </span>
-            {totalCost > 0 && <span>· {formatCLP(totalCost)} estimado</span>}
+            {totalCost > 0 && (
+              <span>
+                · <span className="font-figure text-brown-900">{formatCLP(totalCost)}</span>{" "}
+                estimado
+              </span>
+            )}
           </div>
         </div>
         {isOwner && (
-          <div className="flex gap-1">
+          <div className="flex shrink-0 gap-1">
             <button
               type="button"
               onClick={onEditZone}
-              className="text-brown-400 hover:bg-cream-300 hover:text-brown-800 cursor-pointer rounded-lg px-2 py-1 text-xs transition-colors"
+              className={roundButton}
               aria-label="Editar zona"
             >
               ✏️
@@ -60,7 +76,7 @@ export function ZoneCard({
             <button
               type="button"
               onClick={onDeleteZone}
-              className="text-brown-400 hover:bg-cream-300 cursor-pointer rounded-lg px-2 py-1 text-xs transition-colors hover:text-red-600"
+              className={`${roundButton} hover:border-red-300 hover:text-red-600`}
               aria-label="Eliminar zona"
             >
               🗑
@@ -70,28 +86,29 @@ export function ZoneCard({
       </div>
 
       {/* Items */}
-      <div className="flex flex-col gap-2 p-4">
-        {items.length === 0 && (
-          <p className="text-brown-400 py-4 text-center text-sm">
-            Todavía no hay mejoras en esta zona.
-          </p>
-        )}
-        {items.map((item) => (
-          <ImprovementItemCard
-            key={item.id}
-            item={item}
-            isOwner={isOwner}
-            onToggle={() => onToggleItem(item.id)}
-            onEdit={() => onEditItem(item)}
-            onDelete={() => onDeleteItem(item.id)}
-          />
-        ))}
-        {isOwner && (
-          <div className="mt-2 flex justify-center">
-            <AddButton onClick={onAddItem} label="Agregar mejora" />
-          </div>
-        )}
-      </div>
+      {items.length === 0 ? (
+        <p className="bg-cream-50/70 text-brown-400 rounded-2xl border-2 border-mist-300 px-4 py-4 text-center">
+          Todavía no hay mejoras en esta zona.
+        </p>
+      ) : (
+        <ul className="bg-cream-50/70 divide-y-2 divide-dashed divide-mist-300 overflow-hidden rounded-2xl border-2 border-mist-300">
+          {items.map((item) => (
+            <ImprovementItemCard
+              key={item.id}
+              item={item}
+              isOwner={isOwner}
+              onToggle={() => onToggleItem(item.id)}
+              onEdit={() => onEditItem(item)}
+              onDelete={() => onDeleteItem(item.id)}
+            />
+          ))}
+        </ul>
+      )}
+      {isOwner && (
+        <div className="flex justify-center">
+          <AddButton onClick={onAddItem} label="Agregar mejora" />
+        </div>
+      )}
     </section>
   );
 }

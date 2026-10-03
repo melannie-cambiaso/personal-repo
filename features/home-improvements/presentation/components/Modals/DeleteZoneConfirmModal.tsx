@@ -15,16 +15,18 @@ export function DeleteZoneConfirmModal({ zone, itemCount, onConfirm, onCancel }:
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
-      <h2 className="font-dancing text-brown-900 mb-3 text-2xl font-bold">¿Eliminar zona?</h2>
-      <p className="text-brown-600 mb-5 text-sm leading-relaxed">
+      <h2 className="font-dancing text-brown-900 underline-wavy mb-4 text-3xl decoration-mist-500">
+        ¿Eliminar zona?
+      </h2>
+      <p className="text-brown-600 mb-5 leading-relaxed">
         La zona{" "}
-        <strong>
+        <strong className="text-brown-900 font-normal">
           {zone?.emoji ? `${zone.emoji} ` : ""}
           {zone?.name}
         </strong>{" "}
         tiene{" "}
-        <strong>
-          {itemCount} {itemCount === 1 ? "mejora" : "mejoras"}
+        <strong className="text-brown-900 font-normal">
+          <span className="font-figure">{itemCount}</span> {itemCount === 1 ? "mejora" : "mejoras"}
         </strong>
         . Si la eliminás, se borrarán también. Esta acción no se puede deshacer.
       </p>
