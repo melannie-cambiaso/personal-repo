@@ -57,18 +57,21 @@ export function useFinanceV2Transactions({
   // `addTransaction`'s routing key off this ref, never off `viewedMonth` directly, so a
   // mutation during a pending load can never write month A's list into month B's key.
   const loadedMonthRef = useRef(viewedMonth);
+  // The same month as render state, for `isLoadingMonth` below: reading the ref during
+  // render is unsafe (react-hooks/refs), so `apply` sets both together.
+  const [loadedMonth, setLoadedMonth] = useState(viewedMonth);
   // Monotonic token for the ordering guard: only the response whose id still matches
   // this ref when it resolves may be applied — independent of Next's "one at a time"
   // dispatch, which its docs call a mutable implementation detail.
   const requestIdRef = useRef(0);
-  // Derived at render time, NOT via a `useState` flipped inside the load effect: an
+  // Derived at render time, NOT via a `useState` flag flipped when the load starts: an
   // effect-set flag lags one render behind a `viewedMonth` change (effects run after
   // commit), so the render that produces the new `viewedMonth` would still read the old
   // "not loading" flag while `transactions` holds the previous month's list — a real,
   // user-visible stale-month race for anything computed from both during that render.
-  // Comparing against `loadedMonthRef.current` has no such gap: the ref only changes once
-  // `apply` runs, so it still reflects the previously loaded month during that render.
-  const isLoadingMonth = loadedMonthRef.current !== viewedMonth;
+  // Comparing against `loadedMonth` has no such gap: it only changes when `apply` stores
+  // the new list, so it still names the previously loaded month during that render.
+  const isLoadingMonth = loadedMonth !== viewedMonth;
 
   const totals = useMemo(() => computeTransactionTotals(transactions), [transactions]);
   const dayGroups = useMemo(() => groupTransactionsByDay(transactions), [transactions]);
@@ -85,6 +88,7 @@ export function useFinanceV2Transactions({
       if (requestId !== requestIdRef.current) return; // superseded — drop silently
       loadedMonthRef.current = month;
       listRef.current = list;
+      setLoadedMonth(month);
       setTransactions(list);
     };
 
