@@ -52,12 +52,14 @@ export default async function HomePage() {
           <h1>
             <Image
               src="/home-greeting.png"
-              alt="¡Hola! Un perrito saluda con la pata: solo quería decirte que todo va a estar bien"
+              alt="Un perrito sonríe y dice: solo quería decirte que todo va a estar bien"
               width={1254}
               height={1254}
-              sizes="(min-width: 1024px) 13rem, 11rem"
+              sizes="(min-width: 1024px) 24rem, 18rem"
               loading="eager"
-              className="border-lilac-300 w-44 rounded-3xl border-2 lg:w-52"
+              // The drawing sits in a wide band with empty paper above and below;
+              // cropping to 2:1 keeps the bubble text readable at this width.
+              className="border-lilac-300 aspect-[2/1] h-auto w-72 rounded-3xl border-2 object-cover lg:w-96"
             />
           </h1>
           <p className="border-butter-300 bg-butter-100 text-butter-800 -rotate-2 rounded-lg border-2 px-3 py-1 shadow-sm">
