@@ -44,6 +44,7 @@ export { computeTransactionTotals } from "./transactionTotals";
 export type { EnvelopeConfig } from "./EnvelopeConfig";
 export type { EnvelopeFlows } from "./envelope";
 export { computeEnvelopeFlows, monthsFromTo, resolvePaidFrom, suggestedTransfer } from "./envelope";
+export { computePendingFromMain } from "./pendingFromMain";
 export type { DayGroup } from "./groupTransactionsByDay";
 export { groupTransactionsByDay } from "./groupTransactionsByDay";
 export type { ExpenseCategoryOption } from "./expenseCategoryOptions";
