@@ -79,13 +79,13 @@ export function TransactionsTab({
       {lastCrossMonthSave && (
         <div
           role="status"
-          className="border-cream-300 bg-cream-100 text-brown-800 flex items-center justify-between rounded-lg border px-4 py-2 text-sm"
+          className="border-sage-300 bg-sage-100 text-sage-800 flex items-center justify-between gap-2 rounded-2xl border-2 px-4 py-2"
         >
           <span>Guardado en {formatMonth(lastCrossMonthSave)}</span>
           <button
             type="button"
             onClick={onDismissCrossMonthSave}
-            className="text-brown-400 hover:text-brown-800 cursor-pointer transition-colors"
+            className="text-sage-800/70 hover:text-sage-800 cursor-pointer transition-colors"
             aria-label="Cerrar aviso"
           >
             ✕

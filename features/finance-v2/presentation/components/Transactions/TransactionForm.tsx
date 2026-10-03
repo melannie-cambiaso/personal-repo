@@ -109,7 +109,7 @@ export function TransactionForm({ viewedMonth, categoryOptions, hasEnvelope, onA
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4"
+      className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-4"
     >
       <div className="flex flex-wrap items-end gap-2">
         <Select

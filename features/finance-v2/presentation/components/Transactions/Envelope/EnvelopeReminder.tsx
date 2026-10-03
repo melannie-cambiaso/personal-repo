@@ -14,14 +14,17 @@ export function EnvelopeReminder({ view }: Props) {
   return (
     <div
       role="status"
-      className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+      className="border-butter-300 bg-butter-100 text-butter-800 flex -rotate-1 items-start gap-2 rounded-md border-2 px-4 py-3"
     >
+      <span aria-hidden className="shrink-0">
+        📌
+      </span>
       {view.suggestedTransfer === null ? (
         <span>La categoría vinculada ya no existe. Revisá la configuración.</span>
       ) : (
         <span>
           Todavía no transferiste a {view.config.name} este mes. Sugerido:{" "}
-          <span className="font-bold">{formatCLP(view.suggestedTransfer)}</span>
+          <span className="font-figure text-sm font-bold">{formatCLP(view.suggestedTransfer)}</span>
         </span>
       )}
     </div>

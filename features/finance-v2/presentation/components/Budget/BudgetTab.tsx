@@ -86,7 +86,11 @@ export function BudgetTab({
           type="button"
           aria-pressed={mode === "edit"}
           onClick={onToggleMode}
-          className="bg-cream-100 text-brown-600 hover:bg-cream-200 cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors"
+          className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
+            mode === "edit"
+              ? "border-sage-500 bg-sage-500 text-sage-800"
+              : "border-sage-300 bg-cream-50 text-brown-600 hover:bg-sage-100"
+          }`}
         >
           {BUDGET_MODE_LABEL[mode]}
         </button>
@@ -122,7 +126,7 @@ export function BudgetTab({
       {mode === "edit" && (
         <form
           onSubmit={handleAddCategory}
-          className="border-cream-300 flex items-end gap-2 rounded-xl border bg-white p-4"
+          className="border-sage-300 bg-sage-100 flex flex-col gap-2 rounded-3xl border-2 p-4 sm:flex-row sm:items-end"
         >
           <Input
             aria-label="Nombre de la categoría"

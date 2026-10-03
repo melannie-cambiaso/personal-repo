@@ -99,7 +99,7 @@ function WeekdayField({
 // viewed month so the figure in the input is never mistaken for the monthly budget.
 function WeeklyHint({ weeks, monthlyAmount }: { weeks: number; monthlyAmount: number }) {
   return (
-    <span className="text-2xs text-brown-500 self-end">
+    <span className="font-figure text-2xs text-brown-500 self-end">
       {`por semana · × ${weeks} semanas = ${formatCLP(monthlyAmount)}`}
     </span>
   );
@@ -209,12 +209,10 @@ export function BudgetCategoryCard({
   };
 
   return (
-    <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-800 min-w-0 truncate text-sm font-semibold">
-          {category.name}
-        </span>
-        <div className="flex shrink-0 items-center gap-2">
+    <div className="border-sage-300 bg-cream-50 flex flex-col gap-3 rounded-3xl border-2 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <span className="text-brown-900 min-w-0 truncate text-lg">{category.name}</span>
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2 text-right">
           {view.kind === "leaf" ? (
             <>
               <AmountField
@@ -250,14 +248,16 @@ export function BudgetCategoryCard({
               <LoadingSpend />
             )
           ) : (
-            <span className="text-brown-800 text-sm font-bold">{formatCLP(view.total)}</span>
+            <span className="font-figure text-brown-800 text-sm font-bold">
+              {formatCLP(view.total)}
+            </span>
           )}
           {mode === "edit" && (
             <button
               type="button"
               onClick={handleDeleteCategory}
               aria-label={`Eliminar categoría ${category.name}`}
-              className="text-2xs text-brown-400 cursor-pointer font-semibold transition-colors hover:text-red-600"
+              className="text-brown-400 cursor-pointer text-sm transition-colors hover:text-red-600"
             >
               Eliminar
             </button>
@@ -270,15 +270,15 @@ export function BudgetCategoryCard({
       )}
 
       {view.kind === "parent" && (
-        <div className="flex flex-col gap-2">
+        <div className="border-sage-300 flex flex-col gap-2 border-t border-dashed pt-3">
           {(mode === "edit" || subcategoriesExpanded) &&
             [...view.subcategories]
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((sub) => (
                 <div key={sub.id} className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-brown-700 min-w-0 truncate text-sm">{sub.name}</span>
-                    <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                    <span className="text-brown-700 min-w-0 truncate">{sub.name}</span>
+                    <div className="ml-auto flex flex-wrap items-center justify-end gap-2 text-right">
                       <AmountField
                         mode={mode}
                         label={sub.name}
@@ -308,7 +308,7 @@ export function BudgetCategoryCard({
                             type="button"
                             onClick={() => onDeleteSubcategory(category.id, sub.id)}
                             aria-label={`Eliminar ${sub.name}`}
-                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-1.5 py-0.5 text-xs transition-colors"
+                            className="border-sage-300 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
                           >
                             ×
                           </button>
@@ -326,7 +326,7 @@ export function BudgetCategoryCard({
               type="button"
               aria-expanded={subcategoriesExpanded}
               onClick={() => setSubcategoriesExpanded((v) => !v)}
-              className="text-2xs text-brown-500 hover:text-brown-800 cursor-pointer self-start font-semibold transition-colors"
+              className="bg-sage-300 text-sage-800 hover:bg-sage-500 cursor-pointer self-start rounded-full px-3 py-0.5 text-sm transition-colors"
             >
               {subcategoriesExpanded ? "Ver menos" : "Ver más"}
             </button>
@@ -337,7 +337,7 @@ export function BudgetCategoryCard({
       {mode === "edit" && (
         <form
           onSubmit={handleAddSubcategory}
-          className="border-cream-200 flex items-end gap-2 border-t pt-3"
+          className="border-sage-300 flex flex-col gap-2 border-t border-dashed pt-3 sm:flex-row sm:items-end"
         >
           <Input
             aria-label="Nombre de la subcategoría"

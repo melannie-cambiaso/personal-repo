@@ -27,7 +27,7 @@ export function SpendPairing({ row }: Props) {
       : null;
   return (
     <span
-      className={overrun ? "text-sm font-bold text-red-600" : "text-sm font-bold text-green-700"}
+      className={`font-figure text-sm font-bold ${overrun ? "text-red-600" : "text-green-700"}`}
     >
       {formatCLP(row.spent)}
       {suffix && (

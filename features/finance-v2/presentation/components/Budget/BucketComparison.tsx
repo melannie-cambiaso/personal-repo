@@ -33,21 +33,21 @@ function findBucketSpend(buckets: BucketSpendRow[], key: BucketKey): BucketSpend
 // feeds the "quedan"/"excedido en" suffix `SpendPairing` computes from it.
 export function BucketComparison({ comparison, spend }: Props) {
   return (
-    <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
+    <div className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
       {comparison.rows.map((row) => {
         const bucketSpend =
           spend.status === "ready" ? findBucketSpend(spend.comparison.buckets, row.key) : null;
         return (
           <div key={row.key} className="flex items-center justify-between gap-2">
-            <span className="text-brown-500 text-sm">
+            <span className="text-brown-600">
               {BUCKET_LABELS[row.key]} ({row.sharePct}%)
             </span>
-            <div className="flex flex-col items-end gap-0.5">
+            <div className="flex flex-col items-end gap-0.5 text-right">
               {bucketSpend ? (
                 <>
                   <SpendPairing row={bucketSpend} />
                   {bucketSpend.unassigned > 0 && (
-                    <span className="text-2xs text-brown-400">
+                    <span className="font-figure text-2xs text-brown-400">
                       incluye sin categoría: {formatCLP(bucketSpend.unassigned)}
                     </span>
                   )}
@@ -59,14 +59,14 @@ export function BucketComparison({ comparison, spend }: Props) {
           </div>
         );
       })}
-      <div className="border-cream-300 flex items-center justify-between gap-2 border-t pt-3">
-        <span className="text-brown-500 text-sm">{TOTAL_LABEL}</span>
-        <div className="flex flex-col items-end gap-0.5">
+      <div className="border-sage-300 flex items-center justify-between gap-2 border-t-2 border-dashed pt-3">
+        <span className="text-brown-900">{TOTAL_LABEL}</span>
+        <div className="flex flex-col items-end gap-0.5 text-right">
           {spend.status === "ready" ? (
             <>
               <SpendPairing row={spend.comparison.total} />
               {spend.comparison.total.unassigned > 0 && (
-                <span className="text-2xs text-brown-400">
+                <span className="font-figure text-2xs text-brown-400">
                   incluye sin categoría: {formatCLP(spend.comparison.total.unassigned)}
                 </span>
               )}

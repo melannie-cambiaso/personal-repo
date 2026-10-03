@@ -195,16 +195,16 @@ export function FinanceV2Screen({
     <main className="flex flex-1 flex-col">
       <PageHeader eyebrow="Gestioná tu presupuesto" title="Finanzas v2" />
 
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-        <div className="flex gap-2">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6">
+        <div className="flex flex-wrap gap-2">
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+              className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
                 activeTab === tab.key
-                  ? "bg-brown-800 text-white"
-                  : "bg-cream-100 text-brown-600 hover:bg-cream-200"
+                  ? "border-sage-500 bg-sage-500 text-sage-800"
+                  : "border-sage-300 bg-cream-50 text-brown-600 hover:bg-sage-100"
               }`}
             >
               {tab.label}

@@ -15,33 +15,41 @@ export function AccountCoverage({ coverage }: Props) {
   const diff = figures ? figures.balance - figures.pending : null;
 
   return (
-    <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
+    <div className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-500 text-sm">Pendiente por pagar desde la cuenta</span>
+        <span className="text-brown-600">Pendiente por pagar desde la cuenta</span>
         {figures ? (
-          <span className="text-brown-800 text-sm font-bold">{formatCLP(figures.pending)}</span>
+          <span className="font-figure text-brown-800 shrink-0 text-sm font-bold">
+            {formatCLP(figures.pending)}
+          </span>
         ) : (
           <LoadingSpend />
         )}
       </div>
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-500 text-sm">Saldo del mes</span>
+        <span className="text-brown-600">Saldo del mes</span>
         {figures ? (
-          <span className="text-brown-800 text-sm font-bold">{formatCLP(figures.balance)}</span>
+          <span className="font-figure text-brown-800 shrink-0 text-sm font-bold">
+            {formatCLP(figures.balance)}
+          </span>
         ) : (
           <LoadingSpend />
         )}
       </div>
-      <div className="border-cream-300 flex flex-col items-end gap-0.5 border-t pt-3">
+      <div className="border-sage-300 flex flex-col items-end gap-0.5 border-t-2 border-dashed pt-3 text-right">
         {diff === null ? (
           <LoadingSpend />
         ) : diff >= 0 ? (
-          <span className="text-sm font-bold text-green-700">Te sobran {formatCLP(diff)}</span>
+          <span className="font-figure text-sm font-bold text-green-700">
+            Te sobran {formatCLP(diff)}
+          </span>
         ) : (
-          <span className="text-sm font-bold text-red-600">Te faltan {formatCLP(-diff)}</span>
+          <span className="font-figure text-sm font-bold text-red-600">
+            Te faltan {formatCLP(-diff)}
+          </span>
         )}
         {envelopeNote && (
-          <span className="text-2xs text-brown-400">
+          <span className="text-brown-500 text-sm">
             no incluye {envelopeNote.categoryName}: se paga desde {envelopeNote.envelopeName}
           </span>
         )}

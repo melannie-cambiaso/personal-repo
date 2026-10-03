@@ -29,11 +29,60 @@ function leafLabel(leaf: { name: string; parentName?: string }): string {
   return leaf.parentName ? `${leaf.parentName} · ${leaf.name}` : leaf.name;
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+// Full class strings (not interpolated tone names) so Tailwind can see every one.
+const SECTION_TONES = {
+  sage: {
+    panel: "border-sage-300 bg-sage-100",
+    circle: "bg-sage-500",
+    underline: "decoration-sage-500",
+    inner: "border-sage-300",
+  },
+  lilac: {
+    panel: "border-lilac-300 bg-lilac-100",
+    circle: "bg-lilac-500",
+    underline: "decoration-lilac-500",
+    inner: "border-lilac-300",
+  },
+  blush: {
+    panel: "border-blush-300 bg-blush-100",
+    circle: "bg-blush-500",
+    underline: "decoration-blush-500",
+    inner: "border-blush-300",
+  },
+};
+
+// The icon sits beside the heading, not inside it, so the heading's text stays
+// exactly its title.
+function Section({
+  title,
+  icon,
+  tone,
+  children,
+}: {
+  title: string;
+  icon: string;
+  tone: keyof typeof SECTION_TONES;
+  children: React.ReactNode;
+}) {
+  const classes = SECTION_TONES[tone];
   return (
-    <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
-      <h3 className="text-2xs tracking-badge text-brown-500 font-bold uppercase">{title}</h3>
-      {children}
+    <div className={`${classes.panel} flex flex-col gap-4 rounded-3xl border-2 p-5`}>
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden
+          className={`${classes.circle} flex size-10 shrink-0 items-center justify-center rounded-full text-xl`}
+        >
+          {icon}
+        </span>
+        <h3 className={`font-dancing text-brown-900 underline-wavy ${classes.underline} text-2xl`}>
+          {title}
+        </h3>
+      </div>
+      <div
+        className={`${classes.inner} bg-cream-50/70 flex flex-col gap-3 rounded-2xl border-2 px-4 py-3`}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -51,8 +100,8 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-brown-500 text-sm">{label}</span>
-      <span className={`text-sm font-bold ${tone}`}>{value}</span>
+      <span className="text-brown-600">{label}</span>
+      <span className={`font-figure shrink-0 text-sm font-bold ${tone}`}>{value}</span>
     </div>
   );
 }
@@ -68,21 +117,21 @@ function DeviationRow({ row }: { row: LeafDeviation }) {
   return (
     <div className="flex flex-col gap-0.5">
       <div className="flex items-center justify-between gap-2">
-        <span data-testid="deviation-name" className="text-brown-800 min-w-0 truncate text-sm">
+        <span data-testid="deviation-name" className="text-brown-800 min-w-0 truncate">
           {leafLabel(row)}
         </span>
         <span
           data-testid="deviation-amount"
-          className={`shrink-0 text-sm font-bold ${deviationTone(row)}`}
+          className={`font-figure shrink-0 text-sm font-bold ${deviationTone(row)}`}
         >
           {formatSigned(row.deviation)}
         </span>
       </div>
-      <span className="text-2xs text-brown-400">
+      <span className="font-figure text-2xs text-brown-400">
         {formatCLP(row.spent)} de {formatCLP(row.budgeted)}
       </span>
       {row.perWeek && (
-        <span className="text-2xs text-brown-400">
+        <span className="font-figure text-2xs text-brown-400">
           por semana: {formatCLP(row.perWeek.spentAvg)} de {formatCLP(row.perWeek.budgeted)} ·{" "}
           {row.perWeek.weeks} semanas
         </span>
@@ -110,7 +159,7 @@ function DeviationList({ deviations }: { deviations: LeafDeviation[] }) {
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className="text-2xs text-brown-400 hover:text-brown-800 cursor-pointer self-start font-semibold transition-colors"
+          className="bg-blush-300 text-blush-800 hover:bg-blush-500 cursor-pointer self-start rounded-full px-3 py-0.5 text-sm transition-colors"
         >
           {expanded ? "Ver menos" : `Ver más (${hidden})`}
         </button>
@@ -128,16 +177,16 @@ function OverrunRow({ row }: { row: NextMonthOverrun }) {
   return (
     <div className="flex flex-col gap-0.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-800 min-w-0 truncate text-sm">{leafLabel(row)}</span>
+        <span className="text-brown-800 min-w-0 truncate">{leafLabel(row)}</span>
         {needsCut ? (
-          <span className="shrink-0 text-sm font-bold text-red-600">
+          <span className="font-figure shrink-0 text-sm font-bold text-red-600">
             recortar {formatCLP(row.projectedOverrun)}
           </span>
         ) : (
-          <span className="shrink-0 text-sm font-bold text-green-700">sin recorte necesario</span>
+          <span className="shrink-0 text-green-700">sin recorte necesario</span>
         )}
       </div>
-      <span className="text-2xs text-brown-400">
+      <span className="font-figure text-2xs text-brown-400">
         al ritmo actual: {formatCLP(row.projectedSpend)} de {formatCLP(row.budgeted)}
         {row.weeks !== null && ` · ${row.weeks} semanas`}
       </span>
@@ -157,18 +206,18 @@ export function AnalysisTab({ analysis }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Section title="Resumen del mes">
+      <Section title="Resumen del mes" icon="📒" tone="sage">
         <SummaryRow label="Presupuestado" value={formatCLP(summary.budgeted)} />
         <SummaryRow label="Gastado" value={formatCLP(summary.spent)} />
         {/* "incluye" is doing real work here: this amount is already inside
             `Gastado`, so a bare "sin categoría: $X" left a reader unable to tell
             whether it still had to be added on top to get the true total. */}
         {summary.unassigned > 0 && (
-          <span className="text-2xs text-brown-400 -mt-2 self-end">
+          <span className="font-figure text-2xs text-brown-400 -mt-2 self-end">
             incluye sin categoría: {formatCLP(summary.unassigned)}
           </span>
         )}
-        <div className="border-cream-300 border-t pt-3">
+        <div className="border-sage-300 border-t-2 border-dashed pt-3">
           <SummaryRow
             label="Diferencia"
             value={formatSigned(summary.difference)}
@@ -179,9 +228,9 @@ export function AnalysisTab({ analysis }: Props) {
 
       {/* Next month comes before the deviations: it is the actionable block
           (what to cut), and the deviation list is the longer one. */}
-      <Section title={`Próximo mes · ${formatMonth(nextMonth.month)}`}>
+      <Section title={`Próximo mes · ${formatMonth(nextMonth.month)}`} icon="🔮" tone="lilac">
         <SummaryRow label="Presupuesto proyectado" value={formatCLP(nextMonth.budgeted)} />
-        <div className="border-cream-300 flex flex-col gap-3 border-t pt-3">
+        <div className="border-lilac-300 flex flex-col gap-3 border-t-2 border-dashed pt-3">
           {nextMonth.overruns.length === 0 ? (
             <p className="text-brown-500 text-sm">Ninguna categoría se pasó del presupuesto</p>
           ) : (
@@ -190,7 +239,7 @@ export function AnalysisTab({ analysis }: Props) {
         </div>
       </Section>
 
-      <Section title="Desvíos por categoría">
+      <Section title="Desvíos por categoría" icon="🧭" tone="blush">
         {deviations.length === 0 ? (
           <p className="text-brown-500 text-sm">
             No hay categorías con presupuesto ni gasto en el mes

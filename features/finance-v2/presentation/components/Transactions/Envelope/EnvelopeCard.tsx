@@ -13,8 +13,10 @@ function formatBalance(amount: number): string {
 function Figure({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-brown-500 text-sm">{label}</span>
-      <span className={`text-sm font-bold ${className ?? "text-brown-800"}`}>{value}</span>
+      <span className="text-brown-600">{label}</span>
+      <span className={`font-figure text-sm font-bold ${className ?? "text-brown-800"}`}>
+        {value}
+      </span>
     </div>
   );
 }
@@ -31,23 +33,33 @@ export function EnvelopeCard({ view, onEdit }: Props) {
   const isNegative = endOfMonth < 0;
 
   return (
-    <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
+    <div className="flex flex-col gap-4 rounded-3xl border-2 border-mist-300 bg-mist-100 p-5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-800 text-sm font-semibold">{config.name}</span>
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            aria-hidden
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-mist-500 text-xl"
+          >
+            ✉️
+          </span>
+          <span className="font-dancing text-brown-900 underline-wavy truncate text-2xl decoration-mist-500">
+            {config.name}
+          </span>
+        </div>
         <button
           type="button"
           onClick={onEdit}
-          className="text-2xs text-brown-400 hover:text-brown-800 cursor-pointer font-semibold transition-colors"
+          className="shrink-0 cursor-pointer rounded-full bg-mist-300 px-3 py-0.5 text-sm text-mist-800 transition-colors hover:bg-mist-500"
         >
           Editar cuenta
         </button>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="bg-cream-50/70 flex flex-col gap-1 rounded-2xl border-2 border-mist-300 px-4 py-3">
         <Figure label="Saldo inicial del mes" value={formatCLP(carriedIn)} />
         <Figure label="Transferido" value={formatCLP(flows.transferred)} />
         <Figure label="Pagado" value={formatCLP(flows.paid)} />
       </div>
-      <div className="border-cream-300 flex flex-col gap-1 border-t pt-3">
+      <div className="flex flex-col gap-1 px-1">
         <Figure
           label="Saldo"
           value={formatBalance(endOfMonth)}
