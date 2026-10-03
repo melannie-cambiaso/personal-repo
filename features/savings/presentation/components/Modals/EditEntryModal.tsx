@@ -1,9 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import { ModalShell, Button } from "@/shared/components";
 import { EntryFormFields } from "./EntryFormFields";
+
+const formFromEntry = (entry: SavingsEntry | null) => ({
+  amount: entry ? String(entry.amount) : "",
+  date: entry?.date ?? "",
+  notes: entry?.notes ?? "",
+  toReplenish: entry?.toReplenish ?? false,
+});
 
 interface Props {
   entry: SavingsEntry | null;
@@ -14,23 +21,15 @@ interface Props {
 export function EditEntryModal({ entry, onClose, onSave }: Props) {
   const isOpen = entry !== null;
 
-  const [form, setForm] = useState({
-    amount: "",
-    date: "",
-    notes: "",
-    toReplenish: false,
-  });
+  const [form, setForm] = useState(() => formFromEntry(entry));
+  const [prevEntry, setPrevEntry] = useState(entry);
 
-  useEffect(() => {
-    if (isOpen && entry) {
-      setForm({
-        amount: String(entry.amount),
-        date: entry.date,
-        notes: entry.notes ?? "",
-        toReplenish: entry.toReplenish,
-      });
-    }
-  }, [isOpen, entry]);
+  // Refill the form during render when a new entry arrives, instead of in an effect,
+  // so the previous values are never painted. Closing (entry = null) keeps the form as is.
+  if (entry !== prevEntry) {
+    setPrevEntry(entry);
+    if (entry) setForm(formFromEntry(entry));
+  }
 
   const setField =
     (field: keyof typeof form) =>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ModalShell, Button, Field, Input, Select } from "@/shared/components";
 
 interface AddTransactionModalProps {
@@ -22,14 +22,20 @@ export function AddTransactionModal({
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [prevInitialCategory, setPrevInitialCategory] = useState(initialCategory);
 
-  useEffect(() => {
+  // Reset the form during render when the modal opens or initialCategory changes while open,
+  // instead of in an effect, so the stale values are never painted.
+  if (isOpen !== prevIsOpen || initialCategory !== prevInitialCategory) {
+    setPrevIsOpen(isOpen);
+    setPrevInitialCategory(initialCategory);
     if (isOpen) {
       setSelectedCategory(initialCategory);
       setAmount("");
       setNote("");
     }
-  }, [isOpen, initialCategory]);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
