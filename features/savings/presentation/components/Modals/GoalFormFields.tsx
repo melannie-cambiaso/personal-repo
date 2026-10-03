@@ -1,4 +1,4 @@
-import { ModalShell, Field, Input } from "@/shared/components";
+import { Field, Input } from "@/shared/components";
 
 export function validateGoalForm(form: { name: string; targetAmount: string }): string | null {
   if (!form.name.trim()) return "El nombre es obligatorio.";

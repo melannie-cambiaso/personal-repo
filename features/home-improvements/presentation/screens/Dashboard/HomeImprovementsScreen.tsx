@@ -12,7 +12,7 @@ import {
   EditItemModal,
   DeleteZoneConfirmModal,
 } from "../../components";
-import { PageHeader, AddButton, ModalShell, Select } from "@/shared/components";
+import { PageHeader, AddButton, Select } from "@/shared/components";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {

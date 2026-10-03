@@ -30,7 +30,8 @@ export function ModalShell({
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    isOpen ? dialog.showModal() : dialog.close();
+    if (isOpen) dialog.showModal();
+    else dialog.close();
   }, [isOpen]);
 
   return (

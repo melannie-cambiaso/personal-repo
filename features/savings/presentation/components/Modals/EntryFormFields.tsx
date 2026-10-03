@@ -1,4 +1,4 @@
-import { ModalShell, Field, Input, Select, Textarea } from "@/shared/components";
+import { Field, Input, Select, Textarea } from "@/shared/components";
 import type { SavingsGoal } from "@/features/savings/domain";
 
 type EntryField = "amount" | "date" | "notes" | "toReplenish";
