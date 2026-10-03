@@ -26,7 +26,6 @@ const EMPTY = {
   price: "",
   tag: "",
   url: "",
-  image: "",
   categoryKey: "food" as CategoryColor,
   priority: "medium" as WishlistPriority,
 };
@@ -43,7 +42,6 @@ function formFromItem(item: WishlistItem) {
     price: item.price?.toString() ?? "",
     tag: item.tag ?? "",
     url: item.url ?? "",
-    image: item.image ?? "",
     categoryKey: item.category.color,
     priority: resolvePriority(item),
   };
@@ -63,9 +61,10 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // The `required` attribute only guards the browser path; a programmatic submit
-    // skips constraint validation, so the handler refuses a missing price too.
+    // skips constraint validation, so the handler refuses a missing price or link too.
     const price = parsePrice(form.price);
-    if (price === null) return;
+    const url = form.url.trim();
+    if (price === null || url === "") return;
     const item: WishlistItem = {
       id: editItem?.id ?? crypto.randomUUID(),
       category: CATEGORIES[form.categoryKey],
@@ -78,8 +77,10 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
       tag: form.tag || undefined,
       price,
       priority: form.priority,
-      url: form.url || undefined,
-      image: form.image || undefined,
+      url,
+      // No longer asked for (the list shows no image), but an item saved with one
+      // keeps it.
+      image: editItem?.image,
     };
     onAdd(item);
     onClose();
@@ -93,8 +94,9 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
       title={editItem ? "Editar item" : "Nuevo item"}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* Title and price sit above the divider, stacked rather than paired: they
-            are the whole cost of capturing an idea, and everything below can wait. */}
+        {/* Title, price and link sit above the divider, stacked rather than paired:
+            they are the whole cost of capturing an idea, and everything below can
+            wait. */}
         <Field label="Título *">
           <Input value={form.title} onChange={set("title")} required autoFocus />
         </Field>
@@ -106,6 +108,16 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
             value={form.price}
             onChange={set("price")}
             placeholder="23990"
+            required
+          />
+        </Field>
+
+        <Field label="URL del producto *">
+          <Input
+            type="url"
+            value={form.url}
+            onChange={set("url")}
+            placeholder="https://..."
             required
           />
         </Field>
@@ -154,13 +166,6 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           <Input value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
         </Field>
 
-        <Field label="URL del producto">
-          <Input type="url" value={form.url} onChange={set("url")} placeholder="https://..." />
-        </Field>
-
-        <Field label="URL de imagen">
-          <Input type="url" value={form.image} onChange={set("image")} placeholder="https://..." />
-        </Field>
 
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" onPress={onClose} variant="secondary">

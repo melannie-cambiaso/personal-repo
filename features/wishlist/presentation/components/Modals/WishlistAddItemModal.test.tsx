@@ -20,18 +20,20 @@ describe("WishlistAddItemModal", () => {
     expect(screen.getByLabelText("Precio (CLP) *")).toBeTruthy();
     expect(screen.getByLabelText("Tag")).toBeTruthy();
     expect(screen.getByLabelText("Prioridad")).toBeTruthy();
-    expect(screen.getByLabelText("URL del producto")).toBeTruthy();
-    expect(screen.getByLabelText("URL de imagen")).toBeTruthy();
+    expect(screen.getByLabelText("URL del producto *")).toBeTruthy();
+    // The list shows no image, so the form no longer asks for one.
+    expect(screen.queryByLabelText("URL de imagen")).toBeNull();
   });
 
   // Asserted on the `required` attribute itself rather than by submitting a blank
   // form: jsdom does not run constraint validation on submit, so a submit-based
   // test would pass whether or not the browser would actually block the user.
-  it("requires the title and the price and nothing else", () => {
+  it("requires the title, the price and the product link, and nothing else", () => {
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} />);
 
     expect((screen.getByLabelText("Título *") as HTMLInputElement).required).toBe(true);
     expect((screen.getByLabelText("Precio (CLP) *") as HTMLInputElement).required).toBe(true);
+    expect((screen.getByLabelText("URL del producto *") as HTMLInputElement).required).toBe(true);
     expect((screen.getByLabelText("Marca / Tienda") as HTMLInputElement).required).toBe(false);
     expect((screen.getByLabelText("Emoji") as HTMLInputElement).required).toBe(false);
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).required).toBe(false);
@@ -70,6 +72,7 @@ describe("WishlistAddItemModal", () => {
     fireEvent.change(screen.getByLabelText("Emoji"), { target: { value: "🎧" } });
     fireEvent.change(screen.getByLabelText("Descripción"), { target: { value: "Desc" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
     fireEvent.change(screen.getByLabelText("Tag"), { target: { value: "Deseado" } });
     fireEvent.click(screen.getByText("Agregar ✓"));
 
@@ -86,7 +89,7 @@ describe("WishlistAddItemModal", () => {
 
   // Blank optionals must arrive as `undefined`, not as empty strings — an item
   // carrying `brand: ""` would render an empty label instead of no label at all.
-  it("submits with only a title and a price, leaving the untouched fields undefined", () => {
+  it("submits with only the required fields, leaving the untouched fields undefined", () => {
     const onAdd = vi.fn();
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={onAdd} />);
 
@@ -94,6 +97,7 @@ describe("WishlistAddItemModal", () => {
       target: { value: "Zapatillas negras" },
     });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "39990" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
     fireEvent.click(screen.getByText("Agregar ✓"));
 
     expect(onAdd).toHaveBeenCalledTimes(1);
@@ -121,6 +125,17 @@ describe("WishlistAddItemModal", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("does not save an item without a product link", () => {
+    const onAdd = vi.fn();
+    render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={onAdd} />);
+
+    fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
+    fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
+    fireEvent.click(screen.getByText("Agregar ✓"));
+
+    expect(onAdd).not.toHaveBeenCalled();
+  });
+
   it("does not save an item with a negative price", () => {
     const onAdd = vi.fn();
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={onAdd} />);
@@ -140,6 +155,7 @@ describe("WishlistAddItemModal", () => {
 
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
     fireEvent.click(screen.getByText("Agregar ✓"));
 
     expect((onAdd.mock.calls[0][0] as WishlistItem).priority).toBe("medium");
@@ -159,6 +175,7 @@ describe("WishlistAddItemModal", () => {
 
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
     fireEvent.change(screen.getByLabelText("Prioridad"), { target: { value: "high" } });
     fireEvent.click(screen.getByText("Agregar ✓"));
 
@@ -209,6 +226,7 @@ describe("WishlistAddItemModal", () => {
       category: CATEGORIES.cloth,
       price: 39990,
       priority: "low",
+      url: "https://example.com/item",
     };
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={onAdd} editItem={item} />);
 
@@ -216,6 +234,26 @@ describe("WishlistAddItemModal", () => {
     fireEvent.click(screen.getByText("Guardar ✓"));
 
     expect(onAdd).toHaveBeenCalledWith(expect.objectContaining({ id: "1", priority: "low" }));
+  });
+
+  // The image field is gone from the form, but an item saved with one keeps it.
+  it("keeps an edited item's stored image", () => {
+    const onAdd = vi.fn();
+    const item: WishlistItem = {
+      id: "1",
+      title: "Zapatillas negras",
+      category: CATEGORIES.cloth,
+      price: 39990,
+      image: "https://example.com/zapatillas.jpg",
+      url: "https://example.com/item",
+    };
+    render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={onAdd} editItem={item} />);
+
+    fireEvent.click(screen.getByText("Guardar ✓"));
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "1", image: "https://example.com/zapatillas.jpg" })
+    );
   });
 
   // Legacy rows may carry `price: null`; editing one must not round-trip that null.
@@ -234,6 +272,7 @@ describe("WishlistAddItemModal", () => {
     expect(onAdd).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "39990" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
     fireEvent.click(screen.getByText("Guardar ✓"));
     expect(onAdd).toHaveBeenCalledTimes(1);
     expect((onAdd.mock.calls[0][0] as WishlistItem).price).toBe(39990);

@@ -35,3 +35,4 @@ Mode: on · Runner: `vitest run` (`npm run test`)
 - [x] T2 — Modal: price required, priority select (default Media) + tests. Price moved above the optional divider; `parsePrice` guard blocks blank/negative/NaN. RED→GREEN, wishlist 56/56. Commit `cbe4c24`.
 - [x] T3 — List UI: replace the card grid with checklist rows, sort select with priority, remove the card + tests. `WishlistItemRow` in one list container; visitors keep the toggle (pre-existing behavior), edit/delete owner-only. RED→GREEN, wishlist 66/66. Commit `8ecfb4c`.
 - [x] T4 — Verify: full `npm run test`, `npm run build`. Tests 934/934, build green, eslint wishlist clean.
+- [x] T5 — Form: drop the image URL field (stored images kept on edit) and require the product URL (user feedback 2026-10-03). 8 tests RED→GREEN, wishlist 68/68, tsc + eslint clean.
