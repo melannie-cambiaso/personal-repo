@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
+import { summarizeWishlist } from "@/features/wishlist/domain/summarizeWishlist";
 
 interface Params {
   initialItems: WishlistItem[];
@@ -53,10 +54,7 @@ export function useWishlist({ initialItems, initialOwnedIds, onAdd, onToggle }: 
     void onToggle([...nextOwned]);
   };
 
-  const pending = items.filter((i) => !ownedIds.has(i.id)).length;
-  const totalPrice = items
-    .filter((i) => !ownedIds.has(i.id) && i.price !== null)
-    .reduce((sum, i) => sum + (i.price as number), 0);
+  const { pendingCount: pending, total: totalPrice } = summarizeWishlist(items, ownedIds);
 
   return { items, ownedIds, addItem, editItem, deleteItem, toggle, pending, totalPrice };
 }
