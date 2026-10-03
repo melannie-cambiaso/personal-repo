@@ -15,8 +15,12 @@ async function handleAdd(items: WishlistItem[]) {
   await saveItems(items);
 }
 
+// A server action is reachable on its own, outside the proxy-guarded page, so it
+// checks the auth cookie itself, like `handleAdd`.
 async function handleToggle(ids: string[]) {
   "use server";
+  const cookieStore = await cookies();
+  if (!cookieStore.get("wishlist_auth")?.value) return;
   await saveOwnedIds(new Set(ids));
 }
 
