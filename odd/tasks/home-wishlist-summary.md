@@ -24,5 +24,5 @@ Mode: on · Runner: `vitest run` (`npm run test`)
 
 ## Tasks
 - [x] T1 — Domain + data: `summarizeWishlist(items, ownedIds)` (reused by `useWishlist`) and a server loader + tests. Loader imported by path (wishlist `data` barrel is used by a client component). RED→GREEN, wishlist 75/75, tsc clean. Commit `e2ad55b`.
-- [x] T2 — UI: wishlist summary card on home, shortcuts without Wishlist + tests. 5 card tests RED→GREEN; summaries loaded in parallel after the auth guard; shortcuts grid-cols-2; build green.
-- [ ] T3 — Verify: full `npm run test`, `npm run build`.
+- [x] T2 — UI: wishlist summary card on home, shortcuts without Wishlist + tests. 5 card tests RED→GREEN; summaries loaded in parallel after the auth guard; shortcuts grid-cols-2; build green. Commit `76f606f`.
+- [x] T3 — Verify: full `npm run test`, `npm run build`. Tests 948/948, build green.
