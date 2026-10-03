@@ -105,7 +105,10 @@ describe("BucketComparison", () => {
         total: { budgeted: 500_000, spent: 500_000, unassigned: 0 },
       };
       render(
-        <BucketComparison comparison={comparison} spend={{ status: "ready", comparison: overrunComparison }} />
+        <BucketComparison
+          comparison={comparison}
+          spend={{ status: "ready", comparison: overrunComparison }}
+        />
       );
 
       expect(screen.getByText("excedido en $50.000")).toBeTruthy();
@@ -132,7 +135,10 @@ describe("BucketComparison", () => {
         total: { budgeted: 500_000, spent: 258_000, unassigned: 8_000 },
       };
       render(
-        <BucketComparison comparison={comparison} spend={{ status: "ready", comparison: withUnassigned }} />
+        <BucketComparison
+          comparison={comparison}
+          spend={{ status: "ready", comparison: withUnassigned }}
+        />
       );
 
       // Twice: once on the `fixed` bucket row, once on the total row.

@@ -105,7 +105,7 @@ interface LeafRef {
 export function computeMonthAnalysis(
   config: BudgetConfig,
   transactions: FinanceV2Transaction[],
-  month: string,
+  month: string
 ): MonthAnalysis {
   const comparison = computeSpendComparison(config, transactions, month);
   const leaves = listBudgetLeaves(config);
@@ -131,7 +131,7 @@ export function computeMonthAnalysis(
 function toLeafDeviation(
   leaf: LeafRef,
   row: { budgeted: number; spent: number } | undefined,
-  month: string,
+  month: string
 ): LeafDeviation {
   // `computeSpendComparison` walks this same leaf set, so the fallback is
   // unreachable by construction; it stays as a fail-soft guard.
@@ -160,7 +160,7 @@ function projectNextMonth(
   config: BudgetConfig,
   leaves: LeafRef[],
   deviations: LeafDeviation[],
-  month: string,
+  month: string
 ): NextMonthProjection {
   const target = nextMonth(month);
   const byId = new Map(leaves.map((leaf) => [leaf.id, leaf]));

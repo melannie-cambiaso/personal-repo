@@ -31,11 +31,7 @@ interface Props {
     subcategoryId: string | null,
     frequency: BudgetFrequency
   ) => void;
-  onWeekdayChange: (
-    categoryId: string,
-    subcategoryId: string | null,
-    weekday: Weekday
-  ) => void;
+  onWeekdayChange: (categoryId: string, subcategoryId: string | null, weekday: Weekday) => void;
 }
 
 const FREQUENCY_OPTIONS: { value: BudgetFrequency; label: string }[] = [
@@ -248,7 +244,11 @@ export function BudgetCategoryCard({
               )}
             </>
           ) : mode === "view" ? (
-            headerSpendRow ? <SpendPairing row={headerSpendRow} /> : <LoadingSpend />
+            headerSpendRow ? (
+              <SpendPairing row={headerSpendRow} />
+            ) : (
+              <LoadingSpend />
+            )
           ) : (
             <span className="text-brown-800 text-sm font-bold">{formatCLP(view.total)}</span>
           )}
@@ -257,7 +257,7 @@ export function BudgetCategoryCard({
               type="button"
               onClick={handleDeleteCategory}
               aria-label={`Eliminar categoría ${category.name}`}
-              className="text-2xs text-brown-400 hover:text-red-600 cursor-pointer font-semibold transition-colors"
+              className="text-2xs text-brown-400 cursor-pointer font-semibold transition-colors hover:text-red-600"
             >
               Eliminar
             </button>
@@ -275,50 +275,52 @@ export function BudgetCategoryCard({
             [...view.subcategories]
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((sub) => (
-              <div key={sub.id} className="flex flex-col gap-1">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-brown-700 min-w-0 truncate text-sm">{sub.name}</span>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <AmountField
-                      mode={mode}
-                      label={sub.name}
-                      amount={sub.amount}
-                      key={`amt-${sub.id}-${version}`}
-                      className="w-24 text-right"
-                      spendRow={spend.status === "ready" ? spend.comparison.leaves[sub.id] : undefined}
-                      onBlur={(e) => handleAmountBlur(sub.id, e.target.value)}
-                    />
-                    {mode === "edit" && (
-                      <>
-                        <FrequencyField
-                          label={sub.name}
-                          frequency={sub.frequency}
-                          onChange={(frequency) => handleFrequencyChange(sub.id, frequency)}
-                        />
-                        {sub.frequency === "weekly" && (
-                          <WeekdayField
+                <div key={sub.id} className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-brown-700 min-w-0 truncate text-sm">{sub.name}</span>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <AmountField
+                        mode={mode}
+                        label={sub.name}
+                        amount={sub.amount}
+                        key={`amt-${sub.id}-${version}`}
+                        className="w-24 text-right"
+                        spendRow={
+                          spend.status === "ready" ? spend.comparison.leaves[sub.id] : undefined
+                        }
+                        onBlur={(e) => handleAmountBlur(sub.id, e.target.value)}
+                      />
+                      {mode === "edit" && (
+                        <>
+                          <FrequencyField
                             label={sub.name}
-                            weekday={sub.weekday}
-                            onChange={(weekday) => handleWeekdayChange(sub.id, weekday)}
+                            frequency={sub.frequency}
+                            onChange={(frequency) => handleFrequencyChange(sub.id, frequency)}
                           />
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => onDeleteSubcategory(category.id, sub.id)}
-                          aria-label={`Eliminar ${sub.name}`}
-                          className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-1.5 py-0.5 text-xs transition-colors"
-                        >
-                          ×
-                        </button>
-                      </>
-                    )}
+                          {sub.frequency === "weekly" && (
+                            <WeekdayField
+                              label={sub.name}
+                              weekday={sub.weekday}
+                              onChange={(weekday) => handleWeekdayChange(sub.id, weekday)}
+                            />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => onDeleteSubcategory(category.id, sub.id)}
+                            aria-label={`Eliminar ${sub.name}`}
+                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-md border px-1.5 py-0.5 text-xs transition-colors"
+                          >
+                            ×
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
+                  {mode === "edit" && sub.frequency === "weekly" && (
+                    <WeeklyHint weeks={sub.weeks} monthlyAmount={sub.monthlyAmount} />
+                  )}
                 </div>
-                {mode === "edit" && sub.frequency === "weekly" && (
-                  <WeeklyHint weeks={sub.weeks} monthlyAmount={sub.monthlyAmount} />
-                )}
-              </div>
-            ))}
+              ))}
           {mode === "view" && (
             <button
               type="button"
@@ -333,7 +335,10 @@ export function BudgetCategoryCard({
       )}
 
       {mode === "edit" && (
-        <form onSubmit={handleAddSubcategory} className="border-cream-200 flex items-end gap-2 border-t pt-3">
+        <form
+          onSubmit={handleAddSubcategory}
+          className="border-cream-200 flex items-end gap-2 border-t pt-3"
+        >
           <Input
             aria-label="Nombre de la subcategoría"
             value={subName}

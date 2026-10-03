@@ -254,7 +254,11 @@ describe("useFinanceV2Envelope", () => {
     });
 
     act(() =>
-      result.current.saveConfig({ name: "Cuentas fijas", boundCategoryId: "otra", openingBalance: 0 })
+      result.current.saveConfig({
+        name: "Cuentas fijas",
+        boundCategoryId: "otra",
+        openingBalance: 0,
+      })
     );
 
     const edited = {
@@ -275,8 +279,16 @@ describe("useFinanceV2Envelope", () => {
     });
 
     act(() => {
-      result.current.saveConfig({ name: "Servicios", boundCategoryId: "cuentas", openingBalance: 1 });
-      result.current.saveConfig({ name: "Servicios", boundCategoryId: "cuentas", openingBalance: 2 });
+      result.current.saveConfig({
+        name: "Servicios",
+        boundCategoryId: "cuentas",
+        openingBalance: 1,
+      });
+      result.current.saveConfig({
+        name: "Servicios",
+        boundCategoryId: "cuentas",
+        openingBalance: 2,
+      });
     });
 
     expect(onSaveConfig).toHaveBeenLastCalledWith({
@@ -298,7 +310,11 @@ describe("useFinanceV2Envelope", () => {
     });
 
     act(() =>
-      result.current.saveConfig({ name: "Servicios", boundCategoryId: "cuentas", openingBalance: 30_000 })
+      result.current.saveConfig({
+        name: "Servicios",
+        boundCategoryId: "cuentas",
+        openingBalance: 30_000,
+      })
     );
     await flush();
 

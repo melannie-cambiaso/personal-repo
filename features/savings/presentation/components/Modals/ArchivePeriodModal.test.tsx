@@ -26,26 +26,20 @@ describe("ArchivePeriodModal", () => {
       makeEntry({ id: "e2", toReplenish: true, amount: 200 }),
       makeEntry({ id: "e3", type: "deposito", toReplenish: false, amount: 1000 }),
     ];
-    render(
-      <ArchivePeriodModal isOpen entries={entries} onClose={vi.fn()} onConfirm={vi.fn()} />
-    );
+    render(<ArchivePeriodModal isOpen entries={entries} onClose={vi.fn()} onConfirm={vi.fn()} />);
     expect(screen.getByText(/2 gastos/i)).toBeTruthy();
     expect(screen.getByText(/\$500/)).toBeTruthy();
   });
 
   it("shows no warning when there are no pending gastos", () => {
     const entries = [makeEntry({ id: "e1", toReplenish: false })];
-    render(
-      <ArchivePeriodModal isOpen entries={entries} onClose={vi.fn()} onConfirm={vi.fn()} />
-    );
+    render(<ArchivePeriodModal isOpen entries={entries} onClose={vi.fn()} onConfirm={vi.fn()} />);
     expect(screen.queryByText(/pendiente/i)).toBeNull();
   });
 
   it("lets the owner set an optional initial amount and label for the new period", () => {
     const onConfirm = vi.fn();
-    render(
-      <ArchivePeriodModal isOpen entries={[]} onClose={vi.fn()} onConfirm={onConfirm} />
-    );
+    render(<ArchivePeriodModal isOpen entries={[]} onClose={vi.fn()} onConfirm={onConfirm} />);
     fireEvent.change(screen.getByLabelText(/monto inicial/i), { target: { value: "5000" } });
     fireEvent.change(screen.getByLabelText(/nombre del nuevo per.odo/i), {
       target: { value: "Abril" },
@@ -56,9 +50,7 @@ describe("ArchivePeriodModal", () => {
 
   it("submits with initialAmount and label undefined when left blank", () => {
     const onConfirm = vi.fn();
-    render(
-      <ArchivePeriodModal isOpen entries={[]} onClose={vi.fn()} onConfirm={onConfirm} />
-    );
+    render(<ArchivePeriodModal isOpen entries={[]} onClose={vi.fn()} onConfirm={onConfirm} />);
     fireEvent.click(screen.getByText("Archivar y empezar de nuevo"));
     expect(onConfirm).toHaveBeenCalledWith({ initialAmount: undefined, label: undefined });
   });
@@ -66,9 +58,7 @@ describe("ArchivePeriodModal", () => {
   it("does not call onConfirm when the user cancels instead of confirming", () => {
     const onConfirm = vi.fn();
     const onClose = vi.fn();
-    render(
-      <ArchivePeriodModal isOpen entries={[]} onClose={onClose} onConfirm={onConfirm} />
-    );
+    render(<ArchivePeriodModal isOpen entries={[]} onClose={onClose} onConfirm={onConfirm} />);
     fireEvent.click(screen.getByText("Cancelar"));
     expect(onConfirm).not.toHaveBeenCalled();
     expect(onClose).toHaveBeenCalledOnce();

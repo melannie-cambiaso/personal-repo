@@ -23,6 +23,6 @@ auth check, the `react-hooks/refs` lint error in finance-v2, and the prettier dr
 
 ## Tasks
 - [x] T1 — Wishlist: auth check in `handleToggle`, same guard as `handleAdd`. No page tests exist; checked with tsc + eslint (build in T4). Commit `87c8a51`.
-- [x] T2 — finance-v2: remove the ref read during render without reopening the stale-month gap + tests. `loadedMonth` state set in `apply` with the ref; existing stale-month test (`useFinanceV2Transactions.test.ts:533`) still green; presentation 255/255, eslint finance-v2 clean.
-- [ ] T3 — Prettier: `endOfLine: "auto"` + format drifted files (formatting-only commit).
+- [x] T2 — finance-v2: remove the ref read during render without reopening the stale-month gap + tests. `loadedMonth` state set in `apply` with the ref; existing stale-month test (`useFinanceV2Transactions.test.ts:533`) still green; presentation 255/255, eslint finance-v2 clean. Commit `28b227a`.
+- [x] T3 — Prettier: `endOfLine: "auto"` + format drifted files (formatting-only commit). 70 files in features/ and shared/ formatted; 38 markdown docs in openspec/ and odd/ left as-is.
 - [ ] T4 — Verify: `npm run test`, `npm run build`, `npx eslint .`, `npx prettier --check`.

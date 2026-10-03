@@ -38,7 +38,7 @@ const BUDGET: BudgetConfig = {
 };
 
 function expenseTx(
-  overrides: Partial<Extract<FinanceV2Transaction, { type: "expense" }>>,
+  overrides: Partial<Extract<FinanceV2Transaction, { type: "expense" }>>
 ): FinanceV2Transaction {
   return {
     id: "tx-expense",

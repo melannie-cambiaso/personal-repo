@@ -14,7 +14,7 @@ function expense(
   id: string,
   amount: number,
   category: { id: string; name: string } | null,
-  bucket: "fixed" | "variable" = "variable",
+  bucket: "fixed" | "variable" = "variable"
 ): FinanceV2Transaction {
   return {
     id,
@@ -42,7 +42,14 @@ describe("computeMonthAnalysis", () => {
     it("reports the week-adjusted budget, the actual spend and the difference", () => {
       const config: BudgetConfig = {
         categories: [
-          { id: "food", name: "Comida", bucket: "variable", amount: 20_000, frequency: "weekly", subcategories: [] },
+          {
+            id: "food",
+            name: "Comida",
+            bucket: "variable",
+            amount: 20_000,
+            frequency: "weekly",
+            subcategories: [],
+          },
           { id: "rent", name: "Arriendo", bucket: "fixed", amount: 300_000, subcategories: [] },
         ],
       };
@@ -61,7 +68,9 @@ describe("computeMonthAnalysis", () => {
 
     it("reports a negative difference when the month overran its budget", () => {
       const config: BudgetConfig = {
-        categories: [{ id: "food", name: "Comida", bucket: "variable", amount: 50_000, subcategories: [] }],
+        categories: [
+          { id: "food", name: "Comida", bucket: "variable", amount: 50_000, subcategories: [] },
+        ],
       };
       const transactions = [expense("t1", 65_000, { id: "food", name: "Comida" })];
 
@@ -72,7 +81,9 @@ describe("computeMonthAnalysis", () => {
 
     it("includes untagged spend in the actual total and exposes it separately", () => {
       const config: BudgetConfig = {
-        categories: [{ id: "food", name: "Comida", bucket: "variable", amount: 50_000, subcategories: [] }],
+        categories: [
+          { id: "food", name: "Comida", bucket: "variable", amount: 50_000, subcategories: [] },
+        ],
       };
       const transactions = [
         expense("t1", 40_000, { id: "food", name: "Comida" }),
@@ -99,9 +110,27 @@ describe("computeMonthAnalysis", () => {
     it("sorts leaves from the biggest overrun to the biggest saving", () => {
       const config: BudgetConfig = {
         categories: [
-          { id: "saver", name: "Ahorrador", bucket: "variable", amount: 100_000, subcategories: [] },
-          { id: "onTrack", name: "En linea", bucket: "variable", amount: 50_000, subcategories: [] },
-          { id: "overrun", name: "Excedido", bucket: "variable", amount: 30_000, subcategories: [] },
+          {
+            id: "saver",
+            name: "Ahorrador",
+            bucket: "variable",
+            amount: 100_000,
+            subcategories: [],
+          },
+          {
+            id: "onTrack",
+            name: "En linea",
+            bucket: "variable",
+            amount: 50_000,
+            subcategories: [],
+          },
+          {
+            id: "overrun",
+            name: "Excedido",
+            bucket: "variable",
+            amount: 30_000,
+            subcategories: [],
+          },
         ],
       };
       const transactions = [
@@ -119,7 +148,14 @@ describe("computeMonthAnalysis", () => {
     it("carries each leaf's name, bucket and resolved frequency", () => {
       const config: BudgetConfig = {
         categories: [
-          { id: "food", name: "Comida", bucket: "variable", amount: 20_000, frequency: "weekly", subcategories: [] },
+          {
+            id: "food",
+            name: "Comida",
+            bucket: "variable",
+            amount: 20_000,
+            frequency: "weekly",
+            subcategories: [],
+          },
           { id: "rent", name: "Arriendo", bucket: "fixed", amount: 300_000, subcategories: [] },
         ],
       };
@@ -135,7 +171,14 @@ describe("computeMonthAnalysis", () => {
     it("exposes a per-week budget and per-week actual average for a weekly leaf", () => {
       const config: BudgetConfig = {
         categories: [
-          { id: "food", name: "Comida", bucket: "variable", amount: 20_000, frequency: "weekly", subcategories: [] },
+          {
+            id: "food",
+            name: "Comida",
+            bucket: "variable",
+            amount: 20_000,
+            frequency: "weekly",
+            subcategories: [],
+          },
         ],
       };
       const transactions = [expense("t1", 125_000, { id: "food", name: "Comida" })];
@@ -143,12 +186,18 @@ describe("computeMonthAnalysis", () => {
       const analysis = computeMonthAnalysis(config, transactions, FIVE_WEEK_MONTH);
 
       expect(analysis.deviations[0].budgeted).toBe(100_000);
-      expect(analysis.deviations[0].perWeek).toEqual({ budgeted: 20_000, spentAvg: 25_000, weeks: 5 });
+      expect(analysis.deviations[0].perWeek).toEqual({
+        budgeted: 20_000,
+        spentAvg: 25_000,
+        weeks: 5,
+      });
     });
 
     it("leaves the per-week block null for a monthly leaf", () => {
       const config: BudgetConfig = {
-        categories: [{ id: "rent", name: "Arriendo", bucket: "fixed", amount: 300_000, subcategories: [] }],
+        categories: [
+          { id: "rent", name: "Arriendo", bucket: "fixed", amount: 300_000, subcategories: [] },
+        ],
       };
 
       const analysis = computeMonthAnalysis(config, [], FIVE_WEEK_MONTH);
@@ -194,7 +243,9 @@ describe("computeMonthAnalysis", () => {
 
     it("keeps an unbudgeted leaf that was nevertheless spent on", () => {
       const config: BudgetConfig = {
-        categories: [{ id: "extra", name: "Extra", bucket: "variable", amount: 0, subcategories: [] }],
+        categories: [
+          { id: "extra", name: "Extra", bucket: "variable", amount: 0, subcategories: [] },
+        ],
       };
       const transactions = [expense("t1", 12_000, { id: "extra", name: "Extra" })];
 
@@ -222,7 +273,14 @@ describe("computeMonthAnalysis", () => {
     it("projects next month's budget with next month's week count", () => {
       const config: BudgetConfig = {
         categories: [
-          { id: "food", name: "Comida", bucket: "variable", amount: 20_000, frequency: "weekly", subcategories: [] },
+          {
+            id: "food",
+            name: "Comida",
+            bucket: "variable",
+            amount: 20_000,
+            frequency: "weekly",
+            subcategories: [],
+          },
           { id: "rent", name: "Arriendo", bucket: "fixed", amount: 300_000, subcategories: [] },
         ],
       };
@@ -236,7 +294,14 @@ describe("computeMonthAnalysis", () => {
     it("projects a weekly overrun at the current per-week pace, scaled to next month's weeks", () => {
       const config: BudgetConfig = {
         categories: [
-          { id: "food", name: "Comida", bucket: "variable", amount: 20_000, frequency: "weekly", subcategories: [] },
+          {
+            id: "food",
+            name: "Comida",
+            bucket: "variable",
+            amount: 20_000,
+            frequency: "weekly",
+            subcategories: [],
+          },
         ],
       };
       // 125.000 over 5 weeks = 25.000/week pace against a 20.000/week budget.
@@ -245,13 +310,23 @@ describe("computeMonthAnalysis", () => {
       const analysis = computeMonthAnalysis(config, transactions, FIVE_WEEK_MONTH);
 
       expect(analysis.nextMonth.overruns).toEqual([
-        { id: "food", name: "Comida", parentName: undefined, weeks: 4, budgeted: 80_000, projectedSpend: 100_000, projectedOverrun: 20_000 },
+        {
+          id: "food",
+          name: "Comida",
+          parentName: undefined,
+          weeks: 4,
+          budgeted: 80_000,
+          projectedSpend: 100_000,
+          projectedOverrun: 20_000,
+        },
       ]);
     });
 
     it("projects a monthly overrun as a flat repeat of this month's spend", () => {
       const config: BudgetConfig = {
-        categories: [{ id: "gym", name: "Gimnasio", bucket: "fixed", amount: 30_000, subcategories: [] }],
+        categories: [
+          { id: "gym", name: "Gimnasio", bucket: "fixed", amount: 30_000, subcategories: [] },
+        ],
       };
       const transactions = [expense("t1", 45_000, { id: "gym", name: "Gimnasio" }, "fixed")];
 
@@ -286,7 +361,9 @@ describe("computeMonthAnalysis", () => {
 
     it("does not treat spending exactly the budget as an overrun", () => {
       const config: BudgetConfig = {
-        categories: [{ id: "food", name: "Comida", bucket: "variable", amount: 50_000, subcategories: [] }],
+        categories: [
+          { id: "food", name: "Comida", bucket: "variable", amount: 50_000, subcategories: [] },
+        ],
       };
       const transactions = [expense("t1", 50_000, { id: "food", name: "Comida" })];
 
@@ -298,7 +375,14 @@ describe("computeMonthAnalysis", () => {
     it("keeps a weekly overrun that next month's extra weeks turn into a bigger gap", () => {
       const config: BudgetConfig = {
         categories: [
-          { id: "food", name: "Comida", bucket: "variable", amount: 20_000, frequency: "weekly", subcategories: [] },
+          {
+            id: "food",
+            name: "Comida",
+            bucket: "variable",
+            amount: 20_000,
+            frequency: "weekly",
+            subcategories: [],
+          },
         ],
       };
       // 4-week month: 100.000 spent over 4 weeks = 25.000/week vs 20.000/week budget.
@@ -318,7 +402,9 @@ describe("computeMonthAnalysis", () => {
 
     it("yields no projected overruns when nothing was overspent", () => {
       const config: BudgetConfig = {
-        categories: [{ id: "food", name: "Comida", bucket: "variable", amount: 50_000, subcategories: [] }],
+        categories: [
+          { id: "food", name: "Comida", bucket: "variable", amount: 50_000, subcategories: [] },
+        ],
       };
 
       const analysis = computeMonthAnalysis(config, [], FIVE_WEEK_MONTH);

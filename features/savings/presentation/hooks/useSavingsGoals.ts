@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { SavingsEntry, SavingsGoal } from "@/features/savings/domain";
-import { distributeToGoals, normalizePriorities, sumEarmarksByGoal } from "@/features/savings/domain";
+import {
+  distributeToGoals,
+  normalizePriorities,
+  sumEarmarksByGoal,
+} from "@/features/savings/domain";
 
 interface Params {
   initialGoals: SavingsGoal[];

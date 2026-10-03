@@ -225,9 +225,9 @@ describe("FinanceV2Screen", () => {
     fireEvent.click(screen.getByText("Movimientos"));
     fireEvent.click(screen.getByText("Nuevo movimiento"));
 
-    expect(
-      (screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled
-    ).toBe(true);
+    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(
+      true
+    );
   });
 
   it("a transaction filed to a different month via the picker calls onSaveToOtherMonth, stays absent from the current view, and shows the confirmation banner", () => {
@@ -499,9 +499,9 @@ describe("FinanceV2Screen", () => {
         />
       );
 
-      expect(
-        screen.getByText("Pendiente por pagar desde la cuenta").nextSibling?.textContent
-      ).toBe("$15.000");
+      expect(screen.getByText("Pendiente por pagar desde la cuenta").nextSibling?.textContent).toBe(
+        "$15.000"
+      );
       expect(screen.getByText("Saldo del mes").nextSibling?.textContent).toBe("$45.000");
       expect(screen.getByText("Te sobran $30.000")).toBeTruthy();
       expect(screen.getByText("no incluye Cuentas: se paga desde Servicios")).toBeTruthy();

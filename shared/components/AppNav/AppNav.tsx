@@ -83,9 +83,7 @@ export function AppNav() {
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
                   className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-brown-900 text-cream-100"
-                      : "text-brown-800 hover:bg-cream-200"
+                    isActive ? "bg-brown-900 text-cream-100" : "text-brown-800 hover:bg-cream-200"
                   }`}
                 >
                   <span className="text-lg">{item.icon}</span>

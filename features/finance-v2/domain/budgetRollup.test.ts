@@ -82,21 +82,43 @@ describe("computeBucketTotals", () => {
   it("scales a weekly leaf by the number of weeks in the given month (5-Monday month)", () => {
     const config: BudgetConfig = {
       categories: [
-        { id: "c1", name: "Comida", bucket: "variable", amount: 20000, frequency: "weekly", subcategories: [] },
+        {
+          id: "c1",
+          name: "Comida",
+          bucket: "variable",
+          amount: 20000,
+          frequency: "weekly",
+          subcategories: [],
+        },
       ],
     };
 
-    expect(computeBucketTotals(config, "2026-08")).toEqual({ fixed: 0, variable: 100000, savings: 0 });
+    expect(computeBucketTotals(config, "2026-08")).toEqual({
+      fixed: 0,
+      variable: 100000,
+      savings: 0,
+    });
   });
 
   it("scales the same weekly leaf differently in a 4-Monday month", () => {
     const config: BudgetConfig = {
       categories: [
-        { id: "c1", name: "Comida", bucket: "variable", amount: 20000, frequency: "weekly", subcategories: [] },
+        {
+          id: "c1",
+          name: "Comida",
+          bucket: "variable",
+          amount: 20000,
+          frequency: "weekly",
+          subcategories: [],
+        },
       ],
     };
 
-    expect(computeBucketTotals(config, "2026-09")).toEqual({ fixed: 0, variable: 80000, savings: 0 });
+    expect(computeBucketTotals(config, "2026-09")).toEqual({
+      fixed: 0,
+      variable: 80000,
+      savings: 0,
+    });
   });
 
   it("scales a weekly subcategory's amount the same way as a weekly leaf category", () => {
@@ -114,7 +136,11 @@ describe("computeBucketTotals", () => {
       ],
     };
 
-    expect(computeBucketTotals(config, "2026-08")).toEqual({ fixed: 25000, variable: 0, savings: 0 });
+    expect(computeBucketTotals(config, "2026-08")).toEqual({
+      fixed: 25000,
+      variable: 0,
+      savings: 0,
+    });
   });
 
   it("keeps a legacy leaf with no frequency field behaving exactly as monthly", () => {

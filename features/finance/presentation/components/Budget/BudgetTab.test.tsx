@@ -186,9 +186,7 @@ describe("BudgetTab — responsive view split (mobile cards / desktop table)", (
   const onSaveUnitConfig = vi.fn().mockResolvedValue(undefined);
   const onOpenTransaction = vi.fn();
 
-  const groups = [
-    { name: "Gastos fijos", type: "expense" as const, categories: ["Arriendo"] },
-  ];
+  const groups = [{ name: "Gastos fijos", type: "expense" as const, categories: ["Arriendo"] }];
 
   // 2.1 — satisfies: responsive-layout / BudgetTab mobile card layout — both views render
   it("renders both a budget-table container and a budget-cards container", () => {
@@ -261,7 +259,9 @@ describe("BudgetTab — responsive view split (mobile cards / desktop table)", (
     // the table view (same shared state) reflects the change too
     const tableView = screen.getByTestId("budget-table");
     expect(
-      within(tableView).getByRole("button", { name: "Reabrir Arriendo" }).getAttribute("aria-pressed")
+      within(tableView)
+        .getByRole("button", { name: "Reabrir Arriendo" })
+        .getAttribute("aria-pressed")
     ).toBe("true");
   });
 });
@@ -409,7 +409,9 @@ describe("BudgetTab — closed expense categories", () => {
 
     expect(toggleClosedCategoryMock).toHaveBeenCalledWith("2026-06", "Arriendo");
     expect(
-      within(tableView).getByRole("button", { name: "Reabrir Arriendo" }).getAttribute("aria-pressed")
+      within(tableView)
+        .getByRole("button", { name: "Reabrir Arriendo" })
+        .getAttribute("aria-pressed")
     ).toBe("true");
   });
 
@@ -433,7 +435,9 @@ describe("BudgetTab — closed expense categories", () => {
 
     expect(toggleClosedCategoryMock).toHaveBeenCalledWith("2026-06", "Arriendo");
     expect(
-      within(tableView).getByRole("button", { name: "Cerrar Arriendo" }).getAttribute("aria-pressed")
+      within(tableView)
+        .getByRole("button", { name: "Cerrar Arriendo" })
+        .getAttribute("aria-pressed")
     ).toBe("false");
   });
 
@@ -549,9 +553,7 @@ describe("BudgetTab — excluded expense categories", () => {
   });
 
   it("a category both closed and excluded does not render (excluded wins)", () => {
-    const groups = [
-      { name: "Gastos fijos", type: "expense" as const, categories: ["Gimnasio"] },
-    ];
+    const groups = [{ name: "Gastos fijos", type: "expense" as const, categories: ["Gimnasio"] }];
     render(
       <BudgetTab
         groups={groups}
@@ -720,7 +722,9 @@ describe("BudgetTab — category notes (global, shared across all months)", () =
       />
     );
     const tableView = screen.getByTestId("budget-table");
-    const row = within(tableView).getByText("Suscripciones").closest("[aria-disabled]") as HTMLElement;
+    const row = within(tableView)
+      .getByText("Suscripciones")
+      .closest("[aria-disabled]") as HTMLElement;
     expect(row.className).toContain("grid-cols-4");
     expect(row.children).toHaveLength(4);
   });
@@ -1011,9 +1015,7 @@ describe("BudgetTab — 'Copiar desde' includes excluded categories", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Copiar$/ }));
 
     await waitFor(() => {
-      expect(setExcludedCategoriesForMonthMock).toHaveBeenCalledWith("2026-07", [
-        "Suscripciones",
-      ]);
+      expect(setExcludedCategoriesForMonthMock).toHaveBeenCalledWith("2026-07", ["Suscripciones"]);
     });
 
     const tableView = screen.getByTestId("budget-table");

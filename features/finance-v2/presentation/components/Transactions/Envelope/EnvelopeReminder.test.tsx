@@ -4,7 +4,12 @@ import { EnvelopeReminder } from "./EnvelopeReminder";
 import type { EnvelopeView } from "./envelopeView";
 
 const view: EnvelopeView = {
-  config: { name: "Servicios", boundCategoryId: "cuentas", openingBalance: 0, openingMonth: "2026-10" },
+  config: {
+    name: "Servicios",
+    boundCategoryId: "cuentas",
+    openingBalance: 0,
+    openingMonth: "2026-10",
+  },
   carriedIn: 7_000,
   flows: { transferred: 0, paid: 0 },
   suggestedTransfer: 116_000,

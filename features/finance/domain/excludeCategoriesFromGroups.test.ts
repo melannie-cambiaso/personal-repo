@@ -17,9 +17,7 @@ describe("excludeCategoriesFromGroups", () => {
       { name: "Gastos fijos", type: "expense", categories: ["Arriendo", "Internet"] },
     ];
     const result = excludeCategoriesFromGroups(groups, ["Internet"]);
-    expect(result).toEqual([
-      { name: "Gastos fijos", type: "expense", categories: ["Arriendo"] },
-    ]);
+    expect(result).toEqual([{ name: "Gastos fijos", type: "expense", categories: ["Arriendo"] }]);
   });
 
   it("leaves income and refund groups untouched even if a same-named category is excluded", () => {

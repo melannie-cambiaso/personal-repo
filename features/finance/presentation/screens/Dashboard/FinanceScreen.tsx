@@ -51,10 +51,8 @@ export function FinanceScreen({
   const [activeTab, setActiveTab] = useState<"budget" | "categories" | "transactions">("budget");
   const [transactions, setTransactions] = useState<FinanceTransaction[]>(initialTransactions);
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
-  const [excludedCategories, setExcludedCategories] =
-    useState<string[]>(initialExcludedCategories);
-  const [categoryNotes, setCategoryNotes] =
-    useState<Record<string, string>>(initialCategoryNotes);
+  const [excludedCategories, setExcludedCategories] = useState<string[]>(initialExcludedCategories);
+  const [categoryNotes, setCategoryNotes] = useState<Record<string, string>>(initialCategoryNotes);
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [activeTxCategory, setActiveTxCategory] = useState("");
 

@@ -39,11 +39,7 @@ interface Props {
     subcategoryId: string | null,
     frequency: BudgetFrequency
   ) => void;
-  onWeekdayChange: (
-    categoryId: string,
-    subcategoryId: string | null,
-    weekday: Weekday
-  ) => void;
+  onWeekdayChange: (categoryId: string, subcategoryId: string | null, weekday: Weekday) => void;
 }
 
 // Presentational only — state lives in `useFinanceV2Budget`,
@@ -106,20 +102,20 @@ export function BudgetTab({
           {[...categories]
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((category) => (
-            <BudgetCategoryCard
-              key={category.id}
-              mode={mode}
-              category={category}
-              month={month}
-              spend={spend}
-              onAmountBlur={onAmountBlur}
-              onDeleteCategory={onDeleteCategory}
-              onAddSubcategory={onAddSubcategory}
-              onDeleteSubcategory={onDeleteSubcategory}
-              onFrequencyChange={onFrequencyChange}
-              onWeekdayChange={onWeekdayChange}
-            />
-          ))}
+              <BudgetCategoryCard
+                key={category.id}
+                mode={mode}
+                category={category}
+                month={month}
+                spend={spend}
+                onAmountBlur={onAmountBlur}
+                onDeleteCategory={onDeleteCategory}
+                onAddSubcategory={onAddSubcategory}
+                onDeleteSubcategory={onDeleteSubcategory}
+                onFrequencyChange={onFrequencyChange}
+                onWeekdayChange={onWeekdayChange}
+              />
+            ))}
         </div>
       )}
 

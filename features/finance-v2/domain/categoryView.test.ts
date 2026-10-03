@@ -74,8 +74,26 @@ describe("toCategoryView", () => {
       defaultBucket: "fixed",
       total: 30000,
       subcategories: [
-        { id: "sub-1", name: "Luz", bucket: "fixed", amount: 10000, frequency: "monthly", weekday: 1, weeks: 5, monthlyAmount: 10000 },
-        { id: "sub-2", name: "Agua", bucket: "variable", amount: 20000, frequency: "monthly", weekday: 1, weeks: 5, monthlyAmount: 20000 },
+        {
+          id: "sub-1",
+          name: "Luz",
+          bucket: "fixed",
+          amount: 10000,
+          frequency: "monthly",
+          weekday: 1,
+          weeks: 5,
+          monthlyAmount: 10000,
+        },
+        {
+          id: "sub-2",
+          name: "Agua",
+          bucket: "variable",
+          amount: 20000,
+          frequency: "monthly",
+          weekday: 1,
+          weeks: 5,
+          monthlyAmount: 20000,
+        },
       ],
     });
     expect(view).not.toHaveProperty("amount");
@@ -122,7 +140,14 @@ describe("toCategoryView", () => {
       bucket: "variable",
       amount: 0,
       subcategories: [
-        { id: "sub-1", name: "Limpieza", bucket: "variable", amount: 5000, frequency: "weekly", weekday: 0 },
+        {
+          id: "sub-1",
+          name: "Limpieza",
+          bucket: "variable",
+          amount: 5000,
+          frequency: "weekly",
+          weekday: 0,
+        },
         { id: "sub-2", name: "Comida", bucket: "variable", amount: 10000, frequency: "weekly" },
       ],
     };

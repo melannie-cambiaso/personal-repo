@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache";
 import { loadEntries, saveEntries, saveGoals, loadPeriods, savePeriods } from "./kvAdapter";
 import type { SavingsEntry } from "../domain/SavingsEntry";
 import type { SavingsGoal } from "../domain/SavingsGoal";
-import { resolveActivePeriod, resolveEntryPeriodId, type SavingsPeriod } from "../domain/SavingsPeriod";
+import {
+  resolveActivePeriod,
+  resolveEntryPeriodId,
+  type SavingsPeriod,
+} from "../domain/SavingsPeriod";
 
 /**
  * Server-authoritative save: the active period's id is re-derived from KV,

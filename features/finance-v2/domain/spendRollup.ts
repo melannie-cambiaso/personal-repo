@@ -69,7 +69,7 @@ export function computeSpentByCategory(transactions: FinanceV2Transaction[]): {
 export function computeSpendComparison(
   config: BudgetConfig,
   transactions: FinanceV2Transaction[],
-  month: string,
+  month: string
 ): SpendComparison {
   const { byLeafId, unassignedByBucket } = computeSpentByCategory(transactions);
 
@@ -127,7 +127,7 @@ export function computeSpendComparison(
       spent: acc.spent + row.spent,
       unassigned: acc.unassigned + row.unassigned,
     }),
-    { budgeted: 0, spent: 0, unassigned: 0 },
+    { budgeted: 0, spent: 0, unassigned: 0 }
   );
 
   return { categories, leaves, buckets, total };
@@ -145,13 +145,16 @@ export function isOverrun(row: SpendRow): boolean {
  *  predicate is what guarantees a match always exists here: the `throw` stays
  *  as a fail-loudly guard (see `FinanceV2Transaction`'s convention), but is
  *  unreachable by construction as long as both loops read the same predicate. */
-export function resolveUnassignedBucket(transactions: FinanceV2Transaction[], leafId: string): BucketKey {
+export function resolveUnassignedBucket(
+  transactions: FinanceV2Transaction[],
+  leafId: string
+): BucketKey {
   for (const tx of transactions) {
     const leaf = spendLeafRef(tx);
     if (leaf?.id === leafId) return leaf.bucket;
   }
   throw new Error(
-    `computeSpendComparison: no transaction found for unassigned leaf id "${leafId}" - cannot resolve its bucket.`,
+    `computeSpendComparison: no transaction found for unassigned leaf id "${leafId}" - cannot resolve its bucket.`
   );
 }
 
@@ -180,7 +183,7 @@ function spendLeafRef(tx: FinanceV2Transaction): { id: string; bucket: ExpenseBu
 function computeSpentByBucket(
   config: BudgetConfig,
   byLeafId: Record<string, number>,
-  unassignedTotals: Record<BucketKey, number>,
+  unassignedTotals: Record<BucketKey, number>
 ): Record<BucketKey, number> {
   const totals: Record<BucketKey, number> = { ...unassignedTotals };
   for (const category of config.categories) {

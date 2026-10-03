@@ -556,7 +556,12 @@ describe("BudgetCategoryCard", () => {
 
   // MONTH (2026-09) has 4 Mondays, so a weekly leaf budgets amount × 4.
   describe("frequency", () => {
-    const weeklyLeaf: BudgetCategory = { ...leafCategory, name: "Comida", amount: 20_000, frequency: "weekly" };
+    const weeklyLeaf: BudgetCategory = {
+      ...leafCategory,
+      name: "Comida",
+      amount: 20_000,
+      frequency: "weekly",
+    };
 
     it("edit mode shows a frequency selector per leaf and changing it calls onFrequencyChange", () => {
       const onFrequencyChange = vi.fn();

@@ -38,9 +38,7 @@ export function SavingsGoalCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span
-            className={`text-brown-900 text-sm font-semibold ${isDone ? "line-through" : ""}`}
-          >
+          <span className={`text-brown-900 text-sm font-semibold ${isDone ? "line-through" : ""}`}>
             {goal.name}
           </span>
           <ProgressBar value={goal.progress} />
@@ -89,7 +87,7 @@ export function SavingsGoalCard({
             }}
             aria-pressed={isDone}
             aria-label={isDone ? "Reabrir" : "Marcar como hecha"}
-            className="text-2xs rounded-full border border-cream-400 px-2 py-0.5 font-semibold text-brown-500 transition-colors hover:border-brown-600 hover:text-brown-800"
+            className="text-2xs border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 rounded-full border px-2 py-0.5 font-semibold transition-colors"
           >
             {isDone ? "Reabrir ↺" : "Marcar como hecha ✓"}
           </button>

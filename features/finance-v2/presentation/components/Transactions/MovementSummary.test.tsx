@@ -5,7 +5,13 @@ import type { TransactionTotals } from "@/features/finance-v2/domain";
 
 describe("MovementSummary", () => {
   it("shows balance (income minus expense minus savings) alongside savings reported as its own separate total", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -21,7 +27,13 @@ describe("MovementSummary", () => {
   });
 
   it("renders zeroes for an empty month", () => {
-    const totals: TransactionTotals = { income: 0, expense: 0, savings: 0, transfer: 0, balance: 0 };
+    const totals: TransactionTotals = {
+      income: 0,
+      expense: 0,
+      savings: 0,
+      transfer: 0,
+      balance: 0,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -29,7 +41,13 @@ describe("MovementSummary", () => {
   });
 
   it("renders the income/expense/savings breakdown below the Balance row, reconciling with Balance", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -44,7 +62,13 @@ describe("MovementSummary", () => {
   });
 
   it("colors the income breakdown figure green", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -53,7 +77,13 @@ describe("MovementSummary", () => {
   });
 
   it("colors the expense breakdown figure red", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -62,7 +92,13 @@ describe("MovementSummary", () => {
   });
 
   it("colors the savings breakdown figure amber, distinct from income and expense", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -75,7 +111,13 @@ describe("MovementSummary", () => {
   });
 
   it("renders the savings segment even when savings is 0", () => {
-    const totals: TransactionTotals = { income: 800, expense: 500, savings: 0, transfer: 0, balance: 300 };
+    const totals: TransactionTotals = {
+      income: 800,
+      expense: 500,
+      savings: 0,
+      transfer: 0,
+      balance: 300,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -86,7 +128,13 @@ describe("MovementSummary", () => {
   });
 
   it("groups income, expense, and savings as siblings in the same breakdown sub-line", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -101,7 +149,13 @@ describe("MovementSummary", () => {
   });
 
   it("keeps the net Balance figure neutral, not colored by sign", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -113,7 +167,13 @@ describe("MovementSummary", () => {
   });
 
   it("keeps the Ahorro figure styling unchanged", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
@@ -140,12 +200,20 @@ describe("MovementSummary", () => {
     expect(screen.getByText("$864.000")).toBeTruthy();
 
     const breakdownLine = screen.getByText("$1.000.000").parentElement;
-    const segment = screen.getAllByText("$116.000").find((el) => el.parentElement === breakdownLine)!;
+    const segment = screen
+      .getAllByText("$116.000")
+      .find((el) => el.parentElement === breakdownLine)!;
     expect(segment.className).toContain("text-sky-700");
   });
 
   it("without an envelope, renders no Transferencias row", () => {
-    const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+    const totals: TransactionTotals = {
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      balance: 350,
+    };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 

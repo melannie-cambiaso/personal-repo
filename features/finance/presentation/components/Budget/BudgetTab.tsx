@@ -67,8 +67,7 @@ export function BudgetTab({
   const [refMonth, setRefMonth] = useState(prevMonth(selectedMonth));
   const [copying, setCopying] = useState(false);
   const [closedCategories, setClosedCategories] = useState<string[]>(initialClosedCategories);
-  const [excludedCategories, setExcludedCategories] =
-    useState<string[]>(initialExcludedCategories);
+  const [excludedCategories, setExcludedCategories] = useState<string[]>(initialExcludedCategories);
   const [expandedNoteCategory, setExpandedNoteCategory] = useState<string | null>(null);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
   const [lastUnitConfig, setLastUnitConfig] = useState<Record<string, UnitConfig>>({});
@@ -672,7 +671,7 @@ function GroupSection({
                     />
                     <div className="flex min-w-0 justify-end">
                       {cfg ? (
-                        <div className="flex w-full min-w-0 max-w-24 flex-col items-end gap-1">
+                        <div className="flex w-full max-w-24 min-w-0 flex-col items-end gap-1">
                           <input
                             type="number"
                             min="0"
@@ -884,7 +883,7 @@ function CardsSection({
                           <button
                             type="button"
                             onClick={() => onOpenTransaction(cat)}
-                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center rounded-md border text-xs transition-colors"
+                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border text-xs transition-colors"
                             aria-label={`Agregar transacción para ${cat}`}
                           >
                             +
@@ -894,7 +893,7 @@ function CardsSection({
                             onClick={() => onToggleUnitMode(cat)}
                             disabled={isClosed}
                             aria-pressed={!!cfg}
-                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center rounded-md border text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                            className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {cfg ? "Fijo" : "Unitario"}
                           </button>
@@ -903,7 +902,7 @@ function CardsSection({
                               type="button"
                               onClick={() => onToggleClose(cat)}
                               aria-pressed={isClosed}
-                              className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 min-h-11 min-w-11 inline-flex cursor-pointer items-center justify-center rounded-md border text-xs transition-colors"
+                              className="border-cream-400 text-brown-500 hover:border-brown-600 hover:text-brown-800 inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md border text-xs transition-colors"
                               aria-label={isClosed ? `Reabrir ${cat}` : `Cerrar ${cat}`}
                             >
                               {isClosed ? "Abrir" : "Cerrar"}
@@ -1011,7 +1010,13 @@ function CardsSection({
                 <span className="text-brown-900">{formatCLP(totalBudget)}</span>
                 <span className="text-brown-900">{formatCLP(totalActual)}</span>
                 <span
-                  className={totalDiff > 0 ? "text-green-600" : totalDiff < 0 ? "text-red-500" : "text-brown-400"}
+                  className={
+                    totalDiff > 0
+                      ? "text-green-600"
+                      : totalDiff < 0
+                        ? "text-red-500"
+                        : "text-brown-400"
+                  }
                 >
                   {totalDiff !== 0 ? `${totalDiff > 0 ? "+" : ""}${formatCLP(totalDiff)}` : "—"}
                 </span>

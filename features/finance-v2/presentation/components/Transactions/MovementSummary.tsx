@@ -24,15 +24,15 @@ export function MovementSummary({ totals, hasEnvelope }: Props) {
           <span className="text-brown-800 text-sm font-bold">{formatCLP(totals.balance)}</span>
         </div>
         <div className="flex items-center justify-end gap-1 text-xs">
-          <span className="text-green-700 font-bold">{formatCLP(totals.income)}</span>
+          <span className="font-bold text-green-700">{formatCLP(totals.income)}</span>
           <span className="text-brown-400">−</span>
-          <span className="text-red-700 font-bold">{formatCLP(totals.expense)}</span>
+          <span className="font-bold text-red-700">{formatCLP(totals.expense)}</span>
           <span className="text-brown-400">−</span>
-          <span className="text-amber-700 font-bold">{formatCLP(totals.savings)}</span>
+          <span className="font-bold text-amber-700">{formatCLP(totals.savings)}</span>
           {hasEnvelope && (
             <>
               <span className="text-brown-400">−</span>
-              <span className="text-sky-700 font-bold">{formatCLP(totals.transfer)}</span>
+              <span className="font-bold text-sky-700">{formatCLP(totals.transfer)}</span>
             </>
           )}
         </div>

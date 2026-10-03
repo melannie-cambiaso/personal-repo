@@ -78,7 +78,9 @@ export function TransactionForm({ viewedMonth, categoryOptions, hasEnvelope, onA
         month,
         note: note.trim() || undefined,
         bucket: resolvedBucket,
-        category: selectedCategory ? { id: selectedCategory.id, name: selectedCategory.name } : null,
+        category: selectedCategory
+          ? { id: selectedCategory.id, name: selectedCategory.name }
+          : null,
       });
     } else if (type === "savings") {
       onAdd({

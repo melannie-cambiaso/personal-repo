@@ -46,9 +46,7 @@ function EnvelopeConfigForm({
   const [boundCategoryId, setBoundCategoryId] = useState(
     config?.boundCategoryId ?? categories[0]?.id ?? ""
   );
-  const [openingBalance, setOpeningBalance] = useState(
-    config ? String(config.openingBalance) : ""
-  );
+  const [openingBalance, setOpeningBalance] = useState(config ? String(config.openingBalance) : "");
 
   const hasCategories = categories.length > 0;
 

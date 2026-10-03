@@ -104,7 +104,9 @@ describe("loadTransactions", () => {
     const legacy = [{ id: "t1", type: "income", amount: 1000, date: "2026-06-15" }];
     redisMock.get.mockResolvedValue(legacy);
     const result = await loadTransactions("2026-06");
-    expect(result).toEqual([{ id: "t1", type: "income", amount: 1000, date: "2026-06-15", month: "2026-06" }]);
+    expect(result).toEqual([
+      { id: "t1", type: "income", amount: 1000, date: "2026-06-15", month: "2026-06" },
+    ]);
   });
 
   it("preserves an already-present month instead of overwriting it with the key's month", async () => {
@@ -181,7 +183,10 @@ describe("appendTransactionToMonth", () => {
 
     expect(redisMock.get).toHaveBeenCalledWith("finance-v2-transactions:2026-08");
     expect(redisMock.set).toHaveBeenCalledTimes(1);
-    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-08", [...existing, tx]);
+    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-transactions:2026-08", [
+      ...existing,
+      tx,
+    ]);
   });
 
   it("appends to an empty list when the target month has no stored transactions yet", async () => {

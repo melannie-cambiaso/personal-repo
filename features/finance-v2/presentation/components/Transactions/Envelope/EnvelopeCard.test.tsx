@@ -4,7 +4,12 @@ import { EnvelopeCard } from "./EnvelopeCard";
 import type { EnvelopeView } from "./envelopeView";
 
 const view: EnvelopeView = {
-  config: { name: "Servicios", boundCategoryId: "cuentas", openingBalance: 0, openingMonth: "2026-10" },
+  config: {
+    name: "Servicios",
+    boundCategoryId: "cuentas",
+    openingBalance: 0,
+    openingMonth: "2026-10",
+  },
   carriedIn: 7_000,
   flows: { transferred: 116_000, paid: 43_000 },
   suggestedTransfer: 116_000,
@@ -45,7 +50,9 @@ describe("EnvelopeCard", () => {
   });
 
   it("renders nothing while the carried-in balance is unavailable (loading or month before the envelope)", () => {
-    const { container } = render(<EnvelopeCard view={{ ...view, carriedIn: null }} onEdit={vi.fn()} />);
+    const { container } = render(
+      <EnvelopeCard view={{ ...view, carriedIn: null }} onEdit={vi.fn()} />
+    );
 
     expect(container.innerHTML).toBe("");
   });

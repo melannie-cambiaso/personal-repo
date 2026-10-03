@@ -72,7 +72,9 @@ describe("WishlistAddItemModal", () => {
     fireEvent.change(screen.getByLabelText("Emoji"), { target: { value: "🎧" } });
     fireEvent.change(screen.getByLabelText("Descripción"), { target: { value: "Desc" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
-    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), {
+      target: { value: "https://example.com/item" },
+    });
     fireEvent.change(screen.getByLabelText("Tag"), { target: { value: "Deseado" } });
     fireEvent.click(screen.getByText("Agregar ✓"));
 
@@ -97,7 +99,9 @@ describe("WishlistAddItemModal", () => {
       target: { value: "Zapatillas negras" },
     });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "39990" } });
-    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), {
+      target: { value: "https://example.com/item" },
+    });
     fireEvent.click(screen.getByText("Agregar ✓"));
 
     expect(onAdd).toHaveBeenCalledTimes(1);
@@ -155,7 +159,9 @@ describe("WishlistAddItemModal", () => {
 
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
-    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), {
+      target: { value: "https://example.com/item" },
+    });
     fireEvent.click(screen.getByText("Agregar ✓"));
 
     expect((onAdd.mock.calls[0][0] as WishlistItem).priority).toBe("medium");
@@ -175,7 +181,9 @@ describe("WishlistAddItemModal", () => {
 
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
-    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), {
+      target: { value: "https://example.com/item" },
+    });
     fireEvent.change(screen.getByLabelText("Prioridad"), { target: { value: "high" } });
     fireEvent.click(screen.getByText("Agregar ✓"));
 
@@ -192,13 +200,9 @@ describe("WishlistAddItemModal", () => {
       category: CATEGORIES.cloth,
       price: null,
     };
-    render(
-      <WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} editItem={sparse} />
-    );
+    render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} editItem={sparse} />);
 
-    expect((screen.getByLabelText("Título *") as HTMLInputElement).value).toBe(
-      "Zapatillas negras"
-    );
+    expect((screen.getByLabelText("Título *") as HTMLInputElement).value).toBe("Zapatillas negras");
     expect((screen.getByLabelText("Marca / Tienda") as HTMLInputElement).value).toBe("");
     expect((screen.getByLabelText("Emoji") as HTMLInputElement).value).toBe("");
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).value).toBe("");
@@ -211,9 +215,7 @@ describe("WishlistAddItemModal", () => {
       category: CATEGORIES.cloth,
       price: 39990,
     };
-    render(
-      <WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} editItem={legacy} />
-    );
+    render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} editItem={legacy} />);
 
     expect((screen.getByLabelText("Prioridad") as HTMLSelectElement).value).toBe("medium");
   });
@@ -272,7 +274,9 @@ describe("WishlistAddItemModal", () => {
     expect(onAdd).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "39990" } });
-    fireEvent.change(screen.getByLabelText("URL del producto *"), { target: { value: "https://example.com/item" } });
+    fireEvent.change(screen.getByLabelText("URL del producto *"), {
+      target: { value: "https://example.com/item" },
+    });
     fireEvent.click(screen.getByText("Guardar ✓"));
     expect(onAdd).toHaveBeenCalledTimes(1);
     expect((onAdd.mock.calls[0][0] as WishlistItem).price).toBe(39990);

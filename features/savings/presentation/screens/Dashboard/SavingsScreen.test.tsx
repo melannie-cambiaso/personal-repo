@@ -13,8 +13,22 @@ beforeAll(() => {
 describe("SavingsScreen", () => {
   it("passes only active (isDone !== true) goals to the Add Entry goal selector", () => {
     const goals: SavingsGoal[] = [
-      { id: "1", name: "Active Goal", targetAmount: 1000, priority: 1, createdAt: "2026-01-01T00:00:00Z", isDone: false },
-      { id: "2", name: "Done Goal", targetAmount: 500, priority: 2, createdAt: "2026-01-02T00:00:00Z", isDone: true },
+      {
+        id: "1",
+        name: "Active Goal",
+        targetAmount: 1000,
+        priority: 1,
+        createdAt: "2026-01-01T00:00:00Z",
+        isDone: false,
+      },
+      {
+        id: "2",
+        name: "Done Goal",
+        targetAmount: 500,
+        priority: 2,
+        createdAt: "2026-01-02T00:00:00Z",
+        isDone: true,
+      },
     ];
     const entries: SavingsEntry[] = [];
 
@@ -74,12 +88,7 @@ describe("SavingsScreen", () => {
   it("shows an owner-only archive trigger that opens the confirm modal and calls onArchive on confirm", () => {
     const onArchive = vi.fn();
     render(
-      <SavingsScreen
-        initialEntries={[]}
-        isOwner={true}
-        onSave={vi.fn()}
-        onArchive={onArchive}
-      />
+      <SavingsScreen initialEntries={[]} isOwner={true} onSave={vi.fn()} onArchive={onArchive} />
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Archivar período" }));

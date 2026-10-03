@@ -1,4 +1,8 @@
-import type { BucketKey, BudgetComparison as BudgetComparisonResult, BucketSpendRow } from "@/features/finance-v2/domain";
+import type {
+  BucketKey,
+  BudgetComparison as BudgetComparisonResult,
+  BucketSpendRow,
+} from "@/features/finance-v2/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 import { BUCKET_LABELS, TOTAL_LABEL } from "../bucketLabels";
 import type { SpendView } from "./spendView";
@@ -31,7 +35,8 @@ export function BucketComparison({ comparison, spend }: Props) {
   return (
     <div className="border-cream-300 flex flex-col gap-3 rounded-xl border bg-white p-4">
       {comparison.rows.map((row) => {
-        const bucketSpend = spend.status === "ready" ? findBucketSpend(spend.comparison.buckets, row.key) : null;
+        const bucketSpend =
+          spend.status === "ready" ? findBucketSpend(spend.comparison.buckets, row.key) : null;
         return (
           <div key={row.key} className="flex items-center justify-between gap-2">
             <span className="text-brown-500 text-sm">
@@ -42,7 +47,9 @@ export function BucketComparison({ comparison, spend }: Props) {
                 <>
                   <SpendPairing row={bucketSpend} />
                   {bucketSpend.unassigned > 0 && (
-                    <span className="text-2xs text-brown-400">incluye sin categoría: {formatCLP(bucketSpend.unassigned)}</span>
+                    <span className="text-2xs text-brown-400">
+                      incluye sin categoría: {formatCLP(bucketSpend.unassigned)}
+                    </span>
                   )}
                 </>
               ) : (

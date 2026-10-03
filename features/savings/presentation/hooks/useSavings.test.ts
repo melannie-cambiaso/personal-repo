@@ -101,9 +101,7 @@ describe("useSavings", () => {
 
   it("addEntry never leaks entries outside the scoped active period into onSave", () => {
     const activeOnly = [makeEntry({ id: "active-1" })];
-    const { result } = renderHook(() =>
-      useSavings({ initialEntries: activeOnly, onSave })
-    );
+    const { result } = renderHook(() => useSavings({ initialEntries: activeOnly, onSave }));
     const newEntry = makeEntry({ id: "active-2" });
     act(() => result.current.addEntry(newEntry));
     const savedEntries = onSave.mock.calls[onSave.mock.calls.length - 1][0] as SavingsEntry[];

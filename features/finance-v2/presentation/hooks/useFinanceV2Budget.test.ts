@@ -12,7 +12,9 @@ describe("useFinanceV2Budget", () => {
 
   it("initializes categories from initialBudget and derives comparison from the budgeted amounts", () => {
     const initialBudget: BudgetConfig = {
-      categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] },
+      ],
     };
     const { result } = renderHook(() =>
       useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
@@ -31,7 +33,11 @@ describe("useFinanceV2Budget", () => {
     act(() => result.current.addCategory("Arriendo", "fixed"));
 
     expect(result.current.categories).toHaveLength(1);
-    expect(result.current.categories[0]).toMatchObject({ name: "Arriendo", bucket: "fixed", amount: 0 });
+    expect(result.current.categories[0]).toMatchObject({
+      name: "Arriendo",
+      bucket: "fixed",
+      amount: 0,
+    });
     expect(onSave).toHaveBeenCalledOnce();
     expect((onSave.mock.calls[0][0] as BudgetConfig).categories).toHaveLength(1);
   });
@@ -59,13 +65,19 @@ describe("useFinanceV2Budget", () => {
     act(() => result.current.addSubcategory("c1", "Luz", "fixed"));
 
     expect(result.current.categories[0].subcategories).toHaveLength(1);
-    expect(result.current.categories[0].subcategories[0]).toMatchObject({ name: "Luz", bucket: "fixed", amount: 0 });
+    expect(result.current.categories[0].subcategories[0]).toMatchObject({
+      name: "Luz",
+      bucket: "fixed",
+      amount: 0,
+    });
     expect(onSave).toHaveBeenCalledOnce();
   });
 
   it("deleteCategory cascades and the next comparison reflects the removed leaf's bucket total", () => {
     const initialBudget: BudgetConfig = {
-      categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] },
+      ],
     };
     const { result } = renderHook(() =>
       useFinanceV2Budget({ initialBudget, month: "2026-07", onSave })
@@ -143,7 +155,9 @@ describe("useFinanceV2Budget", () => {
 
   it("handleFrequencyChange makes a leaf weekly, keeps its raw amount, rescales the comparison and saves once", () => {
     const initialBudget: BudgetConfig = {
-      categories: [{ id: "c1", name: "Comida", bucket: "variable", amount: 20_000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Comida", bucket: "variable", amount: 20_000, subcategories: [] },
+      ],
     };
     // 2026-08 has 5 Mondays (see `getWeeksInMonth`).
     const { result } = renderHook(() =>
@@ -153,7 +167,9 @@ describe("useFinanceV2Budget", () => {
     act(() => result.current.handleFrequencyChange("c1", null, "weekly"));
 
     expect(result.current.categories[0]).toMatchObject({ amount: 20_000, frequency: "weekly" });
-    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(100_000);
+    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(
+      100_000
+    );
     expect(onSave).toHaveBeenCalledOnce();
     expect((onSave.mock.calls[0][0] as BudgetConfig).categories[0].frequency).toBe("weekly");
   });
@@ -201,8 +217,14 @@ describe("useFinanceV2Budget", () => {
 
     act(() => result.current.handleWeekdayChange("c1", null, 0));
 
-    expect(result.current.categories[0]).toMatchObject({ amount: 20_000, frequency: "weekly", weekday: 0 });
-    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(100_000);
+    expect(result.current.categories[0]).toMatchObject({
+      amount: 20_000,
+      frequency: "weekly",
+      weekday: 0,
+    });
+    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(
+      100_000
+    );
     expect(onSave).toHaveBeenCalledOnce();
     expect((onSave.mock.calls[0][0] as BudgetConfig).categories[0].weekday).toBe(0);
   });
@@ -249,17 +271,15 @@ describe("useFinanceV2Budget", () => {
     };
     const { result, rerender } = renderHook(
       ({ month }) => useFinanceV2Budget({ initialBudget, month, onSave }),
-      { initialProps: { month: "2026-08" } },
+      { initialProps: { month: "2026-08" } }
     );
 
     expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(
-      100_000,
+      100_000
     );
 
     rerender({ month: "2026-09" });
 
-    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(
-      80_000,
-    );
+    expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(80_000);
   });
 });

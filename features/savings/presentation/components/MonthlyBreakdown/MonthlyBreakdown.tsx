@@ -48,7 +48,7 @@ export function MonthlyBreakdown({ entries }: Props) {
               <p className="text-2xs tracking-store text-brown-400 mb-1 font-semibold uppercase">
                 Neto
               </p>
-              <p className="text-sm font-bold text-brown-900">{formatCLP(group.net)}</p>
+              <p className="text-brown-900 text-sm font-bold">{formatCLP(group.net)}</p>
             </div>
           </div>
         </div>

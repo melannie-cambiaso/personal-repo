@@ -26,7 +26,10 @@ describe("computePeriodBalance", () => {
   });
 
   it("adds initialAmount to computeBalance(entries)", () => {
-    const entries = [entry({ type: "deposito", amount: 1000 }), entry({ type: "gasto", amount: 200 })];
+    const entries = [
+      entry({ type: "deposito", amount: 1000 }),
+      entry({ type: "gasto", amount: 200 }),
+    ];
 
     expect(computePeriodBalance(entries, period({ initialAmount: 5000 }))).toBe(5800);
   });

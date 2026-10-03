@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { toEnvelopeView } from "./envelopeView";
-import type { BudgetConfig, EnvelopeConfig, FinanceV2Transaction } from "@/features/finance-v2/domain";
+import type {
+  BudgetConfig,
+  EnvelopeConfig,
+  FinanceV2Transaction,
+} from "@/features/finance-v2/domain";
 
 const config: EnvelopeConfig = {
   name: "Servicios",

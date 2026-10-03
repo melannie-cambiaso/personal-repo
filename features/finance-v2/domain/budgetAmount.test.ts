@@ -10,19 +10,19 @@ describe("resolveLeafMonthlyAmount", () => {
 
   it("returns the amount as-is for an explicit monthly leaf", () => {
     expect(resolveLeafMonthlyAmount({ amount: 100_000, frequency: "monthly" }, "2026-08")).toBe(
-      100_000,
+      100_000
     );
   });
 
   it("scales a weekly leaf's amount by the number of weeks in a 5-Monday month", () => {
     expect(resolveLeafMonthlyAmount({ amount: 20_000, frequency: "weekly" }, "2026-08")).toBe(
-      100_000,
+      100_000
     );
   });
 
   it("scales a weekly leaf's amount by the number of weeks in a 4-Monday month", () => {
     expect(resolveLeafMonthlyAmount({ amount: 20_000, frequency: "weekly" }, "2026-09")).toBe(
-      80_000,
+      80_000
     );
   });
 
@@ -32,16 +32,16 @@ describe("resolveLeafMonthlyAmount", () => {
 
   it("scales a weekly leaf by the occurrences of its own weekday, not Mondays", () => {
     expect(
-      resolveLeafMonthlyAmount({ amount: 20_000, frequency: "weekly", weekday: 0 }, "2026-05"),
+      resolveLeafMonthlyAmount({ amount: 20_000, frequency: "weekly", weekday: 0 }, "2026-05")
     ).toBe(100_000);
     expect(resolveLeafMonthlyAmount({ amount: 20_000, frequency: "weekly" }, "2026-05")).toBe(
-      80_000,
+      80_000
     );
   });
 
   it("ignores weekday for a monthly leaf", () => {
     expect(
-      resolveLeafMonthlyAmount({ amount: 100_000, frequency: "monthly", weekday: 0 }, "2026-05"),
+      resolveLeafMonthlyAmount({ amount: 100_000, frequency: "monthly", weekday: 0 }, "2026-05")
     ).toBe(100_000);
   });
 });

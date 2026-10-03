@@ -42,7 +42,7 @@ export function monthsFromTo(from: string, toExclusive: string): string[] {
 export function resolvePaidFrom(
   config: EnvelopeConfig | null,
   budget: BudgetConfig,
-  categoryId: string | null,
+  categoryId: string | null
 ): "envelope" | undefined {
   if (config === null || categoryId === null) return undefined;
 
@@ -62,7 +62,7 @@ export function resolvePaidFrom(
 export function suggestedTransfer(
   config: EnvelopeConfig,
   budget: BudgetConfig,
-  month: string,
+  month: string
 ): number | null {
   const bound = budget.categories.find((c) => c.id === config.boundCategoryId);
   if (!bound) return null;

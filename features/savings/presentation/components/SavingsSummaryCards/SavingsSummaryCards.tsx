@@ -27,7 +27,7 @@ export function SavingsSummaryCards({
           <p className="text-2xs tracking-store text-brown-400 mb-1 font-semibold uppercase">
             Monto inicial
           </p>
-          <p className="text-xl font-bold text-brown-900">{formatCLP(initialAmount)}</p>
+          <p className="text-brown-900 text-xl font-bold">{formatCLP(initialAmount)}</p>
         </div>
       )}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

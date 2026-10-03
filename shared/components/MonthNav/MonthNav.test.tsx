@@ -24,13 +24,21 @@ describe("MonthNav", () => {
 
   it("disables both buttons when disabled is true", () => {
     render(<MonthNav label="julio 2026" onPrev={vi.fn()} onNext={vi.fn()} disabled />);
-    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(
+      true
+    );
+    expect(
+      (screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled
+    ).toBe(true);
   });
 
   it("leaves both buttons enabled when disabled is omitted (v1's existing call site)", () => {
     render(<MonthNav label="julio 2026" onPrev={vi.fn()} onNext={vi.fn()} />);
-    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(false);
-    expect((screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(
+      false
+    );
+    expect(
+      (screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled
+    ).toBe(false);
   });
 });

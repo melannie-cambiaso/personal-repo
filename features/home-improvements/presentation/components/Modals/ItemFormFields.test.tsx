@@ -42,7 +42,7 @@ describe("ItemFormFields", () => {
     render(
       <ItemFormFields form={baseForm} set={() => vi.fn()} submitLabel="Guardar ✓" onClose={vi.fn()}>
         <div data-testid="slot">extra fields</div>
-      </ItemFormFields>,
+      </ItemFormFields>
     );
     expect(screen.getByTestId("slot")).toBeTruthy();
   });

@@ -289,7 +289,15 @@ describe("useFinanceV2Transactions", () => {
     ];
     const augustTransactions: FinanceV2Transaction[] = [
       { id: "t2", type: "income", amount: 2000, date: "2026-08-01", month: "2026-08" },
-      { id: "t3", type: "expense", amount: 500, date: "2026-08-02", month: "2026-08", bucket: "fixed", category: null },
+      {
+        id: "t3",
+        type: "expense",
+        amount: 500,
+        date: "2026-08-02",
+        month: "2026-08",
+        bucket: "fixed",
+        category: null,
+      },
     ];
     onLoad.mockResolvedValueOnce(augustTransactions);
 

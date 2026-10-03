@@ -185,9 +185,7 @@ export function SavingsScreen({
 
         {activeTab === "monthly" && <MonthlyBreakdown entries={entries} />}
 
-        {activeTab === "archived" && (
-          <ArchivedPeriodList periods={periods} entries={allEntries} />
-        )}
+        {activeTab === "archived" && <ArchivedPeriodList periods={periods} entries={allEntries} />}
       </div>
 
       <AddEntryModal

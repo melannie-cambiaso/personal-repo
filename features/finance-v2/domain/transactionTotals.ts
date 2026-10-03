@@ -48,7 +48,7 @@ export function computeTransactionTotals(list: FinanceV2Transaction[]): Transact
         // how it affects the main account instead of silently counting nowhere.
         const unhandled: never = tx;
         throw new Error(
-          `computeTransactionTotals: unhandled transaction ${JSON.stringify(unhandled)}`,
+          `computeTransactionTotals: unhandled transaction ${JSON.stringify(unhandled)}`
         );
       }
     }

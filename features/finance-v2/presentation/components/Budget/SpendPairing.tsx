@@ -26,10 +26,16 @@ export function SpendPairing({ row }: Props) {
       ? `quedan ${formatCLP(remaining)}`
       : null;
   return (
-    <span className={overrun ? "text-red-600 text-sm font-bold" : "text-green-700 text-sm font-bold"}>
+    <span
+      className={overrun ? "text-sm font-bold text-red-600" : "text-sm font-bold text-green-700"}
+    >
       {formatCLP(row.spent)}
       {suffix && (
-        <span className={`text-2xs ml-1 font-normal ${overrun ? "text-red-600" : "text-brown-400"}`}>{suffix}</span>
+        <span
+          className={`text-2xs ml-1 font-normal ${overrun ? "text-red-600" : "text-brown-400"}`}
+        >
+          {suffix}
+        </span>
       )}
     </span>
   );

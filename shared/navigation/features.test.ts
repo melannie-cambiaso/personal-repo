@@ -22,13 +22,7 @@ describe("FEATURE_NAV_ITEMS", () => {
   it("links every content feature to its route", () => {
     const hrefs = FEATURE_NAV_ITEMS.map((item) => item.href).sort();
     expect(hrefs).toEqual(
-      [
-        "/finance",
-        "/finance-v2",
-        "/home-improvements",
-        "/savings",
-        "/wishlist",
-      ].sort()
+      ["/finance", "/finance-v2", "/home-improvements", "/savings", "/wishlist"].sort()
     );
   });
 });

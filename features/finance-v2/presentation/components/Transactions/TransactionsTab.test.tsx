@@ -3,7 +3,11 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { TransactionsTab } from "./TransactionsTab";
 import type { EnvelopeView } from "./Envelope/envelopeView";
-import type { DayGroup, ExpenseCategoryOption, TransactionTotals } from "@/features/finance-v2/domain";
+import type {
+  DayGroup,
+  ExpenseCategoryOption,
+  TransactionTotals,
+} from "@/features/finance-v2/domain";
 
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
@@ -13,7 +17,13 @@ beforeAll(() => {
 type Props = ComponentProps<typeof TransactionsTab>;
 
 describe("TransactionsTab", () => {
-  const totals: TransactionTotals = { income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 };
+  const totals: TransactionTotals = {
+    income: 1000,
+    expense: 400,
+    savings: 250,
+    transfer: 0,
+    balance: 350,
+  };
   const categoryOptions: ExpenseCategoryOption[] = [];
 
   const tabProps = (overrides: Partial<Props> = {}): Props => ({
@@ -41,7 +51,12 @@ describe("TransactionsTab", () => {
     render(<TransactionsTab {...tabProps(overrides)} />);
 
   const envelope: EnvelopeView = {
-    config: { name: "Servicios", boundCategoryId: "cuentas", openingBalance: 0, openingMonth: "2026-07" },
+    config: {
+      name: "Servicios",
+      boundCategoryId: "cuentas",
+      openingBalance: 0,
+      openingMonth: "2026-07",
+    },
     carriedIn: 7_000,
     flows: { transferred: 0, paid: 0 },
     suggestedTransfer: 116_000,

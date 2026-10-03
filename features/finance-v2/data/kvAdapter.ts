@@ -64,13 +64,11 @@ export async function loadTransactions(month: string): Promise<FinanceV2Transact
 /** Every listed month's transactions in ONE `mget` (the envelope's carried balance
  *  spans every month since `openingMonth`), concatenated in the order given. Each
  *  list gets the same legacy backfill as `loadTransactions`, from its own key's month. */
-export async function loadTransactionsForMonths(
-  months: string[],
-): Promise<FinanceV2Transaction[]> {
+export async function loadTransactionsForMonths(months: string[]): Promise<FinanceV2Transaction[]> {
   if (months.length === 0) return []; // `mget` with no keys is a redis error
   try {
     const stored = await redis.mget<(FinanceV2Transaction[] | null)[]>(
-      ...months.map(transactionsKey),
+      ...months.map(transactionsKey)
     );
     return months.flatMap((month, i) => backfillMonth(stored[i] ?? [], month));
   } catch {
@@ -87,7 +85,7 @@ function backfillMonth(list: FinanceV2Transaction[], month: string): FinanceV2Tr
 
 export async function saveTransactions(
   month: string,
-  transactions: FinanceV2Transaction[],
+  transactions: FinanceV2Transaction[]
 ): Promise<void> {
   try {
     await redis.set(transactionsKey(month), transactions);
@@ -102,7 +100,7 @@ export async function saveTransactions(
  *  transaction's `month` differs from the currently viewed month (design decision #1). */
 export async function appendTransactionToMonth(
   month: string,
-  tx: FinanceV2Transaction,
+  tx: FinanceV2Transaction
 ): Promise<void> {
   const list = await loadTransactions(month);
   await saveTransactions(month, [...list, tx]);

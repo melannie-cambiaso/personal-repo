@@ -22,7 +22,10 @@ const emptySpend: SpendView = {
 
 const loadingSpend: SpendView = { status: "loading" };
 
-const emptyCoverage: AccountCoverageView = { figures: { pending: 0, balance: 0 }, envelopeNote: null };
+const emptyCoverage: AccountCoverageView = {
+  figures: { pending: 0, balance: 0 },
+  envelopeNote: null,
+};
 
 // A 4-Monday month (see `getWeeksInMonth`); every fixture here is monthly, so it
 // does not change any figure.

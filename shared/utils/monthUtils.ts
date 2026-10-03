@@ -59,4 +59,3 @@ export function countWeekdayInMonth(month: string, weekday: Weekday): number {
 export function getWeeksInMonth(month: string): number {
   return countWeekdayInMonth(month, 1);
 }
-

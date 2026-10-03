@@ -86,7 +86,9 @@ describe("SavingsGoalCard", () => {
 
   it("calls onDelete with the goal id when the delete button is clicked", () => {
     const onDelete = vi.fn();
-    render(<SavingsGoalCard {...baseProps} goal={makeGoal({ id: "goal-42" })} onDelete={onDelete} />);
+    render(
+      <SavingsGoalCard {...baseProps} goal={makeGoal({ id: "goal-42" })} onDelete={onDelete} />
+    );
     fireEvent.click(screen.getByRole("button", { name: /eliminar/i }));
     expect(onDelete).toHaveBeenCalledWith("goal-42");
   });

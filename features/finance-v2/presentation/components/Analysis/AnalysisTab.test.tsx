@@ -107,9 +107,7 @@ describe("AnalysisTab", () => {
       cleanup();
 
       render(
-        <AnalysisTab
-          analysis={{ ...analysis, summary: { ...analysis.summary, unassigned: 0 } }}
-        />
+        <AnalysisTab analysis={{ ...analysis, summary: { ...analysis.summary, unassigned: 0 } }} />
       );
       expect(screen.queryByText(/sin categoría/)).toBeNull();
     });
@@ -169,7 +167,9 @@ describe("AnalysisTab", () => {
         id: `x${i}`,
         name,
       }));
-      render(<AnalysisTab analysis={{ ...analysis, deviations: [...analysis.deviations, ...extra] }} />);
+      render(
+        <AnalysisTab analysis={{ ...analysis, deviations: [...analysis.deviations, ...extra] }} />
+      );
 
       const names = () => screen.getAllByTestId("deviation-name").map((n) => n.textContent);
       expect(names()).toEqual(["Hogar · Comida", "Arriendo", "Transporte"]);

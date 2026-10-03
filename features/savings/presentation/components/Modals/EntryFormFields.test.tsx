@@ -31,7 +31,8 @@ function Harness({
   const setField =
     (field: EntryField) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-      const value = field === "toReplenish" ? (e.target as HTMLInputElement).checked : e.target.value;
+      const value =
+        field === "toReplenish" ? (e.target as HTMLInputElement).checked : e.target.value;
       setForm((prev) => ({ ...prev, [field]: value }));
     };
   return (

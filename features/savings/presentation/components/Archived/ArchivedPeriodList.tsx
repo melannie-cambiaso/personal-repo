@@ -47,9 +47,7 @@ export function ArchivedPeriodList({ periods, entries }: Props) {
             className="border-cream-300 rounded-2xl border bg-white px-5 py-4 shadow-sm"
           >
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-brown-900 text-sm font-semibold">
-                {formatPeriodRange(period)}
-              </h3>
+              <h3 className="text-brown-900 text-sm font-semibold">{formatPeriodRange(period)}</h3>
               <div className="flex items-center gap-2">
                 {period.initialAmount > 0 && (
                   <span className="text-2xs text-brown-400 font-semibold">

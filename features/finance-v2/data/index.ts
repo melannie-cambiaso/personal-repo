@@ -5,11 +5,7 @@
 // the page-level redirect already gates access before those loaders run. The two
 // `handleLoad*` actions are the exception: the client hooks call them directly on every
 // month change, so they are POST-reachable on their own and gate auth themselves.
-export {
-  loadBudgetConfig,
-  loadTransactions,
-  loadEnvelopeConfig,
-} from "./kvAdapter";
+export { loadBudgetConfig, loadTransactions, loadEnvelopeConfig } from "./kvAdapter";
 export { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
 export { loadHomeFinanceSummary } from "./homeFinanceSummary";
 export type { HomeFinanceSummary } from "./homeFinanceSummary";

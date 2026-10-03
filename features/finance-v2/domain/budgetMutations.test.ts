@@ -130,7 +130,11 @@ describe("setLeafAmount", () => {
       categories: [{ id: "c1", name: "Arriendo", bucket: "fixed", amount: 0, subcategories: [] }],
     };
 
-    const next = setLeafAmount(config, { categoryId: "missing", subcategoryId: null, amount: 1000 });
+    const next = setLeafAmount(config, {
+      categoryId: "missing",
+      subcategoryId: null,
+      amount: 1000,
+    });
 
     expect(next).toEqual(config);
   });
@@ -150,7 +154,9 @@ describe("setLeafAmount", () => {
 describe("setLeafFrequency", () => {
   it("sets a childless category's frequency when subcategoryId is null", () => {
     const config: BudgetConfig = {
-      categories: [{ id: "c1", name: "Comida", bucket: "variable", amount: 20000, subcategories: [] }],
+      categories: [
+        { id: "c1", name: "Comida", bucket: "variable", amount: 20000, subcategories: [] },
+      ],
     };
 
     const next = setLeafFrequency(config, {

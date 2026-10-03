@@ -42,7 +42,7 @@ describe("EditItemModal", () => {
     });
     expect((screen.getByLabelText("Cantidad") as HTMLInputElement).value).toBe("5");
     expect((screen.getByLabelText("Costo estimado por unidad ($)") as HTMLInputElement).value).toBe(
-      "20000",
+      "20000"
     );
   });
 

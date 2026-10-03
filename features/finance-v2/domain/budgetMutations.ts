@@ -8,7 +8,7 @@ import type { Weekday } from "@/shared/utils/monthUtils";
 
 export function addCategory(
   config: BudgetConfig,
-  args: { id: string; name: string; bucket: BucketKey },
+  args: { id: string; name: string; bucket: BucketKey }
 ): BudgetConfig {
   return {
     categories: [
@@ -20,7 +20,7 @@ export function addCategory(
 
 export function addSubcategory(
   config: BudgetConfig,
-  args: { categoryId: string; id: string; name: string; bucket: BucketKey },
+  args: { categoryId: string; id: string; name: string; bucket: BucketKey }
 ): BudgetConfig {
   return {
     categories: config.categories.map((category) =>
@@ -32,7 +32,7 @@ export function addSubcategory(
               { id: args.id, name: args.name, bucket: args.bucket, amount: 0 },
             ],
           }
-        : category,
+        : category
     ),
   };
 }
@@ -45,7 +45,7 @@ export function deleteCategory(config: BudgetConfig, categoryId: string): Budget
 
 export function deleteSubcategory(
   config: BudgetConfig,
-  args: { categoryId: string; id: string },
+  args: { categoryId: string; id: string }
 ): BudgetConfig {
   return {
     categories: config.categories.map((category) =>
@@ -54,7 +54,7 @@ export function deleteSubcategory(
             ...category,
             subcategories: category.subcategories.filter((sub) => sub.id !== args.id),
           }
-        : category,
+        : category
     ),
   };
 }
@@ -64,7 +64,7 @@ export function deleteSubcategory(
  *  Unknown ids leave the config unchanged (no throw). */
 export function setLeafAmount(
   config: BudgetConfig,
-  args: { categoryId: string; subcategoryId: string | null; amount: number },
+  args: { categoryId: string; subcategoryId: string | null; amount: number }
 ): BudgetConfig {
   return {
     categories: config.categories.map((category) => {
@@ -77,7 +77,7 @@ export function setLeafAmount(
       return {
         ...category,
         subcategories: category.subcategories.map((sub) =>
-          sub.id === args.subcategoryId ? { ...sub, amount: args.amount } : sub,
+          sub.id === args.subcategoryId ? { ...sub, amount: args.amount } : sub
         ),
       };
     }),
@@ -92,7 +92,7 @@ export function setLeafAmount(
  *  month vs. per week) changes, resolved later by `resolveLeafMonthlyAmount`. */
 export function setLeafFrequency(
   config: BudgetConfig,
-  args: { categoryId: string; subcategoryId: string | null; frequency: BudgetFrequency },
+  args: { categoryId: string; subcategoryId: string | null; frequency: BudgetFrequency }
 ): BudgetConfig {
   return {
     categories: config.categories.map((category) => {
@@ -105,7 +105,7 @@ export function setLeafFrequency(
       return {
         ...category,
         subcategories: category.subcategories.map((sub) =>
-          sub.id === args.subcategoryId ? { ...sub, frequency: args.frequency } : sub,
+          sub.id === args.subcategoryId ? { ...sub, frequency: args.frequency } : sub
         ),
       };
     }),
@@ -119,7 +119,7 @@ export function setLeafFrequency(
  *  leaf counts per month (see `resolveLeafWeeks`). */
 export function setLeafWeekday(
   config: BudgetConfig,
-  args: { categoryId: string; subcategoryId: string | null; weekday: Weekday },
+  args: { categoryId: string; subcategoryId: string | null; weekday: Weekday }
 ): BudgetConfig {
   return {
     categories: config.categories.map((category) => {
@@ -132,7 +132,7 @@ export function setLeafWeekday(
       return {
         ...category,
         subcategories: category.subcategories.map((sub) =>
-          sub.id === args.subcategoryId ? { ...sub, weekday: args.weekday } : sub,
+          sub.id === args.subcategoryId ? { ...sub, weekday: args.weekday } : sub
         ),
       };
     }),

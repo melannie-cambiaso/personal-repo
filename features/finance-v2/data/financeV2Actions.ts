@@ -31,7 +31,7 @@ export async function handleSaveBudgetConfig(config: BudgetConfig): Promise<void
 // `handleAppendTransactionToMonth` below instead.
 export async function handleSaveTransactions(
   month: string,
-  transactions: FinanceV2Transaction[],
+  transactions: FinanceV2Transaction[]
 ): Promise<void> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;

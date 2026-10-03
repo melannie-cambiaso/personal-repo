@@ -166,7 +166,6 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           <Input value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
         </Field>
 
-
         <div className="mt-2 flex justify-end gap-3">
           <Button type="button" onPress={onClose} variant="secondary">
             Cancelar

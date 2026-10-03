@@ -35,15 +35,15 @@ describe("AppNav", () => {
   it("lists all 5 feature links inside the drawer", () => {
     render(<AppNav />);
     fireEvent.click(screen.getByRole("button", { name: /menú/i }));
-    expect(
-      screen.getByRole("link", { name: /wishlist/i, hidden: true }).getAttribute("href")
-    ).toBe("/wishlist");
-    expect(
-      screen.getByRole("link", { name: /casa/i, hidden: true }).getAttribute("href")
-    ).toBe("/home-improvements");
-    expect(
-      screen.getByRole("link", { name: /ahorros/i, hidden: true }).getAttribute("href")
-    ).toBe("/savings");
+    expect(screen.getByRole("link", { name: /wishlist/i, hidden: true }).getAttribute("href")).toBe(
+      "/wishlist"
+    );
+    expect(screen.getByRole("link", { name: /casa/i, hidden: true }).getAttribute("href")).toBe(
+      "/home-improvements"
+    );
+    expect(screen.getByRole("link", { name: /ahorros/i, hidden: true }).getAttribute("href")).toBe(
+      "/savings"
+    );
     expect(
       screen.getByRole("link", { name: /finanzas$/i, hidden: true }).getAttribute("href")
     ).toBe("/finance");
@@ -78,25 +78,25 @@ describe("AppNav", () => {
     fireEvent.click(screen.getByRole("button", { name: /menú/i }));
     fireEvent.click(screen.getByRole("button", { name: /cerrar/i, hidden: true }));
     expect(HTMLDialogElement.prototype.close).toHaveBeenCalled();
-    expect(
-      screen.getByRole("button", { name: /menú/i }).getAttribute("aria-expanded")
-    ).toBe("false");
+    expect(screen.getByRole("button", { name: /menú/i }).getAttribute("aria-expanded")).toBe(
+      "false"
+    );
   });
 
   it("closes the drawer when the pathname changes", () => {
     usePathname.mockReturnValue("/");
     const { rerender } = render(<AppNav />);
     fireEvent.click(screen.getByRole("button", { name: /menú/i }));
-    expect(
-      screen.getByRole("button", { name: /menú/i }).getAttribute("aria-expanded")
-    ).toBe("true");
+    expect(screen.getByRole("button", { name: /menú/i }).getAttribute("aria-expanded")).toBe(
+      "true"
+    );
 
     usePathname.mockReturnValue("/wishlist");
     rerender(<AppNav />);
 
     expect(HTMLDialogElement.prototype.close).toHaveBeenCalled();
-    expect(
-      screen.getByRole("button", { name: /menú/i }).getAttribute("aria-expanded")
-    ).toBe("false");
+    expect(screen.getByRole("button", { name: /menú/i }).getAttribute("aria-expanded")).toBe(
+      "false"
+    );
   });
 });

@@ -13,13 +13,13 @@ import { loadTransactionsForMonths } from "./kvAdapter";
  *  `handleLoadEnvelopeCarriedBalance` (which gates auth and validates `month` first). */
 export async function loadEnvelopeCarriedBalance(
   config: EnvelopeConfig | null,
-  month: string,
+  month: string
 ): Promise<number | null> {
   if (config === null || month < config.openingMonth) return null;
   if (month === config.openingMonth) return config.openingBalance;
 
   const flows = computeEnvelopeFlows(
-    await loadTransactionsForMonths(monthsFromTo(config.openingMonth, month)),
+    await loadTransactionsForMonths(monthsFromTo(config.openingMonth, month))
   );
   return config.openingBalance + flows.transferred - flows.paid;
 }

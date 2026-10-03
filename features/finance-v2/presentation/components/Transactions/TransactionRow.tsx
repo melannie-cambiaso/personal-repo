@@ -55,7 +55,7 @@ export function TransactionRow({ transaction, envelopeName, onDelete }: Props) {
           type="button"
           onClick={() => onDelete(transaction.id)}
           aria-label={`Eliminar movimiento de ${formatCLP(transaction.amount)}`}
-          className="text-2xs text-brown-400 hover:text-red-600 cursor-pointer font-semibold transition-colors"
+          className="text-2xs text-brown-400 cursor-pointer font-semibold transition-colors hover:text-red-600"
         >
           Eliminar
         </button>

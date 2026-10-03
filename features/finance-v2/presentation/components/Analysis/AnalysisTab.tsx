@@ -130,11 +130,11 @@ function OverrunRow({ row }: { row: NextMonthOverrun }) {
       <div className="flex items-center justify-between gap-2">
         <span className="text-brown-800 min-w-0 truncate text-sm">{leafLabel(row)}</span>
         {needsCut ? (
-          <span className="text-red-600 shrink-0 text-sm font-bold">
+          <span className="shrink-0 text-sm font-bold text-red-600">
             recortar {formatCLP(row.projectedOverrun)}
           </span>
         ) : (
-          <span className="text-green-700 shrink-0 text-sm font-bold">sin recorte necesario</span>
+          <span className="shrink-0 text-sm font-bold text-green-700">sin recorte necesario</span>
         )}
       </div>
       <span className="text-2xs text-brown-400">
@@ -192,7 +192,9 @@ export function AnalysisTab({ analysis }: Props) {
 
       <Section title="Desvíos por categoría">
         {deviations.length === 0 ? (
-          <p className="text-brown-500 text-sm">No hay categorías con presupuesto ni gasto en el mes</p>
+          <p className="text-brown-500 text-sm">
+            No hay categorías con presupuesto ni gasto en el mes
+          </p>
         ) : (
           <DeviationList deviations={deviations} />
         )}

@@ -44,9 +44,9 @@ describe("BudgetCategoriesModal", () => {
       />
     );
     expect(
-      screen.getByRole("button", { name: /Suscripciones/, hidden: true }).getAttribute(
-        "aria-pressed"
-      )
+      screen
+        .getByRole("button", { name: /Suscripciones/, hidden: true })
+        .getAttribute("aria-pressed")
     ).toBe("true");
     expect(
       screen.getByRole("button", { name: /Arriendo/, hidden: true }).getAttribute("aria-pressed")
