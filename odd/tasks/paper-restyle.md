@@ -32,7 +32,7 @@ wavy underlines and a handwritten font.
 
 ## Tasks
 - [x] T1 — Global theme: tokens (paper, ink, pastels), fonts (Patrick Hand + `font-figure`), body background, shared components (AppNav, PageHeader gradient, Button, Input, ModalShell, MonthNav, AddButton, ProgressBar). No RED (styling only); tests 965/965, tsc, eslint 0, build green. Follow-ups: light `text-cream-100` inside PageHeader in savings, home-improvements and wishlist headers; Patrick Hand has one weight, so `font-bold` on text is faux bold (drop it on text, keep it on `font-figure`). Commit `f74265d`.
-- [x] T2 — Home: pastel panels, pill labels, icon circles, sticky-note greeting, `font-figure` on amounts. → CHECKPOINT with the user. Greeting replaced by the user's illustration (`public/home-greeting.png`, `next/image` with `loading="eager"`; `priority` is deprecated in Next 16). Home tests 10/10 unchanged, tsc, eslint 0, build green. Awaiting the user's validation.
+- [x] T2 — Home: pastel panels, pill labels, icon circles, sticky-note greeting, `font-figure` on amounts. → CHECKPOINT with the user. Greeting replaced by the user's illustration (`public/home-greeting.png`, `next/image` with `loading="eager"`; `priority` is deprecated in Next 16). Home tests 10/10 unchanged, tsc, eslint 0, build green. User validated after swapping the illustration and removing its frame. Commits `d08edfc`, `d6541ce`, `69d135d`.
 - [ ] T3 — finance-v2 screens.
 - [ ] T4 — Wishlist screens and modals.
 - [ ] T5 — Savings screens and modals.
