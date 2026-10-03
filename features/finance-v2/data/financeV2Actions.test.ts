@@ -312,6 +312,53 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
     expect(result).toBe(7000);
   });
 
+  // Spec: "Editing a past month updates the balance".
+  it("reflects deleting a past month's bill in the next month's carried-in balance", async () => {
+    withAuth();
+    loadEnvelopeConfigMock.mockResolvedValue({ ...envelopeConfig, openingBalance: 0 });
+    const store: Record<string, FinanceV2Transaction[]> = {
+      "2026-10": [
+        { id: "t1", type: "transfer", amount: 116_000, date: "2026-10-01", month: "2026-10" },
+        {
+          id: "t2",
+          type: "expense",
+          amount: 109_000,
+          date: "2026-10-05",
+          month: "2026-10",
+          bucket: "fixed",
+          category: { id: "luz", name: "Luz" },
+          paidFrom: "envelope",
+        },
+        {
+          id: "t3",
+          type: "expense",
+          amount: 20_000,
+          date: "2026-10-06",
+          month: "2026-10",
+          bucket: "fixed",
+          category: { id: "agua", name: "Agua" },
+          paidFrom: "envelope",
+        },
+      ],
+    };
+    saveTransactionsMock.mockImplementation(async (month: string, list: FinanceV2Transaction[]) => {
+      store[month] = list;
+    });
+    loadTransactionsForMonthsMock.mockImplementation(async (months: string[]) =>
+      months.flatMap((month) => store[month] ?? [])
+    );
+
+    const before = await handleLoadEnvelopeCarriedBalance("2026-11");
+    await handleSaveTransactions(
+      "2026-10",
+      store["2026-10"].filter((tx) => tx.id !== "t3")
+    );
+    const after = await handleLoadEnvelopeCarriedBalance("2026-11");
+
+    expect(before).toBe(-13_000);
+    expect(after).toBe(7000);
+  });
+
   it("reads every month from the opening month up to (excluding) the viewed one, across a year boundary, and ignores main-account activity", async () => {
     withAuth();
     loadEnvelopeConfigMock.mockResolvedValue({ ...envelopeConfig, openingMonth: "2026-11" });

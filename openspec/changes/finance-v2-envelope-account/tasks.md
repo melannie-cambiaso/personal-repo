@@ -73,5 +73,7 @@ Decision needed before apply: No
 - [x] 3.6 `TransactionsTab.tsx` — compose card, reminder, config entry point; tab tests.
   `FinanceV2Screen` derives the view via `toEnvelopeView` and hoists `isEnvelopeConfigOpen`
   (it also disables `MonthNav`, since creation stamps `openingMonth` from the viewed month).
-- [ ] 3.7 `npm run test` + `npm run build` green; manual check with the spec scenarios.
-  Tests (864), `tsc --noEmit`, and `npm run build` green. Manual check PENDING.
+- [x] 3.7 `npm run test` + `npm run build` green; manual check with the spec scenarios.
+  Tests (864), `tsc --noEmit`, and `npm run build` green. Scenarios 3, 4, 5, 9 and 10 checked
+  manually; 1, 2, 6, 7 and 11 are covered by tests, and 8 by a dedicated test in
+  `financeV2Actions.test.ts` (manual checks avoided to protect production data).
