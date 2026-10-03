@@ -5,9 +5,9 @@ import {
   WishlistAddItemModal,
   WishlistDeleteConfirmModal,
   WishlistHeader,
-  WishlistItemCard,
+  WishlistItemRow,
 } from "../../components";
-import { AddButton, ModalShell, Select } from "@/shared/components";
+import { AddButton, Select } from "@/shared/components";
 import { useWishlist } from "../../hooks/useWishlist";
 import { WishlistItem } from "@/features/wishlist/domain";
 import { sortItems, type SortKey } from "@/features/wishlist/domain/sortItems";
@@ -37,7 +37,7 @@ export function DashboardScreen({
   const [isOpen, setIsOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<WishlistItem | null>(null);
-  const [sortBy, setSortBy] = useState<SortKey>("price-asc");
+  const [sortBy, setSortBy] = useState<SortKey>("priority");
 
   const handleClose = () => {
     setIsOpen(false);
@@ -48,13 +48,14 @@ export function DashboardScreen({
     <main className="flex flex-1 flex-col">
       <WishlistHeader total={items.length} pending={pending} totalPrice={totalPrice} />
 
-      <div className="mx-auto w-full max-w-350 px-6 py-10">
+      <div className="mx-auto w-full max-w-2xl px-6 py-10">
         <div className="mb-6 flex items-center justify-between">
           <Select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortKey)}
             className="cursor-pointer"
             options={[
+              { value: "priority", label: "Prioridad" },
               { value: "default", label: "Ordenar" },
               { value: "name-asc", label: "Nombre A→Z" },
               { value: "name-desc", label: "Nombre Z→A" },
@@ -66,18 +67,18 @@ export function DashboardScreen({
           {isOwner && <AddButton onClick={() => setIsOpen(true)} />}
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {sortItems(items, sortBy).map((item) => (
-            <WishlistItemCard
+        <ul className="border-cream-300 divide-cream-300 divide-y overflow-hidden rounded-xl border bg-white">
+          {sortItems(items, sortBy, ownedIds).map((item) => (
+            <WishlistItemRow
               key={item.id}
-              {...item}
+              item={item}
               owned={ownedIds.has(item.id)}
-              onToggle={() => toggle(item.id)}
-              onEdit={isOwner ? () => setEditingItem(item) : undefined}
-              onDelete={isOwner ? () => setDeletingItem(item) : undefined}
+              onToggle={toggle}
+              onEdit={isOwner ? setEditingItem : undefined}
+              onDelete={isOwner ? setDeletingItem : undefined}
             />
           ))}
-        </div>
+        </ul>
       </div>
 
       {isOwner && (
