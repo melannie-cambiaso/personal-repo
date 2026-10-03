@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { AnalysisTab } from "./AnalysisTab";
 import type { MonthAnalysis } from "@/features/finance-v2/domain";
 import { formatMonth } from "@/shared/utils/formatMonth";
@@ -160,6 +160,43 @@ describe("AnalysisTab", () => {
       expect(screen.getByText("No hay categorías con presupuesto ni gasto en el mes")).toBeTruthy();
       expect(screen.queryByTestId("deviation-name")).toBeNull();
     });
+
+    // Only the worst few are what the user acts on; the rest stays one tap away so
+    // the tab does not need scrolling to reach the next block.
+    it("shows only the first three leaves until the user asks for the rest", () => {
+      const extra = ["Gas", "Luz"].map((name, i) => ({
+        ...analysis.deviations[2],
+        id: `x${i}`,
+        name,
+      }));
+      render(<AnalysisTab analysis={{ ...analysis, deviations: [...analysis.deviations, ...extra] }} />);
+
+      const names = () => screen.getAllByTestId("deviation-name").map((n) => n.textContent);
+      expect(names()).toEqual(["Hogar · Comida", "Arriendo", "Transporte"]);
+
+      fireEvent.click(screen.getByRole("button", { name: "Ver más (2)" }));
+      expect(names()).toEqual(["Hogar · Comida", "Arriendo", "Transporte", "Gas", "Luz"]);
+
+      fireEvent.click(screen.getByRole("button", { name: "Ver menos" }));
+      expect(names()).toHaveLength(3);
+    });
+
+    it("offers no toggle when every leaf already fits", () => {
+      render(<AnalysisTab analysis={analysis} />);
+
+      expect(screen.queryByRole("button", { name: /Ver más|Ver menos/ })).toBeNull();
+    });
+  });
+
+  it("shows the next-month block before the deviations", () => {
+    render(<AnalysisTab analysis={analysis} />);
+
+    const headings = screen.getAllByRole("heading").map((h) => h.textContent);
+    expect(headings).toEqual([
+      "Resumen del mes",
+      `Próximo mes · ${formatMonth("2026-10")}`,
+      "Desvíos por categoría",
+    ]);
   });
 
   describe("next month projection", () => {

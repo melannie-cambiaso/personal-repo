@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { LeafDeviation, MonthAnalysis, NextMonthOverrun } from "@/features/finance-v2/domain";
 import { isOverrun } from "@/features/finance-v2/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
@@ -88,6 +91,34 @@ function DeviationRow({ row }: { row: LeafDeviation }) {
   );
 }
 
+// The list arrives worst overrun first, so the first few rows are the ones worth
+// acting on; the rest stays one tap away instead of pushing the tab into a long
+// scroll.
+const COLLAPSED_DEVIATIONS = 3;
+
+function DeviationList({ deviations }: { deviations: LeafDeviation[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const hidden = deviations.length - COLLAPSED_DEVIATIONS;
+  const visible = expanded || hidden <= 0 ? deviations : deviations.slice(0, COLLAPSED_DEVIATIONS);
+
+  return (
+    <>
+      {visible.map((row) => (
+        <DeviationRow key={row.id} row={row} />
+      ))}
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          className="text-2xs text-brown-400 hover:text-brown-800 cursor-pointer self-start font-semibold transition-colors"
+        >
+          {expanded ? "Ver menos" : `Ver más (${hidden})`}
+        </button>
+      )}
+    </>
+  );
+}
+
 // A leaf lands here because it overran THIS month, but `projectedOverrun` is
 // signed: a weekly leaf that burst a 5-week month can fit inside a 4-week one
 // with nothing to change. Asking to "recortar $-4.000" would be worse than
@@ -146,14 +177,8 @@ export function AnalysisTab({ analysis }: Props) {
         </div>
       </Section>
 
-      <Section title="Desvíos por categoría">
-        {deviations.length === 0 ? (
-          <p className="text-brown-500 text-sm">No hay categorías con presupuesto ni gasto en el mes</p>
-        ) : (
-          deviations.map((row) => <DeviationRow key={row.id} row={row} />)
-        )}
-      </Section>
-
+      {/* Next month comes before the deviations: it is the actionable block
+          (what to cut), and the deviation list is the longer one. */}
       <Section title={`Próximo mes · ${formatMonth(nextMonth.month)}`}>
         <SummaryRow label="Presupuesto proyectado" value={formatCLP(nextMonth.budgeted)} />
         <div className="border-cream-300 flex flex-col gap-3 border-t pt-3">
@@ -163,6 +188,14 @@ export function AnalysisTab({ analysis }: Props) {
             nextMonth.overruns.map((row) => <OverrunRow key={row.id} row={row} />)
           )}
         </div>
+      </Section>
+
+      <Section title="Desvíos por categoría">
+        {deviations.length === 0 ? (
+          <p className="text-brown-500 text-sm">No hay categorías con presupuesto ni gasto en el mes</p>
+        ) : (
+          <DeviationList deviations={deviations} />
+        )}
       </Section>
     </div>
   );
