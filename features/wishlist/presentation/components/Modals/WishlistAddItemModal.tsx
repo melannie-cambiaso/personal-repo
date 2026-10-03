@@ -4,6 +4,11 @@ import { useForm } from "@/shared/hooks/useForm";
 import { CATEGORIES } from "@/features/wishlist/data";
 import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
+import {
+  PRIORITY_LABELS,
+  resolvePriority,
+  type WishlistPriority,
+} from "@/features/wishlist/domain";
 import { ModalShell, Button, Field, Input, Textarea, Select } from "@/shared/components";
 
 interface Props {
@@ -23,6 +28,7 @@ const EMPTY = {
   url: "",
   image: "",
   categoryKey: "food" as CategoryColor,
+  priority: "medium" as WishlistPriority,
 };
 
 // The optional fields fall back to "" because these inputs are controlled: an item
@@ -39,7 +45,16 @@ function formFromItem(item: WishlistItem) {
     url: item.url ?? "",
     image: item.image ?? "",
     categoryKey: item.category.color,
+    priority: resolvePriority(item),
   };
+}
+
+// `null` for anything that is not a usable price, so the submit handler can refuse
+// it: `Number("")` is 0, which would quietly save a blank field as a free item.
+function parsePrice(raw: string): number | null {
+  if (raw.trim() === "") return null;
+  const price = Number(raw);
+  return Number.isFinite(price) && price >= 0 ? price : null;
 }
 
 export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props) {
@@ -47,6 +62,10 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // The `required` attribute only guards the browser path; a programmatic submit
+    // skips constraint validation, so the handler refuses a missing price too.
+    const price = parsePrice(form.price);
+    if (price === null) return;
     const item: WishlistItem = {
       id: editItem?.id ?? crypto.randomUUID(),
       category: CATEGORIES[form.categoryKey],
@@ -57,7 +76,8 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
       title: form.title,
       description: form.description || undefined,
       tag: form.tag || undefined,
-      price: form.price.trim() === "" ? null : Number(form.price),
+      price,
+      priority: form.priority,
       url: form.url || undefined,
       image: form.image || undefined,
     };
@@ -73,11 +93,21 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
       title={editItem ? "Editar item" : "Nuevo item"}
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* Title stands alone above the divider: it is the whole cost of capturing
-            an idea, and pairing it with another field made the form read as if both
-            were due at once. */}
+        {/* Title and price sit above the divider, stacked rather than paired: they
+            are the whole cost of capturing an idea, and everything below can wait. */}
         <Field label="Título *">
           <Input value={form.title} onChange={set("title")} required autoFocus />
+        </Field>
+
+        <Field label="Precio (CLP) *">
+          <Input
+            type="number"
+            min="0"
+            value={form.price}
+            onChange={set("price")}
+            placeholder="23990"
+            required
+          />
         </Field>
 
         <div className="border-cream-300 flex items-center gap-2 border-t pt-4">
@@ -105,14 +135,14 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           <Field label="Emoji">
             <Input value={form.emoji} onChange={set("emoji")} placeholder="☕" />
           </Field>
-          <Field label="Precio (CLP)">
-            <Input
-              type="number"
-              min="0"
-              value={form.price}
-              onChange={set("price")}
-              placeholder="23990"
-            />
+          <Field label="Prioridad">
+            <Select value={form.priority} onChange={set("priority")}>
+              {Object.entries(PRIORITY_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </Select>
           </Field>
         </div>
 
