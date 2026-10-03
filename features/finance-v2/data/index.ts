@@ -11,6 +11,8 @@ export {
   loadEnvelopeConfig,
 } from "./kvAdapter";
 export { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
+export { loadHomeFinanceSummary } from "./homeFinanceSummary";
+export type { HomeFinanceSummary } from "./homeFinanceSummary";
 export {
   handleSaveBudgetConfig,
   handleSaveTransactions,
