@@ -122,8 +122,8 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           />
         </Field>
 
-        <div className="border-cream-300 flex items-center gap-2 border-t pt-4">
-          <span className="text-2xs text-brown-400">
+        <div className="border-blush-300 flex items-center gap-2 border-t-2 border-dashed pt-4">
+          <span className="text-brown-500 text-sm">
             Lo demás es opcional — podés completarlo después
           </span>
         </div>

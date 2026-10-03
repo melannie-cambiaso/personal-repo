@@ -16,10 +16,13 @@ export function WishlistDeleteConfirmModal({ item, onConfirm, onCancel }: Props)
     <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
       {item && (
         <>
-          <h2 className="font-dancing text-brown-900 mb-3 text-2xl font-bold">¿Eliminar item?</h2>
-          <p className="text-brown-600 mb-5 text-sm leading-relaxed">
-            ¿Seguro que querés eliminar <strong>{item.title}</strong>? Esta acción no se puede
-            deshacer.
+          <h2 className="font-dancing text-brown-900 underline-wavy decoration-blush-500 mb-4 text-3xl">
+            ¿Eliminar item?
+          </h2>
+          <p className="text-brown-600 mb-5 leading-relaxed">
+            ¿Seguro que querés eliminar{" "}
+            <strong className="text-brown-900 font-normal">{item.title}</strong>? Esta acción no se
+            puede deshacer.
           </p>
           <div className="flex justify-end gap-3">
             <Button type="button" onPress={onCancel} variant="secondary">

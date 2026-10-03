@@ -3,8 +3,10 @@
 import type { WishlistItem } from "@/features/wishlist/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
-const moveButton =
-  "text-brown-600 hover:bg-cream-300 flex h-8 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-sm transition-colors disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent";
+// Small round buttons in the wishlist's blush tone; the row stays ~360px-friendly.
+const roundButton =
+  "border-blush-300 bg-cream-50 text-blush-800 hover:bg-blush-100 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
+const moveButton = `${roundButton} disabled:cursor-default disabled:opacity-30 disabled:hover:bg-cream-50`;
 
 interface Props {
   item: WishlistItem;
@@ -32,13 +34,13 @@ export function WishlistItemRow({
   canMoveUp = false,
   canMoveDown = false,
 }: Props) {
-  const titleClass = `block truncate text-left text-sm font-semibold ${
+  const titleClass = `block truncate text-left ${
     owned ? "text-brown-400 line-through" : "text-brown-900"
   }`;
 
   return (
     <li
-      className={`flex items-center gap-3 px-4 py-3 ${onEdit ? "hover:bg-cream-50 cursor-pointer" : ""}`}
+      className={`flex items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 ${onEdit ? "hover:bg-blush-100/50 cursor-pointer" : ""}`}
       onClick={onEdit ? () => onEdit(item) : undefined}
     >
       <input
@@ -48,7 +50,7 @@ export function WishlistItemRow({
         disabled={!onToggle}
         onChange={() => onToggle?.(item.id)}
         onClick={(e) => e.stopPropagation()}
-        className="accent-brown-800 h-5 w-5 shrink-0 cursor-pointer disabled:cursor-default"
+        className="accent-blush-500 h-5 w-5 shrink-0 cursor-pointer disabled:cursor-default"
       />
 
       <div className="min-w-0 flex-1">
@@ -61,19 +63,21 @@ export function WishlistItemRow({
         ) : (
           <span className={titleClass}>{item.title}</span>
         )}
-        <div className="mt-1 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {item.price !== null ? (
-            <span className={`text-xs font-bold ${owned ? "text-brown-400" : "text-brown-800"}`}>
+            <span
+              className={`font-figure text-sm font-semibold ${owned ? "text-brown-400" : "text-brown-900"}`}
+            >
               {formatCLP(item.price)}
             </span>
           ) : (
-            <span className="text-xs font-semibold text-red-600">Falta precio</span>
+            <span className="text-sm text-red-600">Falta precio</span>
           )}
         </div>
       </div>
 
       {(onMoveUp || onMoveDown) && (
-        <div className="flex shrink-0">
+        <div className="flex shrink-0 gap-1">
           <button
             type="button"
             aria-label={`Subir ${item.title}`}
@@ -107,7 +111,7 @@ export function WishlistItemRow({
           rel="noopener noreferrer"
           aria-label={`Abrir link de ${item.title}`}
           onClick={(e) => e.stopPropagation()}
-          className="text-brown-600 hover:bg-cream-300 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm transition-colors"
+          className={roundButton}
         >
           ↗
         </a>
@@ -120,7 +124,7 @@ export function WishlistItemRow({
             e.stopPropagation();
             onDelete(item);
           }}
-          className="text-brown-400 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-sm transition-colors hover:bg-red-50 hover:text-red-600"
+          className={`${roundButton} hover:border-red-300 hover:text-red-600`}
         >
           ✕
         </button>
