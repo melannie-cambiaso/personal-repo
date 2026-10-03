@@ -80,6 +80,15 @@ describe("BucketComparison", () => {
       expect(screen.getAllByText(/de \$500\.000/).length).toBeGreaterThan(0);
     });
 
+    it("spells out what is left on under-budget rows and adds nothing to the empty 0 de 0 bucket", () => {
+      render(<BucketComparison comparison={comparison} spend={readySpend} />);
+
+      expect(screen.getByText("de $400.000 · quedan $200.000")).toBeTruthy();
+      expect(screen.getByText("de $100.000 · quedan $50.000")).toBeTruthy();
+      expect(screen.getByText("de $500.000 · quedan $250.000")).toBeTruthy();
+      expect(screen.getByText("de $0")).toBeTruthy();
+    });
+
     // The suffix carries the EXCESS, not just the fact of an overrun: pairing
     // "$450.000 de $400.000" with a bare "excedido" leaves the reader to subtract
     // the one figure that actually drives a decision.

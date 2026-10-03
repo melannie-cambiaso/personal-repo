@@ -14,15 +14,18 @@ interface Props {
 // `isOverrun` rule and its visual treatment live in exactly one place.
 export function SpendPairing({ row }: Props) {
   const overrun = isOverrun(row);
+  const remaining = row.budgeted - row.spent;
   return (
     <span className={overrun ? "text-red-600 text-sm font-bold" : "text-green-700 text-sm font-bold"}>
       {formatCLP(row.spent)}
       <span className={`text-2xs ml-1 font-normal ${overrun ? "text-red-600" : "text-brown-400"}`}>
         de {formatCLP(row.budgeted)}
-        {/* The excess is spelled out, not left as "spent minus budgeted" for the
-            reader to work out: it is the one figure that says how much to cut, and
-            both numbers it comes from are already on screen beside it. */}
+        {/* The excess and the remainder are spelled out, not left as a subtraction
+            for the reader to work out: the excess says how much to cut, the
+            remainder how much is left to spend. An exactly-spent row (including an
+            empty "0 de 0") has neither, so it gets no suffix. */}
         {overrun && ` · excedido en ${formatCLP(row.spent - row.budgeted)}`}
+        {!overrun && remaining > 0 && ` · quedan ${formatCLP(remaining)}`}
       </span>
     </span>
   );

@@ -38,7 +38,7 @@ Mode: on · Runner: `vitest run` (`npm run test`)
 Single branch with chained work-unit commits, fast-forward to `main` when done (user flow).
 
 ## Tasks
-- [x] T1 — Domain: `computePendingFromMain` (leaf-level remaining, bound-category exclusion, overspent clamp) + tests. Takes `EnvelopeConfig | null` to reuse `resolvePaidFrom`. 8 tests, RED→GREEN observed.
-- [ ] T2 — `SpendPairing` "quedan $X" + tests (SpendPairing, BucketComparison, BudgetCategoryCard expectations).
+- [x] T1 — Domain: `computePendingFromMain` (leaf-level remaining, bound-category exclusion, overspent clamp) + tests. Takes `EnvelopeConfig | null` to reuse `resolvePaidFrom`. 8 tests, RED→GREEN observed. Commit `b90d0c0`.
+- [x] T2 — `SpendPairing` "quedan $X" + tests (SpendPairing, BucketComparison, BudgetCategoryCard expectations). 4 new SpendPairing tests + BucketComparison row test; RED→GREEN, presentation suite 234/234.
 - [ ] T3 — Budget tab summary block (pending / balance / sobran-faltan, envelope note) wired from `FinanceV2Screen` + tests.
 - [ ] T4 — Verify: full `npm run test`, `npm run build`, lint on touched dirs.
