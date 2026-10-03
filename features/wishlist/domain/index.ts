@@ -6,5 +6,4 @@ export {
   orderWishlist,
   type WishlistGroups,
 } from "./orderWishlist";
-export { sortItems, type SortKey } from "./sortItems";
 export { summarizeWishlist, type WishlistSummary } from "./summarizeWishlist";

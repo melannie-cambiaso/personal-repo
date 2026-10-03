@@ -1,18 +1,10 @@
 "use client";
 
-import {
-  PRIORITY_LABELS,
-  resolvePriority,
-  type WishlistItem,
-  type WishlistPriority,
-} from "@/features/wishlist/domain";
+import type { WishlistItem } from "@/features/wishlist/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
-const priorityBadge: Record<WishlistPriority, string> = {
-  high: "bg-red-100 text-red-700",
-  medium: "bg-amber-100 text-amber-700",
-  low: "bg-cream-300 text-brown-600",
-};
+const moveButton =
+  "text-brown-600 hover:bg-cream-300 flex h-8 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg text-sm transition-colors disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent";
 
 interface Props {
   item: WishlistItem;
@@ -22,10 +14,24 @@ interface Props {
   /** Owner-only: a visitor gets neither, which hides edit and delete. */
   onEdit?: (item: WishlistItem) => void;
   onDelete?: (item: WishlistItem) => void;
+  /** Owner-only, pending items: without them the reorder arrows are hidden. */
+  onMoveUp?: (id: string) => void;
+  onMoveDown?: (id: string) => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
-export function WishlistItemRow({ item, owned, onToggle, onEdit, onDelete }: Props) {
-  const priority = resolvePriority(item);
+export function WishlistItemRow({
+  item,
+  owned,
+  onToggle,
+  onEdit,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp = false,
+  canMoveDown = false,
+}: Props) {
   const titleClass = `block truncate text-left text-sm font-semibold ${
     owned ? "text-brown-400 line-through" : "text-brown-900"
   }`;
@@ -56,11 +62,6 @@ export function WishlistItemRow({ item, owned, onToggle, onEdit, onDelete }: Pro
           <span className={titleClass}>{item.title}</span>
         )}
         <div className="mt-1 flex items-center gap-2">
-          <span
-            className={`text-2xs rounded-full px-2 py-0.5 font-semibold ${priorityBadge[priority]}`}
-          >
-            {PRIORITY_LABELS[priority]}
-          </span>
           {item.price !== null ? (
             <span className={`text-xs font-bold ${owned ? "text-brown-400" : "text-brown-800"}`}>
               {formatCLP(item.price)}
@@ -71,6 +72,34 @@ export function WishlistItemRow({ item, owned, onToggle, onEdit, onDelete }: Pro
         </div>
       </div>
 
+      {(onMoveUp || onMoveDown) && (
+        <div className="flex shrink-0">
+          <button
+            type="button"
+            aria-label={`Subir ${item.title}`}
+            disabled={!onMoveUp || !canMoveUp}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveUp?.(item.id);
+            }}
+            className={moveButton}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            aria-label={`Bajar ${item.title}`}
+            disabled={!onMoveDown || !canMoveDown}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveDown?.(item.id);
+            }}
+            className={moveButton}
+          >
+            ↓
+          </button>
+        </div>
+      )}
       {item.url && (
         <a
           href={item.url}

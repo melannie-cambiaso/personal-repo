@@ -28,20 +28,73 @@ function renderOwnerRow(overrides: Partial<Parameters<typeof WishlistItemRow>[0]
 }
 
 describe("WishlistItemRow", () => {
-  it("renders the title, the formatted price and the priority badge", () => {
+  // The list's group headings carry the priority, so the row has no badge.
+  it("renders the title and the formatted price, without a priority badge", () => {
     renderOwnerRow();
 
     expect(screen.getByText("Auriculares Sony")).toBeTruthy();
     expect(screen.getByText("$50.000")).toBeTruthy();
-    expect(screen.getByText("Alta")).toBeTruthy();
+    expect(screen.queryByText("Alta")).toBeNull();
   });
 
-  it("flags a legacy item without a price as missing it, and reads it as medium priority", () => {
+  it("flags a legacy item without a price as missing it", () => {
     renderOwnerRow({ item: legacyItem });
 
     const missing = screen.getByText("Falta precio");
     expect(missing.className).toContain("text-red-600");
-    expect(screen.getByText("Media")).toBeTruthy();
+    expect(screen.queryByText("Media")).toBeNull();
+  });
+
+  describe("move buttons", () => {
+    function renderMovableRow(canMoveUp = true, canMoveDown = true) {
+      const onMoveUp = vi.fn();
+      const onMoveDown = vi.fn();
+      const handlers = renderOwnerRow({ onMoveUp, onMoveDown, canMoveUp, canMoveDown });
+      return { ...handlers, onMoveUp, onMoveDown };
+    }
+
+    it("are labelled with the title", () => {
+      renderMovableRow();
+
+      expect(screen.getByRole("button", { name: "Subir Auriculares Sony" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Bajar Auriculares Sony" })).toBeTruthy();
+    });
+
+    it("call their handler with the item id without opening the editor", () => {
+      const { onMoveUp, onMoveDown, onEdit } = renderMovableRow();
+
+      fireEvent.click(screen.getByRole("button", { name: "Subir Auriculares Sony" }));
+      fireEvent.click(screen.getByRole("button", { name: "Bajar Auriculares Sony" }));
+
+      expect(onMoveUp).toHaveBeenCalledWith("1");
+      expect(onMoveDown).toHaveBeenCalledWith("1");
+      expect(onEdit).not.toHaveBeenCalled();
+    });
+
+    it("are disabled at the edges of the group", () => {
+      renderMovableRow(false, false);
+
+      const up = screen.getByRole("button", { name: "Subir Auriculares Sony" });
+      const down = screen.getByRole("button", { name: "Bajar Auriculares Sony" });
+      expect((up as HTMLButtonElement).disabled).toBe(true);
+      expect((down as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it("disable only the direction that cannot move", () => {
+      renderMovableRow(false, true);
+
+      const up = screen.getByRole("button", { name: "Subir Auriculares Sony" });
+      const down = screen.getByRole("button", { name: "Bajar Auriculares Sony" });
+      expect((up as HTMLButtonElement).disabled).toBe(true);
+      expect((down as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    it("are not rendered without move handlers", () => {
+      renderOwnerRow();
+
+      expect(screen.queryByRole("button", { name: "Subir Auriculares Sony" })).toBeNull();
+      expect(screen.queryByRole("button", { name: "Bajar Auriculares Sony" })).toBeNull();
+    });
   });
 
   describe("owned checkbox", () => {
@@ -112,7 +165,7 @@ describe("WishlistItemRow", () => {
   it("opens the editor when the owner taps the row", () => {
     const { onEdit } = renderOwnerRow();
 
-    fireEvent.click(screen.getByText("Alta"));
+    fireEvent.click(screen.getByText("$50.000"));
 
     expect(onEdit).toHaveBeenCalledTimes(1);
     expect(onEdit).toHaveBeenCalledWith(item);

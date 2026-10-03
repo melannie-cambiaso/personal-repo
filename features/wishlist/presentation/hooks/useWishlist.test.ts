@@ -134,6 +134,57 @@ describe("useWishlist", () => {
     expect(onToggle).toHaveBeenCalledWith([]);
   });
 
+  it("move swaps an item with the next one of its group and persists the new order", () => {
+    const onAdd = vi.fn();
+    const { result } = renderHook(() =>
+      useWishlist({
+        initialItems: [makeItem("1"), makeItem("2"), makeItem("3")],
+        initialOwnedIds: [],
+        onAdd,
+        onToggle: vi.fn(),
+      })
+    );
+    act(() => result.current.move("1", "down"));
+    expect(result.current.items.map((i) => i.id)).toEqual(["2", "1", "3"]);
+    expect(onAdd).toHaveBeenCalledTimes(1);
+    expect(onAdd.mock.calls[0][0].map((i: WishlistItem) => i.id)).toEqual(["2", "1", "3"]);
+  });
+
+  it("move uses the latest items across consecutive calls", () => {
+    const onAdd = vi.fn();
+    const { result } = renderHook(() =>
+      useWishlist({
+        initialItems: [makeItem("1"), makeItem("2"), makeItem("3")],
+        initialOwnedIds: [],
+        onAdd,
+        onToggle: vi.fn(),
+      })
+    );
+    act(() => {
+      result.current.move("1", "down");
+      result.current.move("1", "down");
+    });
+    expect(result.current.items.map((i) => i.id)).toEqual(["2", "3", "1"]);
+    expect(onAdd).toHaveBeenLastCalledWith([
+      expect.objectContaining({ id: "2" }),
+      expect.objectContaining({ id: "3" }),
+      expect.objectContaining({ id: "1" }),
+    ]);
+  });
+
+  it("move is a no-op at the edge of the group or for an owned item", () => {
+    const onAdd = vi.fn();
+    const initialItems = [makeItem("1"), makeItem("2")];
+    const { result } = renderHook(() =>
+      useWishlist({ initialItems, initialOwnedIds: ["2"], onAdd, onToggle: vi.fn() })
+    );
+    act(() => result.current.move("1", "up"));
+    act(() => result.current.move("1", "down"));
+    act(() => result.current.move("2", "up"));
+    expect(result.current.items).toBe(initialItems);
+    expect(onAdd).not.toHaveBeenCalled();
+  });
+
   it("deleteItem is a no-op when id not found", () => {
     const onAdd = vi.fn();
     const onToggle = vi.fn();
