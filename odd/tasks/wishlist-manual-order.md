@@ -19,5 +19,5 @@ Let the user order wishlist items by hand within each priority, replacing the so
 
 ## Tasks
 - [x] T1 — Domain: `orderWishlist` (grouped, array order within group) + `moveItem` (swap within group); `summarizeWishlist` uses it; remove `sortItems` + tests. (`sortItems` removal moved to T2 so no commit breaks the screen.) No-op moves return the same array reference. RED→GREEN, wishlist 94/94. Commit `422d103`.
-- [x] T2 — UI: hook `move`, group headings, ↑↓ buttons, drop the sort select and row badge + tests. `sortItems` removed. RED (15 failing) → GREEN, wishlist 89/89.
-- [ ] T3 — Verify: `npm run test`, `npm run build`, `npx eslint .`, prettier.
+- [x] T2 — UI: hook `move`, group headings, ↑↓ buttons, drop the sort select and row badge + tests. `sortItems` removed. RED (15 failing) → GREEN, wishlist 89/89. Commit `f1d1cd8`.
+- [x] T3 — Verify: `npm run test`, `npm run build`, `npx eslint .`, prettier. Tests 965/965, build green, eslint 0, prettier clean.
