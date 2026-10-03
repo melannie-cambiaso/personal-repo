@@ -28,5 +28,5 @@ Mode: on · Runner: `vitest run` (`npm run test`)
 
 ## Tasks
 - [x] T1 — Data: `loadHomeFinanceSummary(month)` in finance-v2 data (balance, pending) + tests. 3 tests, RED→GREEN, tsc clean. Commit `43cb8f1`.
-- [x] T2 — UI: finance summary card + home restructure (summary on top, other sections below) + tests. 5 card tests RED→GREEN; page guarded by cookie + redirect before loading; build green.
-- [ ] T3 — Verify: full `npm run test`, `npm run build`.
+- [x] T2 — UI: finance summary card + home restructure (summary on top, other sections below) + tests. 5 card tests RED→GREEN; page guarded by cookie + redirect before loading; build green. Commit `7c70f2c`.
+- [x] T3 — Verify: full `npm run test`, `npm run build`. Tests 902/902, build green, `/` dynamic.
