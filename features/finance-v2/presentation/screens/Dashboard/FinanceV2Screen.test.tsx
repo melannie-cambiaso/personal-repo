@@ -465,6 +465,66 @@ describe("FinanceV2Screen", () => {
       );
     });
 
+    // Budget-tab account coverage: Luz is envelope-paid, so only Ocio's remaining
+    // ($20.000 − $5.000) is pending from the main account; the balance is
+    // $100.000 income − $5.000 main expense − $50.000 transfer (the envelope-paid
+    // Luz expense never touches the main account).
+    it("shows the viewed month's pending, balance and surplus on the Presupuesto tab", () => {
+      const july = (tx: Record<string, unknown>) =>
+        ({ date: "2026-07-05", month: "2026-07", ...tx }) as FinanceV2Transaction;
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={cuentasWithLuz}
+          initialEnvelopeConfig={envelope}
+          initialTransactions={[
+            july({ id: "t1", type: "income", amount: 100_000 }),
+            july({
+              id: "t2",
+              type: "expense",
+              amount: 5_000,
+              bucket: "variable",
+              category: { id: "ocio", name: "Ocio" },
+            }),
+            july({
+              id: "t3",
+              type: "expense",
+              amount: 43_000,
+              bucket: "fixed",
+              category: { id: "luz", name: "Luz" },
+              paidFrom: "envelope",
+            }),
+            july({ id: "t4", type: "transfer", amount: 50_000 }),
+          ]}
+        />
+      );
+
+      expect(
+        screen.getByText("Pendiente por pagar desde la cuenta").nextSibling?.textContent
+      ).toBe("$15.000");
+      expect(screen.getByText("Saldo del mes").nextSibling?.textContent).toBe("$45.000");
+      expect(screen.getByText("Te sobran $30.000")).toBeTruthy();
+      expect(screen.getByText("no incluye Cuentas: se paga desde Servicios")).toBeTruthy();
+    });
+
+    it("withholds the account coverage figures while a newly viewed month loads", () => {
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudget={cuentasWithLuz}
+          initialEnvelopeConfig={envelope}
+          onLoadTransactions={() => new Promise<FinanceV2Transaction[]>(() => {})}
+        />
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
+
+      expect(screen.getByText("Pendiente por pagar desde la cuenta").nextSibling?.textContent).toBe(
+        "—"
+      );
+      expect(screen.queryByText(/Te sobran|Te faltan/)).toBeNull();
+    });
+
     it("opening the envelope config modal disables the shared MonthNav", () => {
       render(<FinanceV2Screen {...defaultProps()} initialBudget={cuentasWithLuz} />);
 

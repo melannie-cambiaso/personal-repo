@@ -4,6 +4,7 @@ import { BudgetTab } from "./BudgetTab";
 import { computeBudgetComparison, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type { BudgetCategory } from "@/features/finance-v2/domain";
 import type { SpendView } from "./spendView";
+import type { AccountCoverageView } from "./accountCoverageView";
 
 const emptySpend: SpendView = {
   status: "ready",
@@ -21,6 +22,8 @@ const emptySpend: SpendView = {
 
 const loadingSpend: SpendView = { status: "loading" };
 
+const emptyCoverage: AccountCoverageView = { figures: { pending: 0, balance: 0 }, envelopeNote: null };
+
 // A 4-Monday month (see `getWeeksInMonth`); every fixture here is monthly, so it
 // does not change any figure.
 const MONTH = "2026-09";
@@ -37,6 +40,7 @@ describe("BudgetTab", () => {
         month={MONTH}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
+        coverage={emptyCoverage}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -61,6 +65,7 @@ describe("BudgetTab", () => {
         month={MONTH}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
+        coverage={emptyCoverage}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -81,6 +86,7 @@ describe("BudgetTab", () => {
         month={MONTH}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
+        coverage={emptyCoverage}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -102,6 +108,7 @@ describe("BudgetTab", () => {
         month={MONTH}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
+        coverage={emptyCoverage}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -126,6 +133,7 @@ describe("BudgetTab", () => {
         month={MONTH}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
+        coverage={emptyCoverage}
         onAmountBlur={noop}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -154,6 +162,7 @@ describe("BudgetTab", () => {
         month={MONTH}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
+        coverage={emptyCoverage}
         onAmountBlur={noop}
         onAddCategory={onAddCategory}
         onAddSubcategory={noop}
@@ -183,6 +192,7 @@ describe("BudgetTab", () => {
         month={MONTH}
         comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
+        coverage={emptyCoverage}
         onAmountBlur={noop}
         onAddCategory={onAddCategory}
         onAddSubcategory={noop}
@@ -215,6 +225,7 @@ describe("BudgetTab", () => {
         month={MONTH}
         comparison={computeBudgetComparison({ categories: [category] }, "2026-07")}
         spend={emptySpend}
+        coverage={emptyCoverage}
         onAmountBlur={onAmountBlur}
         onAddCategory={noop}
         onAddSubcategory={noop}
@@ -261,6 +272,7 @@ describe("BudgetTab", () => {
           month={MONTH}
           comparison={computeBudgetComparison({ categories: [category] }, "2026-07")}
           spend={spendWithData}
+          coverage={emptyCoverage}
           onAmountBlur={noop}
           onAddCategory={noop}
           onAddSubcategory={noop}
@@ -283,6 +295,7 @@ describe("BudgetTab", () => {
           month={MONTH}
           comparison={computeBudgetComparison({ categories: [category] }, "2026-07")}
           spend={spendWithData}
+          coverage={emptyCoverage}
           onAmountBlur={noop}
           onAddCategory={noop}
           onAddSubcategory={noop}
@@ -305,6 +318,7 @@ describe("BudgetTab", () => {
           month={MONTH}
           comparison={computeBudgetComparison({ categories: [category] }, "2026-07")}
           spend={loadingSpend}
+          coverage={emptyCoverage}
           onAmountBlur={noop}
           onAddCategory={noop}
           onAddSubcategory={noop}

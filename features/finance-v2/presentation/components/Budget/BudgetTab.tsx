@@ -8,6 +8,8 @@ import type {
   BudgetFrequency,
   Weekday,
 } from "@/features/finance-v2/domain";
+import { AccountCoverage } from "./AccountCoverage";
+import type { AccountCoverageView } from "./accountCoverageView";
 import { BucketComparison } from "./BucketComparison";
 import { BudgetCategoryCard } from "./BudgetCategoryCard";
 import { Button, Input, Select } from "@/shared/components";
@@ -25,6 +27,8 @@ interface Props {
   /** Threaded from `FinanceV2Screen` (design D7/D8) into both `BucketComparison` and
    *  every `BudgetCategoryCard`. */
   spend: SpendView;
+  /** Derived in `FinanceV2Screen` for the same viewed month and transactions as `spend`. */
+  coverage: AccountCoverageView;
   onAmountBlur: (categoryId: string, subcategoryId: string | null, raw: string) => void;
   onAddCategory: (name: string, bucket: BucketKey) => void;
   onAddSubcategory: (categoryId: string, name: string, bucket: BucketKey) => void;
@@ -56,6 +60,7 @@ export function BudgetTab({
   month,
   comparison,
   spend,
+  coverage,
   onAmountBlur,
   onAddCategory,
   onAddSubcategory,
@@ -92,6 +97,7 @@ export function BudgetTab({
       </div>
 
       <BucketComparison comparison={comparison} spend={spend} />
+      <AccountCoverage coverage={coverage} />
 
       {mode === "view" && categories.length === 0 ? (
         <p className="text-brown-500 text-sm">No hay categorías cargadas</p>

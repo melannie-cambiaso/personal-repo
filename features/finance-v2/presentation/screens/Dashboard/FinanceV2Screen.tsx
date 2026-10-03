@@ -8,6 +8,7 @@ import type {
 } from "@/features/finance-v2/domain";
 import {
   computeMonthAnalysis,
+  computePendingFromMain,
   computeSpendComparison,
   listExpenseCategoryOptions,
   resolvePaidFrom,
@@ -20,6 +21,7 @@ import { AnalysisTab } from "../../components/Analysis/AnalysisTab";
 import { TransactionsTab } from "../../components/Transactions/TransactionsTab";
 import type { BudgetMode } from "../../components/Budget/budgetMode";
 import { toSpendView } from "../../components/Budget/spendView";
+import { toAccountCoverageView } from "../../components/Budget/accountCoverageView";
 import { toEnvelopeView } from "../../components/Transactions/Envelope/envelopeView";
 import { PageHeader, MonthNav } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
@@ -138,6 +140,22 @@ export function FinanceV2Screen({
   );
   const spend = toSpendView(isLoadingMonth, spendComparison);
 
+  // Same axes as `spendComparison` (plus the envelope, whose bound leaves it excludes),
+  // paired with `totals.balance` from the very same transaction list so both sides of
+  // the coverage block describe one month. `isLoadingMonth` is applied outside the
+  // memo, as with `toSpendView`.
+  const pendingFromMain = useMemo(
+    () => computePendingFromMain({ categories }, transactions, viewedMonth, envelopeConfig),
+    [categories, transactions, viewedMonth, envelopeConfig]
+  );
+  const coverage = toAccountCoverageView({
+    isLoadingMonth,
+    pending: pendingFromMain,
+    balance: totals.balance,
+    envelope: envelopeConfig,
+    categories,
+  });
+
   // Memoized on the same axes as `spendComparison` — it composes the very same
   // rollups, so the Analysis tab can never disagree with the Budget tab. As with
   // `toSpendView` above, `isLoadingMonth` stays OUT of the dependency list and is
@@ -209,6 +227,7 @@ export function FinanceV2Screen({
             month={viewedMonth}
             comparison={comparison}
             spend={spend}
+            coverage={coverage}
             onAmountBlur={handleAmountBlur}
             onAddCategory={addCategory}
             onAddSubcategory={addSubcategory}
