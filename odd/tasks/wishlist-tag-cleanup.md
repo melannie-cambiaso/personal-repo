@@ -45,3 +45,6 @@ Forecast: ~150–250 authored lines (mostly deletions), under the ~400 budget.
     `npm run lint` → clean; `prettier --check` on changed code files → clean.
   - Commit: `a1252f6` refactor(wishlist): remove brand and category fields.
 - [x] T3 — Verify: full `npm run test`, `npm run build`. Tests 806/806, build green. Route: inline (bounded commands).
+
+## Review
+`gentle-ai review assess --base-ref main --committed-only`: risk `medium`, 253 lines, `review_due: false` (`under_budget`). No native review run.
