@@ -45,6 +45,43 @@ describe("WishlistItemRow", () => {
     expect(screen.queryByText("Media")).toBeNull();
   });
 
+  describe("tag", () => {
+    it("is shown next to the price when the item has one", () => {
+      renderOwnerRow({ item: { ...item, tag: "Cumpleaños" } });
+
+      const tag = screen.getByText("Cumpleaños");
+      expect(tag.className).toContain("rounded-full");
+      // Long tags truncate instead of pushing the row past a ~360px screen.
+      expect(tag.className).toContain("truncate");
+      expect(tag.className).toContain("text-blush-800");
+    });
+
+    it("is muted when the item is owned, like the price", () => {
+      renderOwnerRow({ item: { ...item, tag: "Cumpleaños" }, owned: true });
+
+      const tag = screen.getByText("Cumpleaños");
+      expect(tag.className).toContain("text-brown-400");
+      expect(tag.className).not.toContain("text-blush-800");
+    });
+
+    it.each([
+      ["without a tag", undefined],
+      ["with an empty tag", ""],
+    ])("is not rendered %s", (_, tag) => {
+      renderOwnerRow({ item: { ...item, tag } });
+
+      // The price line holds only the price.
+      expect(screen.getByText("$50.000").parentElement?.children).toHaveLength(1);
+    });
+
+    it("is shown on a legacy row without a price", () => {
+      renderOwnerRow({ item: { ...legacyItem, tag: "Regalo" } });
+
+      expect(screen.getByText("Regalo")).toBeTruthy();
+      expect(screen.getByText("Falta precio")).toBeTruthy();
+    });
+  });
+
   describe("move buttons", () => {
     function renderMovableRow(canMoveUp = true, canMoveDown = true) {
       const onMoveUp = vi.fn();

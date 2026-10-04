@@ -73,6 +73,17 @@ export function WishlistItemRow({
           ) : (
             <span className="text-sm text-red-600">Falta precio</span>
           )}
+          {/* Outlined, never filled, so it reads as a label and not as a button.
+              Truncates so a long tag cannot push the row past a ~360px screen. */}
+          {item.tag && (
+            <span
+              className={`bg-cream-50 max-w-40 min-w-0 truncate rounded-full border-2 px-2.5 text-sm ${
+                owned ? "border-brown-200 text-brown-400" : "border-blush-300 text-blush-800"
+              }`}
+            >
+              {item.tag}
+            </span>
+          )}
         </div>
       </div>
 
