@@ -1,5 +1,0 @@
-export { BudgetTab } from "./Budget/BudgetTab";
-export { BudgetCategoriesModal } from "./Budget/BudgetCategoriesModal";
-export { CategoriesTab } from "./Categories/CategoriesTab";
-export { AddTransactionModal } from "./Transactions/AddTransactionModal";
-export { TransactionsTab } from "./Transactions/TransactionsTab";
