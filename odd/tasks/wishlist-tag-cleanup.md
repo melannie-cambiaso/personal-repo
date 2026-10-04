@@ -43,5 +43,5 @@ Forecast: ~150–250 authored lines (mostly deletions), under the ~400 budget.
   - RED (modal test vs. old modal): 8 failed | 10 passed. GREEN: 18 passed (18).
   - `npx vitest run features/wishlist` → 10 files, 95 passed; `npx tsc --noEmit` → clean;
     `npm run lint` → clean; `prettier --check` on changed code files → clean.
-  - Commit: refactor(wishlist): remove brand and category fields (hash in `git log`).
-- [ ] T3 — Verify: full `npm run test`, `npm run build`.
+  - Commit: `a1252f6` refactor(wishlist): remove brand and category fields.
+- [x] T3 — Verify: full `npm run test`, `npm run build`. Tests 806/806, build green. Route: inline (bounded commands).
