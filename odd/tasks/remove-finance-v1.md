@@ -54,11 +54,12 @@ v1 is disabled in the nav but its code, export route, specs, and `exceljs` depen
   - `npm test`: 81 files / 777 tests passed.
   - `npx eslint .`: exit 0, no output (same as the pre-change baseline).
   - `npx tsc --noEmit`: FAILS only in stale generated `.next/dev/types/validator.ts` (dev-server output, gitignored) that still imports `app/finance/page.js` and `app/api/finance/budget/export/route.js`. Same config excluding `.next/dev`: exit 0.
-  - `npm run build`: compiles, then type check fails on the same stale `.next/dev/types/validator.ts`. Pending: clear `.next/dev` (or restart `next dev`) and re-run build + tsc.
+  - `npm run build`: compiles, then type check fails on the same stale `.next/dev/types/validator.ts`.
+  - After deleting the stale `.next/dev` (no dev server running): `npx tsc --noEmit` exit 0; `npm run build` exit 0, route list shows `/finance-v2` and no `/finance`.
   - `npx prettier --check` on edited code files: clean (after `--write` on `features.test.ts`).
 - Split: the original code commit (`266f846`, kept on `backup/remove-finance-v1-pre-split`) exceeded the native review context budget (`lens_context_budget_exceeded`), so it was split into deletions (`a085bfe`) and reference edits (`9d4281c`); the final tree is identical to the pre-split branch.
 - Native review (RDD): `9d4281c` assessed medium, consent granted, one reliability lens, approved and acknowledged (lineage `review-d2e3963c811098b9`, authority burned). Non-blocking advisories for later work: `proxy.ts` matcher has no test (WARNING); `exceljs` removal not proven by a test (SUGGESTION). `a085bfe` (pure deletions) and `66b018b` (docs) were not reviewed.
 
 ## Next step
 
-Clear stale `.next/dev` output, re-run `npm run build` and `npx tsc --noEmit`; then push/PR at the user's discretion.
+All checks pass. Push/PR at the user's discretion; optional follow-ups: add a `proxy.ts` matcher test, delete `backup/remove-finance-v1-pre-split`.
