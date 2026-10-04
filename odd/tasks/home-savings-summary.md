@@ -31,5 +31,5 @@ Strategy: `ask-on-risk` · Forecast: ~200 authored lines (under the ~400 budget)
 
 ## Tasks
 - [x] T1 — Data: `loadHomeSavingsSummary()` server loader (balance + toReplenish of the active period) + tests. Route: delegated (writer; part of 2+ non-trivial files). Reuses existing `resolveActivePeriod`, `selectPeriodEntries`, `computePeriodBalance` (initial amount included, as `useSavings`) and `computeTotalToReplenish`; no domain extraction needed. Imported by path. 3 loader tests RED (missing module) → GREEN, savings 172/172. Commit `8153604`.
-- [x] T2 — UI: `SavingsSummaryCard` + tests; render it on home after the auth guard, loaded in parallel; remove `/savings` from shortcuts. Route: delegated (same writer). 5 card tests RED (missing module) → GREEN, savings 177/177; tsc clean, lint clean. Cards grid `lg:grid-cols-3`; the remaining shortcut (Casa) is a centered `sm:w-64` tile. Commit: see `feat(home): show savings summary card` (hash recorded in the parent report).
-- [ ] T3 — Verify: full `npm run test`, `npm run build`.
+- [x] T2 — UI: `SavingsSummaryCard` + tests; render it on home after the auth guard, loaded in parallel; remove `/savings` from shortcuts. Route: delegated (same writer). 5 card tests RED (missing module) → GREEN, savings 177/177; tsc clean, lint clean. Cards grid `lg:grid-cols-3`; the remaining shortcut (Casa) is a centered `sm:w-64` tile. Commit `4824ed3`.
+- [x] T3 — Verify: full `npm run test`, `npm run build`. Tests 800/800 (83 files), build green. Route: inline (bounded commands).
