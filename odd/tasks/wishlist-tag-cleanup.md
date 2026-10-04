@@ -48,3 +48,19 @@ Forecast: ~150–250 authored lines (mostly deletions), under the ~400 budget.
 
 ## Review
 `gentle-ai review assess --base-ref main --committed-only`: risk `medium`, 253 lines, `review_due: false` (`under_budget`). No native review run.
+
+## Follow-up (user request 2026-10-04, after T3)
+- Remove `emoji` end to end, same approach as brand/category (it is not displayed anywhere).
+- Form order below the "opcional" divider: Tag, Prioridad, Descripción (user-confirmed).
+- [x] T4 — Remove emoji (form, domain, seed, fixtures) and reorder the optional fields + tests. Route: delegated (writer; modal + domain + seed + fixtures).
+  - Modal drops the Emoji field (state, `formFromItem`, submit); the two-column Emoji+Prioridad
+    grid is gone and the optional fields are stacked full width: Tag, Prioridad, Descripción.
+    `WishlistItem` loses `emoji?` (doc comment updated, stored keys ignored, no migration);
+    seed and fixtures cleaned.
+  - Tests: Emoji field absent; label-order test; the legacy drop test now also covers `emoji`
+    (and `brand`); quick-path submit asserts no `emoji` key.
+  - RED (modal test vs. old modal): 4 failed | 15 passed. GREEN: 19 passed (19).
+  - `npx vitest run features/wishlist` → 10 files, 96 passed; `npx tsc --noEmit` → clean;
+    `npm run lint` → clean; `prettier --check` on changed code files → clean.
+  - Commit: see `git log` — refactor(wishlist): remove emoji and reorder optional fields.
+- [ ] T5 — Verify: full `npm run test`, `npm run build`.

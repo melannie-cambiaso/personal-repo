@@ -19,7 +19,6 @@ interface Props {
 const EMPTY = {
   title: "",
   description: "",
-  emoji: "",
   price: "",
   tag: "",
   url: "",
@@ -33,7 +32,6 @@ function formFromItem(item: WishlistItem) {
   return {
     title: item.title,
     description: item.description ?? "",
-    emoji: item.emoji ?? "",
     price: item.price?.toString() ?? "",
     tag: item.tag ?? "",
     url: item.url ?? "",
@@ -63,7 +61,6 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
       id: editItem?.id ?? crypto.randomUUID(),
       // `|| undefined`, not the raw value: a blank optional must be absent, not an
       // empty string, or the list renders an empty tag pill instead of none.
-      emoji: form.emoji || undefined,
       title: form.title,
       description: form.description || undefined,
       tag: form.tag || undefined,
@@ -120,27 +117,22 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Emoji">
-            <Input value={form.emoji} onChange={set("emoji")} placeholder="☕" />
-          </Field>
-          <Field label="Prioridad">
-            <Select value={form.priority} onChange={set("priority")}>
-              {Object.entries(PRIORITY_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-        </div>
+        <Field label="Tag">
+          <Input value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
+        </Field>
+
+        <Field label="Prioridad">
+          <Select value={form.priority} onChange={set("priority")}>
+            {Object.entries(PRIORITY_LABELS).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </Select>
+        </Field>
 
         <Field label="Descripción">
           <Textarea rows={2} value={form.description} onChange={set("description")} />
-        </Field>
-
-        <Field label="Tag">
-          <Input value={form.tag} onChange={set("tag")} placeholder="Suscripción mensual" />
         </Field>
 
         <div className="mt-2 flex justify-end gap-3">

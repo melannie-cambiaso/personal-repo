@@ -7,7 +7,6 @@ const item: WishlistItem = {
   id: "1",
   title: "Auriculares Sony",
   description: "Desc",
-  emoji: "🎧",
   price: 50000,
 };
 

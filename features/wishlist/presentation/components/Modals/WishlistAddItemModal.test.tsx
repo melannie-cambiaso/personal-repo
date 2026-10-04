@@ -12,7 +12,6 @@ describe("WishlistAddItemModal", () => {
   it("renders every form field", () => {
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} />);
     expect(screen.getByLabelText("Título *")).toBeTruthy();
-    expect(screen.getByLabelText("Emoji")).toBeTruthy();
     expect(screen.getByLabelText("Descripción")).toBeTruthy();
     expect(screen.getByLabelText("Precio (CLP) *")).toBeTruthy();
     expect(screen.getByLabelText("Tag")).toBeTruthy();
@@ -23,6 +22,26 @@ describe("WishlistAddItemModal", () => {
     // Brand and category were never shown anywhere, so they were removed.
     expect(screen.queryByLabelText("Marca / Tienda")).toBeNull();
     expect(screen.queryByLabelText("Categoría")).toBeNull();
+    // Emoji was never shown anywhere either, so it was removed too.
+    expect(screen.queryByLabelText("Emoji")).toBeNull();
+  });
+
+  // Below the "opcional" divider the fields go Tag, Prioridad, Descripción, each on
+  // its own full-width row.
+  it("orders the optional fields as Tag, Prioridad, Descripción", () => {
+    render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} />);
+
+    const labels = Array.from(document.querySelectorAll("form label")).map(
+      (label) => label.querySelector("span")?.textContent
+    );
+    expect(labels).toEqual([
+      "Título *",
+      "Precio (CLP) *",
+      "URL del producto *",
+      "Tag",
+      "Prioridad",
+      "Descripción",
+    ]);
   });
 
   // Asserted on the `required` attribute itself rather than by submitting a blank
@@ -35,7 +54,7 @@ describe("WishlistAddItemModal", () => {
     expect((screen.getByLabelText("Precio (CLP) *") as HTMLInputElement).required).toBe(true);
     expect((screen.getByLabelText("URL del producto *") as HTMLInputElement).required).toBe(true);
     expect((screen.getByLabelText("Tag") as HTMLInputElement).required).toBe(false);
-    expect((screen.getByLabelText("Emoji") as HTMLInputElement).required).toBe(false);
+    expect((screen.getByLabelText("Prioridad") as HTMLSelectElement).required).toBe(false);
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).required).toBe(false);
   });
 
@@ -50,12 +69,12 @@ describe("WishlistAddItemModal", () => {
   it("lets the user type into every field", () => {
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} />);
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
-    fireEvent.change(screen.getByLabelText("Emoji"), { target: { value: "🎧" } });
+    fireEvent.change(screen.getByLabelText("Tag"), { target: { value: "Deseado" } });
     fireEvent.change(screen.getByLabelText("Descripción"), { target: { value: "Desc" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
 
     expect((screen.getByLabelText("Título *") as HTMLInputElement).value).toBe("Auriculares");
-    expect((screen.getByLabelText("Emoji") as HTMLInputElement).value).toBe("🎧");
+    expect((screen.getByLabelText("Tag") as HTMLInputElement).value).toBe("Deseado");
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).value).toBe("Desc");
     expect((screen.getByLabelText("Precio (CLP) *") as HTMLInputElement).value).toBe("50000");
   });
@@ -66,7 +85,6 @@ describe("WishlistAddItemModal", () => {
     render(<WishlistAddItemModal isOpen onClose={onClose} onAdd={onAdd} />);
 
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
-    fireEvent.change(screen.getByLabelText("Emoji"), { target: { value: "🎧" } });
     fireEvent.change(screen.getByLabelText("Descripción"), { target: { value: "Desc" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
     fireEvent.change(screen.getByLabelText("URL del producto *"), {
@@ -78,7 +96,6 @@ describe("WishlistAddItemModal", () => {
     expect(onAdd).toHaveBeenCalledTimes(1);
     const submitted = onAdd.mock.calls[0][0];
     expect(submitted.title).toBe("Auriculares");
-    expect(submitted.emoji).toBe("🎧");
     expect(submitted.description).toBe("Desc");
     expect(submitted.price).toBe(50000);
     expect(submitted.tag).toBe("Deseado");
@@ -103,12 +120,12 @@ describe("WishlistAddItemModal", () => {
     expect(onAdd).toHaveBeenCalledTimes(1);
     const submitted = onAdd.mock.calls[0][0] as WishlistItem;
     expect(submitted.title).toBe("Zapatillas negras");
-    expect(submitted.emoji).toBeUndefined();
     expect(submitted.description).toBeUndefined();
     expect(submitted.tag).toBeUndefined();
     expect(submitted.price).toBe(39990);
     expect(submitted).not.toHaveProperty("brand");
     expect(submitted).not.toHaveProperty("category");
+    expect(submitted).not.toHaveProperty("emoji");
   });
 
   // jsdom skips constraint validation, so these submits reach the handler exactly
@@ -187,7 +204,7 @@ describe("WishlistAddItemModal", () => {
   });
 
   // Regression guard for the widened domain type: an item saved through the quick
-  // path has no emoji/description/tag, and reopening it to enrich it must not
+  // path has no description/tag, and reopening it to enrich it must not
   // feed `undefined` into the controlled inputs.
   it("opens an item saved without optional fields for editing", () => {
     const sparse: WishlistItem = {
@@ -199,7 +216,6 @@ describe("WishlistAddItemModal", () => {
 
     expect((screen.getByLabelText("Título *") as HTMLInputElement).value).toBe("Zapatillas negras");
     expect((screen.getByLabelText("Tag") as HTMLInputElement).value).toBe("");
-    expect((screen.getByLabelText("Emoji") as HTMLInputElement).value).toBe("");
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).value).toBe("");
   });
 
@@ -250,13 +266,15 @@ describe("WishlistAddItemModal", () => {
     );
   });
 
-  // Items stored before brand and category were removed may still carry them; saving
-  // an edit rebuilds the item from the form, so the stale keys are dropped.
-  it("drops a stored item's legacy brand and category when it is saved", () => {
+  // Items stored before brand, category and emoji were removed may still carry them;
+  // saving an edit rebuilds the item from the form, so the stale keys are dropped.
+  it("drops a stored item's legacy brand, category and emoji when it is saved", () => {
     const onAdd = vi.fn();
     const stored = {
       id: "1",
+      emoji: "👟",
       title: "Zapatillas negras",
+      brand: "Nike",
       category: { id: "cloth", name: "Ropa", color: "cloth" },
       price: 39990,
       url: "https://example.com/item",
@@ -268,6 +286,7 @@ describe("WishlistAddItemModal", () => {
     const submitted = onAdd.mock.calls[0][0] as WishlistItem;
     expect(submitted).not.toHaveProperty("brand");
     expect(submitted).not.toHaveProperty("category");
+    expect(submitted).not.toHaveProperty("emoji");
   });
 
   // Legacy rows may carry `price: null`; editing one must not round-trip that null.

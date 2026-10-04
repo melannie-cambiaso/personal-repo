@@ -3,7 +3,6 @@ import type { WishlistItem } from "../domain/WishlistItem";
 export const WISHLIST_ITEMS: WishlistItem[] = [
   {
     id: "1",
-    emoji: "☕",
     image:
       "https://tostadoclub.com/cdn/shop/files/Cafe_Especialidad_-_Junio_2026_-_LAMA.png?v=1780513684&width=600",
     title: "Suscripción Café Especialidad",
@@ -15,7 +14,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "2",
-    emoji: "🍫",
     image:
       "https://theholybrand.cl/cdn/shop/files/pistakio_250_36280fe3-0690-4a6d-ac85-0ff607e5433c.png?v=1764095221&width=600",
     title: "Fancy Pistachio",
@@ -27,7 +25,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "3",
-    emoji: "🧘",
     image: "https://lineasport.cl/wp-content/uploads/2026/05/Portada-3014RO-1.png",
     title: "Reformer Pilates Plegable",
     description: "Máquina multifuncional plegable para entrenamiento de pilates en casa.",
@@ -37,7 +34,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "4",
-    emoji: "🧥",
     image:
       "https://camov.cl/cdn/shop/files/ImagenesdeProductos_6fbccf49-9ff8-4d93-b827-f7b583b709a0.jpg?crop=center&height=600&v=1781618812&width=600",
     title: "Conjunto Polerón Canguro y Palazzo",
@@ -49,7 +45,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "5",
-    emoji: "🎧",
     image: "https://www.edifier.com/pub/media/catalog/product/W800BT_PRO_ivory_01.jpg",
     title: "Audífonos W800BT Pro",
     description:
@@ -60,7 +55,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "6",
-    emoji: "🛏️",
     image:
       "https://www.rosen.cl/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/b/o/bock_2p_2024.jpg",
     title: "Colchón Bock 2 Plazas",
@@ -72,7 +66,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "7",
-    emoji: "💻",
     image:
       "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mbp16-spaceblack-select-202410?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1728916322194",
     title: 'MacBook Pro 16" M4 Pro',
@@ -84,7 +77,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "8",
-    emoji: "📚",
     image:
       "https://images-na.ssl-images-amazon.com/images/I/41jEbK-jG+L._SX376_BO1,204,203,200_.jpg",
     title: "Clean Code",
@@ -96,7 +88,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "9",
-    emoji: "🚿",
     image:
       "https://cleanbath.cl/cdn/shop/files/Captura_de_pantalla_2024-10-01_173545.png?v=1744135199",
     title: "Tapa de Baño Japonés",
@@ -108,7 +99,6 @@ export const WISHLIST_ITEMS: WishlistItem[] = [
   },
   {
     id: "10",
-    emoji: "🍵",
     image:
       "https://kombuchu.cl/cdn/shop/files/6_70352b27-32b5-43ce-abe2-9ac40315e314.jpg?v=1781534830",
     title: "Caja Kombucha Mix (12x333cc)",

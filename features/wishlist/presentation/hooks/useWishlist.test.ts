@@ -7,7 +7,6 @@ const makeItem = (id: string, price: number | null = 1000): WishlistItem => ({
   id,
   title: `Item ${id}`,
   description: "Desc",
-  emoji: "🎁",
   price,
 });
 
