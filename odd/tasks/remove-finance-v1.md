@@ -43,12 +43,12 @@ v1 is disabled in the nav but its code, export route, specs, and `exceljs` depen
 ## Progress / Evidence
 
 - Branch `chore/remove-finance-v1` created from `main` (32f8182).
-- T1 (delegated writer): `git rm -r app/finance features/finance app/api/finance` — 39 files removed; `features/finance-v2/` and `app/finance-v2/` untouched. Commit `266f846`.
-- T2 (delegated writer): nav `/finance` item and the now-unused `FeatureNavItem.disabled` (+ its filter in `app/page.tsx`) removed; tests updated to 4 items; AppNav "Finanzas" `/finance` assertion dropped and its drawer link count 5 -> 4; `proxy.ts` matcher `/finance/:path*` -> `/finance-v2/:path*`; `npm uninstall exceljs`; v2 data comments no longer cite v1 files. Commit `266f846`.
+- T1 (delegated writer): `git rm -r app/finance features/finance app/api/finance` — 39 files removed; `features/finance-v2/` and `app/finance-v2/` untouched. Commit `a085bfe`.
+- T2 (delegated writer): nav `/finance` item and the now-unused `FeatureNavItem.disabled` (+ its filter in `app/page.tsx`) removed; tests updated to 4 items; AppNav "Finanzas" `/finance` assertion dropped and its drawer link count 5 -> 4; `proxy.ts` matcher `/finance/:path*` -> `/finance-v2/:path*`; `npm uninstall exceljs`; v2 data comments no longer cite v1 files. Commit `9d4281c`.
   - RED `npx vitest run shared/navigation shared/components/AppNav` (tests updated, `features.ts` untouched): 2 failed / 9 passed (length 5 vs 4, extra `/finance` href).
   - After editing `features.ts`, one more stale count surfaced (`AppNav.test.tsx` "has no active link" expected 5 links): 1 failed / 10 passed; updated to 4.
   - GREEN same command: 11/11 passed.
-- T3 (delegated writer): `git rm -r openspec/specs/finance-budget-summary openspec/specs/finance-budget-unit-mode`; `mobile-navigation` example route -> `/finance-v2`; `savings-monthly-breakdown` no longer points at `features/finance/`; `cleanup-pending.md` notes v1 lint findings are gone. Commit: see `git log` (docs(specs) commit following `266f846`).
+- T3 (delegated writer): `git rm -r openspec/specs/finance-budget-summary openspec/specs/finance-budget-unit-mode`; `mobile-navigation` example route -> `/finance-v2`; `savings-monthly-breakdown` no longer points at `features/finance/`; `cleanup-pending.md` notes v1 lint findings are gone. Commit `66b018b`.
 - Verification:
   - reference `rg` (features/finance, quoted `/finance`, excluding v2/.git/node_modules/.next): no live code hits; remaining hits are archived openspec changes, `odd/tasks/paper-restyle.md` (historical), and this document.
   - `npm test`: 81 files / 777 tests passed.
@@ -56,6 +56,8 @@ v1 is disabled in the nav but its code, export route, specs, and `exceljs` depen
   - `npx tsc --noEmit`: FAILS only in stale generated `.next/dev/types/validator.ts` (dev-server output, gitignored) that still imports `app/finance/page.js` and `app/api/finance/budget/export/route.js`. Same config excluding `.next/dev`: exit 0.
   - `npm run build`: compiles, then type check fails on the same stale `.next/dev/types/validator.ts`. Pending: clear `.next/dev` (or restart `next dev`) and re-run build + tsc.
   - `npx prettier --check` on edited code files: clean (after `--write` on `features.test.ts`).
+- Split: the original code commit (`266f846`, kept on `backup/remove-finance-v1-pre-split`) exceeded the native review context budget (`lens_context_budget_exceeded`), so it was split into deletions (`a085bfe`) and reference edits (`9d4281c`); the final tree is identical to the pre-split branch.
+- Native review (RDD): `9d4281c` assessed medium, consent granted, one reliability lens, approved and acknowledged (lineage `review-d2e3963c811098b9`, authority burned). Non-blocking advisories for later work: `proxy.ts` matcher has no test (WARNING); `exceljs` removal not proven by a test (SUGGESTION). `a085bfe` (pure deletions) and `66b018b` (docs) were not reviewed.
 
 ## Next step
 
