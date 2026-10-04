@@ -4,6 +4,7 @@ import type {
   BudgetCategory,
   DayGroup,
   ExpenseCategoryOption,
+  FinanceV2Transaction,
   TransactionTotals,
 } from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
@@ -25,6 +26,10 @@ interface Props {
   categoryOptions: ExpenseCategoryOption[];
   onAdd: (input: NewTransactionInput) => void;
   onDelete: (id: string) => void;
+  onUpdate: (id: string, input: NewTransactionInput) => void;
+  onEdit: (transaction: FinanceV2Transaction) => void;
+  /** The transaction the add modal is editing; `null` = add mode. */
+  editingTransaction: FinanceV2Transaction | null;
   /** Set by the hook right after a transaction was saved to a month other than
    *  `viewedMonth`; drives the dismissible confirmation banner below. `null` = no banner. */
   lastCrossMonthSave: string | null;
@@ -60,6 +65,9 @@ export function TransactionsTab({
   categoryOptions,
   onAdd,
   onDelete,
+  onUpdate,
+  onEdit,
+  editingTransaction,
   lastCrossMonthSave,
   onDismissCrossMonthSave,
   isAddOpen,
@@ -109,8 +117,10 @@ export function TransactionsTab({
         viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
         hasEnvelope={hasEnvelope}
+        editingTransaction={editingTransaction}
         onClose={onCloseAdd}
         onAdd={onAdd}
+        onUpdate={onUpdate}
       />
       <EnvelopeConfigModal
         isOpen={isEnvelopeConfigOpen}
@@ -122,6 +132,7 @@ export function TransactionsTab({
       <TransactionList
         dayGroups={dayGroups}
         onDelete={onDelete}
+        onEdit={onEdit}
         envelopeName={envelope?.config.name ?? null}
       />
     </div>

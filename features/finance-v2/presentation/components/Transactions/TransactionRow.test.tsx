@@ -14,10 +14,30 @@ describe("TransactionRow", () => {
       month: "2026-07",
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={onDelete} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={onDelete} onEdit={vi.fn()} />
+    );
     fireEvent.click(screen.getByRole("button", { name: /eliminar/i }));
 
     expect(onDelete).toHaveBeenCalledWith("t1");
+  });
+
+  it("clicking edit calls onEdit with the transaction object", () => {
+    const onEdit = vi.fn();
+    const tx: FinanceV2Transaction = {
+      id: "t1",
+      type: "income",
+      amount: 1000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
+
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={onEdit} />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /editar/i }));
+
+    expect(onEdit).toHaveBeenCalledWith(tx);
   });
 
   it("renders the SNAPSHOTTED category name for an expense linked to a subcategory — no live lookup happens (the component receives no live category list at all)", () => {
@@ -31,7 +51,9 @@ describe("TransactionRow", () => {
       category: { id: "deleted-subcategory-id", name: "Renta" },
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
 
     expect(screen.getByText("Renta")).toBeTruthy();
   });
@@ -47,7 +69,9 @@ describe("TransactionRow", () => {
       category: null,
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
 
     expect(screen.getByText("Variables")).toBeTruthy();
   });
@@ -62,7 +86,9 @@ describe("TransactionRow", () => {
       note: "Fondo de emergencia",
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
 
     expect(screen.getByText("Fondo de emergencia")).toBeTruthy();
   });
@@ -77,7 +103,9 @@ describe("TransactionRow", () => {
       sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
 
     expect(screen.getByText("de Supermercado")).toBeTruthy();
   });
@@ -91,7 +119,9 @@ describe("TransactionRow", () => {
       month: "2026-07",
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
 
     expect(screen.queryByText(/^de /)).toBeNull();
   });
@@ -107,7 +137,9 @@ describe("TransactionRow", () => {
       sourceCategory: { id: "super", name: "Supermercado", bucket: "variable" },
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
 
     expect(screen.getByText("de Supermercado")).toBeTruthy();
     expect(screen.getByText("Fondo de emergencia")).toBeTruthy();
@@ -122,7 +154,9 @@ describe("TransactionRow", () => {
       month: "2026-07",
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
 
     expect(screen.getByText("$1.000")).toBeTruthy();
   });
@@ -136,7 +170,14 @@ describe("TransactionRow", () => {
       month: "2026-07",
     };
 
-    render(<TransactionRow transaction={tx} envelopeName="Servicios" onDelete={vi.fn()} />);
+    render(
+      <TransactionRow
+        transaction={tx}
+        envelopeName="Servicios"
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+      />
+    );
 
     expect(screen.getByText("Transferencia → Servicios")).toBeTruthy();
   });
@@ -150,7 +191,9 @@ describe("TransactionRow", () => {
       month: "2026-07",
     };
 
-    render(<TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} />);
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
 
     expect(screen.getByText("Transferencia")).toBeTruthy();
   });
@@ -167,7 +210,14 @@ describe("TransactionRow", () => {
       paidFrom: "envelope",
     };
 
-    render(<TransactionRow transaction={tx} envelopeName="Servicios" onDelete={vi.fn()} />);
+    render(
+      <TransactionRow
+        transaction={tx}
+        envelopeName="Servicios"
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+      />
+    );
 
     expect(screen.getByText("Luz")).toBeTruthy();
     expect(screen.getByText("desde Servicios")).toBeTruthy();
@@ -184,7 +234,14 @@ describe("TransactionRow", () => {
       category: null,
     };
 
-    render(<TransactionRow transaction={tx} envelopeName="Servicios" onDelete={vi.fn()} />);
+    render(
+      <TransactionRow
+        transaction={tx}
+        envelopeName="Servicios"
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+      />
+    );
 
     expect(screen.queryByText(/^desde /)).toBeNull();
   });

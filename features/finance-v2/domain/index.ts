@@ -43,7 +43,7 @@ export type {
   FinanceV2Transaction,
 } from "./FinanceV2Transaction";
 export { isTransactionMonth, toLocalISODate } from "./transactionDate";
-export { addTransaction, deleteTransaction } from "./transactionMutations";
+export { addTransaction, deleteTransaction, updateTransaction } from "./transactionMutations";
 export type { TransactionTotals } from "./transactionTotals";
 export { computeTransactionTotals } from "./transactionTotals";
 export type { EnvelopeConfig } from "./EnvelopeConfig";

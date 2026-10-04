@@ -742,6 +742,171 @@ describe("useFinanceV2Transactions", () => {
     });
   });
 
+  describe("updateTransaction", () => {
+    const income: FinanceV2Transaction = {
+      id: "t1",
+      type: "income",
+      amount: 1000,
+      date: "2026-07-01",
+      month: "2026-07",
+    };
+    const savings: FinanceV2Transaction = {
+      id: "t2",
+      type: "savings",
+      amount: 200,
+      date: "2026-07-02",
+      month: "2026-07",
+    };
+    const envelopeLuz: FinanceV2Transaction = {
+      id: "t3",
+      type: "expense",
+      amount: 43_000,
+      date: "2026-07-05",
+      month: "2026-07",
+      bucket: "fixed",
+      category: { id: "luz", name: "Luz" },
+      paidFrom: "envelope",
+    };
+
+    const renderWith = (
+      initialTransactions: FinanceV2Transaction[],
+      resolvePaidFrom?: (categoryId: string | null) => "envelope" | undefined
+    ) =>
+      renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions,
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          resolvePaidFrom,
+        })
+      );
+
+    it("replaces the transaction in place and calls onSave once with the viewed month and the resulting list", () => {
+      const { result } = renderWith([income, savings]);
+
+      act(() =>
+        result.current.updateTransaction("t1", {
+          type: "income",
+          amount: 1500,
+          date: "2026-07-03",
+          month: "2026-07",
+          note: "Bono",
+        })
+      );
+
+      const expected = [
+        {
+          id: "t1",
+          type: "income",
+          amount: 1500,
+          date: "2026-07-03",
+          month: "2026-07",
+          note: "Bono",
+        },
+        savings,
+      ];
+      expect(result.current.transactions).toEqual(expected);
+      expect(onSave).toHaveBeenCalledOnce();
+      expect(onSave).toHaveBeenCalledWith("2026-07", expected);
+      expect(onSaveToOtherMonth).not.toHaveBeenCalled();
+    });
+
+    it("ignores a different month in the input and keeps the stored month", () => {
+      const { result } = renderWith([income]);
+
+      act(() => result.current.updateTransaction("t1", { ...income, month: "2026-08" }));
+
+      expect(result.current.transactions[0].month).toBe("2026-07");
+      expect(onSave).toHaveBeenCalledOnce();
+      expect(onSave).toHaveBeenCalledWith("2026-07", [
+        expect.objectContaining({ month: "2026-07" }),
+      ]);
+      expect(onSaveToOtherMonth).not.toHaveBeenCalled();
+    });
+
+    // The resolver would now say "main account" — keeping the stamp proves the funding
+    // snapshot survives an edit that leaves the category alone.
+    it("keeps paidFrom when the category is unchanged, without consulting the resolver", () => {
+      const resolvePaidFrom = vi.fn().mockReturnValue(undefined);
+      const { result } = renderWith([envelopeLuz], resolvePaidFrom);
+
+      act(() =>
+        result.current.updateTransaction("t3", {
+          type: "expense",
+          amount: 45_000,
+          date: "2026-07-05",
+          month: "2026-07",
+          bucket: "fixed",
+          category: { id: "luz", name: "Luz" },
+        })
+      );
+
+      expect(resolvePaidFrom).not.toHaveBeenCalled();
+      expect(result.current.transactions[0]).toMatchObject({
+        amount: 45_000,
+        paidFrom: "envelope",
+      });
+    });
+
+    it("re-resolves paidFrom when the category changed and stamps an envelope-paid result", () => {
+      const resolvePaidFrom = vi.fn().mockReturnValue("envelope");
+      const ocio: FinanceV2Transaction = {
+        id: "t4",
+        type: "expense",
+        amount: 5_000,
+        date: "2026-07-06",
+        month: "2026-07",
+        bucket: "variable",
+        category: { id: "ocio", name: "Ocio" },
+      };
+      const { result } = renderWith([ocio], resolvePaidFrom);
+
+      act(() =>
+        result.current.updateTransaction("t4", {
+          type: "expense",
+          amount: 5_000,
+          date: "2026-07-06",
+          month: "2026-07",
+          bucket: "fixed",
+          category: { id: "luz", name: "Luz" },
+        })
+      );
+
+      expect(resolvePaidFrom).toHaveBeenCalledWith("luz");
+      expect(result.current.transactions[0]).toMatchObject({ paidFrom: "envelope" });
+    });
+
+    it("drops the paidFrom key when the category changed to one the resolver keeps on the main account", () => {
+      const resolvePaidFrom = vi.fn().mockReturnValue(undefined);
+      const { result } = renderWith([envelopeLuz], resolvePaidFrom);
+
+      act(() =>
+        result.current.updateTransaction("t3", {
+          type: "expense",
+          amount: 43_000,
+          date: "2026-07-05",
+          month: "2026-07",
+          bucket: "variable",
+          category: { id: "ocio", name: "Ocio" },
+        })
+      );
+
+      expect(resolvePaidFrom).toHaveBeenCalledWith("ocio");
+      expect("paidFrom" in result.current.transactions[0]).toBe(false);
+    });
+
+    it("is a no-op for an unknown id", () => {
+      const { result } = renderWith([income, savings]);
+
+      act(() => result.current.updateTransaction("missing", { ...income, amount: 9999 }));
+
+      expect(result.current.transactions).toEqual([income, savings]);
+      expect(onSave).not.toHaveBeenCalled();
+    });
+  });
+
   describe("onCrossMonthSaved", () => {
     const crossMonthInput = {
       type: "income" as const,

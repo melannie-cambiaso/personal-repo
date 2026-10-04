@@ -8,6 +8,7 @@ interface Props {
   /** The configured envelope's name; `null` when none is configured. */
   envelopeName: string | null;
   onDelete: (id: string) => void;
+  onEdit: (transaction: FinanceV2Transaction) => void;
 }
 
 /** Passive orphan handling in action: this component receives NO live category
@@ -28,7 +29,7 @@ function primaryLabel(transaction: FinanceV2Transaction, envelopeName: string | 
   return transaction.category ? transaction.category.name : BUCKET_LABELS[transaction.bucket];
 }
 
-export function TransactionRow({ transaction, envelopeName, onDelete }: Props) {
+export function TransactionRow({ transaction, envelopeName, onDelete, onEdit }: Props) {
   return (
     <div className="border-sage-300 flex items-center justify-between gap-2 border-t border-dashed pt-3 first:border-t-0 first:pt-0">
       <div className="flex min-w-0 flex-col">
@@ -51,6 +52,14 @@ export function TransactionRow({ transaction, envelopeName, onDelete }: Props) {
         <span className="font-figure text-brown-800 text-sm font-bold">
           {formatCLP(transaction.amount)}
         </span>
+        <button
+          type="button"
+          onClick={() => onEdit(transaction)}
+          aria-label={`Editar movimiento de ${formatCLP(transaction.amount)}`}
+          className="text-brown-400 hover:text-lilac-600 cursor-pointer text-sm transition-colors"
+        >
+          Editar
+        </button>
         <button
           type="button"
           onClick={() => onDelete(transaction.id)}

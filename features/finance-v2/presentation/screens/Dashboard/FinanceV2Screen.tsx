@@ -108,6 +108,7 @@ export function FinanceV2Screen({
     dayGroups,
     addTransaction,
     deleteTransaction,
+    updateTransaction,
     lastCrossMonthSave,
     dismissCrossMonthSave,
     isLoadingMonth,
@@ -188,6 +189,8 @@ export function FinanceV2Screen({
   // by the Presupuesto and Movimientos tabs, so this flag — its `disabled` guard — had to
   // move up with it (see `TransactionsTab`'s header comment for the correctness rationale).
   const [isAddOpen, setIsAddOpen] = useState(false);
+  // Edit reuses the add modal and its `isAddOpen` MonthNav guard; `null` = add mode.
+  const [editingTransaction, setEditingTransaction] = useState<FinanceV2Transaction | null>(null);
   // Same guard: creating the envelope stamps `openingMonth` from `viewedMonth`.
   const [isEnvelopeConfigOpen, setIsEnvelopeConfigOpen] = useState(false);
 
@@ -250,11 +253,23 @@ export function FinanceV2Screen({
             categoryOptions={categoryOptions}
             onAdd={addTransaction}
             onDelete={deleteTransaction}
+            onUpdate={updateTransaction}
+            editingTransaction={editingTransaction}
+            onEdit={(tx) => {
+              setEditingTransaction(tx);
+              setIsAddOpen(true);
+            }}
             lastCrossMonthSave={lastCrossMonthSave}
             onDismissCrossMonthSave={dismissCrossMonthSave}
             isAddOpen={isAddOpen}
-            onOpenAdd={() => setIsAddOpen(true)}
-            onCloseAdd={() => setIsAddOpen(false)}
+            onOpenAdd={() => {
+              setEditingTransaction(null);
+              setIsAddOpen(true);
+            }}
+            onCloseAdd={() => {
+              setIsAddOpen(false);
+              setEditingTransaction(null);
+            }}
             envelope={envelope}
             budgetCategories={categories}
             onSaveEnvelopeConfig={saveEnvelopeConfig}

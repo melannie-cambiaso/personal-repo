@@ -5,6 +5,7 @@ import type { FinanceV2Transaction } from "@/features/finance-v2/domain";
 import {
   addTransaction as domainAddTransaction,
   deleteTransaction as domainDeleteTransaction,
+  updateTransaction as domainUpdateTransaction,
   computeTransactionTotals,
   groupTransactionsByDay,
 } from "@/features/finance-v2/domain";
@@ -112,14 +113,22 @@ export function useFinanceV2Transactions({
     void onSave(loadedMonthRef.current, next);
   };
 
+  // Funding is a creation-time snapshot (design D1). An edit keeps it while the
+  // category is unchanged; a new category is resolved again exactly like a new expense.
+  // Stamped ONLY when envelope-paid: a main-account expense keeps no `paidFrom` key,
+  // exactly like every legacy record.
+  const withFunding = (input: NewTransactionInput, previous?: FinanceV2Transaction) => {
+    if (input.type !== "expense") return input;
+    const categoryId = input.category?.id ?? null;
+    const paidFrom =
+      previous?.type === "expense" && (previous.category?.id ?? null) === categoryId
+        ? previous.paidFrom
+        : resolvePaidFrom?.(categoryId);
+    return paidFrom === "envelope" ? { ...input, paidFrom } : input;
+  };
+
   const addTransaction = (input: NewTransactionInput) => {
-    // Stamped ONLY when envelope-paid: a main-account expense keeps no `paidFrom` key,
-    // exactly like every legacy record.
-    const funded =
-      input.type === "expense" && resolvePaidFrom?.(input.category?.id ?? null) === "envelope"
-        ? { ...input, paidFrom: "envelope" as const }
-        : input;
-    const tx = { ...funded, id: crypto.randomUUID() } as FinanceV2Transaction;
+    const tx = { ...withFunding(input), id: crypto.randomUUID() } as FinanceV2Transaction;
 
     if (tx.month === loadedMonthRef.current) {
       setLastCrossMonthSave(null);
@@ -140,6 +149,19 @@ export function useFinanceV2Transactions({
     persist(domainDeleteTransaction(listRef.current, id));
   };
 
+  /** Edits never move a transaction across months: `month` is pinned to the stored
+   *  value, so the whole edit is one in-month `onSave`. Unknown ids are a no-op. */
+  const updateTransaction = (id: string, input: NewTransactionInput) => {
+    const previous = listRef.current.find((tx) => tx.id === id);
+    if (!previous) return;
+    const tx = {
+      ...withFunding(input, previous),
+      month: previous.month,
+      id,
+    } as FinanceV2Transaction;
+    persist(domainUpdateTransaction(listRef.current, tx));
+  };
+
   const dismissCrossMonthSave = () => setLastCrossMonthSave(null);
 
   return {
@@ -148,6 +170,7 @@ export function useFinanceV2Transactions({
     dayGroups,
     addTransaction,
     deleteTransaction,
+    updateTransaction,
     lastCrossMonthSave,
     dismissCrossMonthSave,
     isLoadingMonth,

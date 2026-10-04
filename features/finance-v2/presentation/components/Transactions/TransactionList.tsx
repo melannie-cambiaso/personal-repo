@@ -1,16 +1,17 @@
-import type { DayGroup } from "@/features/finance-v2/domain";
+import type { DayGroup, FinanceV2Transaction } from "@/features/finance-v2/domain";
 import { TransactionRow } from "./TransactionRow";
 
 interface Props {
   dayGroups: DayGroup[];
   onDelete: (id: string) => void;
+  onEdit: (transaction: FinanceV2Transaction) => void;
   envelopeName: string | null;
 }
 
 // Purely presentational — renders `dayGroups` in the order given. Ordering (day desc,
 // reverse insertion order within a day) is entirely `groupTransactionsByDay`'s job; this
 // component never re-sorts.
-export function TransactionList({ dayGroups, onDelete, envelopeName }: Props) {
+export function TransactionList({ dayGroups, onDelete, onEdit, envelopeName }: Props) {
   if (dayGroups.length === 0) {
     return <p className="text-brown-500 text-sm">No hay movimientos este mes</p>;
   }
@@ -29,6 +30,7 @@ export function TransactionList({ dayGroups, onDelete, envelopeName }: Props) {
                 transaction={transaction}
                 envelopeName={envelopeName}
                 onDelete={onDelete}
+                onEdit={onEdit}
               />
             ))}
           </div>

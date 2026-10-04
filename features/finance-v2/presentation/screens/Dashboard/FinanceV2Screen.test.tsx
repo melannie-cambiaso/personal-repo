@@ -230,6 +230,31 @@ describe("FinanceV2Screen", () => {
     );
   });
 
+  it("editing a listed transaction reuses the modal, guards the MonthNav and updates the row", () => {
+    render(
+      <FinanceV2Screen
+        {...defaultProps()}
+        initialTransactions={[
+          { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+        ]}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Movimientos"));
+    fireEvent.click(screen.getByRole("button", { name: "Editar movimiento de $1.000" }));
+
+    expect(screen.getByText("Editar movimiento")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(
+      true
+    );
+
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "2500" } });
+    fireEvent.click(screen.getByText("Guardar cambios"));
+
+    expect(screen.getByLabelText("Eliminar movimiento de $2.500")).toBeTruthy();
+    expect(screen.queryByLabelText("Eliminar movimiento de $1.000")).toBeNull();
+  });
+
   it("a transaction filed to a different month via the picker calls onSaveToOtherMonth, stays absent from the current view, and shows the confirmation banner", () => {
     const onSaveToOtherMonth = vi.fn();
     const onSaveTransactions = vi.fn();
