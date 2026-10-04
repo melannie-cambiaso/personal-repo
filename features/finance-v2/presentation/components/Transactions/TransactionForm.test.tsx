@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TransactionForm } from "./TransactionForm";
-import type { ExpenseCategoryOption } from "@/features/finance-v2/domain";
+import type { ExpenseCategoryOption, FinanceV2Transaction } from "@/features/finance-v2/domain";
 
 const categoryOptions: ExpenseCategoryOption[] = [
   { id: "s1", name: "Luz", bucket: "fixed" },
@@ -365,5 +365,97 @@ describe("TransactionForm", () => {
       month: "2026-07",
       note: undefined,
     });
+  });
+});
+
+describe("TransactionForm — edit mode", () => {
+  const editedExpense: FinanceV2Transaction = {
+    id: "t1",
+    type: "expense",
+    amount: 5800,
+    date: "2026-07-03",
+    month: "2026-07",
+    note: "Snacks",
+    bucket: "fixed",
+    category: { id: "s1", name: "Luz" },
+  };
+
+  it("seeds every field from initialTransaction, locks the month and labels the submit 'Guardar cambios'", () => {
+    render(
+      <TransactionForm
+        viewedMonth="2026-07"
+        categoryOptions={categoryOptions}
+        hasEnvelope={false}
+        initialTransaction={editedExpense}
+        onAdd={vi.fn()}
+      />
+    );
+
+    expect((screen.getByLabelText("Tipo de movimiento") as HTMLSelectElement).value).toBe(
+      "expense"
+    );
+    expect((screen.getByLabelText("Monto") as HTMLInputElement).value).toBe("5800");
+    expect((screen.getByLabelText("Fecha") as HTMLInputElement).value).toBe("2026-07-03");
+    expect((screen.getByLabelText("Nota") as HTMLInputElement).value).toBe("Snacks");
+    expect((screen.getByLabelText("Subcategoría") as HTMLSelectElement).value).toBe("s1");
+    const month = screen.getByLabelText("Mes") as HTMLSelectElement;
+    expect(month.value).toBe("2026-07");
+    expect(month.disabled).toBe(true);
+    expect(screen.getByRole("button", { name: "Guardar cambios" })).toBeTruthy();
+  });
+
+  it("submits the edited values through onAdd", () => {
+    const onAdd = vi.fn();
+    render(
+      <TransactionForm
+        viewedMonth="2026-07"
+        categoryOptions={categoryOptions}
+        hasEnvelope={false}
+        initialTransaction={editedExpense}
+        onAdd={onAdd}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "6000" } });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(onAdd).toHaveBeenCalledWith({
+      type: "expense",
+      amount: 6000,
+      date: "2026-07-03",
+      month: "2026-07",
+      note: "Snacks",
+      bucket: "fixed",
+      category: { id: "s1", name: "Luz" },
+    });
+  });
+
+  it("keeps an orphaned category snapshot selectable and preserves it on save", () => {
+    const onAdd = vi.fn();
+    const orphan: FinanceV2Transaction = {
+      ...editedExpense,
+      bucket: "variable",
+      category: { id: "gone", name: "Mascota" },
+    };
+    render(
+      <TransactionForm
+        viewedMonth="2026-07"
+        categoryOptions={categoryOptions}
+        hasEnvelope={false}
+        initialTransaction={orphan}
+        onAdd={onAdd}
+      />
+    );
+
+    expect((screen.getByLabelText("Subcategoría") as HTMLSelectElement).value).toBe("gone");
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        bucket: "variable",
+        category: { id: "gone", name: "Mascota" },
+      })
+    );
   });
 });

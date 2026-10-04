@@ -16,7 +16,7 @@ Let the user edit an existing finance v2 transaction (movement); today rows can 
   button sits next to "Eliminar" on each row.
 
 ## Tasks
-- [x] T1 — Domain: `updateTransaction` + tests. RED (2 failing) → GREEN, 6/6; prettier clean. Barrel export deferred to T3 (first consumer).
-- [ ] T2 — Form/modal: optional `initialTransaction` seeds the fields, locks the month, submit label "Guardar cambios" + tests.
+- [x] T1 — Domain: `updateTransaction` + tests. RED (2 failing) → GREEN, 6/6; prettier clean. Barrel export deferred to T3 (first consumer). Commit `ab5596e`.
+- [x] T2 — Form/modal: optional `initialTransaction` seeds the fields, locks the month, submit label "Guardar cambios", orphan snapshot kept + tests. RED (5 failing) → GREEN, finance-v2 476/476; tsc + eslint clean.
 - [ ] T3 — Hook/screen/row: `updateTransaction` in the hook, "Editar" button on the row, modal wired in edit mode + tests.
 - [ ] T4 — Verify: `npm run test`, `npm run build`, `npx eslint .`, prettier.

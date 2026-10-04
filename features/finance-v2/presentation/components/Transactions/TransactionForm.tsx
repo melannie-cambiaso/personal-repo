@@ -27,29 +27,54 @@ interface Props {
   viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
   hasEnvelope: boolean;
+  /** Edit mode: seeds every field from this transaction and locks the month
+   *  (editing never moves a transaction to another month). */
+  initialTransaction?: FinanceV2Transaction;
   onAdd: (input: NewTransactionInput) => void;
 }
 
 // Choosing a subcategory HIDES the bucket select entirely: bucket is unaskable twice
 // because the control simply isn't rendered, not because it's disabled.
-export function TransactionForm({ viewedMonth, categoryOptions, hasEnvelope, onAdd }: Props) {
+export function TransactionForm({
+  viewedMonth,
+  categoryOptions: liveCategoryOptions,
+  hasEnvelope,
+  initialTransaction,
+  onAdd,
+}: Props) {
+  const isEditing = initialTransaction !== undefined;
+  // A snapshotted category that no longer exists in the budget stays selectable
+  // while editing, so saving an unrelated field doesn't silently drop it.
+  const categoryOptions = withSnapshotOption(liveCategoryOptions, initialTransaction);
   const monthOptions = monthWindow(viewedMonth, MONTH_RADIUS);
-  // The form only offers a transfer once an envelope exists (spec).
-  const typeOptions: TransactionType[] = hasEnvelope
-    ? [...TRANSACTION_TYPE_ORDER, "transfer"]
-    : TRANSACTION_TYPE_ORDER;
+  // The form only offers a transfer once an envelope exists (spec) — or when
+  // editing an existing transfer.
+  const typeOptions: TransactionType[] =
+    hasEnvelope || initialTransaction?.type === "transfer"
+      ? [...TRANSACTION_TYPE_ORDER, "transfer"]
+      : TRANSACTION_TYPE_ORDER;
 
-  const [type, setType] = useState<TransactionType>("expense");
-  const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(() => toLocalISODate(new Date()));
-  const [month, setMonth] = useState(viewedMonth);
-  const [note, setNote] = useState("");
-  const [bucket, setBucket] = useState<ExpenseBucketKey>("fixed");
-  const [categoryId, setCategoryId] = useState(NO_CATEGORY);
+  const [type, setType] = useState<TransactionType>(initialTransaction?.type ?? "expense");
+  const [amount, setAmount] = useState(initialTransaction ? String(initialTransaction.amount) : "");
+  const [date, setDate] = useState(() => initialTransaction?.date ?? toLocalISODate(new Date()));
+  const [month, setMonth] = useState(initialTransaction?.month ?? viewedMonth);
+  const [note, setNote] = useState(initialTransaction?.note ?? "");
+  const [bucket, setBucket] = useState<ExpenseBucketKey>(
+    initialTransaction?.type === "expense" ? initialTransaction.bucket : "fixed"
+  );
+  const [categoryId, setCategoryId] = useState(
+    initialTransaction?.type === "expense"
+      ? (initialTransaction.category?.id ?? NO_CATEGORY)
+      : NO_CATEGORY
+  );
   // Separate from `categoryId` on purpose (design D3): `type` switching does NOT
   // reset either id, only submit does — sharing one id would let an expense pick
   // silently reappear as a savings source (or vice versa) after switching type.
-  const [sourceCategoryId, setSourceCategoryId] = useState(NO_CATEGORY);
+  const [sourceCategoryId, setSourceCategoryId] = useState(
+    initialTransaction?.type === "savings"
+      ? (initialTransaction.sourceCategory?.id ?? NO_CATEGORY)
+      : NO_CATEGORY
+  );
 
   const selectedCategory = categoryOptions.find((c) => c.id === categoryId) ?? null;
   const selectedSourceCategory = categoryOptions.find((c) => c.id === sourceCategoryId) ?? null;
@@ -103,7 +128,8 @@ export function TransactionForm({ viewedMonth, categoryOptions, hasEnvelope, onA
       onAdd({ type, amount: parsedAmount, date, month, note: note.trim() || undefined });
     }
 
-    reset();
+    // The edit modal closes on submit; only the add flow keeps the form for the next entry.
+    if (!isEditing) reset();
   };
 
   return (
@@ -139,6 +165,7 @@ export function TransactionForm({ viewedMonth, categoryOptions, hasEnvelope, onA
         <Select
           aria-label="Mes"
           value={month}
+          disabled={isEditing}
           onChange={(e) => setMonth(e.target.value)}
           options={monthOptions.map((m) => ({ value: m, label: formatMonth(m) }))}
         />
@@ -192,8 +219,24 @@ export function TransactionForm({ viewedMonth, categoryOptions, hasEnvelope, onA
       />
 
       <Button type="submit" variant="primary">
-        Agregar movimiento
+        {isEditing ? "Guardar cambios" : "Agregar movimiento"}
       </Button>
     </form>
   );
+}
+
+/** Appends the transaction's own category snapshot when the live budget no longer
+ *  has it (passive orphan rule), so edit mode can still show and keep it. */
+function withSnapshotOption(
+  options: ExpenseCategoryOption[],
+  tx: FinanceV2Transaction | undefined
+): ExpenseCategoryOption[] {
+  const snapshot =
+    tx?.type === "expense" && tx.category
+      ? { ...tx.category, bucket: tx.bucket }
+      : tx?.type === "savings"
+        ? tx.sourceCategory
+        : undefined;
+  if (!snapshot || options.some((o) => o.id === snapshot.id)) return options;
+  return [...options, snapshot];
 }
