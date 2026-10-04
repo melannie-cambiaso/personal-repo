@@ -4,14 +4,16 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { loadHomeFinanceSummary } from "@/features/finance-v2/data";
 import { FinanceSummaryCard } from "@/features/finance-v2/presentation/components/Home/FinanceSummaryCard";
+import { loadHomeSavingsSummary } from "@/features/savings/data/homeSavingsSummary";
+import { SavingsSummaryCard } from "@/features/savings/presentation/components/Home/SavingsSummaryCard";
 import { loadHomeWishlistSummary } from "@/features/wishlist/data/homeWishlistSummary";
 import { WishlistSummaryCard } from "@/features/wishlist/presentation/components/Home/WishlistSummaryCard";
 import { FEATURE_NAV_ITEMS } from "@/shared/navigation/features";
 import { currentMonth } from "@/shared/utils/monthUtils";
 
-// Finance and the wishlist are covered by their summary cards, so they are left out
-// of the shortcuts.
-const CARD_HREFS = new Set(["/finance-v2", "/wishlist"]);
+// Finance, the wishlist and savings are covered by their summary cards, so they are
+// left out of the shortcuts.
+const CARD_HREFS = new Set(["/finance-v2", "/wishlist", "/savings"]);
 const SHORTCUTS = FEATURE_NAV_ITEMS.filter((item) => !CARD_HREFS.has(item.href));
 
 // Full literal class strings so Tailwind can see them: tile fill/border and icon circle.
@@ -19,10 +21,6 @@ const SHORTCUT_TONES: Record<string, { tile: string; icon: string }> = {
   "/home-improvements": {
     tile: "border-mist-300 bg-mist-100 hover:border-mist-500",
     icon: "bg-mist-500",
-  },
-  "/savings": {
-    tile: "border-butter-300 bg-butter-100 hover:border-butter-500",
-    icon: "bg-butter-500",
   },
 };
 const DEFAULT_TONE = {
@@ -35,9 +33,10 @@ export default async function HomePage() {
   const isOwner = !!cookieStore.get("wishlist_auth")?.value;
   if (!isOwner) redirect("/login");
 
-  const [summary, wishlist] = await Promise.all([
+  const [summary, wishlist, savings] = await Promise.all([
     loadHomeFinanceSummary(currentMonth()),
     loadHomeWishlistSummary(),
+    loadHomeSavingsSummary(),
   ]);
 
   return (
@@ -66,7 +65,7 @@ export default async function HomePage() {
             ¿Qué querés ver hoy?
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <FinanceSummaryCard
             month={summary.month}
             balance={summary.balance}
@@ -77,15 +76,18 @@ export default async function HomePage() {
             total={wishlist.total}
             topHigh={wishlist.topHigh}
           />
+          <SavingsSummaryCard balance={savings.balance} toReplenish={savings.toReplenish} />
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        {/* Few shortcuts remain once features get a card, so they are centered at a
+            fixed width instead of stretching across the page. */}
+        <div className="mt-4 flex flex-wrap justify-center gap-3">
           {SHORTCUTS.map((item) => {
             const tone = SHORTCUT_TONES[item.href] ?? DEFAULT_TONE;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`${tone.tile} flex flex-col items-center gap-1 rounded-3xl border-2 px-2 py-4 transition-colors`}
+                className={`${tone.tile} flex w-full flex-col items-center gap-1 rounded-3xl border-2 px-2 py-4 transition-colors sm:w-64`}
               >
                 <span
                   aria-hidden
