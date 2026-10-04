@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { FEATURE_NAV_ITEMS } from "./features";
 
 describe("FEATURE_NAV_ITEMS", () => {
-  it("has exactly 5 entries", () => {
-    expect(FEATURE_NAV_ITEMS).toHaveLength(5);
+  it("has exactly 4 entries", () => {
+    expect(FEATURE_NAV_ITEMS).toHaveLength(4);
   });
 
   it("does not include a login entry", () => {
@@ -21,8 +21,6 @@ describe("FEATURE_NAV_ITEMS", () => {
 
   it("links every content feature to its route", () => {
     const hrefs = FEATURE_NAV_ITEMS.map((item) => item.href).sort();
-    expect(hrefs).toEqual(
-      ["/finance", "/finance-v2", "/home-improvements", "/savings", "/wishlist"].sort()
-    );
+    expect(hrefs).toEqual(["/finance-v2", "/home-improvements", "/savings", "/wishlist"].sort());
   });
 });

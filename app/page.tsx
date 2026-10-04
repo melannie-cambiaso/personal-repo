@@ -12,7 +12,7 @@ import { currentMonth } from "@/shared/utils/monthUtils";
 // Finance and the wishlist are covered by their summary cards, so they are left out
 // of the shortcuts.
 const CARD_HREFS = new Set(["/finance-v2", "/wishlist"]);
-const SHORTCUTS = FEATURE_NAV_ITEMS.filter((item) => !item.disabled && !CARD_HREFS.has(item.href));
+const SHORTCUTS = FEATURE_NAV_ITEMS.filter((item) => !CARD_HREFS.has(item.href));
 
 // Full literal class strings so Tailwind can see them: tile fill/border and icon circle.
 const SHORTCUT_TONES: Record<string, { tile: string; icon: string }> = {

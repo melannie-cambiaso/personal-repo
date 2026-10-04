@@ -26,7 +26,7 @@ export async function handleSaveBudgetConfig(config: BudgetConfig): Promise<void
 // Whole-list-save action for the VIEWED month (deliberate deviation from granular add/
 // delete actions): the hook computes the next list via the domain layer and sends the
 // entire array, so there is no server-side read-modify-write — mirrors
-// `handleSaveBudgetConfig` and v1's `saveTransactions` call site. Used when
+// `handleSaveBudgetConfig`. Used when
 // `tx.month === viewedMonth`; a transaction filed to a DIFFERENT month goes through
 // `handleAppendTransactionToMonth` below instead.
 export async function handleSaveTransactions(

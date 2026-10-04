@@ -20,7 +20,7 @@ export const config = {
     "/todo/:path*",
     "/home-improvements/:path*",
     "/savings/:path*",
-    "/finance/:path*",
+    "/finance-v2/:path*",
     "/login",
     "/",
   ],
