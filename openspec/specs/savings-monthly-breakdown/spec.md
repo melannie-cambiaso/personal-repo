@@ -102,6 +102,6 @@ month header formatted with the existing `formatMonth` utility.
 
 - No chart library or CSS bar chart — totals are rendered as plain numbers only.
 - No automatic insights, comparisons, or month-over-month deltas.
-- No changes to `features/finance/`, `features/savings/data/`, `SavingsEntry.ts`, the existing
+- No changes to the finance feature, `features/savings/data/`, `SavingsEntry.ts`, the existing
   "Historial" list, the "Metas" tab, or `SavingsSummaryCards`.
 - No new server actions, storage keys, pagination, or virtualization.

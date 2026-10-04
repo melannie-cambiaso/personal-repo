@@ -26,7 +26,7 @@ At mobile viewports (~375-430px), the system MUST expose a drawer trigger (hambu
 
 #### Scenario: Trigger present inside a feature (mobile)
 
-- GIVEN the user is on any feature route (e.g. `/finance`, `/savings`) at a mobile viewport
+- GIVEN the user is on any feature route (e.g. `/finance-v2`, `/savings`) at a mobile viewport
 - WHEN the page renders
 - THEN a drawer trigger MUST be visible without requiring the user to navigate back to `/` first
 
