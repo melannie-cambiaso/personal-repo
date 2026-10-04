@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { summarizeWishlist } from "./summarizeWishlist";
 import type { WishlistItem, WishlistPriority } from "./WishlistItem";
-import { CATEGORIES } from "@/features/wishlist/data";
 
 const item = (
   id: string,
@@ -11,7 +10,6 @@ const item = (
 ): WishlistItem => ({
   id,
   title,
-  category: CATEGORIES.tech,
   price,
   ...(priority && { priority }),
 });

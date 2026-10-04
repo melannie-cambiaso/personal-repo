@@ -2,15 +2,12 @@ import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useWishlist } from "./useWishlist";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
-import { CATEGORIES } from "@/features/wishlist/data";
 
 const makeItem = (id: string, price: number | null = 1000): WishlistItem => ({
   id,
   title: `Item ${id}`,
-  brand: "Brand",
   description: "Desc",
   emoji: "🎁",
-  category: CATEGORIES.tech,
   price,
 });
 

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { WishlistItem } from "@/features/wishlist/domain";
-import { CATEGORIES } from "./categories";
 
 const loadItemsMock = vi.hoisted(() => vi.fn());
 const loadOwnedIdsMock = vi.hoisted(() => vi.fn());
@@ -24,7 +23,6 @@ const item = (
 ): WishlistItem => ({
   id,
   title,
-  category: CATEGORIES.tech,
   price,
   ...(priority && { priority }),
 });

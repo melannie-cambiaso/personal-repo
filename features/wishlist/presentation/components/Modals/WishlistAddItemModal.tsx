@@ -1,8 +1,6 @@
 "use client";
 
 import { useForm } from "@/shared/hooks/useForm";
-import { CATEGORIES } from "@/features/wishlist/data";
-import type { CategoryColor } from "@/features/wishlist/domain/Category";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
 import {
   PRIORITY_LABELS,
@@ -20,13 +18,11 @@ interface Props {
 
 const EMPTY = {
   title: "",
-  brand: "",
   description: "",
   emoji: "",
   price: "",
   tag: "",
   url: "",
-  categoryKey: "food" as CategoryColor,
   priority: "medium" as WishlistPriority,
 };
 
@@ -36,13 +32,11 @@ const EMPTY = {
 function formFromItem(item: WishlistItem) {
   return {
     title: item.title,
-    brand: item.brand ?? "",
     description: item.description ?? "",
     emoji: item.emoji ?? "",
     price: item.price?.toString() ?? "",
     tag: item.tag ?? "",
     url: item.url ?? "",
-    categoryKey: item.category.color,
     priority: resolvePriority(item),
   };
 }
@@ -67,11 +61,9 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
     if (price === null || url === "") return;
     const item: WishlistItem = {
       id: editItem?.id ?? crypto.randomUUID(),
-      category: CATEGORIES[form.categoryKey],
       // `|| undefined`, not the raw value: a blank optional must be absent, not an
-      // empty string, or the card renders an empty brand line instead of no line.
+      // empty string, or the list renders an empty tag pill instead of none.
       emoji: form.emoji || undefined,
-      brand: form.brand || undefined,
       title: form.title,
       description: form.description || undefined,
       tag: form.tag || undefined,
@@ -126,21 +118,6 @@ export function WishlistAddItemModal({ isOpen, onClose, onAdd, editItem }: Props
           <span className="text-brown-500 text-sm">
             Lo demás es opcional — podés completarlo después
           </span>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Marca / Tienda">
-            <Input value={form.brand} onChange={set("brand")} />
-          </Field>
-          <Field label="Categoría">
-            <Select value={form.categoryKey} onChange={set("categoryKey")}>
-              {Object.entries(CATEGORIES).map(([key, cat]) => (
-                <option key={key} value={key}>
-                  {cat.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -6,8 +6,8 @@ import { loadItems, loadOwnedIds } from "./kvAdapter";
  *  as the `/wishlist` header so both pages never disagree.
  *
  *  Not a Server Action: consumed by the RSC page after its own cookie gate, same as
- *  `loadHomeFinanceSummary`. Kept out of the `data` barrel because client components
- *  import `CATEGORIES` from it. */
+ *  `loadHomeFinanceSummary`. Imported by its own module path (the `data` folder has no
+ *  barrel), so this `server-only` loader never reaches a client bundle. */
 export async function loadHomeWishlistSummary(): Promise<WishlistSummary> {
   const [items, ownedIds] = await Promise.all([loadItems(), loadOwnedIds()]);
   return summarizeWishlist(items, ownedIds);

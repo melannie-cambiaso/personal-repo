@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { flattenWishlistGroups, moveItem, orderWishlist } from "./orderWishlist";
 import type { WishlistItem, WishlistPriority } from "./WishlistItem";
-import { CATEGORIES } from "@/features/wishlist/data";
 
 const item = (
   id: string,
@@ -10,7 +9,6 @@ const item = (
 ): WishlistItem => ({
   id,
   title: `Item ${id}`,
-  category: CATEGORIES.tech,
   price,
   ...(priority && { priority }),
 });

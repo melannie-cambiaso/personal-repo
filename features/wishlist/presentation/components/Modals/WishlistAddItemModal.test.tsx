@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { WishlistAddItemModal } from "./WishlistAddItemModal";
-import { CATEGORIES } from "@/features/wishlist/data";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
 
 beforeAll(() => {
@@ -13,8 +12,6 @@ describe("WishlistAddItemModal", () => {
   it("renders every form field", () => {
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} />);
     expect(screen.getByLabelText("Título *")).toBeTruthy();
-    expect(screen.getByLabelText("Marca / Tienda")).toBeTruthy();
-    expect(screen.getByLabelText("Categoría")).toBeTruthy();
     expect(screen.getByLabelText("Emoji")).toBeTruthy();
     expect(screen.getByLabelText("Descripción")).toBeTruthy();
     expect(screen.getByLabelText("Precio (CLP) *")).toBeTruthy();
@@ -23,6 +20,9 @@ describe("WishlistAddItemModal", () => {
     expect(screen.getByLabelText("URL del producto *")).toBeTruthy();
     // The list shows no image, so the form no longer asks for one.
     expect(screen.queryByLabelText("URL de imagen")).toBeNull();
+    // Brand and category were never shown anywhere, so they were removed.
+    expect(screen.queryByLabelText("Marca / Tienda")).toBeNull();
+    expect(screen.queryByLabelText("Categoría")).toBeNull();
   });
 
   // Asserted on the `required` attribute itself rather than by submitting a blank
@@ -34,7 +34,7 @@ describe("WishlistAddItemModal", () => {
     expect((screen.getByLabelText("Título *") as HTMLInputElement).required).toBe(true);
     expect((screen.getByLabelText("Precio (CLP) *") as HTMLInputElement).required).toBe(true);
     expect((screen.getByLabelText("URL del producto *") as HTMLInputElement).required).toBe(true);
-    expect((screen.getByLabelText("Marca / Tienda") as HTMLInputElement).required).toBe(false);
+    expect((screen.getByLabelText("Tag") as HTMLInputElement).required).toBe(false);
     expect((screen.getByLabelText("Emoji") as HTMLInputElement).required).toBe(false);
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).required).toBe(false);
   });
@@ -50,13 +50,11 @@ describe("WishlistAddItemModal", () => {
   it("lets the user type into every field", () => {
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} />);
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
-    fireEvent.change(screen.getByLabelText("Marca / Tienda"), { target: { value: "Sony" } });
     fireEvent.change(screen.getByLabelText("Emoji"), { target: { value: "🎧" } });
     fireEvent.change(screen.getByLabelText("Descripción"), { target: { value: "Desc" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
 
     expect((screen.getByLabelText("Título *") as HTMLInputElement).value).toBe("Auriculares");
-    expect((screen.getByLabelText("Marca / Tienda") as HTMLInputElement).value).toBe("Sony");
     expect((screen.getByLabelText("Emoji") as HTMLInputElement).value).toBe("🎧");
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).value).toBe("Desc");
     expect((screen.getByLabelText("Precio (CLP) *") as HTMLInputElement).value).toBe("50000");
@@ -68,7 +66,6 @@ describe("WishlistAddItemModal", () => {
     render(<WishlistAddItemModal isOpen onClose={onClose} onAdd={onAdd} />);
 
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Auriculares" } });
-    fireEvent.change(screen.getByLabelText("Marca / Tienda"), { target: { value: "Sony" } });
     fireEvent.change(screen.getByLabelText("Emoji"), { target: { value: "🎧" } });
     fireEvent.change(screen.getByLabelText("Descripción"), { target: { value: "Desc" } });
     fireEvent.change(screen.getByLabelText("Precio (CLP) *"), { target: { value: "50000" } });
@@ -81,7 +78,6 @@ describe("WishlistAddItemModal", () => {
     expect(onAdd).toHaveBeenCalledTimes(1);
     const submitted = onAdd.mock.calls[0][0];
     expect(submitted.title).toBe("Auriculares");
-    expect(submitted.brand).toBe("Sony");
     expect(submitted.emoji).toBe("🎧");
     expect(submitted.description).toBe("Desc");
     expect(submitted.price).toBe(50000);
@@ -90,7 +86,7 @@ describe("WishlistAddItemModal", () => {
   });
 
   // Blank optionals must arrive as `undefined`, not as empty strings — an item
-  // carrying `brand: ""` would render an empty label instead of no label at all.
+  // carrying `tag: ""` would render an empty pill instead of no pill at all.
   it("submits with only the required fields, leaving the untouched fields undefined", () => {
     const onAdd = vi.fn();
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={onAdd} />);
@@ -107,12 +103,12 @@ describe("WishlistAddItemModal", () => {
     expect(onAdd).toHaveBeenCalledTimes(1);
     const submitted = onAdd.mock.calls[0][0] as WishlistItem;
     expect(submitted.title).toBe("Zapatillas negras");
-    expect(submitted.brand).toBeUndefined();
     expect(submitted.emoji).toBeUndefined();
     expect(submitted.description).toBeUndefined();
+    expect(submitted.tag).toBeUndefined();
     expect(submitted.price).toBe(39990);
-    // Still categorized: the select carries a default, so it never blocks the user.
-    expect(submitted.category).toEqual(CATEGORIES.food);
+    expect(submitted).not.toHaveProperty("brand");
+    expect(submitted).not.toHaveProperty("category");
   });
 
   // jsdom skips constraint validation, so these submits reach the handler exactly
@@ -191,19 +187,18 @@ describe("WishlistAddItemModal", () => {
   });
 
   // Regression guard for the widened domain type: an item saved through the quick
-  // path has no brand/emoji/description, and reopening it to enrich it must not
+  // path has no emoji/description/tag, and reopening it to enrich it must not
   // feed `undefined` into the controlled inputs.
   it("opens an item saved without optional fields for editing", () => {
     const sparse: WishlistItem = {
       id: "1",
       title: "Zapatillas negras",
-      category: CATEGORIES.cloth,
       price: null,
     };
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} editItem={sparse} />);
 
     expect((screen.getByLabelText("Título *") as HTMLInputElement).value).toBe("Zapatillas negras");
-    expect((screen.getByLabelText("Marca / Tienda") as HTMLInputElement).value).toBe("");
+    expect((screen.getByLabelText("Tag") as HTMLInputElement).value).toBe("");
     expect((screen.getByLabelText("Emoji") as HTMLInputElement).value).toBe("");
     expect((screen.getByLabelText("Descripción") as HTMLTextAreaElement).value).toBe("");
   });
@@ -212,7 +207,6 @@ describe("WishlistAddItemModal", () => {
     const legacy: WishlistItem = {
       id: "1",
       title: "Zapatillas negras",
-      category: CATEGORIES.cloth,
       price: 39990,
     };
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={vi.fn()} editItem={legacy} />);
@@ -225,7 +219,6 @@ describe("WishlistAddItemModal", () => {
     const item: WishlistItem = {
       id: "1",
       title: "Zapatillas negras",
-      category: CATEGORIES.cloth,
       price: 39990,
       priority: "low",
       url: "https://example.com/item",
@@ -244,7 +237,6 @@ describe("WishlistAddItemModal", () => {
     const item: WishlistItem = {
       id: "1",
       title: "Zapatillas negras",
-      category: CATEGORIES.cloth,
       price: 39990,
       image: "https://example.com/zapatillas.jpg",
       url: "https://example.com/item",
@@ -258,13 +250,32 @@ describe("WishlistAddItemModal", () => {
     );
   });
 
+  // Items stored before brand and category were removed may still carry them; saving
+  // an edit rebuilds the item from the form, so the stale keys are dropped.
+  it("drops a stored item's legacy brand and category when it is saved", () => {
+    const onAdd = vi.fn();
+    const stored = {
+      id: "1",
+      title: "Zapatillas negras",
+      category: { id: "cloth", name: "Ropa", color: "cloth" },
+      price: 39990,
+      url: "https://example.com/item",
+    } as WishlistItem;
+    render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={onAdd} editItem={stored} />);
+
+    fireEvent.click(screen.getByText("Guardar ✓"));
+
+    const submitted = onAdd.mock.calls[0][0] as WishlistItem;
+    expect(submitted).not.toHaveProperty("brand");
+    expect(submitted).not.toHaveProperty("category");
+  });
+
   // Legacy rows may carry `price: null`; editing one must not round-trip that null.
   it("requires a price before saving a legacy item that has none", () => {
     const onAdd = vi.fn();
     const legacy: WishlistItem = {
       id: "1",
       title: "Zapatillas negras",
-      category: CATEGORIES.cloth,
       price: null,
     };
     render(<WishlistAddItemModal isOpen onClose={vi.fn()} onAdd={onAdd} editItem={legacy} />);

@@ -2,12 +2,10 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { WishlistSummaryCard } from "./WishlistSummaryCard";
 import type { WishlistItem } from "@/features/wishlist/domain";
-import { CATEGORIES } from "@/features/wishlist/data";
 
 const headphones: WishlistItem = {
   id: "1",
   title: "Auriculares Sony",
-  category: CATEGORIES.tech,
   price: 50000,
   priority: "high",
   url: "https://example.com/sony",
@@ -17,7 +15,6 @@ const headphones: WishlistItem = {
 const sneakers: WishlistItem = {
   id: "2",
   title: "Zapatillas negras",
-  category: CATEGORIES.cloth,
   price: null,
   priority: "high",
 };

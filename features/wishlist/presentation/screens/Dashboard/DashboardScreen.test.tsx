@@ -2,14 +2,13 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { DashboardScreen } from "./DashboardScreen";
 import type { WishlistItem } from "@/features/wishlist/domain";
-import { CATEGORIES } from "@/features/wishlist/data";
 
 const items: WishlistItem[] = [
-  { id: "low", title: "Lámpara", category: CATEGORIES.home, price: 10000, priority: "low" },
-  { id: "legacy", title: "Libro", category: CATEGORIES.books, price: null },
-  { id: "owned", title: "Audífonos", category: CATEGORIES.tech, price: 5000, priority: "high" },
-  { id: "high", title: "Zapatillas", category: CATEGORIES.cloth, price: 30000, priority: "high" },
-  { id: "high2", title: "Mochila", category: CATEGORIES.cloth, price: 20000, priority: "high" },
+  { id: "low", title: "Lámpara", price: 10000, priority: "low" },
+  { id: "legacy", title: "Libro", price: null },
+  { id: "owned", title: "Audífonos", price: 5000, priority: "high" },
+  { id: "high", title: "Zapatillas", price: 30000, priority: "high" },
+  { id: "high2", title: "Mochila", price: 20000, priority: "high" },
 ];
 
 beforeAll(() => {

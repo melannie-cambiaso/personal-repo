@@ -33,5 +33,15 @@ Forecast: ~150–250 authored lines (mostly deletions), under the ~400 budget.
     price line, `max-w-40 min-w-0 truncate` for ~360px. Empty/absent tag renders nothing.
   - RED: `npx vitest run features/wishlist/presentation/components/List` → 3 failed | 19 passed.
   - GREEN: same command → 23 passed (23).
-- [ ] T2 — Remove brand and category end to end (form, domain, data, seed, tests). Route: delegated (same writer).
+  - Commit: `5cb3ce4` feat(wishlist): show item tag in the list.
+- [x] T2 — Remove brand and category end to end (form, domain, data, seed, tests). Route: delegated (same writer).
+  - Modal drops "Marca / Tienda" and "Categoría" (state, `formFromItem`, submit); `WishlistItem`
+    loses `brand`/`category`; deleted `domain/Category.ts`, `data/categories.ts` and the
+    `data/index.ts` barrel (it only exported `CATEGORIES`); seed and all fixtures cleaned.
+    `homeWishlistSummary.ts` comment now says the `data` folder has no barrel.
+  - New test: re-saving a stored item that still carries `brand`/`category` drops both keys.
+  - RED (modal test vs. old modal): 8 failed | 10 passed. GREEN: 18 passed (18).
+  - `npx vitest run features/wishlist` → 10 files, 95 passed; `npx tsc --noEmit` → clean;
+    `npm run lint` → clean; `prettier --check` on changed code files → clean.
+  - Commit: refactor(wishlist): remove brand and category fields (hash in `git log`).
 - [ ] T3 — Verify: full `npm run test`, `npm run build`.

@@ -2,15 +2,12 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { WishlistDeleteConfirmModal } from "./WishlistDeleteConfirmModal";
 import type { WishlistItem } from "@/features/wishlist/domain/WishlistItem";
-import { CATEGORIES } from "@/features/wishlist/data";
 
 const item: WishlistItem = {
   id: "1",
   title: "Auriculares Sony",
-  brand: "Sony",
   description: "Desc",
   emoji: "🎧",
-  category: CATEGORIES.tech,
   price: 50000,
 };
 
