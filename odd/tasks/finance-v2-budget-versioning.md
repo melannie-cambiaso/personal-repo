@@ -38,7 +38,7 @@ Single branch with chained work-unit commits, fast-forward to `main` when the us
 - [x] T1 — Domain: `budgetVersions.ts` (`BudgetVersion`, `resolveBudgetForMonth`, `upsertBudgetVersion`) + tests. Route: inline (one new pure module + test). RED (module missing) → GREEN 10/10.
 - [x] T2 — Data: `loadBudgetVersions` (legacy seed), `saveBudgetVersion`, `handleSaveBudgetVersion` action, home summary resolves current month. Route: delegated writer (multi-file). RED (kvAdapter/actions/home summary tests: 19 failing, functions missing) → GREEN data 73/73. `loadBudgetConfig`, `saveBudgetConfig` and `handleSaveBudgetConfig` removed (no callers left); the legacy key is only read by the seed.
 - [x] T3 — Presentation: page loads versions; `FinanceV2Screen` resolves budget per viewed month; `useFinanceV2Budget` re-syncs on month and saves per month; past months read-only. Route: delegated writer (multi-file). RED (hook, BudgetTab and screen tests failing on the new API) → GREEN `vitest run features/finance-v2` 515/515.
-- [ ] T4 — Verify: full `npm run test`, `npx tsc --noEmit`, `npm run build`.
+- [x] T4 — Verify: full `npm run test` 838/838 (writer), `npx tsc --noEmit` clean (parent re-ran), `npm run build` green (parent). T2+T3 commit `cf4894b`. RDD assess on f2970d0..cf4894b: medium, `slice_budget_reached` (869 lines) → consent requested for lineage `review-e437accca0a07250`.
 
 ## Acceptance criteria
 - Editing in the current month does not change any earlier month's budget or spend pairing.
@@ -61,4 +61,12 @@ Single branch with chained work-unit commits, fast-forward to `main` when the us
     nothing instead of overwriting every version with one.
   - Checks: `npx vitest run features/finance-v2` 515 passed; `npx tsc --noEmit` clean;
     `npm run test` 84 files / 838 tests passed; `npx eslint features/finance-v2 app/finance-v2` clean.
-- Next: T4 (`npm run build`) and parent commit of T2+T3.
+- T2+T3 commit `cf4894b`; T4 verified (tests 838/838, tsc clean, build green).
+- RDD: consent granted; lens `review-reliability` approved; lineage `review-e437accca0a07250`
+  acknowledged (authority burned). Reviewed boundary advances to `cf4894b`.
+- Advisory follow-ups (non-blocking, not done):
+  - R3-server-readonly-unenforced: `handleSaveBudgetVersion` accepts past months (UI-only guard).
+  - R3-lost-update-rmw: `saveBudgetVersion` read-modify-write is not atomic across tabs/devices.
+  - R3-unvalidated-stored-shape: stored versions value is not shape-checked.
+  - R3-stale-closed-boundary: a session open across a month rollover keeps the ended month editable until reload.
+- Next: user decides on follow-ups and on fast-forwarding to `main`.
