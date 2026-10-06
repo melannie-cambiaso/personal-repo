@@ -7,6 +7,8 @@ export type {
   BudgetFrequency,
 } from "./BudgetConfig";
 export { DEFAULT_BUDGET_CONFIG } from "./BudgetConfig";
+export type { BudgetVersion } from "./budgetVersions";
+export { resolveBudgetForMonth, upsertBudgetVersion } from "./budgetVersions";
 // Part of the budget leaf shape (`BudgetCategory.weekday`), re-exported so
 // presentation code types weekdays through the domain barrel.
 export type { Weekday } from "@/shared/utils/monthUtils";
