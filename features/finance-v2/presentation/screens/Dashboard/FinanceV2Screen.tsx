@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type {
   BudgetConfig,
+  BudgetVersion,
   EnvelopeConfig,
   FinanceV2Transaction,
 } from "@/features/finance-v2/domain";
@@ -36,9 +37,11 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 interface Props {
-  initialBudget: BudgetConfig;
-  onSaveBudget: (budget: BudgetConfig) => Promise<void> | void;
+  initialBudgetVersions: BudgetVersion[];
+  onSaveBudget: (month: string, budget: BudgetConfig) => Promise<void> | void;
   initialTransactions: FinanceV2Transaction[];
+  /** The page's `currentMonth()`: the first month viewed, and the boundary before which
+   *  a month's budget is closed (read-only). */
   initialMonth: string;
   onSaveTransactions: (month: string, transactions: FinanceV2Transaction[]) => Promise<void> | void;
   onSaveToOtherMonth: (tx: FinanceV2Transaction) => Promise<void> | void;
@@ -54,8 +57,10 @@ interface Props {
 // since the tabs are conditionally rendered, not always-mounted — hoisting is what keeps
 // each tab's state alive across a switch away and back (an internally-owned hook would
 // remount from a now-stale `initial*` prop and lose anything added since page load).
+// The budget is versioned by month: `categories` below is always the version in force
+// for `viewedMonth`, so every consumer pairs a month with its own budget.
 export function FinanceV2Screen({
-  initialBudget,
+  initialBudgetVersions,
   onSaveBudget,
   initialTransactions,
   initialMonth,
@@ -84,7 +89,15 @@ export function FinanceV2Screen({
     handleAmountBlur,
     handleFrequencyChange,
     handleWeekdayChange,
-  } = useFinanceV2Budget({ initialBudget, month: viewedMonth, onSave: onSaveBudget });
+  } = useFinanceV2Budget({
+    initialVersions: initialBudgetVersions,
+    month: viewedMonth,
+    onSave: onSaveBudget,
+  });
+  // A month before the current one has a closed budget. Compared against the server's
+  // `currentMonth()` (passed as `initialMonth`) rather than the client clock, so the
+  // server render and hydration always agree.
+  const isClosedMonth = viewedMonth < initialMonth;
 
   // Hoisted for the same reason as the two hooks around it. Declared before
   // `useFinanceV2Transactions`, which needs its config to stamp new expenses.
@@ -224,7 +237,10 @@ export function FinanceV2Screen({
 
         {activeTab === "budget" && (
           <BudgetTab
-            mode={budgetMode}
+            // A closed month forces view mode; `budgetMode` itself is kept, so moving
+            // back to an editable month restores it.
+            mode={isClosedMonth ? "view" : budgetMode}
+            readOnly={isClosedMonth}
             onToggleMode={toggleBudgetMode}
             categories={categories}
             month={viewedMonth}

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import {
-  loadBudgetConfig,
-  handleSaveBudgetConfig,
+  loadBudgetVersions,
+  handleSaveBudgetVersion,
   loadTransactions,
   handleSaveTransactions,
   handleAppendTransactionToMonth,
@@ -22,8 +22,8 @@ export default async function FinanceV2Page() {
 
   const month = currentMonth();
 
-  const [initialBudget, initialTransactions, initialEnvelopeConfig] = await Promise.all([
-    loadBudgetConfig(),
+  const [initialBudgetVersions, initialTransactions, initialEnvelopeConfig] = await Promise.all([
+    loadBudgetVersions(),
     loadTransactions(month),
     loadEnvelopeConfig(),
   ]);
@@ -33,8 +33,8 @@ export default async function FinanceV2Page() {
 
   return (
     <FinanceV2Screen
-      initialBudget={initialBudget}
-      onSaveBudget={handleSaveBudgetConfig}
+      initialBudgetVersions={initialBudgetVersions}
+      onSaveBudget={handleSaveBudgetVersion}
       initialTransactions={initialTransactions}
       initialMonth={month}
       onSaveTransactions={handleSaveTransactions}

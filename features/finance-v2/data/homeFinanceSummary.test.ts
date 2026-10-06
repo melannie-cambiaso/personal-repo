@@ -5,7 +5,7 @@ import type {
   FinanceV2Transaction,
 } from "@/features/finance-v2/domain";
 
-const loadBudgetConfigMock = vi.hoisted(() => vi.fn());
+const loadBudgetVersionsMock = vi.hoisted(() => vi.fn());
 const loadTransactionsMock = vi.hoisted(() => vi.fn());
 const loadEnvelopeConfigMock = vi.hoisted(() => vi.fn());
 
@@ -13,7 +13,7 @@ vi.mock("./kvAdapter", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./kvAdapter")>();
   return {
     ...actual,
-    loadBudgetConfig: loadBudgetConfigMock,
+    loadBudgetVersions: loadBudgetVersionsMock,
     loadTransactions: loadTransactionsMock,
     loadEnvelopeConfig: loadEnvelopeConfigMock,
   };
@@ -85,7 +85,36 @@ const envelopeBill: FinanceV2Transaction = {
 describe("loadHomeFinanceSummary", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    loadBudgetConfigMock.mockResolvedValue(budget);
+    loadBudgetVersionsMock.mockResolvedValue([
+      { effectiveFrom: "0000-00", config: budget, updatedAt: "2026-09-01T00:00:00.000Z" },
+    ]);
+  });
+
+  it("uses the budget version in force for the month, not a later one", async () => {
+    loadBudgetVersionsMock.mockResolvedValue([
+      { effectiveFrom: "0000-00", config: budget, updatedAt: "2026-09-01T00:00:00.000Z" },
+      // A later edit must not leak back into this month's pending.
+      { effectiveFrom: "2026-11", config: { categories: [] }, updatedAt: "2026-11-01T00:00:00.000Z" },
+    ]);
+    loadTransactionsMock.mockResolvedValue([]);
+    loadEnvelopeConfigMock.mockResolvedValue(null);
+
+    const result = await loadHomeFinanceSummary(MONTH);
+
+    expect(result.pending).toBe(1550);
+  });
+
+  it("uses the version that starts in the month itself", async () => {
+    loadBudgetVersionsMock.mockResolvedValue([
+      { effectiveFrom: "0000-00", config: budget, updatedAt: "2026-09-01T00:00:00.000Z" },
+      { effectiveFrom: MONTH, config: { categories: [] }, updatedAt: "2026-10-01T00:00:00.000Z" },
+    ]);
+    loadTransactionsMock.mockResolvedValue([]);
+    loadEnvelopeConfigMock.mockResolvedValue(null);
+
+    const result = await loadHomeFinanceSummary(MONTH);
+
+    expect(result.pending).toBe(0);
   });
 
   it("returns the month balance and pending from the main account, excluding the envelope", async () => {

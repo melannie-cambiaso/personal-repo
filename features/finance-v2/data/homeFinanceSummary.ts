@@ -1,6 +1,10 @@
 import "server-only";
-import { computePendingFromMain, computeTransactionTotals } from "@/features/finance-v2/domain";
-import { loadBudgetConfig, loadEnvelopeConfig, loadTransactions } from "./kvAdapter";
+import {
+  computePendingFromMain,
+  computeTransactionTotals,
+  resolveBudgetForMonth,
+} from "@/features/finance-v2/domain";
+import { loadBudgetVersions, loadEnvelopeConfig, loadTransactions } from "./kvAdapter";
 
 export interface HomeFinanceSummary {
   month: string;
@@ -17,11 +21,13 @@ export interface HomeFinanceSummary {
  *  Not a Server Action: consumed by the RSC page after its own cookie gate, same as
  *  the other `load*` loaders. */
 export async function loadHomeFinanceSummary(month: string): Promise<HomeFinanceSummary> {
-  const [budget, transactions, envelopeConfig] = await Promise.all([
-    loadBudgetConfig(),
+  const [versions, transactions, envelopeConfig] = await Promise.all([
+    loadBudgetVersions(),
     loadTransactions(month),
     loadEnvelopeConfig(),
   ]);
+  // The budget in force for `month`, as the Budget tab resolves it for the viewed month.
+  const budget = resolveBudgetForMonth(versions, month);
 
   return {
     month,

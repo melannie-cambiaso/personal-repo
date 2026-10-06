@@ -36,8 +36,8 @@ Single branch with chained work-unit commits, fast-forward to `main` when the us
 
 ## Tasks
 - [x] T1 — Domain: `budgetVersions.ts` (`BudgetVersion`, `resolveBudgetForMonth`, `upsertBudgetVersion`) + tests. Route: inline (one new pure module + test). RED (module missing) → GREEN 10/10.
-- [ ] T2 — Data: `loadBudgetVersions` (legacy seed), `saveBudgetVersion`, `handleSaveBudgetVersion` action, home summary resolves current month. Route: delegated writer (multi-file).
-- [ ] T3 — Presentation: page loads versions; `FinanceV2Screen` resolves budget per viewed month; `useFinanceV2Budget` re-syncs on month and saves per month; past months read-only. Route: delegated writer (multi-file).
+- [x] T2 — Data: `loadBudgetVersions` (legacy seed), `saveBudgetVersion`, `handleSaveBudgetVersion` action, home summary resolves current month. Route: delegated writer (multi-file). RED (kvAdapter/actions/home summary tests: 19 failing, functions missing) → GREEN data 73/73. `loadBudgetConfig`, `saveBudgetConfig` and `handleSaveBudgetConfig` removed (no callers left); the legacy key is only read by the seed.
+- [x] T3 — Presentation: page loads versions; `FinanceV2Screen` resolves budget per viewed month; `useFinanceV2Budget` re-syncs on month and saves per month; past months read-only. Route: delegated writer (multi-file). RED (hook, BudgetTab and screen tests failing on the new API) → GREEN `vitest run features/finance-v2` 515/515.
 - [ ] T4 — Verify: full `npm run test`, `npx tsc --noEmit`, `npm run build`.
 
 ## Acceptance criteria
@@ -47,4 +47,18 @@ Single branch with chained work-unit commits, fast-forward to `main` when the us
 - Existing data keeps rendering the same history after the first load.
 
 ## Progress
-Branch created. Next: T1.
+- T1 commit `0ebec38`. RDD assess: medium, `under_budget` (174 lines), pending in slice.
+- T2+T3 (one delegated writer, uncommitted at hand-off; ~539+/142- lines including tests):
+  - Hook design: `useFinanceV2Budget({ initialVersions, month, onSave(month, config) })` owns
+    the versions list (still hoisted in the screen) and derives the viewed month's config with
+    `resolveBudgetForMonth`, so it follows month changes with no effect or re-key. Edits clone the
+    resolved config through the pure mutations and `upsertBudgetVersion` the viewed month;
+    `versionsRef` keeps the stale-closure protection.
+  - Read-only boundary: `viewedMonth < initialMonth` (the page's server `currentMonth()`), not
+    the client clock, so SSR and hydration agree. `BudgetTab` gets `readOnly`: hides the toggle
+    and shows "Presupuesto de un mes cerrado: solo lectura"; the screen forces `mode="view"`.
+  - Seed safety: `saveBudgetVersion` reads through a throwing helper, so a failed read writes
+    nothing instead of overwriting every version with one.
+  - Checks: `npx vitest run features/finance-v2` 515 passed; `npx tsc --noEmit` clean;
+    `npm run test` 84 files / 838 tests passed; `npx eslint features/finance-v2 app/finance-v2` clean.
+- Next: T4 (`npm run build`) and parent commit of T2+T3.

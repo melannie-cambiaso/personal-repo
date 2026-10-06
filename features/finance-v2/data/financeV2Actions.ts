@@ -8,7 +8,7 @@ import type {
 } from "@/features/finance-v2/domain";
 import { isTransactionMonth } from "@/features/finance-v2/domain";
 import {
-  saveBudgetConfig,
+  saveBudgetVersion,
   saveTransactions,
   appendTransactionToMonth,
   loadTransactions,
@@ -17,16 +17,19 @@ import {
 } from "./kvAdapter";
 import { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
 
-export async function handleSaveBudgetConfig(config: BudgetConfig): Promise<void> {
+// Saves the budget version effective from `month` (the viewed month being edited).
+// `month` becomes part of the stored list's ordering, so it passes the same
+// `isTransactionMonth` gate as every other month that reaches redis.
+export async function handleSaveBudgetVersion(month: string, config: BudgetConfig): Promise<void> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;
-  await saveBudgetConfig(config);
+  if (!isTransactionMonth(month)) return;
+  await saveBudgetVersion(month, config);
 }
 
 // Whole-list-save action for the VIEWED month (deliberate deviation from granular add/
 // delete actions): the hook computes the next list via the domain layer and sends the
-// entire array, so there is no server-side read-modify-write — mirrors
-// `handleSaveBudgetConfig`. Used when
+// entire array, so there is no server-side read-modify-write. Used when
 // `tx.month === viewedMonth`; a transaction filed to a DIFFERENT month goes through
 // `handleAppendTransactionToMonth` below instead.
 export async function handleSaveTransactions(

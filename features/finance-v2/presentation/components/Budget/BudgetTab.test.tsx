@@ -155,6 +155,46 @@ describe("BudgetTab", () => {
     expect(onToggleMode).toHaveBeenCalledOnce();
   });
 
+  describe("read-only (a closed month)", () => {
+    const renderReadOnly = (readOnly: boolean) =>
+      render(
+        <BudgetTab
+          mode="view"
+          readOnly={readOnly}
+          onToggleMode={noop}
+          categories={[
+            { id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] },
+          ]}
+          month={MONTH}
+          comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
+          spend={emptySpend}
+          coverage={emptyCoverage}
+          onAmountBlur={noop}
+          onAddCategory={noop}
+          onAddSubcategory={noop}
+          onDeleteCategory={noop}
+          onDeleteSubcategory={noop}
+          onFrequencyChange={noop}
+          onWeekdayChange={noop}
+        />
+      );
+
+    it("hides the edit toggle and shows a read-only note, still listing the categories", () => {
+      renderReadOnly(true);
+
+      expect(screen.queryByRole("button", { name: "Editar" })).toBeNull();
+      expect(screen.getByText("Presupuesto de un mes cerrado: solo lectura")).toBeTruthy();
+      expect(screen.getByText("Arriendo")).toBeTruthy();
+    });
+
+    it("keeps the toggle and shows no note when the month is editable", () => {
+      renderReadOnly(false);
+
+      expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
+      expect(screen.queryByText("Presupuesto de un mes cerrado: solo lectura")).toBeNull();
+    });
+  });
+
   it("renders one BudgetCategoryCard per category and clears the form on submit", () => {
     const onAddCategory = vi.fn();
     render(

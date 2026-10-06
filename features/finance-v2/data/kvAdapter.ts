@@ -1,33 +1,53 @@
 import "server-only";
 import { redis } from "@/shared/kv";
-import { DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
+import { DEFAULT_BUDGET_CONFIG, upsertBudgetVersion } from "@/features/finance-v2/domain";
 import type {
   BudgetConfig,
+  BudgetVersion,
   EnvelopeConfig,
   FinanceV2Transaction,
 } from "@/features/finance-v2/domain";
 
-// Global, not month-scoped, distinct from all v1 finance keys — same try/catch-swallow
-// + default-on-miss pattern.
+// Pre-versioning global budget tree. Read-only now: it only seeds the versions list
+// below, and is never written or deleted (a rollback can still read it).
 const BUDGET_CONFIG_KEY = "finance-v2-budget-config";
+// Effective-dated budget versions (see `domain/budgetVersions.ts`), one global list.
+const BUDGET_VERSIONS_KEY = "finance-v2-budget-versions";
 
-export async function loadBudgetConfig(): Promise<BudgetConfig> {
+// Throws on a redis error, unlike the public loaders: `saveBudgetVersion` must tell a
+// failed read apart from "no versions yet", or a write would wipe every stored version.
+// Legacy backfill on read: a missing versions key becomes one `"0000-00"` version holding
+// the legacy config, so every existing month keeps the budget it showed before. The seed
+// is persisted only by the first `saveBudgetVersion`.
+async function readBudgetVersions(): Promise<BudgetVersion[]> {
+  const stored = await redis.get<BudgetVersion[]>(BUDGET_VERSIONS_KEY);
+  if (stored) return stored;
+  const legacy = (await redis.get<BudgetConfig>(BUDGET_CONFIG_KEY)) ?? DEFAULT_BUDGET_CONFIG;
+  return [{ effectiveFrom: "0000-00", config: legacy, updatedAt: new Date().toISOString() }];
+}
+
+export async function loadBudgetVersions(): Promise<BudgetVersion[]> {
   try {
-    return (await redis.get<BudgetConfig>(BUDGET_CONFIG_KEY)) ?? DEFAULT_BUDGET_CONFIG;
+    return await readBudgetVersions();
   } catch {
-    return DEFAULT_BUDGET_CONFIG;
+    return []; // every month resolves to `DEFAULT_BUDGET_CONFIG`
   }
 }
 
-export async function saveBudgetConfig(config: BudgetConfig): Promise<void> {
+/** Read-upsert-write of `month`'s version only; every other version is kept. */
+export async function saveBudgetVersion(month: string, config: BudgetConfig): Promise<void> {
   try {
-    await redis.set(BUDGET_CONFIG_KEY, config);
+    const versions = await readBudgetVersions();
+    await redis.set(
+      BUDGET_VERSIONS_KEY,
+      upsertBudgetVersion(versions, month, config, new Date().toISOString())
+    );
   } catch {
-    // swallow — caller has no recovery path; config reverts to in-memory state on next load
+    // swallow — caller has no recovery path; versions revert to in-memory state on next load
   }
 }
 
-// Same global key pattern as the budget config, but a miss is `null`, not a default:
+// Same global key pattern as the budget versions, but a miss is `null`, not a default:
 // no stored config means the envelope feature is off.
 const ENVELOPE_CONFIG_KEY = "finance-v2-envelope-config";
 

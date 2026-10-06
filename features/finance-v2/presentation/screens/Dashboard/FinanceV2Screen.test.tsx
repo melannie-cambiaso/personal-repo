@@ -4,6 +4,7 @@ import { FinanceV2Screen } from "./FinanceV2Screen";
 import { DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type {
   BudgetConfig,
+  BudgetVersion,
   EnvelopeConfig,
   FinanceV2Transaction,
 } from "@/features/finance-v2/domain";
@@ -14,8 +15,14 @@ beforeAll(() => {
   HTMLDialogElement.prototype.close = vi.fn();
 });
 
+const UPDATED_AT = "2026-01-01T00:00:00.000Z";
+/** A single legacy version, so every month resolves to `config`. */
+const seed = (config: BudgetConfig): BudgetVersion[] => [
+  { effectiveFrom: "0000-00", config, updatedAt: UPDATED_AT },
+];
+
 const defaultProps = () => ({
-  initialBudget: DEFAULT_BUDGET_CONFIG,
+  initialBudgetVersions: seed(DEFAULT_BUDGET_CONFIG),
   onSaveBudget: vi.fn(),
   initialTransactions: [] as FinanceV2Transaction[],
   initialMonth: "2026-07",
@@ -48,7 +55,7 @@ describe("FinanceV2Screen", () => {
   describe("Análisis tab", () => {
     const budgetedProps = () => ({
       ...defaultProps(),
-      initialBudget: {
+      initialBudgetVersions: seed({
         categories: [
           {
             id: "c1",
@@ -58,7 +65,7 @@ describe("FinanceV2Screen", () => {
             subcategories: [],
           },
         ],
-      },
+      }),
     });
 
     it("is reachable and replaces the Presupuesto view", () => {
@@ -127,6 +134,108 @@ describe("FinanceV2Screen", () => {
 
     expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
     expect(screen.queryByLabelText("Nombre de la categoría")).toBeNull();
+  });
+
+  describe("budget versions", () => {
+    const category = (id: string, name: string) => ({
+      id,
+      name,
+      bucket: "fixed" as const,
+      amount: 100_000,
+      subcategories: [],
+    });
+    // Comida was added in 2026-07 (the current month here), so June never had it.
+    const versionedProps = () => ({
+      ...defaultProps(),
+      initialMonth: "2026-07",
+      initialBudgetVersions: [
+        {
+          effectiveFrom: "0000-00",
+          config: { categories: [category("c1", "Arriendo")] },
+          updatedAt: UPDATED_AT,
+        },
+        {
+          effectiveFrom: "2026-07",
+          config: { categories: [category("c1", "Arriendo"), category("c2", "Comida")] },
+          updatedAt: UPDATED_AT,
+        },
+      ],
+    });
+    const goPrev = () => fireEvent.click(screen.getByRole("button", { name: "← Anterior" }));
+    const goNext = () => fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
+
+    it("shows each month the budget version in force for it", () => {
+      render(<FinanceV2Screen {...versionedProps()} />);
+      expect(screen.getByText("Comida")).toBeTruthy();
+
+      goPrev();
+      expect(screen.getByText("Arriendo")).toBeTruthy();
+      expect(screen.queryByText("Comida")).toBeNull();
+
+      goNext();
+      goNext();
+      expect(screen.getByText("Comida")).toBeTruthy();
+    });
+
+    it("offers a past month's own categories in the expense picker", () => {
+      render(<FinanceV2Screen {...versionedProps()} />);
+
+      goPrev();
+      fireEvent.click(screen.getByText("Movimientos"));
+      const options = Array.from(
+        (screen.getByLabelText("Subcategoría") as HTMLSelectElement).options
+      ).map((o) => o.text);
+
+      expect(options).toContain("Arriendo");
+      expect(options).not.toContain("Comida");
+    });
+
+    it("makes a past month read-only, forcing view mode even if edit mode was on", () => {
+      render(<FinanceV2Screen {...versionedProps()} />);
+      fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+      expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
+
+      goPrev();
+
+      expect(screen.getByText("Presupuesto de un mes cerrado: solo lectura")).toBeTruthy();
+      expect(screen.queryByRole("button", { name: "Editar" })).toBeNull();
+      expect(screen.queryByRole("button", { name: "Listo" })).toBeNull();
+      expect(screen.queryByLabelText("Nombre de la categoría")).toBeNull();
+    });
+
+    it("keeps the current and future months editable", () => {
+      render(<FinanceV2Screen {...versionedProps()} />);
+      expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
+
+      goNext();
+
+      expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
+      expect(screen.queryByText("Presupuesto de un mes cerrado: solo lectura")).toBeNull();
+    });
+
+    it("saves an edit as the edited month's version and leaves earlier months untouched", () => {
+      const props = versionedProps();
+      render(<FinanceV2Screen {...props} />);
+
+      goNext(); // 2026-08
+      fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+      fireEvent.change(screen.getByLabelText("Nombre de la categoría"), {
+        target: { value: "Ocio" },
+      });
+      fireEvent.click(screen.getByText("Agregar categoría"));
+
+      expect(props.onSaveBudget).toHaveBeenCalledOnce();
+      expect(props.onSaveBudget.mock.calls[0][0]).toBe("2026-08");
+      expect(
+        (props.onSaveBudget.mock.calls[0][1] as BudgetConfig).categories.map((c) => c.id)
+      ).toEqual(expect.arrayContaining(["c1", "c2"]));
+
+      goPrev(); // 2026-07 keeps its version
+      expect(screen.queryByText("Ocio")).toBeNull();
+      goNext();
+      goNext(); // 2026-09 inherits the 2026-08 edit
+      expect(screen.getByText("Ocio")).toBeTruthy();
+    });
   });
 
   it("mode survives Presupuesto → Movimientos → Presupuesto", () => {
@@ -316,7 +425,7 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={cuentasWithLuz}
+          initialBudgetVersions={seed(cuentasWithLuz)}
           initialEnvelopeConfig={envelope}
           onSaveTransactions={onSaveTransactions}
         />
@@ -335,7 +444,7 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={cuentasWithLuz}
+          initialBudgetVersions={seed(cuentasWithLuz)}
           initialEnvelopeConfig={envelope}
           onSaveTransactions={onSaveTransactions}
         />
@@ -351,7 +460,7 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={cuentasWithLuz}
+          initialBudgetVersions={seed(cuentasWithLuz)}
           onSaveTransactions={onSaveTransactions}
         />
       );
@@ -368,11 +477,11 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={{
+          initialBudgetVersions={seed({
             categories: [
               { id: "cuentas", name: "Cuentas", bucket: "fixed", amount: 0, subcategories: [] },
             ],
-          }}
+          })}
           initialEnvelopeConfig={envelope}
           onSaveTransactions={onSaveTransactions}
         />
@@ -399,7 +508,7 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={cuentasWithLuz}
+          initialBudgetVersions={seed(cuentasWithLuz)}
           initialEnvelopeConfig={{ ...envelope, openingMonth: "2026-05" }}
           initialCarriedIn={0}
           onSaveToOtherMonth={vi.fn().mockResolvedValue(undefined)}
@@ -418,7 +527,7 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={cuentasWithLuz}
+          initialBudgetVersions={seed(cuentasWithLuz)}
           initialEnvelopeConfig={envelope}
           initialCarriedIn={0}
           onSaveToOtherMonth={vi.fn().mockResolvedValue(undefined)}
@@ -452,7 +561,7 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={cuentasWithLuz}
+          initialBudgetVersions={seed(cuentasWithLuz)}
           initialEnvelopeConfig={envelope}
           initialCarriedIn={7000}
         />
@@ -469,11 +578,11 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={{
+          initialBudgetVersions={seed({
             categories: [
               { id: "cuentas", name: "Cuentas", bucket: "fixed", amount: 0, subcategories: [] },
             ],
-          }}
+          })}
           onSaveEnvelopeConfig={onSaveEnvelopeConfig}
         />
       );
@@ -500,7 +609,7 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={cuentasWithLuz}
+          initialBudgetVersions={seed(cuentasWithLuz)}
           initialEnvelopeConfig={envelope}
           initialTransactions={[
             july({ id: "t1", type: "income", amount: 100_000 }),
@@ -536,7 +645,7 @@ describe("FinanceV2Screen", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
-          initialBudget={cuentasWithLuz}
+          initialBudgetVersions={seed(cuentasWithLuz)}
           initialEnvelopeConfig={envelope}
           onLoadTransactions={() => new Promise<FinanceV2Transaction[]>(() => {})}
         />
@@ -551,7 +660,7 @@ describe("FinanceV2Screen", () => {
     });
 
     it("opening the envelope config modal disables the shared MonthNav", () => {
-      render(<FinanceV2Screen {...defaultProps()} initialBudget={cuentasWithLuz} />);
+      render(<FinanceV2Screen {...defaultProps()} initialBudgetVersions={seed(cuentasWithLuz)} />);
 
       fireEvent.click(screen.getByText("Movimientos"));
       fireEvent.click(screen.getByText("Configurar cuenta separada"));

@@ -19,6 +19,9 @@ import type { SpendView } from "./spendView";
 
 interface Props {
   mode: BudgetMode;
+  /** A closed (past) month: the edit toggle is hidden and a note says why. The caller
+   *  also forces `mode` to `"view"`. */
+  readOnly?: boolean;
   onToggleMode: () => void;
   categories: BudgetCategory[];
   /** The viewed month — weekly leaves' monthly budget depends on it. */
@@ -45,12 +48,13 @@ interface Props {
 // Presentational only — state lives in `useFinanceV2Budget`,
 // hoisted in `FinanceV2Screen` (design decision #1's reasoning applies here too: the tabs
 // are conditionally rendered, so an internally-owned hook would remount from the stale
-// `initialBudget` prop and lose anything added since page load on every tab switch).
+// `initialBudgetVersions` prop and lose anything added since page load on every tab switch).
 // Closes the `Empty-State Start` spec gap left open by the Unit B placeholder: comparison
 // stays visible above the category list in every state, and the add-category affordance
 // is always present, not just when the list is empty.
 export function BudgetTab({
   mode,
+  readOnly = false,
   onToggleMode,
   categories,
   month,
@@ -80,20 +84,24 @@ export function BudgetTab({
     <div className="flex flex-col gap-6">
       {/* Own row at the TOP, above `BucketComparison`, outside every conditional —
           structural guard against the empty-state trap: always reachable regardless
-          of category count or current mode. */}
+          of category count or current mode. A closed month swaps it for a note. */}
       <div className="flex justify-end">
-        <button
-          type="button"
-          aria-pressed={mode === "edit"}
-          onClick={onToggleMode}
-          className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
-            mode === "edit"
-              ? "border-sage-500 bg-sage-500 text-sage-800"
-              : "border-sage-300 bg-cream-50 text-brown-600 hover:bg-sage-100"
-          }`}
-        >
-          {BUDGET_MODE_LABEL[mode]}
-        </button>
+        {readOnly ? (
+          <p className="text-brown-500 text-sm">Presupuesto de un mes cerrado: solo lectura</p>
+        ) : (
+          <button
+            type="button"
+            aria-pressed={mode === "edit"}
+            onClick={onToggleMode}
+            className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
+              mode === "edit"
+                ? "border-sage-500 bg-sage-500 text-sage-800"
+                : "border-sage-300 bg-cream-50 text-brown-600 hover:bg-sage-100"
+            }`}
+          >
+            {BUDGET_MODE_LABEL[mode]}
+          </button>
+        )}
       </div>
 
       <BucketComparison comparison={comparison} spend={spend} />

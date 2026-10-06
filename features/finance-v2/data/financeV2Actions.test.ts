@@ -6,7 +6,7 @@ import type {
 } from "@/features/finance-v2/domain";
 
 const cookiesGetMock = vi.hoisted(() => vi.fn());
-const saveBudgetConfigMock = vi.hoisted(() => vi.fn());
+const saveBudgetVersionMock = vi.hoisted(() => vi.fn());
 const saveTransactionsMock = vi.hoisted(() => vi.fn());
 const appendTransactionToMonthMock = vi.hoisted(() => vi.fn());
 const loadTransactionsMock = vi.hoisted(() => vi.fn());
@@ -21,7 +21,7 @@ vi.mock("./kvAdapter", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./kvAdapter")>();
   return {
     ...actual,
-    saveBudgetConfig: saveBudgetConfigMock,
+    saveBudgetVersion: saveBudgetVersionMock,
     saveTransactions: saveTransactionsMock,
     appendTransactionToMonth: appendTransactionToMonthMock,
     loadTransactions: loadTransactionsMock,
@@ -32,7 +32,7 @@ vi.mock("./kvAdapter", async (importOriginal) => {
 });
 
 import {
-  handleSaveBudgetConfig,
+  handleSaveBudgetVersion,
   handleSaveTransactions,
   handleAppendTransactionToMonth,
   handleLoadTransactions,
@@ -43,21 +43,30 @@ import {
 const withAuth = () => cookiesGetMock.mockReturnValue({ value: "token" });
 const withoutAuth = () => cookiesGetMock.mockReturnValue(undefined);
 
-describe("handleSaveBudgetConfig", () => {
+describe("handleSaveBudgetVersion", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("does nothing without auth and does not write KV", async () => {
     withoutAuth();
     const budget: BudgetConfig = { categories: [] };
-    await handleSaveBudgetConfig(budget);
-    expect(saveBudgetConfigMock).not.toHaveBeenCalled();
+    await handleSaveBudgetVersion("2026-10", budget);
+    expect(saveBudgetVersionMock).not.toHaveBeenCalled();
   });
 
-  it("delegates to kvAdapter when authenticated", async () => {
+  it.each(["2026-13", "2026-1", "0000-00", "../x", ""])(
+    "does nothing and does not write KV for the malformed month %j",
+    async (month) => {
+      withAuth();
+      await handleSaveBudgetVersion(month, { categories: [] });
+      expect(saveBudgetVersionMock).not.toHaveBeenCalled();
+    }
+  );
+
+  it("delegates the month and config to kvAdapter when authenticated", async () => {
     withAuth();
     const budget: BudgetConfig = { categories: [] };
-    await handleSaveBudgetConfig(budget);
-    expect(saveBudgetConfigMock).toHaveBeenCalledWith(budget);
+    await handleSaveBudgetVersion("2026-10", budget);
+    expect(saveBudgetVersionMock).toHaveBeenCalledWith("2026-10", budget);
   });
 });
 

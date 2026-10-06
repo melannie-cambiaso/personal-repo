@@ -5,8 +5,8 @@ const redisMock = vi.hoisted(() => ({ get: vi.fn(), set: vi.fn(), mget: vi.fn() 
 vi.mock("@/shared/kv", () => ({ redis: redisMock }));
 
 import {
-  loadBudgetConfig,
-  saveBudgetConfig,
+  loadBudgetVersions,
+  saveBudgetVersion,
   transactionsKey,
   loadTransactions,
   saveTransactions,
@@ -18,59 +18,100 @@ import {
 import { DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type {
   BudgetConfig,
+  BudgetVersion,
   EnvelopeConfig,
   FinanceV2Transaction,
 } from "@/features/finance-v2/domain";
 
-describe("loadBudgetConfig", () => {
+const legacyConfig: BudgetConfig = {
+  categories: [{ id: "c1", name: "Renta", bucket: "fixed", amount: 500_000, subcategories: [] }],
+};
+
+const storedVersions: BudgetVersion[] = [
+  { effectiveFrom: "0000-00", config: legacyConfig, updatedAt: "2026-09-01T00:00:00.000Z" },
+  { effectiveFrom: "2026-10", config: { categories: [] }, updatedAt: "2026-10-01T00:00:00.000Z" },
+];
+
+/** `redis.get` answering per key, so a test can stage the versions and legacy keys. */
+const stageKeys = (store: Record<string, unknown>) =>
+  redisMock.get.mockImplementation(async (key: string) => store[key] ?? null);
+
+describe("loadBudgetVersions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("returns defaults when the key is missing", async () => {
-    redisMock.get.mockResolvedValue(null);
-    const result = await loadBudgetConfig();
-    expect(result).toEqual(DEFAULT_BUDGET_CONFIG);
+  it("returns the stored versions from the finance-v2-budget-versions key", async () => {
+    stageKeys({ "finance-v2-budget-versions": storedVersions });
+    const result = await loadBudgetVersions();
+    expect(result).toEqual(storedVersions);
+    expect(redisMock.get).toHaveBeenCalledWith("finance-v2-budget-versions");
   });
 
-  it("returns the stored config when present", async () => {
-    const stored: BudgetConfig = {
-      categories: [
-        { id: "c1", name: "Renta", bucket: "fixed", amount: 500_000, subcategories: [] },
-      ],
-    };
-    redisMock.get.mockResolvedValue(stored);
-    const result = await loadBudgetConfig();
-    expect(result).toEqual(stored);
+  it("seeds one 0000-00 version from the legacy config when the versions key is missing, without writing", async () => {
+    stageKeys({ "finance-v2-budget-config": legacyConfig });
+    const result = await loadBudgetVersions();
+    expect(result).toEqual([
+      { effectiveFrom: "0000-00", config: legacyConfig, updatedAt: expect.any(String) },
+    ]);
+    expect(redisMock.set).not.toHaveBeenCalled();
   });
 
-  it("uses the flat global key finance-v2-budget-config", async () => {
-    redisMock.get.mockResolvedValue(null);
-    await loadBudgetConfig();
-    expect(redisMock.get).toHaveBeenCalledWith("finance-v2-budget-config");
+  it("seeds from the default config when neither key exists", async () => {
+    stageKeys({});
+    const result = await loadBudgetVersions();
+    expect(result).toEqual([
+      { effectiveFrom: "0000-00", config: DEFAULT_BUDGET_CONFIG, updatedAt: expect.any(String) },
+    ]);
   });
 
-  it("returns defaults when redis.get throws", async () => {
+  it("returns [] (every month resolves to the default) when redis.get throws", async () => {
     redisMock.get.mockRejectedValue(new Error("connection lost"));
-    const result = await loadBudgetConfig();
-    expect(result).toEqual(DEFAULT_BUDGET_CONFIG);
+    const result = await loadBudgetVersions();
+    expect(result).toEqual([]);
   });
 });
 
-describe("saveBudgetConfig", () => {
+describe("saveBudgetVersion", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("saves the config under the flat global key", async () => {
+  it("upserts the month's version and keeps every other version", async () => {
+    stageKeys({ "finance-v2-budget-versions": storedVersions });
     const config: BudgetConfig = { categories: [] };
-    await saveBudgetConfig(config);
-    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-budget-config", config);
+
+    await saveBudgetVersion("2026-11", config);
+
+    expect(redisMock.set).toHaveBeenCalledOnce();
+    const [key, saved] = redisMock.set.mock.calls[0] as [string, BudgetVersion[]];
+    expect(key).toBe("finance-v2-budget-versions");
+    expect(saved.map((v) => v.effectiveFrom)).toEqual(["0000-00", "2026-10", "2026-11"]);
+    expect(saved[2].config).toBe(config);
+  });
+
+  it("persists the legacy seed alongside the first edited month", async () => {
+    stageKeys({ "finance-v2-budget-config": legacyConfig });
+
+    await saveBudgetVersion("2026-10", { categories: [] });
+
+    const saved = redisMock.set.mock.calls[0][1] as BudgetVersion[];
+    expect(saved.map((v) => v.effectiveFrom)).toEqual(["0000-00", "2026-10"]);
+    expect(saved[0].config).toEqual(legacyConfig);
+    expect(redisMock.set).not.toHaveBeenCalledWith("finance-v2-budget-config", expect.anything());
+  });
+
+  // A failed read must never be mistaken for "no versions": writing then would wipe them.
+  it("writes nothing when the read fails", async () => {
+    redisMock.get.mockRejectedValue(new Error("connection lost"));
+    await expect(saveBudgetVersion("2026-10", { categories: [] })).resolves.toBeUndefined();
+    expect(redisMock.set).not.toHaveBeenCalled();
   });
 
   it("swallows redis errors on save", async () => {
+    stageKeys({ "finance-v2-budget-versions": storedVersions });
     redisMock.set.mockRejectedValue(new Error("connection lost"));
-    await expect(saveBudgetConfig({ categories: [] })).resolves.toBeUndefined();
+    await expect(saveBudgetVersion("2026-10", { categories: [] })).resolves.toBeUndefined();
   });
 });
 
