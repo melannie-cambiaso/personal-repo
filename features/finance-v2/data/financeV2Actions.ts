@@ -16,14 +16,17 @@ import {
   loadEnvelopeConfig,
 } from "./kvAdapter";
 import { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
+import { currentMonth } from "@/shared/utils/monthUtils";
 
 // Saves the budget version effective from `month` (the viewed month being edited).
 // `month` becomes part of the stored list's ordering, so it passes the same
-// `isTransactionMonth` gate as every other month that reaches redis.
+// `isTransactionMonth` gate as every other month that reaches redis. A closed (past)
+// month is rejected here too, not only hidden in the UI, so its budget stays frozen.
 export async function handleSaveBudgetVersion(month: string, config: BudgetConfig): Promise<void> {
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return;
   if (!isTransactionMonth(month)) return;
+  if (month < currentMonth()) return;
   await saveBudgetVersion(month, config);
 }
 

@@ -65,7 +65,8 @@ Single branch with chained work-unit commits, fast-forward to `main` when the us
 - RDD: consent granted; lens `review-reliability` approved; lineage `review-e437accca0a07250`
   acknowledged (authority burned). Reviewed boundary advances to `cf4894b`.
 - Advisory follow-ups (non-blocking, not done):
-  - R3-server-readonly-unenforced: `handleSaveBudgetVersion` accepts past months (UI-only guard).
+  - R3-server-readonly-unenforced: FIXED (T5, user-requested 2026-10-06) — `handleSaveBudgetVersion`
+    rejects `month < currentMonth()`. RED (past-month test) → GREEN; finance-v2 517/517, tsc clean.
   - R3-lost-update-rmw: `saveBudgetVersion` read-modify-write is not atomic across tabs/devices.
   - R3-unvalidated-stored-shape: stored versions value is not shape-checked.
   - R3-stale-closed-boundary: a session open across a month rollover keeps the ended month editable until reload.

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type {
   BudgetConfig,
   EnvelopeConfig,
@@ -44,7 +44,25 @@ const withAuth = () => cookiesGetMock.mockReturnValue({ value: "token" });
 const withoutAuth = () => cookiesGetMock.mockReturnValue(undefined);
 
 describe("handleSaveBudgetVersion", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 9, 15)); // current month: 2026-10
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it("does nothing for a closed (past) month: its budget history stays frozen", async () => {
+    withAuth();
+    await handleSaveBudgetVersion("2026-09", { categories: [] });
+    expect(saveBudgetVersionMock).not.toHaveBeenCalled();
+  });
+
+  it("saves a future month", async () => {
+    withAuth();
+    const budget: BudgetConfig = { categories: [] };
+    await handleSaveBudgetVersion("2026-11", budget);
+    expect(saveBudgetVersionMock).toHaveBeenCalledWith("2026-11", budget);
+  });
 
   it("does nothing without auth and does not write KV", async () => {
     withoutAuth();
