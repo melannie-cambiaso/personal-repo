@@ -11,6 +11,7 @@ import {
   loadEnvelopeCarriedBalance,
   handleSaveEnvelopeConfig,
   handleLoadEnvelopeCarriedBalance,
+  TransactionKvAdapter,
 } from "@/features/finance-v2/data";
 import { FinanceV2Screen } from "@/features/finance-v2/presentation/screens/Dashboard/FinanceV2Screen";
 import { currentMonth } from "@/shared/utils/monthUtils";
@@ -29,7 +30,11 @@ export default async function FinanceV2Page() {
   ]);
   // Sequential on purpose: it needs the config's opening month/balance. Loaded here so the
   // envelope's first render needs no client fetch.
-  const initialCarriedIn = await loadEnvelopeCarriedBalance(initialEnvelopeConfig, month);
+  const initialCarriedIn = await loadEnvelopeCarriedBalance(
+    initialEnvelopeConfig,
+    month,
+    TransactionKvAdapter
+  );
 
   return (
     <FinanceV2Screen

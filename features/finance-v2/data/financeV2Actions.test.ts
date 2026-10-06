@@ -12,7 +12,9 @@ const appendTransactionToMonthMock = vi.hoisted(() => vi.fn());
 const loadTransactionsMock = vi.hoisted(() => vi.fn());
 const saveEnvelopeConfigMock = vi.hoisted(() => vi.fn());
 const loadEnvelopeConfigMock = vi.hoisted(() => vi.fn());
-const loadTransactionsForMonthsMock = vi.hoisted(() => vi.fn());
+// Now mocked as a method on TransactionKvAdapter (the port adapter object), because
+// envelopeCarriedBalance receives the repo by parameter and calls loadForMonths on it.
+const loadForMonthsMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/headers", () => ({
   cookies: () => ({ get: cookiesGetMock }),
@@ -27,7 +29,10 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     loadTransactions: loadTransactionsMock,
     saveEnvelopeConfig: saveEnvelopeConfigMock,
     loadEnvelopeConfig: loadEnvelopeConfigMock,
-    loadTransactionsForMonths: loadTransactionsForMonthsMock,
+    TransactionKvAdapter: {
+      ...actual.TransactionKvAdapter,
+      loadForMonths: loadForMonthsMock,
+    },
   };
 });
 
@@ -262,7 +267,7 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
 
     expect(result).toBeNull();
     expect(loadEnvelopeConfigMock).not.toHaveBeenCalled();
-    expect(loadTransactionsForMonthsMock).not.toHaveBeenCalled();
+    expect(loadForMonthsMock).not.toHaveBeenCalled();
   });
 
   it("returns null for a malformed month even when authenticated, and reads nothing", async () => {
@@ -272,7 +277,7 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
 
     expect(result).toBeNull();
     expect(loadEnvelopeConfigMock).not.toHaveBeenCalled();
-    expect(loadTransactionsForMonthsMock).not.toHaveBeenCalled();
+    expect(loadForMonthsMock).not.toHaveBeenCalled();
   });
 
   it("returns null when no envelope is configured", async () => {
@@ -282,7 +287,7 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
     const result = await handleLoadEnvelopeCarriedBalance("2026-11");
 
     expect(result).toBeNull();
-    expect(loadTransactionsForMonthsMock).not.toHaveBeenCalled();
+    expect(loadForMonthsMock).not.toHaveBeenCalled();
   });
 
   it("returns null for a month before the opening month, without reading transactions", async () => {
@@ -292,7 +297,7 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
     const result = await handleLoadEnvelopeCarriedBalance("2026-09");
 
     expect(result).toBeNull();
-    expect(loadTransactionsForMonthsMock).not.toHaveBeenCalled();
+    expect(loadForMonthsMock).not.toHaveBeenCalled();
   });
 
   it("returns the opening balance for the opening month itself, without reading transactions", async () => {
@@ -302,14 +307,14 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
     const result = await handleLoadEnvelopeCarriedBalance("2026-10");
 
     expect(result).toBe(30_000);
-    expect(loadTransactionsForMonthsMock).not.toHaveBeenCalled();
+    expect(loadForMonthsMock).not.toHaveBeenCalled();
   });
 
   // Spec: "Leftover carries into next month".
   it("carries the opening month's leftover into the next month", async () => {
     withAuth();
     loadEnvelopeConfigMock.mockResolvedValue({ ...envelopeConfig, openingBalance: 0 });
-    loadTransactionsForMonthsMock.mockResolvedValue([
+    loadForMonthsMock.mockResolvedValue([
       { id: "t1", type: "transfer", amount: 116_000, date: "2026-10-01", month: "2026-10" },
       {
         id: "t2",
@@ -335,7 +340,7 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
 
     const result = await handleLoadEnvelopeCarriedBalance("2026-11");
 
-    expect(loadTransactionsForMonthsMock).toHaveBeenCalledWith(["2026-10"]);
+    expect(loadForMonthsMock).toHaveBeenCalledWith(["2026-10"]);
     expect(result).toBe(7000);
   });
 
@@ -371,7 +376,7 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
     saveTransactionsMock.mockImplementation(async (month: string, list: FinanceV2Transaction[]) => {
       store[month] = list;
     });
-    loadTransactionsForMonthsMock.mockImplementation(async (months: string[]) =>
+    loadForMonthsMock.mockImplementation(async (months: string[]) =>
       months.flatMap((month) => store[month] ?? [])
     );
 
@@ -389,7 +394,7 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
   it("reads every month from the opening month up to (excluding) the viewed one, across a year boundary, and ignores main-account activity", async () => {
     withAuth();
     loadEnvelopeConfigMock.mockResolvedValue({ ...envelopeConfig, openingMonth: "2026-11" });
-    loadTransactionsForMonthsMock.mockResolvedValue([
+    loadForMonthsMock.mockResolvedValue([
       { id: "t1", type: "transfer", amount: 100_000, date: "2026-11-01", month: "2026-11" },
       { id: "t2", type: "transfer", amount: 100_000, date: "2026-12-01", month: "2026-12" },
       {
@@ -416,7 +421,7 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
 
     const result = await handleLoadEnvelopeCarriedBalance("2027-01");
 
-    expect(loadTransactionsForMonthsMock).toHaveBeenCalledWith(["2026-11", "2026-12"]);
+    expect(loadForMonthsMock).toHaveBeenCalledWith(["2026-11", "2026-12"]);
     expect(result).toBe(30_000 + 200_000 - 80_000);
   });
 });

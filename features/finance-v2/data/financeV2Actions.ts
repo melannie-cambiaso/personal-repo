@@ -14,6 +14,7 @@ import {
   loadTransactions,
   saveEnvelopeConfig,
   loadEnvelopeConfig,
+  TransactionKvAdapter,
 } from "./kvAdapter";
 import { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
 import { currentMonth } from "@/shared/utils/monthUtils";
@@ -97,5 +98,5 @@ export async function handleLoadEnvelopeCarriedBalance(month: string): Promise<n
   const cookieStore = await cookies();
   if (!cookieStore.get("wishlist_auth")?.value) return null;
   if (!isTransactionMonth(month)) return null;
-  return loadEnvelopeCarriedBalance(await loadEnvelopeConfig(), month);
+  return loadEnvelopeCarriedBalance(await loadEnvelopeConfig(), month, TransactionKvAdapter);
 }

@@ -56,3 +56,7 @@ export type { DayGroup } from "./groupTransactionsByDay";
 export { groupTransactionsByDay } from "./groupTransactionsByDay";
 export type { ExpenseCategoryOption } from "./expenseCategoryOptions";
 export { listExpenseCategoryOptions } from "./expenseCategoryOptions";
+
+// Ports — interfaces the domain requires from infrastructure.
+// Adapters live in data/ and must satisfy these contracts.
+export type { IBudgetRepository, ITransactionRepository, IEnvelopeRepository } from "./ports";
