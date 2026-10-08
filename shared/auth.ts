@@ -15,11 +15,17 @@ export function generateToken(): string {
   return createHmac("sha256", secret).update(secret).digest("hex");
 }
 
+// Log the missing-secret misconfiguration once per process instead of on every request.
+let missingSecretLogged = false;
+
 // Owner gate for every protected page and server action.
 export function isAuthorized(cookieStore: CookieReader): boolean {
   // Checked here so a missing secret denies access instead of making generateToken throw on every page.
   if (!process.env.WISHLIST_SECRET) {
-    console.error("[auth] WISHLIST_SECRET is not set: every owner check will deny access.");
+    if (!missingSecretLogged) {
+      console.error("[auth] WISHLIST_SECRET is not set: every owner check will deny access.");
+      missingSecretLogged = true;
+    }
     return false;
   }
   const value = cookieStore.get(AUTH_COOKIE)?.value;

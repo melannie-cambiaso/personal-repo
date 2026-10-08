@@ -45,19 +45,44 @@ describe("isAuthorized", () => {
     expect(isAuthorized(storeWith("anything"))).toBe(false);
   });
 
-  it("logs the misconfiguration when WISHLIST_SECRET is not set", () => {
-    vi.stubEnv("WISHLIST_SECRET", "");
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    isAuthorized(storeWith("anything"));
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("WISHLIST_SECRET"));
-  });
-
   it("does not log when the secret is set", () => {
     vi.stubEnv("WISHLIST_SECRET", "s3cret");
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     isAuthorized(storeWith("forged"));
     isAuthorized(storeWith());
     expect(errorSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe("isAuthorized missing-secret logging", () => {
+  // The "already logged" flag is module state, so each test loads a fresh copy of the module.
+  const loadFreshAuth = async () => {
+    vi.resetModules();
+    return import("./auth");
+  };
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+  });
+
+  it("logs the misconfiguration only once per process", async () => {
+    vi.stubEnv("WISHLIST_SECRET", "");
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const auth = await loadFreshAuth();
+    auth.isAuthorized(storeWith("anything"));
+    auth.isAuthorized(storeWith("anything"));
+    auth.isAuthorized(storeWith());
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("WISHLIST_SECRET"));
+  });
+
+  it("denies and logs when both the cookie and the secret are missing", async () => {
+    vi.stubEnv("WISHLIST_SECRET", "");
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const auth = await loadFreshAuth();
+    expect(auth.isAuthorized(storeWith())).toBe(false);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
   });
 });
 
