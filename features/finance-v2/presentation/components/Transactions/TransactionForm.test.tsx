@@ -34,6 +34,27 @@ describe("TransactionForm", () => {
     expect(dateInput.max).toBe("");
   });
 
+  it("lists subcategories alphabetically after 'Sin subcategoría'", () => {
+    render(
+      <TransactionForm
+        viewedMonth="2026-07"
+        categoryOptions={[
+          { id: "s1", name: "Ocio", bucket: "variable" },
+          { id: "s2", name: "agua", bucket: "fixed" },
+          { id: "s3", name: "Électricité", bucket: "fixed" },
+          { id: "s4", name: "Luz", bucket: "fixed" },
+        ]}
+        hasEnvelope={false}
+        onAdd={vi.fn()}
+      />
+    );
+
+    const select = screen.getByLabelText("Subcategoría") as HTMLSelectElement;
+    const labels = Array.from(select.options).map((o) => o.text);
+
+    expect(labels).toEqual(["Sin subcategoría", "agua", "Électricité", "Luz", "Ocio"]);
+  });
+
   it("offers exactly 7 month options, viewedMonth ± 3 months, defaulting to viewedMonth", () => {
     render(
       <TransactionForm

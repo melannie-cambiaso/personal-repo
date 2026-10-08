@@ -45,7 +45,9 @@ export function TransactionForm({
   const isEditing = initialTransaction !== undefined;
   // A snapshotted category that no longer exists in the budget stays selectable
   // while editing, so saving an unrelated field doesn't silently drop it.
-  const categoryOptions = withSnapshotOption(liveCategoryOptions, initialTransaction);
+  const categoryOptions = [...withSnapshotOption(liveCategoryOptions, initialTransaction)].sort(
+    (a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" })
+  );
   const monthOptions = monthWindow(viewedMonth, MONTH_RADIUS);
   // The form only offers a transfer once an envelope exists (spec) — or when
   // editing an existing transfer.
