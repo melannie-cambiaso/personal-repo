@@ -14,5 +14,11 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    coverage: {
+      provider: "v8",
+      include: ["app/**/*.{ts,tsx}", "features/**/*.{ts,tsx}", "shared/**/*.{ts,tsx}"],
+      exclude: ["**/*.test.{ts,tsx}", "**/index.ts"],
+      reporter: ["text-summary", "text", "html"],
+    },
   },
 });
