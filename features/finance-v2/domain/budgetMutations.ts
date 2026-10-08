@@ -112,6 +112,38 @@ export function setLeafFrequency(
   };
 }
 
+/** Renames a category. Unknown ids leave the config unchanged (no throw). */
+export function renameCategory(
+  config: BudgetConfig,
+  args: { categoryId: string; name: string }
+): BudgetConfig {
+  return {
+    categories: config.categories.map((category) =>
+      category.id === args.categoryId ? { ...category, name: args.name } : category
+    ),
+  };
+}
+
+/** Renames a subcategory inside the given category. Unknown ids leave the
+ *  config unchanged (no throw) — mirrors `renameCategory`. */
+export function renameSubcategory(
+  config: BudgetConfig,
+  args: { categoryId: string; id: string; name: string }
+): BudgetConfig {
+  return {
+    categories: config.categories.map((category) =>
+      category.id === args.categoryId
+        ? {
+            ...category,
+            subcategories: category.subcategories.map((sub) =>
+              sub.id === args.id ? { ...sub, name: args.name } : sub
+            ),
+          }
+        : category
+    ),
+  };
+}
+
 /** Sets the weekday a weekly leaf recurs on: the category's own weekday when
  *  `subcategoryId` is `null`, or a subcategory's when provided. Unknown ids
  *  leave the config unchanged (no throw) — mirrors `setLeafFrequency`. Amount

@@ -86,6 +86,8 @@ export function FinanceV2Screen({
     addSubcategory,
     deleteCategory,
     deleteSubcategory,
+    renameCategory,
+    renameSubcategory,
     handleAmountBlur,
     handleFrequencyChange,
     handleWeekdayChange,
@@ -254,6 +256,8 @@ export function FinanceV2Screen({
             onDeleteSubcategory={deleteSubcategory}
             onFrequencyChange={handleFrequencyChange}
             onWeekdayChange={handleWeekdayChange}
+            onRenameCategory={renameCategory}
+            onRenameSubcategory={renameSubcategory}
           />
         )}
 

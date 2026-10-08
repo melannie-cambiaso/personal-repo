@@ -51,6 +51,8 @@ describe("BudgetTab", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -76,6 +78,8 @@ describe("BudgetTab", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
     expect(screen.getByRole("button", { name: "Editar" })).toBeTruthy();
@@ -97,6 +101,8 @@ describe("BudgetTab", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
     expect(screen.getByRole("button", { name: "Listo" })).toBeTruthy();
@@ -119,6 +125,8 @@ describe("BudgetTab", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -144,6 +152,8 @@ describe("BudgetTab", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -176,7 +186,9 @@ describe("BudgetTab", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
     it("hides the edit toggle and shows a read-only note, still listing the categories", () => {
@@ -213,6 +225,8 @@ describe("BudgetTab", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -243,6 +257,8 @@ describe("BudgetTab", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -276,6 +292,8 @@ describe("BudgetTab", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -323,7 +341,9 @@ describe("BudgetTab", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getAllByText("$100.000").length).toBeGreaterThan(0);
@@ -346,7 +366,9 @@ describe("BudgetTab", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       // The fixed bucket row and the bucket total carry the same remainder; the third
@@ -371,7 +393,9 @@ describe("BudgetTab", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getAllByText("—").length).toBeGreaterThan(1);
@@ -379,3 +403,5 @@ describe("BudgetTab", () => {
     });
   });
 });
+
+

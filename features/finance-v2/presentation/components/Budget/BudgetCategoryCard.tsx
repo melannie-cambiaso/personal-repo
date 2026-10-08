@@ -32,6 +32,8 @@ interface Props {
     frequency: BudgetFrequency
   ) => void;
   onWeekdayChange: (categoryId: string, subcategoryId: string | null, weekday: Weekday) => void;
+  onRenameCategory: (categoryId: string, name: string) => void;
+  onRenameSubcategory: (categoryId: string, subcategoryId: string, name: string) => void;
 }
 
 const FREQUENCY_OPTIONS: { value: BudgetFrequency; label: string }[] = [
@@ -144,6 +146,70 @@ function AmountField({ mode, label, amount, className, onBlur, spendRow }: Amoun
 // neither. Modeled on v1's `GroupSection`, one level deeper. Category delete requires
 // `window.confirm` (cascade loses every subcategory amount); subcategory delete is
 // immediate (design decision #10).
+
+// Inline name editor: clicking the name in edit mode opens an input that commits on blur
+// or Enter, and cancels (reverts to saved name) on Escape.
+function InlineNameField({
+  savedName,
+  onCommit,
+  className,
+  inputClassName,
+}: {
+  savedName: string;
+  onCommit: (name: string) => void;
+  className?: string;
+  inputClassName?: string;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(savedName);
+
+  const commit = () => {
+    const trimmed = draft.trim();
+    if (trimmed && trimmed !== savedName) onCommit(trimmed);
+    setEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      commit();
+    }
+    if (e.key === "Escape") {
+      setDraft(savedName);
+      setEditing(false);
+    }
+  };
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        title="Editar nombre"
+        onClick={() => {
+          setDraft(savedName);
+          setEditing(true);
+        }}
+        className={`min-w-0 cursor-text truncate text-left decoration-dotted underline-offset-2 hover:underline ${className ?? ""}`}
+      >
+        {savedName}
+      </button>
+    );
+  }
+
+  return (
+    <input
+      // eslint-disable-next-line jsx-a11y/no-autofocus
+      autoFocus
+      type="text"
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={handleKeyDown}
+      className={`border-sage-400 bg-cream-50 focus:ring-sage-500 min-w-0 rounded border px-1 py-0.5 focus:ring-2 focus:outline-none ${inputClassName ?? ""}`}
+    />
+  );
+}
+
 export function BudgetCategoryCard({
   mode,
   category,
@@ -155,6 +221,8 @@ export function BudgetCategoryCard({
   onDeleteSubcategory,
   onFrequencyChange,
   onWeekdayChange,
+  onRenameCategory,
+  onRenameSubcategory,
 }: Props) {
   const view = toCategoryView(category, month);
 
@@ -211,7 +279,16 @@ export function BudgetCategoryCard({
   return (
     <div className="border-sage-300 bg-cream-50 flex flex-col gap-3 rounded-3xl border-2 p-4">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-        <span className="text-brown-900 min-w-0 truncate text-lg">{category.name}</span>
+        {mode === "edit" ? (
+          <InlineNameField
+            savedName={category.name}
+            onCommit={(name) => onRenameCategory(category.id, name)}
+            className="text-brown-900 text-lg"
+            inputClassName="text-brown-900 text-lg w-36"
+          />
+        ) : (
+          <span className="text-brown-900 min-w-0 truncate text-lg">{category.name}</span>
+        )}
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2 text-right">
           {view.kind === "leaf" ? (
             <>
@@ -277,7 +354,16 @@ export function BudgetCategoryCard({
               .map((sub) => (
                 <div key={sub.id} className="flex flex-col gap-1">
                   <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-                    <span className="text-brown-700 min-w-0 truncate">{sub.name}</span>
+                    {mode === "edit" ? (
+                      <InlineNameField
+                        savedName={sub.name}
+                        onCommit={(name) => onRenameSubcategory(category.id, sub.id, name)}
+                        className="text-brown-700"
+                        inputClassName="text-brown-700 w-32"
+                      />
+                    ) : (
+                      <span className="text-brown-700 min-w-0 truncate">{sub.name}</span>
+                    )}
                     <div className="ml-auto flex flex-wrap items-center justify-end gap-2 text-right">
                       <AmountField
                         mode={mode}

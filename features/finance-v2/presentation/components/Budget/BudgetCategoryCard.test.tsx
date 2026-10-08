@@ -77,6 +77,8 @@ describe("BudgetCategoryCard", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -99,6 +101,8 @@ describe("BudgetCategoryCard", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -122,6 +126,8 @@ describe("BudgetCategoryCard", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -143,6 +149,8 @@ describe("BudgetCategoryCard", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -164,6 +172,8 @@ describe("BudgetCategoryCard", () => {
         onDeleteSubcategory={noop}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -191,6 +201,8 @@ describe("BudgetCategoryCard", () => {
         onDeleteSubcategory={onDeleteSubcategory}
         onFrequencyChange={noop}
         onWeekdayChange={noop}
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
       />
     );
 
@@ -223,7 +235,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       fireEvent.click(screen.getByLabelText("Eliminar categoría Arriendo"));
@@ -247,7 +261,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       fireEvent.click(screen.getByLabelText("Eliminar categoría Arriendo"));
@@ -270,7 +286,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.queryByLabelText("Monto de Arriendo")).toBeNull();
@@ -289,7 +307,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.queryByText("Luz")).toBeNull();
@@ -309,7 +329,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
@@ -333,7 +355,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByLabelText("Monto de Luz")).toBeTruthy();
@@ -355,7 +379,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
@@ -379,7 +405,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
       expect(screen.getByText("Arriendo")).toBeTruthy();
       unmount();
@@ -396,7 +424,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
       expect(screen.getByText("Arriendo")).toBeTruthy();
     });
@@ -416,7 +446,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByText("$100.000")).toBeTruthy();
@@ -436,7 +468,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByText("$0")).toBeTruthy();
@@ -457,7 +491,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByText("$7.000")).toBeTruthy();
@@ -480,7 +516,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       fireEvent.click(screen.getByRole("button", { name: "Ver más" }));
@@ -505,7 +543,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.queryByText(/de \$/)).toBeNull();
@@ -525,7 +565,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByText("—")).toBeTruthy();
@@ -546,7 +588,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByText("—")).toBeTruthy();
@@ -577,7 +621,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={onFrequencyChange}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       const select = screen.getByLabelText("Frecuencia de Arriendo") as HTMLSelectElement;
@@ -602,7 +648,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={onFrequencyChange}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       fireEvent.change(screen.getByLabelText("Frecuencia de Luz"), { target: { value: "weekly" } });
@@ -623,7 +671,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByText("por semana · × 4 semanas = $80.000")).toBeTruthy();
@@ -641,7 +691,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.queryByText(/por semana/)).toBeNull();
@@ -667,7 +719,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByText("por semana · × 4 semanas = $20.000")).toBeTruthy();
@@ -687,7 +741,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.queryByLabelText(/Frecuencia de/)).toBeNull();
@@ -718,7 +774,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={onWeekdayChange}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       const select = screen.getByLabelText("Día de Comida") as HTMLSelectElement;
@@ -742,7 +800,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.queryByLabelText(/^Día de/)).toBeNull();
@@ -769,7 +829,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={onWeekdayChange}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.queryByLabelText("Día de Agua")).toBeNull();
@@ -791,7 +853,9 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.getByText("por semana · × 5 semanas = $100.000")).toBeTruthy();
@@ -810,10 +874,16 @@ describe("BudgetCategoryCard", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        />
+        onRenameCategory={noop}
+        onRenameSubcategory={noop}
+      />
       );
 
       expect(screen.queryByLabelText(/^Día de/)).toBeNull();
     });
   });
 });
+
+
+
+

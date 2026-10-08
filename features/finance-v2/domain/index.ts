@@ -34,6 +34,8 @@ export {
   addSubcategory,
   deleteCategory,
   deleteSubcategory,
+  renameCategory,
+  renameSubcategory,
   setLeafAmount,
   setLeafFrequency,
   setLeafWeekday,

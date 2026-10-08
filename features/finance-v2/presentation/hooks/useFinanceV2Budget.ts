@@ -15,6 +15,8 @@ import {
   computeBudgetComparison,
   deleteCategory as domainDeleteCategory,
   deleteSubcategory as domainDeleteSubcategory,
+  renameCategory as domainRenameCategory,
+  renameSubcategory as domainRenameSubcategory,
   resolveBudgetForMonth,
   setLeafAmount,
   setLeafFrequency,
@@ -84,6 +86,18 @@ export function useFinanceV2Budget({ initialVersions, month, onSave }: Params) {
     persist((current) => domainDeleteSubcategory(current, { categoryId, id: subcategoryId }));
   };
 
+  const renameCategory = (categoryId: string, name: string) => {
+    if (!name.trim()) return;
+    persist((current) => domainRenameCategory(current, { categoryId, name: name.trim() }));
+  };
+
+  const renameSubcategory = (categoryId: string, subcategoryId: string, name: string) => {
+    if (!name.trim()) return;
+    persist((current) =>
+      domainRenameSubcategory(current, { categoryId, id: subcategoryId, name: name.trim() })
+    );
+  };
+
   const handleAmountBlur = (categoryId: string, subcategoryId: string | null, raw: string) => {
     persist((current) =>
       setLeafAmount(current, { categoryId, subcategoryId, amount: clampAmount(raw) })
@@ -113,6 +127,8 @@ export function useFinanceV2Budget({ initialVersions, month, onSave }: Params) {
     addSubcategory,
     deleteCategory,
     deleteSubcategory,
+    renameCategory,
+    renameSubcategory,
     handleAmountBlur,
     handleFrequencyChange,
     handleWeekdayChange,

@@ -43,6 +43,8 @@ interface Props {
     frequency: BudgetFrequency
   ) => void;
   onWeekdayChange: (categoryId: string, subcategoryId: string | null, weekday: Weekday) => void;
+  onRenameCategory: (categoryId: string, name: string) => void;
+  onRenameSubcategory: (categoryId: string, subcategoryId: string, name: string) => void;
 }
 
 // Presentational only — state lives in `useFinanceV2Budget`,
@@ -68,6 +70,8 @@ export function BudgetTab({
   onDeleteSubcategory,
   onFrequencyChange,
   onWeekdayChange,
+  onRenameCategory,
+  onRenameSubcategory,
 }: Props) {
   const [name, setName] = useState("");
   const [bucket, setBucket] = useState<BucketKey>("fixed");
@@ -126,6 +130,8 @@ export function BudgetTab({
                 onDeleteSubcategory={onDeleteSubcategory}
                 onFrequencyChange={onFrequencyChange}
                 onWeekdayChange={onWeekdayChange}
+                onRenameCategory={onRenameCategory}
+                onRenameSubcategory={onRenameSubcategory}
               />
             ))}
         </div>
