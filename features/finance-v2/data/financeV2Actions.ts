@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { isAuthorized } from "@/features/wishlist/data/auth";
 import type {
   BudgetConfig,
   EnvelopeConfig,
@@ -25,7 +26,7 @@ import { currentMonth } from "@/shared/utils/monthUtils";
 // month is rejected here too, not only hidden in the UI, so its budget stays frozen.
 export async function handleSaveBudgetVersion(month: string, config: BudgetConfig): Promise<void> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   if (!isTransactionMonth(month)) return;
   if (month < currentMonth()) return;
   await saveBudgetVersion(month, config);
@@ -41,7 +42,7 @@ export async function handleSaveTransactions(
   transactions: FinanceV2Transaction[]
 ): Promise<void> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   await saveTransactions(month, transactions);
 }
 
@@ -51,7 +52,7 @@ export async function handleSaveTransactions(
 // `isTransactionMonth` is the ONE validation gate before user input reaches a redis key.
 export async function handleAppendTransactionToMonth(tx: FinanceV2Transaction): Promise<void> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   if (!isTransactionMonth(tx.month)) return;
   await appendTransactionToMonth(tx.month, tx);
 }
@@ -62,7 +63,7 @@ export async function handleAppendTransactionToMonth(tx: FinanceV2Transaction): 
 // `month` itself with `isTransactionMonth` (see `transactionDate.ts`).
 export async function handleLoadTransactions(month: string): Promise<FinanceV2Transaction[]> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return [];
+  if (!isAuthorized(cookieStore)) return [];
   if (!isTransactionMonth(month)) return [];
   return loadTransactions(month);
 }
@@ -72,7 +73,7 @@ export async function handleLoadTransactions(month: string): Promise<FinanceV2Tr
 // checks are runtime ones: the argument is whatever the POST sent, not the TS type.
 export async function handleSaveEnvelopeConfig(config: EnvelopeConfig): Promise<void> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   if (!isValidEnvelopeConfig(config)) return;
   await saveEnvelopeConfig(config);
 }
@@ -96,7 +97,7 @@ function isValidEnvelopeConfig(config: EnvelopeConfig | null): boolean {
 // shared with the RSC page's initial load.
 export async function handleLoadEnvelopeCarriedBalance(month: string): Promise<number | null> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return null;
+  if (!isAuthorized(cookieStore)) return null;
   if (!isTransactionMonth(month)) return null;
   return loadEnvelopeCarriedBalance(await loadEnvelopeConfig(), month, TransactionKvAdapter);
 }

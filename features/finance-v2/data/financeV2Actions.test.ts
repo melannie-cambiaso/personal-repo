@@ -44,8 +44,12 @@ import {
   handleSaveEnvelopeConfig,
   handleLoadEnvelopeCarriedBalance,
 } from "./financeV2Actions";
+import { generateToken } from "@/features/wishlist/data/auth";
 
-const withAuth = () => cookiesGetMock.mockReturnValue({ value: "token" });
+vi.stubEnv("WISHLIST_SECRET", "test-secret");
+
+const withAuth = () => cookiesGetMock.mockReturnValue({ value: generateToken() });
+const withForgedAuth = () => cookiesGetMock.mockReturnValue({ value: "forged" });
 const withoutAuth = () => cookiesGetMock.mockReturnValue(undefined);
 
 describe("handleSaveBudgetVersion", () => {
@@ -67,6 +71,12 @@ describe("handleSaveBudgetVersion", () => {
     const budget: BudgetConfig = { categories: [] };
     await handleSaveBudgetVersion("2026-11", budget);
     expect(saveBudgetVersionMock).toHaveBeenCalledWith("2026-11", budget);
+  });
+
+  it("does nothing with a forged auth cookie", async () => {
+    withForgedAuth();
+    await handleSaveBudgetVersion("2026-11", { categories: [] });
+    expect(saveBudgetVersionMock).not.toHaveBeenCalled();
   });
 
   it("does nothing without auth and does not write KV", async () => {

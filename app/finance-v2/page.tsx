@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { isAuthorized } from "@/features/wishlist/data/auth";
 import {
   loadBudgetVersions,
   handleSaveBudgetVersion,
@@ -18,7 +19,7 @@ import { currentMonth } from "@/shared/utils/monthUtils";
 
 export default async function FinanceV2Page() {
   const cookieStore = await cookies();
-  const isOwner = !!cookieStore.get("wishlist_auth")?.value;
+  const isOwner = isAuthorized(cookieStore);
   if (!isOwner) redirect("/login");
 
   const month = currentMonth();

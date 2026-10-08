@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { isAuthorized } from "@/features/wishlist/data/auth";
 import { loadHomeFinanceSummary } from "@/features/finance-v2/data";
 import { FinanceSummaryCard } from "@/features/finance-v2/presentation/components/Home/FinanceSummaryCard";
 import { loadHomeSavingsSummary } from "@/features/savings/data/homeSavingsSummary";
@@ -30,7 +31,7 @@ const DEFAULT_TONE = {
 
 export default async function HomePage() {
   const cookieStore = await cookies();
-  const isOwner = !!cookieStore.get("wishlist_auth")?.value;
+  const isOwner = isAuthorized(cookieStore);
   if (!isOwner) redirect("/login");
 
   const [summary, wishlist, savings] = await Promise.all([

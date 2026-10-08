@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { isAuthorized } from "@/features/wishlist/data/auth";
 import { loadEntries, loadGoals, loadPeriods } from "@/features/savings/data";
 import {
   handleSave,
@@ -11,7 +12,7 @@ import { SavingsScreen } from "@/features/savings/presentation/screens/Dashboard
 
 export default async function SavingsPage() {
   const cookieStore = await cookies();
-  const isOwner = !!cookieStore.get("wishlist_auth")?.value;
+  const isOwner = isAuthorized(cookieStore);
   if (!isOwner) redirect("/login");
 
   const [entries, initialGoals, periods] = await Promise.all([

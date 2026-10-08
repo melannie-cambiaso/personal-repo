@@ -7,11 +7,12 @@ import {
 import { WishlistItem } from "@/features/wishlist/domain";
 import DashboardScreen from "@/features/wishlist/presentation/screens/Dashboard/DashboardScreen";
 import { cookies } from "next/headers";
+import { isAuthorized } from "@/features/wishlist/data/auth";
 
 async function handleAdd(items: WishlistItem[]) {
   "use server";
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   await saveItems(items);
 }
 
@@ -20,13 +21,13 @@ async function handleAdd(items: WishlistItem[]) {
 async function handleToggle(ids: string[]) {
   "use server";
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   await saveOwnedIds(new Set(ids));
 }
 
 export default async function WishlistPage() {
   const cookieStore = await cookies();
-  const isOwner = !!cookieStore.get("wishlist_auth")?.value;
+  const isOwner = isAuthorized(cookieStore);
   const [items, ownedIds] = await Promise.all([loadItems(), loadOwnedIds()]);
 
   return (

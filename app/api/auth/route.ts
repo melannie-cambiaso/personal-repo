@@ -1,13 +1,13 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { generateToken } from "@/features/wishlist/data/auth";
+import { AUTH_COOKIE, generateToken } from "@/features/wishlist/data/auth";
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   const { searchParams } = new URL(request.url);
 
   if (searchParams.has("clear")) {
-    cookieStore.delete("wishlist_auth");
+    cookieStore.delete(AUTH_COOKIE);
     return NextResponse.json({ ok: true });
   }
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   const secret = process.env.WISHLIST_SECRET!;
   if (key !== secret) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  cookieStore.set("wishlist_auth", token, {
+  cookieStore.set(AUTH_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

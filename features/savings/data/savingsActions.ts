@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { isAuthorized } from "@/features/wishlist/data/auth";
 import { revalidatePath } from "next/cache";
 import { loadEntries, saveEntries, saveGoals, loadPeriods, savePeriods } from "./kvAdapter";
 import type { SavingsEntry } from "../domain/SavingsEntry";
@@ -21,7 +22,7 @@ import {
  */
 export async function handleSave(entries: SavingsEntry[]): Promise<void> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
 
   const periods = await loadPeriods();
   const active = resolveActivePeriod(periods);
@@ -49,7 +50,7 @@ export async function handleArchiveAndStartPeriod(options: {
   label?: string;
 }): Promise<void> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
 
   const periods = await loadPeriods();
   const active = resolveActivePeriod(periods);
@@ -79,6 +80,6 @@ export async function handleArchiveAndStartPeriod(options: {
 
 export async function handleSaveGoals(goals: SavingsGoal[]): Promise<void> {
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   await saveGoals(goals);
 }

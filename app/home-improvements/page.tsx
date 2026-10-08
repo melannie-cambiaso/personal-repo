@@ -3,24 +3,25 @@ import type { Zone } from "@/features/home-improvements/domain/Zone";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { HomeImprovementsScreen } from "@/features/home-improvements/presentation/screens/Dashboard/HomeImprovementsScreen";
 import { cookies } from "next/headers";
+import { isAuthorized } from "@/features/wishlist/data/auth";
 
 async function handleSaveZones(zones: Zone[]) {
   "use server";
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   await saveZones(zones);
 }
 
 async function handleSaveItems(items: ImprovementItem[]) {
   "use server";
   const cookieStore = await cookies();
-  if (!cookieStore.get("wishlist_auth")?.value) return;
+  if (!isAuthorized(cookieStore)) return;
   await saveItems(items);
 }
 
 export default async function HomeImprovementsPage() {
   const cookieStore = await cookies();
-  const isOwner = !!cookieStore.get("wishlist_auth")?.value;
+  const isOwner = isAuthorized(cookieStore);
   const [zones, items] = await Promise.all([loadZones(), loadItems()]);
 
   return (

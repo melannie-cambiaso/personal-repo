@@ -26,8 +26,12 @@ vi.mock("./kvAdapter", async (importOriginal) => {
 });
 
 import { handleSave, handleArchiveAndStartPeriod } from "./savingsActions";
+import { generateToken } from "@/features/wishlist/data/auth";
 
-const withAuth = () => cookiesGetMock.mockReturnValue({ value: "token" });
+vi.stubEnv("WISHLIST_SECRET", "test-secret");
+
+const withAuth = () => cookiesGetMock.mockReturnValue({ value: generateToken() });
+const withForgedAuth = () => cookiesGetMock.mockReturnValue({ value: "forged" });
 const withoutAuth = () => cookiesGetMock.mockReturnValue(undefined);
 
 const entry = (overrides: Partial<SavingsEntry> = {}): SavingsEntry => ({
@@ -52,6 +56,13 @@ describe("handleSave", () => {
 
   it("does nothing when not authenticated", async () => {
     withoutAuth();
+    await handleSave([entry()]);
+    expect(loadPeriodsMock).not.toHaveBeenCalled();
+    expect(saveEntriesMock).not.toHaveBeenCalled();
+  });
+
+  it("does nothing when the auth cookie is forged", async () => {
+    withForgedAuth();
     await handleSave([entry()]);
     expect(loadPeriodsMock).not.toHaveBeenCalled();
     expect(saveEntriesMock).not.toHaveBeenCalled();
