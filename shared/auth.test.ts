@@ -8,6 +8,7 @@ const storeWith = (value?: string) => ({
 describe("isAuthorized", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
+    vi.restoreAllMocks();
   });
 
   it("accepts the cookie when it matches the expected token", () => {
@@ -40,7 +41,23 @@ describe("isAuthorized", () => {
 
   it("rejects instead of throwing when WISHLIST_SECRET is not set", () => {
     vi.stubEnv("WISHLIST_SECRET", "");
+    vi.spyOn(console, "error").mockImplementation(() => {});
     expect(isAuthorized(storeWith("anything"))).toBe(false);
+  });
+
+  it("logs the misconfiguration when WISHLIST_SECRET is not set", () => {
+    vi.stubEnv("WISHLIST_SECRET", "");
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    isAuthorized(storeWith("anything"));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("WISHLIST_SECRET"));
+  });
+
+  it("does not log when the secret is set", () => {
+    vi.stubEnv("WISHLIST_SECRET", "s3cret");
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    isAuthorized(storeWith("forged"));
+    isAuthorized(storeWith());
+    expect(errorSpy).not.toHaveBeenCalled();
   });
 });
 

@@ -17,9 +17,13 @@ export function generateToken(): string {
 
 // Owner gate for every protected page and server action.
 export function isAuthorized(cookieStore: CookieReader): boolean {
-  const value = cookieStore.get(AUTH_COOKIE)?.value;
   // Checked here so a missing secret denies access instead of making generateToken throw on every page.
-  if (!value || !process.env.WISHLIST_SECRET) return false;
+  if (!process.env.WISHLIST_SECRET) {
+    console.error("[auth] WISHLIST_SECRET is not set: every owner check will deny access.");
+    return false;
+  }
+  const value = cookieStore.get(AUTH_COOKIE)?.value;
+  if (!value) return false;
   const expected = Buffer.from(generateToken());
   const actual = Buffer.from(value);
   return actual.length === expected.length && timingSafeEqual(actual, expected);
