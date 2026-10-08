@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { isAuthorized } from "@/features/wishlist/data/auth";
+import { isAuthorized } from "@/shared/auth";
 import { loadEntries, loadGoals, loadPeriods } from "@/features/savings/data";
 import {
   handleSave,

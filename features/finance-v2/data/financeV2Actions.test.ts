@@ -44,7 +44,7 @@ import {
   handleSaveEnvelopeConfig,
   handleLoadEnvelopeCarriedBalance,
 } from "./financeV2Actions";
-import { generateToken } from "@/features/wishlist/data/auth";
+import { generateToken } from "@/shared/auth";
 
 vi.stubEnv("WISHLIST_SECRET", "test-secret");
 

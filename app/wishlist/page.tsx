@@ -7,7 +7,7 @@ import {
 import { WishlistItem } from "@/features/wishlist/domain";
 import DashboardScreen from "@/features/wishlist/presentation/screens/Dashboard/DashboardScreen";
 import { cookies } from "next/headers";
-import { isAuthorized } from "@/features/wishlist/data/auth";
+import { isAuthorized } from "@/shared/auth";
 
 async function handleAdd(items: WishlistItem[]) {
   "use server";

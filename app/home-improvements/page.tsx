@@ -3,7 +3,7 @@ import type { Zone } from "@/features/home-improvements/domain/Zone";
 import type { ImprovementItem } from "@/features/home-improvements/domain/ImprovementItem";
 import { HomeImprovementsScreen } from "@/features/home-improvements/presentation/screens/Dashboard/HomeImprovementsScreen";
 import { cookies } from "next/headers";
-import { isAuthorized } from "@/features/wishlist/data/auth";
+import { isAuthorized } from "@/shared/auth";
 
 async function handleSaveZones(zones: Zone[]) {
   "use server";

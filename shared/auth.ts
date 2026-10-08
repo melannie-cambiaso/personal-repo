@@ -1,6 +1,7 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "crypto";
 
+// App-wide owner session cookie. The "wishlist_" name is historical; renaming it would log out existing sessions.
 export const AUTH_COOKIE = "wishlist_auth";
 
 interface CookieReader {
@@ -14,8 +15,10 @@ export function generateToken(): string {
   return createHmac("sha256", secret).update(secret).digest("hex");
 }
 
+// Owner gate for every protected page and server action.
 export function isAuthorized(cookieStore: CookieReader): boolean {
   const value = cookieStore.get(AUTH_COOKIE)?.value;
+  // Checked here so a missing secret denies access instead of making generateToken throw on every page.
   if (!value || !process.env.WISHLIST_SECRET) return false;
   const expected = Buffer.from(generateToken());
   const actual = Buffer.from(value);

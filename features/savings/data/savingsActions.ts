@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { isAuthorized } from "@/features/wishlist/data/auth";
+import { isAuthorized } from "@/shared/auth";
 import { revalidatePath } from "next/cache";
 import { loadEntries, saveEntries, saveGoals, loadPeriods, savePeriods } from "./kvAdapter";
 import type { SavingsEntry } from "../domain/SavingsEntry";

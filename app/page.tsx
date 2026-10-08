@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { isAuthorized } from "@/features/wishlist/data/auth";
+import { isAuthorized } from "@/shared/auth";
 import { loadHomeFinanceSummary } from "@/features/finance-v2/data";
 import { FinanceSummaryCard } from "@/features/finance-v2/presentation/components/Home/FinanceSummaryCard";
 import { loadHomeSavingsSummary } from "@/features/savings/data/homeSavingsSummary";
