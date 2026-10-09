@@ -8,8 +8,11 @@ interface Props {
 
 // Answers "does the main account cover the rest of the month?": what is still left
 // to pay from it against the month's balance, with the difference spelled out so
-// the reader does not have to subtract. Same card and label-left / figure-right
-// layout as `BucketComparison`, which it sits under.
+// the reader does not have to subtract. Pending shows twice: per category (matches
+// the sum of the cards' "quedan", overspent subcategories netted) and per
+// subcategory (each overrun clamped on its own) — the difference uses the latter.
+// Same card and label-left / figure-right layout as `BucketComparison`, which it
+// sits under.
 export function AccountCoverage({ coverage }: Props) {
   const { figures, envelopeNote } = coverage;
   const diff = figures ? figures.balance - figures.pending : null;
@@ -17,7 +20,17 @@ export function AccountCoverage({ coverage }: Props) {
   return (
     <div className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-600">Pendiente por pagar desde la cuenta</span>
+        <span className="text-brown-600">Pendiente por categoría</span>
+        {figures ? (
+          <span className="font-figure text-brown-800 shrink-0 text-sm font-bold">
+            {formatCLP(figures.pendingByCategory)}
+          </span>
+        ) : (
+          <LoadingSpend />
+        )}
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-brown-600">Pendiente por subcategoría</span>
         {figures ? (
           <span className="font-figure text-brown-800 shrink-0 text-sm font-bold">
             {formatCLP(figures.pending)}

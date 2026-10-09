@@ -633,12 +633,57 @@ describe("FinanceV2Screen", () => {
         />
       );
 
-      expect(screen.getByText("Pendiente por pagar desde la cuenta").nextSibling?.textContent).toBe(
+      expect(screen.getByText("Pendiente por categoría").nextSibling?.textContent).toBe("$15.000");
+      expect(screen.getByText("Pendiente por subcategoría").nextSibling?.textContent).toBe(
         "$15.000"
       );
       expect(screen.getByText("Saldo del mes").nextSibling?.textContent).toBe("$45.000");
       expect(screen.getByText("Te sobran $30.000")).toBeTruthy();
       expect(screen.getByText("no incluye Cuentas: se paga desde Servicios")).toBeTruthy();
+    });
+
+    // Feria overspent by $10.000 nets against Super's $30.000 in the category figure
+    // ($50.000 − $30.000), but clamps to 0 on its own in the subcategory figure, which
+    // is the one the surplus subtracts ($70.000 − $30.000).
+    it("nets an overspent subcategory in pending by category but not by subcategory", () => {
+      const comida: BudgetConfig = {
+        categories: [
+          {
+            id: "comida",
+            name: "Comida",
+            bucket: "variable",
+            amount: 0,
+            subcategories: [
+              { id: "super", name: "Super", bucket: "variable", amount: 30_000 },
+              { id: "feria", name: "Feria", bucket: "variable", amount: 20_000 },
+            ],
+          },
+        ],
+      };
+      const july = (tx: Record<string, unknown>) =>
+        ({ date: "2026-07-05", month: "2026-07", ...tx }) as FinanceV2Transaction;
+      render(
+        <FinanceV2Screen
+          {...defaultProps()}
+          initialBudgetVersions={seed(comida)}
+          initialTransactions={[
+            july({ id: "t1", type: "income", amount: 100_000 }),
+            july({
+              id: "t2",
+              type: "expense",
+              amount: 30_000,
+              bucket: "variable",
+              category: { id: "feria", name: "Feria" },
+            }),
+          ]}
+        />
+      );
+
+      expect(screen.getByText("Pendiente por categoría").nextSibling?.textContent).toBe("$20.000");
+      expect(screen.getByText("Pendiente por subcategoría").nextSibling?.textContent).toBe(
+        "$30.000"
+      );
+      expect(screen.getByText("Te sobran $40.000")).toBeTruthy();
     });
 
     it("withholds the account coverage figures while a newly viewed month loads", () => {
@@ -653,9 +698,8 @@ describe("FinanceV2Screen", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
 
-      expect(screen.getByText("Pendiente por pagar desde la cuenta").nextSibling?.textContent).toBe(
-        "—"
-      );
+      expect(screen.getByText("Pendiente por categoría").nextSibling?.textContent).toBe("—");
+      expect(screen.getByText("Pendiente por subcategoría").nextSibling?.textContent).toBe("—");
       expect(screen.queryByText(/Te sobran|Te faltan/)).toBeNull();
     });
 

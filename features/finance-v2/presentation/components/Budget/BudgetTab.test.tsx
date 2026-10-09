@@ -23,7 +23,7 @@ const emptySpend: SpendView = {
 const loadingSpend: SpendView = { status: "loading" };
 
 const emptyCoverage: AccountCoverageView = {
-  figures: { pending: 0, balance: 0 },
+  figures: { pendingByCategory: 0, pending: 0, balance: 0 },
   envelopeNote: null,
 };
 

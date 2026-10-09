@@ -9,6 +9,7 @@ import type {
 } from "@/features/finance-v2/domain";
 import {
   computeMonthAnalysis,
+  computePendingByCategory,
   computePendingFromMain,
   computeSpendComparison,
   listExpenseCategoryOptions,
@@ -164,8 +165,14 @@ export function FinanceV2Screen({
     () => computePendingFromMain({ categories }, transactions, viewedMonth, envelopeConfig),
     [categories, transactions, viewedMonth, envelopeConfig]
   );
+  // Same axes; the per-category figure the cards' "quedan" add up to (display only).
+  const pendingByCategory = useMemo(
+    () => computePendingByCategory({ categories }, transactions, viewedMonth, envelopeConfig),
+    [categories, transactions, viewedMonth, envelopeConfig]
+  );
   const coverage = toAccountCoverageView({
     isLoadingMonth,
+    pendingByCategory,
     pending: pendingFromMain,
     balance: totals.balance,
     envelope: envelopeConfig,

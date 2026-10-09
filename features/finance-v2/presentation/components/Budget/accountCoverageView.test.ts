@@ -13,11 +13,22 @@ const categories: BudgetCategory[] = [
   { id: "cuentas", name: "Cuentas", bucket: "fixed", amount: 0, subcategories: [] },
 ];
 
-const base = { isLoadingMonth: false, pending: 10_000, balance: 25_000, envelope, categories };
+const base = {
+  isLoadingMonth: false,
+  pendingByCategory: 8_000,
+  pending: 10_000,
+  balance: 25_000,
+  envelope,
+  categories,
+};
 
 describe("toAccountCoverageView", () => {
   it("carries the figures once the month has loaded", () => {
-    expect(toAccountCoverageView(base).figures).toEqual({ pending: 10_000, balance: 25_000 });
+    expect(toAccountCoverageView(base).figures).toEqual({
+      pendingByCategory: 8_000,
+      pending: 10_000,
+      balance: 25_000,
+    });
   });
 
   // Design D7: figures computed against the previous month's transactions mid-load
