@@ -84,7 +84,7 @@ export function AppNav() {
                   aria-current={isActive ? "page" : undefined}
                   className={`flex items-center gap-3 rounded-full border-2 px-4 py-2.5 text-base transition-colors ${
                     isActive
-                      ? "border-lilac-300 bg-lilac-100 text-brown-900"
+                      ? "border-brand-300 bg-brand-100 text-brand-600"
                       : "text-brown-800 hover:bg-cream-200 border-transparent"
                   }`}
                 >

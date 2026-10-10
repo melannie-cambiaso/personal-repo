@@ -205,7 +205,7 @@ function InlineNameField({
       onChange={(e) => setDraft(e.target.value)}
       onBlur={commit}
       onKeyDown={handleKeyDown}
-      className={`border-sage-400 bg-cream-50 focus:ring-sage-500 min-w-0 rounded border px-1 py-0.5 focus:ring-2 focus:outline-none ${inputClassName ?? ""}`}
+      className={`border-cream-400 bg-cream-50 focus:ring-brand-500 min-w-0 rounded border px-1 py-0.5 focus:ring-2 focus:outline-none ${inputClassName ?? ""}`}
     />
   );
 }
@@ -412,7 +412,7 @@ export function BudgetCategoryCard({
               type="button"
               aria-expanded={subcategoriesExpanded}
               onClick={() => setSubcategoriesExpanded((v) => !v)}
-              className="bg-sage-300 text-sage-800 hover:bg-sage-500 cursor-pointer self-start rounded-full px-3 py-0.5 text-sm transition-colors"
+              className="bg-brand-100 text-brand-600 hover:bg-brand-300 cursor-pointer self-start rounded-full px-3 py-0.5 text-sm transition-colors"
             >
               {subcategoriesExpanded ? "Ver menos" : "Ver más"}
             </button>

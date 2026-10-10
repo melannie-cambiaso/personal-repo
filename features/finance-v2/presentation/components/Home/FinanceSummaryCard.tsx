@@ -46,7 +46,7 @@ export function FinanceSummaryCard({ month, balance, pending }: Props) {
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2">
         <Link
           href="/finance-v2"
-          className="bg-sage-300 text-sage-800 hover:bg-sage-500 rounded-full px-3 py-0.5 transition-colors"
+          className="bg-brand-100 text-brand-600 hover:bg-brand-300 rounded-full px-3 py-0.5 transition-colors"
         >
           Ver más →
         </Link>

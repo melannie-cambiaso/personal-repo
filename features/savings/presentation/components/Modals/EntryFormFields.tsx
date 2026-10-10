@@ -63,7 +63,7 @@ export function EntryFormFields({
             type="checkbox"
             checked={form.toReplenish}
             onChange={setField("toReplenish")}
-            className="accent-brown-700 h-4 w-4"
+            className="accent-brand-500 h-4 w-4"
           />
           A reponer este mes
         </label>

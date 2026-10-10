@@ -28,9 +28,9 @@ dark theme, but make everything else simpler and more generic.
 ## Tasks
 - [x] T1 — Theme tokens: neutral dark surfaces/ink, neutralized pastel fills/borders, pink
   accent tokens, flat gradients, and Geist sans replacing Patrick Hand (`app/globals.css`, `app/layout.tsx`)
-- [ ] T2 — Remove notebook decorations: `font-dancing`, `underline-wavy`, rotations and the home
+- [x] T2 — Remove notebook decorations: `font-dancing`, `underline-wavy`, rotations and the home
   sticker (~30 component files plus tests that assert those classes)
-- [ ] T3 — Interactive states use the pink accent: active tabs, primary pills/buttons and focus
+- [x] T3 — Interactive states use the pink accent: active tabs, primary pills/buttons and focus
   rings currently on `sage-500`/`lilac`
 
 ## Acceptance criteria
@@ -54,4 +54,14 @@ Push/merge are the user's decision.
   lilac → pink. `--color-brand-*` tokens were added, gradients are flat, shadows are off in
   dark mode, and the card radius is 0.75rem. Geist replaces Patrick Hand and Lexend, and
   `font-figure` uses Geist with tabular nums. Verified (verifier): tsc OK, 866/866 tests,
-  eslint OK, `npm run build` OK.
+  eslint OK, `npm run build` OK. Native review: consent declined for this candidate.
+- T2 `530e13f`: removed font-dancing, underline-wavy and its decoration colors, the rotations,
+  and the home sticker (now plain muted text). Headings use `font-semibold tracking-tight`.
+  The dead `--font-dancing` alias and `@utility underline-wavy` were deleted. No tests asserted
+  the removed classes. Verified (worker): grep clean, tsc OK, 866/866 tests, eslint OK.
+  Native review `review-ac17cab32ad3ca62`: consent granted, but the reviewer model refused the
+  relay prompt twice (it treated it as a prompt injection) and returned no JSON. The lineage is
+  left open and unapproved, and the user chose to continue.
+- T3: primary Button, Input focus, active nav, tab/mode pills, "Ver más" pills and checkbox
+  accents now use `brand-*`. Semantic sage/blush/butter are unchanged. Verified (worker): tsc OK,
+  866/866 tests, eslint OK (1 pre-existing unused-disable warning).

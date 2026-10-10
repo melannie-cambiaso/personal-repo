@@ -10,7 +10,7 @@ interface Props {
 
 const variants = {
   primary:
-    "cursor-pointer rounded-full border-2 border-brown-900 bg-brown-900 px-5 py-2 text-sm text-cream-50 transition-colors hover:bg-brown-800 disabled:opacity-50",
+    "cursor-pointer rounded-full border-2 border-brand-500 bg-brand-500 px-5 py-2 text-sm text-cream-50 transition-colors hover:border-brand-600 hover:bg-brand-600 disabled:opacity-50",
   secondary:
     "cursor-pointer rounded-full border-2 border-brown-800 bg-cream-50 px-5 py-2 text-sm text-brown-900 transition-colors hover:bg-cream-200 disabled:opacity-50",
   danger:

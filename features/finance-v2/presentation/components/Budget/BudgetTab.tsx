@@ -94,8 +94,8 @@ export function BudgetTab({
             onClick={onToggleMode}
             className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
               mode === "edit"
-                ? "border-sage-500 bg-sage-500 text-sage-800"
-                : "border-sage-300 bg-cream-50 text-brown-600 hover:bg-sage-100"
+                ? "border-brand-500 bg-brand-100 text-brand-600"
+                : "border-cream-300 bg-cream-50 text-brown-600 hover:bg-cream-200"
             }`}
           >
             {BUDGET_MODE_LABEL[mode]}

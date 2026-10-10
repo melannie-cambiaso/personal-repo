@@ -50,7 +50,7 @@ export function WishlistItemRow({
         disabled={!onToggle}
         onChange={() => onToggle?.(item.id)}
         onClick={(e) => e.stopPropagation()}
-        className="accent-blush-500 h-5 w-5 shrink-0 cursor-pointer disabled:cursor-default"
+        className="accent-brand-500 h-5 w-5 shrink-0 cursor-pointer disabled:cursor-default"
       />
 
       <div className="min-w-0 flex-1">
