@@ -57,7 +57,7 @@ export function SavingsGoalCard({
               }}
               disabled={isFirst}
               aria-label="Subir prioridad"
-              className="text-lilac-800 hover:text-brown-900 cursor-pointer text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-30"
+              className="text-brand-500 hover:text-brand-600 cursor-pointer text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-30"
             >
               ▲
             </button>
@@ -69,7 +69,7 @@ export function SavingsGoalCard({
               }}
               disabled={isLast}
               aria-label="Bajar prioridad"
-              className="text-lilac-800 hover:text-brown-900 cursor-pointer text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-30"
+              className="text-brand-500 hover:text-brand-600 cursor-pointer text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-30"
             >
               ▼
             </button>
@@ -87,7 +87,7 @@ export function SavingsGoalCard({
             }}
             aria-pressed={isDone}
             aria-label={isDone ? "Reabrir" : "Marcar como hecha"}
-            className="border-lilac-300 bg-cream-50 text-lilac-800 hover:bg-lilac-300 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
+            className="border-cream-300 bg-cream-50 text-brand-500 hover:bg-cream-200 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
           >
             {isDone ? "Reabrir ↺" : "Marcar como hecha ✓"}
           </button>

@@ -46,7 +46,7 @@ export function SavingsSummaryCards({
     <div className="border-butter-300 bg-butter-100 flex flex-col gap-3 rounded-3xl border-2 p-4">
       {typeof initialAmount === "number" && initialAmount > 0 && (
         <div className="border-butter-300 bg-cream-50/70 flex items-center justify-between gap-2 rounded-2xl border-2 px-4 py-2">
-          <p className="text-butter-800">Monto inicial</p>
+          <p className="text-brown-600">Monto inicial</p>
           <p className="font-figure text-brown-900 text-lg font-bold">{formatCLP(initialAmount)}</p>
         </div>
       )}

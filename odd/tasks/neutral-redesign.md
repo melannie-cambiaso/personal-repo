@@ -39,6 +39,30 @@ dark theme, but make everything else simpler and more generic.
 - [x] T4 — Restore Patrick Hand + Lexend (`app/layout.tsx`, `app/globals.css`) and drop the
   faux-bold `font-semibold tracking-tight` that T2 added to headings (Patrick Hand has one weight)
 
+- [x] T5 — Fewer colors: in dark mode the tone fills/borders (100/300) become pure neutral, and the
+  home summary cards plus the shortcut tile use neutral cards and icon circles, with pink "Ver más"
+  pills. Only green/red figures keep a hue (user feedback: "me siguen pareciendo mucho")
+
+- [x] T6 — Wishlist: the salmon (`blush-800`) text is too loud. Make the stat labels, tags, round
+  buttons and priority pills neutral, make the AddButton pink instead of white, and give native
+  checkboxes a dark look (`color-scheme: dark`). Leave it UNCOMMITTED for the user's review.
+
+- [x] T7 — Status colors from the Gentleman-Cute Pi theme: mint green #b4e7c7, champagne yellow
+  #e0c27a, powder blue #a9c7ee, and a matching pastel red #f28b82 (`.dark` overrides for the
+  green/red/amber/sky figure colors and the tone 500/800 levels). The danger button text is now dark. UNCOMMITTED.
+
+- [x] T8 — One flat background everywhere: mauve #342d34 (sampled from the user's screenshot) for the
+  page, header band, cards and tone panels, with borders #4a414a, pill/hover #3e363e, and the dark
+  brand-100 lifted to #4a2f42. UNCOMMITTED.
+
+- [x] T9 — Wishlist: the tag text and the round-button glyphs (↑ ↓ ↗ ✕) are pink (`brand-500`), and the
+  arrows use U+FE0E so Windows renders text glyphs, not emoji. UNCOMMITTED.
+
+- [x] T10 — Savings consistency plus the Gentle Shell status-bar colors. Red is now #ff718f and yellow is
+  #f2b86d (green stays mint #b4e7c7). In savings: pink active tabs, neutral "registros" and "Monto
+  inicial" labels, and pink goal reorder/action glyphs. The secondary Button border changes from
+  light (`brown-800`) to `cream-400`. UNCOMMITTED.
+
 ## Acceptance criteria
 - Hand-written font kept; no wavy underline or rotated element remains.
 - Surfaces are neutral grays, and pink is the only accent for interactive/selected states.
@@ -74,3 +98,22 @@ Push/merge are the user's decision.
 - T4: Patrick Hand + Lexend restored and the body font-size is back to 1.0625rem. The 17 faux-bold
   heading classes from T2 were removed. Verified (verifier): tsc OK, 866/866 tests, eslint OK,
   build OK, greps clean.
+- T5 (UNCOMMITTED on purpose): the user wants to review changes before they get committed.
+  Neutral `.dark` tone 100/300, neutral home cards, icon circles and shortcut tile, pink "Ver más".
+  Verified (verifier): tsc OK, 866/866 tests, eslint OK.
+- Native review switched off for this clone at the user's request (`gentle-ai review mode disable
+  --scope clone`). Lineages review-ac17cab32ad3ca62 and review-39c7ad1d9d69174f are left open and unapproved.
+- T6 (UNCOMMITTED): wishlist stat labels, tags and round buttons are neutral; the priority pills are
+  neutral; AddButton uses `brand-500`; `.dark` sets `color-scheme: dark`. RED: the WishlistItemRow
+  tag test expected `text-brown-600` and failed; GREEN: 23/23. Full verify: tsc OK, 866/866, eslint OK.
+- T7 (UNCOMMITTED): verified (verifier): tsc OK, 866/866, eslint OK, build OK.
+  User preference: make edits only with the edit/write tools so they show up in Alt+G.
+- T8 (UNCOMMITTED): only CSS custom-property values changed in the `.dark` block. Not
+  build-verified (the same token structure built fine in T7). Needs the user's visual check.
+  Not touched: the `bg-black text-white` login button in app/login/page.tsx.
+- T9 (UNCOMMITTED): RED: the tag test expected `text-brand-500` and failed; GREEN: wishlist suite
+  96/96, tsc OK, eslint OK.
+- T10 (UNCOMMITTED): visual class/token changes with no tests on these classes. Checks: tsc OK,
+  savings+shared 224/224, eslint OK.
+- Full verify over the uncommitted T5–T10 tree (verifier): tsc OK, 866/866 tests, eslint OK (only the known
+  unused-disable warning), `npm run build` OK (10/10 static pages, no Turbopack panic). Visual check pending.

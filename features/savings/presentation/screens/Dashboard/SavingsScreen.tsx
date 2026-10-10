@@ -100,7 +100,7 @@ export function SavingsScreen({
             <span className="font-figure text-brown-900 text-lg font-semibold">
               {entries.length}
             </span>
-            <span className="text-butter-800 text-sm">
+            <span className="text-brown-500 text-sm">
               registro{entries.length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -116,8 +116,8 @@ export function SavingsScreen({
               onClick={() => setActiveTab(tab.key)}
               className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
                 activeTab === tab.key
-                  ? "border-butter-500 bg-butter-500 text-butter-800"
-                  : "border-butter-300 bg-cream-50 text-brown-600 hover:bg-butter-100"
+                  ? "border-brand-500 bg-brand-100 text-brand-600"
+                  : "border-cream-300 bg-cream-50 text-brown-600 hover:bg-cream-200"
               }`}
             >
               {tab.label}
