@@ -20,8 +20,8 @@ const SHORTCUTS = FEATURE_NAV_ITEMS.filter((item) => !CARD_HREFS.has(item.href))
 // Full literal class strings so Tailwind can see them: tile fill/border and icon circle.
 const SHORTCUT_TONES: Record<string, { tile: string; icon: string }> = {
   "/home-improvements": {
-    tile: "border-mist-300 bg-mist-100 hover:border-mist-500",
-    icon: "bg-mist-500",
+    tile: "border-cream-300 bg-cream-50 hover:border-cream-500",
+    icon: "bg-cream-200",
   },
 };
 const DEFAULT_TONE = {

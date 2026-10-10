@@ -15,11 +15,11 @@ export function SavingsSummaryCard({ balance, toReplenish }: Props) {
     balance > 0 ? "text-green-700" : balance < 0 ? "text-red-600" : "text-brown-600";
 
   return (
-    <div className="border-butter-300 bg-butter-100 flex flex-col gap-4 rounded-3xl border-2 p-5 text-left">
+    <div className="border-cream-300 bg-cream-50 flex flex-col gap-4 rounded-3xl border-2 p-5 text-left">
       <div className="flex items-center gap-3">
         <span
           aria-hidden
-          className="bg-butter-500 flex size-10 shrink-0 items-center justify-center rounded-full text-xl"
+          className="bg-cream-200 flex size-10 shrink-0 items-center justify-center rounded-full text-xl"
         >
           💰
         </span>
@@ -27,7 +27,7 @@ export function SavingsSummaryCard({ balance, toReplenish }: Props) {
           Ahorros
         </h2>
       </div>
-      <div className="border-butter-300 bg-cream-50/70 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">
+      <div className="border-cream-300 bg-cream-100 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
           <span className="text-brown-600">Balance</span>
           <span className={`font-figure text-sm font-semibold ${balanceColor}`}>
@@ -44,7 +44,7 @@ export function SavingsSummaryCard({ balance, toReplenish }: Props) {
       <div className="mt-auto flex items-center justify-between gap-2">
         <Link
           href="/savings"
-          className="bg-butter-300 text-butter-800 hover:bg-butter-500 rounded-full px-3 py-0.5 transition-colors"
+          className="bg-brand-100 text-brand-600 hover:bg-brand-300 rounded-full px-3 py-0.5 transition-colors"
         >
           Ver más →
         </Link>
