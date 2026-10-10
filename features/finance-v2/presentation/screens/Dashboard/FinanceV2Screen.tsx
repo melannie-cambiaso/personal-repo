@@ -75,14 +75,11 @@ export function FinanceV2Screen({
 }: Props) {
   // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
   // survive a tab switch. `setViewedMonth` is wired into `TransactionsTab`'s
-  // `onChangeMonth` below, driving the prev/next controls. Declared before
-  // `useFinanceV2Budget` because that hook's `comparison` is month-aware (weekly budget
-  // leaves depend on the number of weeks in the viewed month).
+  // `onChangeMonth` below, driving the prev/next controls.
   const [viewedMonth, setViewedMonth] = useState(initialMonth);
 
   const {
     categories,
-    comparison,
     addCategory,
     addSubcategory,
     deleteCategory,
@@ -147,10 +144,10 @@ export function FinanceV2Screen({
   // tab 3 without a reload (same rationale as design decision #1).
   const categoryOptions = useMemo(() => listExpenseCategoryOptions({ categories }), [categories]);
 
-  // Actuals counterpart to `comparison` (design D7): month-agnostic and pure, so it is
-  // memoized on the same axes `useFinanceV2Budget`'s `comparison` already relies on plus
-  // the loaded transaction list. `isLoadingMonth` is applied OUTSIDE the memo (via
-  // `toSpendView`) — it is a cheap wrap, not worth widening the memo's dependency list.
+  // Actuals counterpart to the budget (design D7): month-agnostic and pure, so it is
+  // memoized on categories and transactions plus the viewed month.
+  // `isLoadingMonth` is applied OUTSIDE the memo (via `toSpendView`) — it is a cheap
+  // wrap, not worth widening the memo's dependency list.
   const spendComparison = useMemo(
     () => computeSpendComparison({ categories }, transactions, viewedMonth),
     [categories, transactions, viewedMonth]
@@ -253,7 +250,6 @@ export function FinanceV2Screen({
             onToggleMode={toggleBudgetMode}
             categories={categories}
             month={viewedMonth}
-            comparison={comparison}
             spend={spend}
             coverage={coverage}
             onAmountBlur={handleAmountBlur}

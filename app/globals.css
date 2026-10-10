@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Paper (lightest = card/paper, darker = subtle borders/dividers) */
   --color-cream-50: #fffdf8;
@@ -94,6 +96,61 @@
 :root {
   --gradient-bg: linear-gradient(180deg, #faf5ea 0%, #f6efdf 100%);
   --gradient-header: linear-gradient(135deg, #ece6f6 0%, #ddd2f0 100%);
+}
+
+.dark {
+  --gradient-bg: linear-gradient(180deg, #1a1d23 0%, #14171c 100%);
+  --gradient-header: linear-gradient(135deg, #22202e 0%, #1c1a28 100%);
+
+  /* Paper → dark surfaces */
+  --color-cream-50: #1e2128;
+  --color-cream-100: #252830;
+  --color-cream-200: #2d3038;
+  --color-cream-300: #383c47;
+  --color-cream-400: #474c59;
+  --color-cream-500: #565c6b;
+
+  /* Ink → light text on dark */
+  --color-brown-900: #e8eaed;
+  --color-brown-800: #d0d3d9;
+  --color-brown-700: #b8bcc4;
+  --color-brown-600: #9ea3ae;
+  --color-brown-500: #838894;
+  --color-brown-400: #686e7a;
+  --color-brown-300: #4e535d;
+  --color-brown-200: #363b44;
+
+  /* Pastels: muted, low-saturation dark variants */
+  --color-lilac-100: #252330;
+  --color-lilac-300: #3a3550;
+  --color-lilac-500: #6b5fa0;
+  --color-lilac-800: #c4b8e0;
+
+  --color-blush-100: #2a2020;
+  --color-blush-300: #5c3a35;
+  --color-blush-500: #a85e52;
+  --color-blush-800: #e8b0a8;
+
+  --color-mist-100: #1c2430;
+  --color-mist-300: #2a3d52;
+  --color-mist-500: #3e6888;
+  --color-mist-800: #9bbdd8;
+
+  --color-sage-100: #1e2620;
+  --color-sage-300: #2e3e30;
+  --color-sage-500: #3d6040;
+  --color-sage-800: #9dc494;
+
+  --color-butter-100: #252210;
+  --color-butter-300: #4a4018;
+  --color-butter-500: #907820;
+  --color-butter-800: #d4bf60;
+
+  color: var(--color-brown-900);
+
+  /* Tone down Tailwind's fixed green/red — used for positive/negative figures */
+  --color-green-700: #4a7a52;
+  --color-red-600: #8c4040;
 }
 
 body {

@@ -36,10 +36,10 @@ const defaultProps = () => ({
 });
 
 describe("FinanceV2Screen", () => {
-  it("defaults to the Presupuesto tab, showing the budget composition", () => {
+  it("defaults to the Presupuesto tab, showing account coverage", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    expect(screen.getAllByText("Fijos (0%)").length).toBeGreaterThan(0);
+    expect(screen.getByText("Pendiente por categoría")).toBeTruthy();
   });
 
   it("renders no Distribución tab or text", () => {
@@ -74,7 +74,7 @@ describe("FinanceV2Screen", () => {
       fireEvent.click(screen.getByText("Análisis"));
 
       expect(screen.getByText("Resumen del mes")).toBeTruthy();
-      expect(screen.queryByText("Fijos (0%)")).toBeNull();
+      expect(screen.queryByText("Pendiente por categoría")).toBeNull();
     });
 
     // Proves the tab reads the LIVE hoisted budget config rather than analyzing an
@@ -109,7 +109,7 @@ describe("FinanceV2Screen", () => {
 
     fireEvent.click(screen.getByText("Movimientos"));
 
-    expect(screen.queryByText("Fijos (0%)")).toBeNull();
+    expect(screen.queryByText("Pendiente por categoría")).toBeNull();
     expect(screen.getByText("Balance")).toBeTruthy();
   });
 

@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${patrickHand.variable} ${lexend.variable} h-full antialiased`}>
+    <html lang="es" className={`${patrickHand.variable} ${lexend.variable} dark h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <AppNav />
         {children}

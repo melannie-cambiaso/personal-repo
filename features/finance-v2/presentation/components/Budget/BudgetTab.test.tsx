@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BudgetTab } from "./BudgetTab";
-import { computeBudgetComparison, DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
 import type { BudgetCategory } from "@/features/finance-v2/domain";
 import type { SpendView } from "./spendView";
 import type { AccountCoverageView } from "./accountCoverageView";
@@ -34,14 +33,13 @@ const MONTH = "2026-09";
 const noop = () => {};
 
 describe("BudgetTab", () => {
-  it("empty state in edit mode renders the comparison row plus an add-category affordance (name + bucket)", () => {
+  it("empty state in edit mode renders the add-category affordance (name + bucket)", () => {
     render(
       <BudgetTab
         mode="edit"
         onToggleMode={noop}
         categories={[]}
         month={MONTH}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
         coverage={emptyCoverage}
         onAmountBlur={noop}
@@ -56,7 +54,6 @@ describe("BudgetTab", () => {
       />
     );
 
-    expect(screen.getAllByText("Fijos (0%)").length).toBeGreaterThan(0);
     expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
     expect(screen.getByLabelText("Bucket de la categoría")).toBeTruthy();
   });
@@ -68,7 +65,6 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         month={MONTH}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
         coverage={emptyCoverage}
         onAmountBlur={noop}
@@ -91,7 +87,6 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         month={MONTH}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
         coverage={emptyCoverage}
         onAmountBlur={noop}
@@ -115,7 +110,6 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         month={MONTH}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
         coverage={emptyCoverage}
         onAmountBlur={noop}
@@ -142,7 +136,6 @@ describe("BudgetTab", () => {
         onToggleMode={onToggleMode}
         categories={[]}
         month={MONTH}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
         coverage={emptyCoverage}
         onAmountBlur={noop}
@@ -176,7 +169,6 @@ describe("BudgetTab", () => {
             { id: "c1", name: "Arriendo", bucket: "fixed", amount: 100_000, subcategories: [] },
           ]}
           month={MONTH}
-          comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
           spend={emptySpend}
           coverage={emptyCoverage}
           onAmountBlur={noop}
@@ -186,9 +178,9 @@ describe("BudgetTab", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        onRenameCategory={noop}
-        onRenameSubcategory={noop}
-      />
+          onRenameCategory={noop}
+          onRenameSubcategory={noop}
+        />
       );
 
     it("hides the edit toggle and shows a read-only note, still listing the categories", () => {
@@ -215,7 +207,6 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         month={MONTH}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
         coverage={emptyCoverage}
         onAmountBlur={noop}
@@ -247,7 +238,6 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[]}
         month={MONTH}
-        comparison={computeBudgetComparison(DEFAULT_BUDGET_CONFIG, "2026-07")}
         spend={emptySpend}
         coverage={emptyCoverage}
         onAmountBlur={noop}
@@ -282,7 +272,6 @@ describe("BudgetTab", () => {
         onToggleMode={noop}
         categories={[category]}
         month={MONTH}
-        comparison={computeBudgetComparison({ categories: [category] }, "2026-07")}
         spend={emptySpend}
         coverage={emptyCoverage}
         onAmountBlur={onAmountBlur}
@@ -324,31 +313,6 @@ describe("BudgetTab", () => {
       },
     };
 
-    it("threads spend into BucketComparison's actual-spend column", () => {
-      render(
-        <BudgetTab
-          mode="view"
-          onToggleMode={noop}
-          categories={[category]}
-          month={MONTH}
-          comparison={computeBudgetComparison({ categories: [category] }, "2026-07")}
-          spend={spendWithData}
-          coverage={emptyCoverage}
-          onAmountBlur={noop}
-          onAddCategory={noop}
-          onAddSubcategory={noop}
-          onDeleteCategory={noop}
-          onDeleteSubcategory={noop}
-          onFrequencyChange={noop}
-          onWeekdayChange={noop}
-        onRenameCategory={noop}
-        onRenameSubcategory={noop}
-      />
-      );
-
-      expect(screen.getAllByText("$100.000").length).toBeGreaterThan(0);
-    });
-
     it("threads spend into each BudgetCategoryCard's view-mode pairing", () => {
       render(
         <BudgetTab
@@ -356,7 +320,6 @@ describe("BudgetTab", () => {
           onToggleMode={noop}
           categories={[category]}
           month={MONTH}
-          comparison={computeBudgetComparison({ categories: [category] }, "2026-07")}
           spend={spendWithData}
           coverage={emptyCoverage}
           onAmountBlur={noop}
@@ -366,24 +329,21 @@ describe("BudgetTab", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        onRenameCategory={noop}
-        onRenameSubcategory={noop}
-      />
+          onRenameCategory={noop}
+          onRenameSubcategory={noop}
+        />
       );
 
-      // The fixed bucket row and the bucket total carry the same remainder; the third
-      // occurrence is the category card's own pairing.
-      expect(screen.getAllByText("quedan $250.000")).toHaveLength(3);
+      expect(screen.getByText("quedan $250.000")).toBeTruthy();
     });
 
-    it("threads a loading spend down to both children, showing — instead of a figure", () => {
+    it("threads a loading spend down to BudgetCategoryCard, showing — instead of a figure", () => {
       render(
         <BudgetTab
           mode="view"
           onToggleMode={noop}
           categories={[category]}
           month={MONTH}
-          comparison={computeBudgetComparison({ categories: [category] }, "2026-07")}
           spend={loadingSpend}
           coverage={emptyCoverage}
           onAmountBlur={noop}
@@ -393,15 +353,13 @@ describe("BudgetTab", () => {
           onDeleteSubcategory={noop}
           onFrequencyChange={noop}
           onWeekdayChange={noop}
-        onRenameCategory={noop}
-        onRenameSubcategory={noop}
-      />
+          onRenameCategory={noop}
+          onRenameSubcategory={noop}
+        />
       );
 
-      expect(screen.getAllByText("—").length).toBeGreaterThan(1);
+      expect(screen.getAllByText("—").length).toBeGreaterThan(0);
       expect(screen.queryByText("$100.000")).toBeNull();
     });
   });
 });
-
-

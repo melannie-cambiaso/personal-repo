@@ -4,13 +4,11 @@ import { useState } from "react";
 import type {
   BucketKey,
   BudgetCategory,
-  BudgetComparison as BudgetComparisonResult,
   BudgetFrequency,
   Weekday,
 } from "@/features/finance-v2/domain";
 import { AccountCoverage } from "./AccountCoverage";
 import type { AccountCoverageView } from "./accountCoverageView";
-import { BucketComparison } from "./BucketComparison";
 import { BudgetCategoryCard } from "./BudgetCategoryCard";
 import { Button, Input, Select } from "@/shared/components";
 import { BUCKET_LABELS, BUCKET_ORDER } from "../bucketLabels";
@@ -26,9 +24,7 @@ interface Props {
   categories: BudgetCategory[];
   /** The viewed month — weekly leaves' monthly budget depends on it. */
   month: string;
-  comparison: BudgetComparisonResult;
-  /** Threaded from `FinanceV2Screen` (design D7/D8) into both `BucketComparison` and
-   *  every `BudgetCategoryCard`. */
+  /** Threaded from `FinanceV2Screen` into every `BudgetCategoryCard`. */
   spend: SpendView;
   /** Derived in `FinanceV2Screen` for the same viewed month and transactions as `spend`. */
   coverage: AccountCoverageView;
@@ -60,7 +56,6 @@ export function BudgetTab({
   onToggleMode,
   categories,
   month,
-  comparison,
   spend,
   coverage,
   onAmountBlur,
@@ -108,7 +103,6 @@ export function BudgetTab({
         )}
       </div>
 
-      <BucketComparison comparison={comparison} spend={spend} />
       <AccountCoverage coverage={coverage} />
 
       {mode === "view" && categories.length === 0 ? (
