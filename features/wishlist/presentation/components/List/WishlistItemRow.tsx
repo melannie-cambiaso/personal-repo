@@ -5,8 +5,8 @@ import { formatCLP } from "@/shared/utils/formatCurrency";
 
 // Small round buttons with pink glyphs; the row stays ~360px-friendly.
 const roundButton =
-  "border-cream-300 bg-cream-50 text-brand-500 hover:bg-cream-200 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
-const moveButton = `${roundButton} disabled:cursor-default disabled:opacity-30 disabled:hover:bg-cream-50`;
+  "border-surface-300 bg-surface-50 text-brand-500 hover:bg-surface-200 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
+const moveButton = `${roundButton} disabled:cursor-default disabled:opacity-30 disabled:hover:bg-surface-50`;
 
 interface Props {
   item: WishlistItem;
@@ -35,7 +35,7 @@ export function WishlistItemRow({
   canMoveDown = false,
 }: Props) {
   const titleClass = `block truncate text-left ${
-    owned ? "text-brown-400 line-through" : "text-brown-900"
+    owned ? "text-ink-400 line-through" : "text-ink-900"
   }`;
 
   return (
@@ -66,7 +66,7 @@ export function WishlistItemRow({
         <div className="flex items-center gap-2">
           {item.price !== null ? (
             <span
-              className={`font-figure text-sm font-semibold ${owned ? "text-brown-400" : "text-brown-900"}`}
+              className={`font-figure text-sm font-semibold ${owned ? "text-ink-400" : "text-ink-900"}`}
             >
               {formatCLP(item.price)}
             </span>
@@ -77,8 +77,8 @@ export function WishlistItemRow({
               Truncates so a long tag cannot push the row past a ~360px screen. */}
           {item.tag && (
             <span
-              className={`bg-cream-50 max-w-40 min-w-0 truncate rounded-full border-2 px-2.5 text-sm ${
-                owned ? "border-brown-200 text-brown-400" : "border-cream-300 text-brand-500"
+              className={`bg-surface-50 max-w-40 min-w-0 truncate rounded-full border-2 px-2.5 text-sm ${
+                owned ? "border-ink-200 text-ink-400" : "border-surface-300 text-brand-500"
               }`}
             >
               {item.tag}

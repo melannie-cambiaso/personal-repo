@@ -29,7 +29,7 @@ describe("SavingsSummaryCard", () => {
     render(<SavingsSummaryCard balance={0} toReplenish={0} />);
 
     const value = screen.getByText("Balance").nextSibling as HTMLElement;
-    expect(value.className).toContain("text-brown-600");
+    expect(value.className).toContain("text-ink-600");
   });
 
   it("links to savings", () => {

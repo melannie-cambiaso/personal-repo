@@ -20,9 +20,9 @@ export function AccountCoverage({ coverage }: Props) {
   return (
     <div className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-600">Pendiente por categoría</span>
+        <span className="text-ink-600">Pendiente por categoría</span>
         {figures ? (
-          <span className="font-figure text-brown-800 shrink-0 text-sm font-bold">
+          <span className="font-figure text-ink-800 shrink-0 text-sm font-bold">
             {formatCLP(figures.pendingByCategory)}
           </span>
         ) : (
@@ -30,9 +30,9 @@ export function AccountCoverage({ coverage }: Props) {
         )}
       </div>
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-600">Pendiente por subcategoría</span>
+        <span className="text-ink-600">Pendiente por subcategoría</span>
         {figures ? (
-          <span className="font-figure text-brown-800 shrink-0 text-sm font-bold">
+          <span className="font-figure text-ink-800 shrink-0 text-sm font-bold">
             {formatCLP(figures.pending)}
           </span>
         ) : (
@@ -40,9 +40,9 @@ export function AccountCoverage({ coverage }: Props) {
         )}
       </div>
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-600">Saldo del mes</span>
+        <span className="text-ink-600">Saldo del mes</span>
         {figures ? (
-          <span className="font-figure text-brown-800 shrink-0 text-sm font-bold">
+          <span className="font-figure text-ink-800 shrink-0 text-sm font-bold">
             {formatCLP(figures.balance)}
           </span>
         ) : (
@@ -62,7 +62,7 @@ export function AccountCoverage({ coverage }: Props) {
           </span>
         )}
         {envelopeNote && (
-          <span className="text-brown-500 text-sm">
+          <span className="text-ink-500 text-sm">
             no incluye {envelopeNote.categoryName}: se paga desde {envelopeNote.envelopeName}
           </span>
         )}

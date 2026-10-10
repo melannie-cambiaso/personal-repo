@@ -18,22 +18,22 @@ interface Props {
 export function MovementSummary({ totals, hasEnvelope }: Props) {
   return (
     <div className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
-      <div className="border-sage-300 bg-cream-50/70 flex flex-col gap-1 rounded-2xl border-2 px-4 py-3">
+      <div className="border-sage-300 bg-surface-50/70 flex flex-col gap-1 rounded-2xl border-2 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-brown-600">Balance</span>
-          <span className="font-figure text-brown-800 text-base font-bold">
+          <span className="text-ink-600">Balance</span>
+          <span className="font-figure text-ink-800 text-base font-bold">
             {formatCLP(totals.balance)}
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-1 text-xs">
           <span className="font-figure font-bold text-green-700">{formatCLP(totals.income)}</span>
-          <span className="text-brown-400">−</span>
+          <span className="text-ink-400">−</span>
           <span className="font-figure font-bold text-red-700">{formatCLP(totals.expense)}</span>
-          <span className="text-brown-400">−</span>
+          <span className="text-ink-400">−</span>
           <span className="font-figure font-bold text-amber-700">{formatCLP(totals.savings)}</span>
           {hasEnvelope && (
             <>
-              <span className="text-brown-400">−</span>
+              <span className="text-ink-400">−</span>
               <span className="font-figure font-bold text-sky-700">
                 {formatCLP(totals.transfer)}
               </span>
@@ -42,15 +42,15 @@ export function MovementSummary({ totals, hasEnvelope }: Props) {
         </div>
       </div>
       <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-brown-600">Ahorro</span>
-        <span className="font-figure text-brown-800 text-sm font-bold">
+        <span className="text-ink-600">Ahorro</span>
+        <span className="font-figure text-ink-800 text-sm font-bold">
           {formatCLP(totals.savings)}
         </span>
       </div>
       {hasEnvelope && (
         <div className="flex items-center justify-between gap-2 px-1">
-          <span className="text-brown-600">Transferencias</span>
-          <span className="font-figure text-brown-800 text-sm font-bold">
+          <span className="text-ink-600">Transferencias</span>
+          <span className="font-figure text-ink-800 text-sm font-bold">
             {formatCLP(totals.transfer)}
           </span>
         </div>

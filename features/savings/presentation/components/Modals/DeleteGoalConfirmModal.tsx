@@ -14,11 +14,11 @@ export function DeleteGoalConfirmModal({ goal, onConfirm, onCancel }: Props) {
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
-      <h2 className="text-brown-900 mb-4 text-3xl">¿Eliminar meta?</h2>
-      <p className="text-brown-600 mb-5 text-sm leading-relaxed">
+      <h2 className="text-ink-900 mb-4 text-3xl">¿Eliminar meta?</h2>
+      <p className="text-ink-600 mb-5 text-sm leading-relaxed">
         {goal && (
           <>
-            Vas a eliminar <strong className="text-brown-900 font-normal">{goal.name}</strong>. Esta
+            Vas a eliminar <strong className="text-ink-900 font-normal">{goal.name}</strong>. Esta
             acción no se puede deshacer.
           </>
         )}

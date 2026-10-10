@@ -13,13 +13,13 @@ interface Props {
 // component never re-sorts.
 export function TransactionList({ dayGroups, onDelete, onEdit, envelopeName }: Props) {
   if (dayGroups.length === 0) {
-    return <p className="text-brown-500 text-sm">No hay movimientos este mes</p>;
+    return <p className="text-ink-500 text-sm">No hay movimientos este mes</p>;
   }
 
   return (
     <div className="flex flex-col gap-4">
       {dayGroups.map((group) => (
-        <div key={group.date} className="border-sage-300 bg-cream-50 rounded-3xl border-2 p-4">
+        <div key={group.date} className="border-sage-300 bg-surface-50 rounded-3xl border-2 p-4">
           <p className="bg-sage-300 text-sage-800 font-figure mb-3 w-fit rounded-full px-3 py-0.5 text-xs">
             {group.date}
           </p>

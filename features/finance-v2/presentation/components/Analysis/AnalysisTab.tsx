@@ -71,12 +71,12 @@ function Section({
         >
           {icon}
         </span>
-        <h3 className="text-brown-900 text-2xl">
+        <h3 className="text-ink-900 text-2xl">
           {title}
         </h3>
       </div>
       <div
-        className={`${classes.inner} bg-cream-50/70 flex flex-col gap-3 rounded-2xl border-2 px-4 py-3`}
+        className={`${classes.inner} bg-surface-50/70 flex flex-col gap-3 rounded-2xl border-2 px-4 py-3`}
       >
         {children}
       </div>
@@ -89,7 +89,7 @@ function Section({
 function SummaryRow({
   label,
   value,
-  tone = "text-brown-800",
+  tone = "text-ink-800",
 }: {
   label: string;
   value: string;
@@ -97,7 +97,7 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-brown-600">{label}</span>
+      <span className="text-ink-600">{label}</span>
       <span className={`font-figure shrink-0 text-sm font-bold ${tone}`}>{value}</span>
     </div>
   );
@@ -106,7 +106,7 @@ function SummaryRow({
 // Reuses the domain's `isOverrun` instead of re-testing the sign here, so "what
 // counts as overrunning" keeps living in one place (see `spendRollup.ts`).
 function deviationTone(row: LeafDeviation): string {
-  if (row.deviation === 0) return "text-brown-500";
+  if (row.deviation === 0) return "text-ink-500";
   return isOverrun(row) ? "text-red-600" : "text-green-700";
 }
 
@@ -114,7 +114,7 @@ function DeviationRow({ row }: { row: LeafDeviation }) {
   return (
     <div className="flex flex-col gap-0.5">
       <div className="flex items-center justify-between gap-2">
-        <span data-testid="deviation-name" className="text-brown-800 min-w-0 truncate">
+        <span data-testid="deviation-name" className="text-ink-800 min-w-0 truncate">
           {leafLabel(row)}
         </span>
         <span
@@ -124,11 +124,11 @@ function DeviationRow({ row }: { row: LeafDeviation }) {
           {formatSigned(row.deviation)}
         </span>
       </div>
-      <span className="font-figure text-2xs text-brown-400">
+      <span className="font-figure text-2xs text-ink-400">
         {formatCLP(row.spent)} de {formatCLP(row.budgeted)}
       </span>
       {row.perWeek && (
-        <span className="font-figure text-2xs text-brown-400">
+        <span className="font-figure text-2xs text-ink-400">
           por semana: {formatCLP(row.perWeek.spentAvg)} de {formatCLP(row.perWeek.budgeted)} ·{" "}
           {row.perWeek.weeks} semanas
         </span>
@@ -174,7 +174,7 @@ function OverrunRow({ row }: { row: NextMonthOverrun }) {
   return (
     <div className="flex flex-col gap-0.5">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-brown-800 min-w-0 truncate">{leafLabel(row)}</span>
+        <span className="text-ink-800 min-w-0 truncate">{leafLabel(row)}</span>
         {needsCut ? (
           <span className="font-figure shrink-0 text-sm font-bold text-red-600">
             recortar {formatCLP(row.projectedOverrun)}
@@ -183,7 +183,7 @@ function OverrunRow({ row }: { row: NextMonthOverrun }) {
           <span className="shrink-0 text-green-700">sin recorte necesario</span>
         )}
       </div>
-      <span className="font-figure text-2xs text-brown-400">
+      <span className="font-figure text-2xs text-ink-400">
         al ritmo actual: {formatCLP(row.projectedSpend)} de {formatCLP(row.budgeted)}
         {row.weeks !== null && ` · ${row.weeks} semanas`}
       </span>
@@ -196,7 +196,7 @@ function OverrunRow({ row }: { row: NextMonthOverrun }) {
 // first — never re-sorted locally.
 export function AnalysisTab({ analysis }: Props) {
   if (!analysis) {
-    return <p className="text-brown-500 text-sm">Cargando el análisis del mes…</p>;
+    return <p className="text-ink-500 text-sm">Cargando el análisis del mes…</p>;
   }
 
   const { summary, deviations, nextMonth } = analysis;
@@ -210,7 +210,7 @@ export function AnalysisTab({ analysis }: Props) {
             `Gastado`, so a bare "sin categoría: $X" left a reader unable to tell
             whether it still had to be added on top to get the true total. */}
         {summary.unassigned > 0 && (
-          <span className="font-figure text-2xs text-brown-400 -mt-2 self-end">
+          <span className="font-figure text-2xs text-ink-400 -mt-2 self-end">
             incluye sin categoría: {formatCLP(summary.unassigned)}
           </span>
         )}
@@ -229,7 +229,7 @@ export function AnalysisTab({ analysis }: Props) {
         <SummaryRow label="Presupuesto proyectado" value={formatCLP(nextMonth.budgeted)} />
         <div className="border-lilac-300 flex flex-col gap-3 border-t-2 border-dashed pt-3">
           {nextMonth.overruns.length === 0 ? (
-            <p className="text-brown-500 text-sm">Ninguna categoría se pasó del presupuesto</p>
+            <p className="text-ink-500 text-sm">Ninguna categoría se pasó del presupuesto</p>
           ) : (
             nextMonth.overruns.map((row) => <OverrunRow key={row.id} row={row} />)
           )}
@@ -238,7 +238,7 @@ export function AnalysisTab({ analysis }: Props) {
 
       <Section title="Desvíos por categoría" icon="🧭" tone="blush">
         {deviations.length === 0 ? (
-          <p className="text-brown-500 text-sm">
+          <p className="text-ink-500 text-sm">
             No hay categorías con presupuesto ni gasto en el mes
           </p>
         ) : (

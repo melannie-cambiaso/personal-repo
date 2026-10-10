@@ -79,7 +79,7 @@ function EnvelopeConfigForm({
           />
         </Field>
       ) : (
-        <p className="text-brown-500 text-sm">
+        <p className="text-ink-500 text-sm">
           Primero creá una categoría en Presupuesto para vincularla a esta cuenta.
         </p>
       )}

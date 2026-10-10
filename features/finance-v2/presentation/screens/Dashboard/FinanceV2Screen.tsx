@@ -226,7 +226,7 @@ export function FinanceV2Screen({
               className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
                 activeTab === tab.key
                   ? "border-brand-500 bg-brand-100 text-brand-600"
-                  : "border-cream-300 bg-cream-50 text-brown-600 hover:bg-cream-200"
+                  : "border-surface-300 bg-surface-50 text-ink-600 hover:bg-surface-200"
               }`}
             >
               {tab.label}

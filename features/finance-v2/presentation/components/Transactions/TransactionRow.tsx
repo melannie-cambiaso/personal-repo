@@ -33,30 +33,30 @@ export function TransactionRow({ transaction, envelopeName, onDelete, onEdit }: 
   return (
     <div className="border-sage-300 flex items-center justify-between gap-2 border-t border-dashed pt-3 first:border-t-0 first:pt-0">
       <div className="flex min-w-0 flex-col">
-        <span className="text-brown-900 truncate">{primaryLabel(transaction, envelopeName)}</span>
+        <span className="text-ink-900 truncate">{primaryLabel(transaction, envelopeName)}</span>
         {transaction.type === "expense" && transaction.paidFrom === "envelope" && (
-          <span className="text-brown-500 truncate text-sm">
+          <span className="text-ink-500 truncate text-sm">
             desde {envelopeName ?? "cuenta separada"}
           </span>
         )}
         {transaction.type === "savings" && transaction.sourceCategory && (
-          <span className="text-brown-500 truncate text-sm">
+          <span className="text-ink-500 truncate text-sm">
             de {transaction.sourceCategory.name}
           </span>
         )}
         {transaction.note && (
-          <span className="text-brown-500 truncate text-sm">{transaction.note}</span>
+          <span className="text-ink-500 truncate text-sm">{transaction.note}</span>
         )}
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <span className="font-figure text-brown-800 text-sm font-bold">
+        <span className="font-figure text-ink-800 text-sm font-bold">
           {formatCLP(transaction.amount)}
         </span>
         <button
           type="button"
           onClick={() => onEdit(transaction)}
           aria-label={`Editar movimiento de ${formatCLP(transaction.amount)}`}
-          className="text-brown-400 hover:text-lilac-600 cursor-pointer text-sm transition-colors"
+          className="text-ink-400 hover:text-lilac-600 cursor-pointer text-sm transition-colors"
         >
           Editar
         </button>
@@ -64,7 +64,7 @@ export function TransactionRow({ transaction, envelopeName, onDelete, onEdit }: 
           type="button"
           onClick={() => onDelete(transaction.id)}
           aria-label={`Eliminar movimiento de ${formatCLP(transaction.amount)}`}
-          className="text-brown-400 cursor-pointer text-sm transition-colors hover:text-red-600"
+          className="text-ink-400 cursor-pointer text-sm transition-colors hover:text-red-600"
         >
           Eliminar
         </button>

@@ -3,23 +3,23 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Paper (lightest = card/paper, darker = subtle borders/dividers) */
-  --color-cream-50: #fffdf8;
-  --color-cream-100: #fcf7ec;
-  --color-cream-200: #f7f0e1;
-  --color-cream-300: #eee4d0;
-  --color-cream-400: #e2d5bc;
-  --color-cream-500: #d3c4a6;
+  /* Surface (lightest = card/page, darker = subtle borders/dividers) */
+  --color-surface-50: #fffdf8;
+  --color-surface-100: #fcf7ec;
+  --color-surface-200: #f7f0e1;
+  --color-surface-300: #eee4d0;
+  --color-surface-400: #e2d5bc;
+  --color-surface-500: #d3c4a6;
 
   /* Ink (900 = main ink, 500–400 = muted secondary text, 300–200 = light accents) */
-  --color-brown-900: #2f3640;
-  --color-brown-800: #3d4652;
-  --color-brown-700: #4d5764;
-  --color-brown-600: #5b6573;
-  --color-brown-500: #6a7380;
-  --color-brown-400: #7e8792;
-  --color-brown-300: #a3aab3;
-  --color-brown-200: #c4c9cf;
+  --color-ink-900: #2f3640;
+  --color-ink-800: #3d4652;
+  --color-ink-700: #4d5764;
+  --color-ink-600: #5b6573;
+  --color-ink-500: #6a7380;
+  --color-ink-400: #7e8792;
+  --color-ink-300: #a3aab3;
+  --color-ink-200: #c4c9cf;
 
   /* Pastels: 100 = panel fill, 300 = panel border, 500 = pill/icon circle, 800 = text on tone */
   --color-lilac-100: #ece6f6;
@@ -106,23 +106,23 @@
   --gradient-bg: linear-gradient(#342d34, #342d34);
   --gradient-header: linear-gradient(#342d34, #342d34);
 
-  /* Paper → surfaces (50/100 = same as the background, 200 = hover/pill fill, 300 = border) */
-  --color-cream-50: #342d34;
-  --color-cream-100: #342d34;
-  --color-cream-200: #3e363e;
-  --color-cream-300: #4a414a;
-  --color-cream-400: #574d57;
-  --color-cream-500: #665b66;
+  /* Surface (50/100 = same as the background, 200 = hover/pill fill, 300 = border) */
+  --color-surface-50: #342d34;
+  --color-surface-100: #342d34;
+  --color-surface-200: #3e363e;
+  --color-surface-300: #4a414a;
+  --color-surface-400: #574d57;
+  --color-surface-500: #665b66;
 
-  /* Ink → neutral light text */
-  --color-brown-900: #ededed;
-  --color-brown-800: #d4d4d4;
-  --color-brown-700: #b5b5b5;
-  --color-brown-600: #a1a1a1;
-  --color-brown-500: #8a8a8a;
-  --color-brown-400: #737373;
-  --color-brown-300: #525252;
-  --color-brown-200: #3a3a3a;
+  /* Ink: neutral light text */
+  --color-ink-900: #ededed;
+  --color-ink-800: #d4d4d4;
+  --color-ink-700: #b5b5b5;
+  --color-ink-600: #a1a1a1;
+  --color-ink-500: #8a8a8a;
+  --color-ink-400: #737373;
+  --color-ink-300: #525252;
+  --color-ink-200: #3a3a3a;
 
   /* Tones: 100/300 (panel fill/border) are plain neutral; only 500/800 keep a hue so
      meaning (positive, negative, pending, info) survives. Lilac leans to the pink accent. */
@@ -156,9 +156,9 @@
 
   /* Shadows are invisible on a dark background; borders separate surfaces instead */
   --shadow-card: none;
-  --shadow-card-hover: 0 0 0 1px var(--color-cream-400);
+  --shadow-card-hover: 0 0 0 1px var(--color-surface-400);
 
-  color: var(--color-brown-900);
+  color: var(--color-ink-900);
 
   /* Status colors from the Gentleman-Cute Pi theme, the same ones the Gentle Shell status bar
      uses: mint (added), error red (removed), peach (usage) and powder blue. They replace
@@ -175,7 +175,7 @@
 body {
   background: var(--gradient-bg);
   background-attachment: fixed;
-  color: var(--color-brown-900);
+  color: var(--color-ink-900);
   font-family: var(--font-sans), Arial, sans-serif;
   font-size: 1.0625rem;
 }

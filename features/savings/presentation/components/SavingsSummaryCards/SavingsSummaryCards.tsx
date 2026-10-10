@@ -24,9 +24,9 @@ function Stat({
 }) {
   return (
     <div
-      className={`${border} bg-cream-50/70 flex min-w-0 flex-col rounded-2xl border-2 px-3 py-2`}
+      className={`${border} bg-surface-50/70 flex min-w-0 flex-col rounded-2xl border-2 px-3 py-2`}
     >
-      <p className="text-brown-500 text-sm">{label}</p>
+      <p className="text-ink-500 text-sm">{label}</p>
       <p className={`font-figure text-base font-bold sm:text-lg ${tone}`}>{value}</p>
     </div>
   );
@@ -40,14 +40,14 @@ export function SavingsSummaryCards({
   initialAmount,
 }: Props) {
   const balanceColor =
-    balance > 0 ? "text-green-700" : balance < 0 ? "text-red-600" : "text-brown-600";
+    balance > 0 ? "text-green-700" : balance < 0 ? "text-red-600" : "text-ink-600";
 
   return (
     <div className="border-butter-300 bg-butter-100 flex flex-col gap-3 rounded-3xl border-2 p-4">
       {typeof initialAmount === "number" && initialAmount > 0 && (
-        <div className="border-butter-300 bg-cream-50/70 flex items-center justify-between gap-2 rounded-2xl border-2 px-4 py-2">
-          <p className="text-brown-600">Monto inicial</p>
-          <p className="font-figure text-brown-900 text-lg font-bold">{formatCLP(initialAmount)}</p>
+        <div className="border-butter-300 bg-surface-50/70 flex items-center justify-between gap-2 rounded-2xl border-2 px-4 py-2">
+          <p className="text-ink-600">Monto inicial</p>
+          <p className="font-figure text-ink-900 text-lg font-bold">{formatCLP(initialAmount)}</p>
         </div>
       )}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

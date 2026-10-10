@@ -36,7 +36,7 @@ export function SavingsEntryCard({ entry, isOwner, onEdit, onMarkReplenished, on
           <span className={`rounded-full px-2 py-0.5 text-xs ${tone.pill}`}>
             {isDeposito ? "Depósito" : "Gasto"}
           </span>
-          <span className="font-figure text-brown-500 text-xs">{entry.date}</span>
+          <span className="font-figure text-ink-500 text-xs">{entry.date}</span>
           {isOwner && !isDeposito && entry.toReplenish && (
             <button
               type="button"
@@ -44,7 +44,7 @@ export function SavingsEntryCard({ entry, isOwner, onEdit, onMarkReplenished, on
                 e.stopPropagation();
                 onMarkReplenished(entry.id);
               }}
-              className="border-blush-500 bg-cream-50 text-blush-800 hover:bg-blush-300 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
+              className="border-blush-500 bg-surface-50 text-blush-800 hover:bg-blush-300 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
             >
               A reponer ✓
             </button>
@@ -56,7 +56,7 @@ export function SavingsEntryCard({ entry, isOwner, onEdit, onMarkReplenished, on
           {isDeposito ? "+" : "-"}
           {formatCLP(entry.amount)}
         </p>
-        {entry.notes && <p className="text-brown-600 text-sm break-words">{entry.notes}</p>}
+        {entry.notes && <p className="text-ink-600 text-sm break-words">{entry.notes}</p>}
       </div>
       {isOwner && (
         <button
@@ -65,7 +65,7 @@ export function SavingsEntryCard({ entry, isOwner, onEdit, onMarkReplenished, on
             e.stopPropagation();
             onDelete(entry.id);
           }}
-          className="text-brown-400 cursor-pointer text-sm transition-colors hover:text-red-500"
+          className="text-ink-400 cursor-pointer text-sm transition-colors hover:text-red-500"
           aria-label="Eliminar"
         >
           ✕

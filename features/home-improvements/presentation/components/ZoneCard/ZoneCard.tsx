@@ -8,7 +8,7 @@ import { formatCLP } from "@/shared/utils/formatCurrency";
 
 // Small round buttons in the zone's mist tone, shared with the item rows' look.
 const roundButton =
-  "border-mist-300 bg-cream-50 text-mist-800 hover:bg-mist-100 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
+  "border-mist-300 bg-surface-50 text-mist-800 hover:bg-mist-100 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
 
 interface Props {
   zone: Zone;
@@ -48,7 +48,7 @@ export function ZoneCard({
           {zone.emoji || "🏠"}
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-brown-900 text-2xl break-words">
+          <h2 className="text-ink-900 text-2xl break-words">
             {zone.name}
           </h2>
           <div className="mt-2 flex flex-wrap gap-x-3 text-sm text-mist-800">
@@ -57,7 +57,7 @@ export function ZoneCard({
             </span>
             {totalCost > 0 && (
               <span>
-                · <span className="font-figure text-brown-900">{formatCLP(totalCost)}</span>{" "}
+                · <span className="font-figure text-ink-900">{formatCLP(totalCost)}</span>{" "}
                 estimado
               </span>
             )}
@@ -87,11 +87,11 @@ export function ZoneCard({
 
       {/* Items */}
       {items.length === 0 ? (
-        <p className="bg-cream-50/70 text-brown-400 rounded-2xl border-2 border-mist-300 px-4 py-4 text-center">
+        <p className="bg-surface-50/70 text-ink-400 rounded-2xl border-2 border-mist-300 px-4 py-4 text-center">
           Todavía no hay mejoras en esta zona.
         </p>
       ) : (
-        <ul className="bg-cream-50/70 divide-y-2 divide-dashed divide-mist-300 overflow-hidden rounded-2xl border-2 border-mist-300">
+        <ul className="bg-surface-50/70 divide-y-2 divide-dashed divide-mist-300 overflow-hidden rounded-2xl border-2 border-mist-300">
           {items.map((item) => (
             <ImprovementItemCard
               key={item.id}

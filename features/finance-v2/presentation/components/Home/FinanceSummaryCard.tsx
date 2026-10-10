@@ -15,28 +15,28 @@ export function FinanceSummaryCard({ month, balance, pending }: Props) {
   const diff = balance - pending;
 
   return (
-    <div className="border-cream-300 bg-cream-50 flex flex-col gap-4 rounded-3xl border-2 p-5 text-left">
+    <div className="border-surface-300 bg-surface-50 flex flex-col gap-4 rounded-3xl border-2 p-5 text-left">
       <div className="flex items-center gap-3">
         <span
           aria-hidden
-          className="bg-cream-200 flex size-10 shrink-0 items-center justify-center rounded-full text-xl"
+          className="bg-surface-200 flex size-10 shrink-0 items-center justify-center rounded-full text-xl"
         >
           💸
         </span>
-        <h2 className="text-brown-900 text-2xl">
+        <h2 className="text-ink-900 text-2xl">
           Finanzas · {formatMonth(month)}
         </h2>
       </div>
-      <div className="border-cream-300 bg-cream-100 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">
+      <div className="border-surface-300 bg-surface-100 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-brown-600">Balance del mes</span>
-          <span className="font-figure text-brown-900 text-sm font-semibold">
+          <span className="text-ink-600">Balance del mes</span>
+          <span className="font-figure text-ink-900 text-sm font-semibold">
             {formatCLP(balance)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-brown-600">Pendiente por pagar</span>
-          <span className="font-figure text-brown-900 text-sm font-semibold">
+          <span className="text-ink-600">Pendiente por pagar</span>
+          <span className="font-figure text-ink-900 text-sm font-semibold">
             {formatCLP(pending)}
           </span>
         </div>

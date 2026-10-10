@@ -32,7 +32,7 @@ export function SpendPairing({ row }: Props) {
       {formatCLP(row.spent)}
       {suffix && (
         <span
-          className={`text-2xs ml-1 font-normal ${overrun ? "text-red-600" : "text-brown-400"}`}
+          className={`text-2xs ml-1 font-normal ${overrun ? "text-red-600" : "text-ink-400"}`}
         >
           {suffix}
         </span>
@@ -45,5 +45,5 @@ export function SpendPairing({ row }: Props) {
 // renders a figure — just the muted placeholder, everywhere a `SpendPairing`
 // would otherwise go.
 export function LoadingSpend() {
-  return <span className="text-2xs text-brown-400 font-normal">—</span>;
+  return <span className="text-2xs text-ink-400 font-normal">—</span>;
 }

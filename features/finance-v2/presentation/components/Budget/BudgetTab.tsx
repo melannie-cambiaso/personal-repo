@@ -86,7 +86,7 @@ export function BudgetTab({
           of category count or current mode. A closed month swaps it for a note. */}
       <div className="flex justify-end">
         {readOnly ? (
-          <p className="text-brown-500 text-sm">Presupuesto de un mes cerrado: solo lectura</p>
+          <p className="text-ink-500 text-sm">Presupuesto de un mes cerrado: solo lectura</p>
         ) : (
           <button
             type="button"
@@ -95,7 +95,7 @@ export function BudgetTab({
             className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
               mode === "edit"
                 ? "border-brand-500 bg-brand-100 text-brand-600"
-                : "border-cream-300 bg-cream-50 text-brown-600 hover:bg-cream-200"
+                : "border-surface-300 bg-surface-50 text-ink-600 hover:bg-surface-200"
             }`}
           >
             {BUDGET_MODE_LABEL[mode]}
@@ -106,7 +106,7 @@ export function BudgetTab({
       <AccountCoverage coverage={coverage} />
 
       {mode === "view" && categories.length === 0 ? (
-        <p className="text-brown-500 text-sm">No hay categorías cargadas</p>
+        <p className="text-ink-500 text-sm">No hay categorías cargadas</p>
       ) : (
         <div className="flex flex-col gap-3">
           {[...categories]

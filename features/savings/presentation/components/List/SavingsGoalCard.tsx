@@ -38,11 +38,11 @@ export function SavingsGoalCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className={`text-brown-900 text-lg break-words ${isDone ? "line-through" : ""}`}>
+          <span className={`text-ink-900 text-lg break-words ${isDone ? "line-through" : ""}`}>
             {goal.name}
           </span>
           <ProgressBar value={goal.progress} />
-          <span className="font-figure text-brown-600 text-xs">
+          <span className="font-figure text-ink-600 text-xs">
             {formatCLP(goal.currentAmount)} / {formatCLP(goal.targetAmount)}
           </span>
         </div>
@@ -87,7 +87,7 @@ export function SavingsGoalCard({
             }}
             aria-pressed={isDone}
             aria-label={isDone ? "Reabrir" : "Marcar como hecha"}
-            className="border-cream-300 bg-cream-50 text-brand-500 hover:bg-cream-200 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
+            className="border-surface-300 bg-surface-50 text-brand-500 hover:bg-surface-200 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
           >
             {isDone ? "Reabrir ↺" : "Marcar como hecha ✓"}
           </button>
@@ -97,7 +97,7 @@ export function SavingsGoalCard({
               e.stopPropagation();
               onDelete(goal.id);
             }}
-            className="text-brown-400 cursor-pointer text-sm transition-colors hover:text-red-500"
+            className="text-ink-400 cursor-pointer text-sm transition-colors hover:text-red-500"
             aria-label="Eliminar"
           >
             ✕

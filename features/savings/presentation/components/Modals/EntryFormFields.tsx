@@ -58,7 +58,7 @@ export function EntryFormFields({
         </Field>
       )}
       {showReplenish && (
-        <label className="text-brown-700 flex cursor-pointer items-center gap-2 text-sm">
+        <label className="text-ink-700 flex cursor-pointer items-center gap-2 text-sm">
           <input
             type="checkbox"
             checked={form.toReplenish}

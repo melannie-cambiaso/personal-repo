@@ -12,11 +12,11 @@ const typeBadge: Record<ImprovementType, string> = {
   Organización: "border-sage-300 text-sage-800",
   Reparación: "border-blush-300 text-blush-800",
   Instalación: "border-mist-300 text-mist-800",
-  Otro: "border-cream-400 text-brown-600",
+  Otro: "border-surface-400 text-ink-600",
 };
 
 const roundButton =
-  "border-mist-300 bg-cream-50 text-mist-800 hover:bg-mist-100 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
+  "border-mist-300 bg-surface-50 text-mist-800 hover:bg-mist-100 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
 
 interface Props {
   item: ImprovementItem;
@@ -34,7 +34,7 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
       <button
         type="button"
         onClick={onToggle}
-        className={`mt-0.5 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 transition-colors ${item.done ? "border-sage-500 bg-sage-500 text-sage-800" : "bg-cream-50 border-mist-300 hover:border-mist-500"}`}
+        className={`mt-0.5 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 transition-colors ${item.done ? "border-sage-500 bg-sage-500 text-sage-800" : "bg-surface-50 border-mist-300 hover:border-mist-500"}`}
         aria-label={item.done ? "Marcar como pendiente" : "Marcar como hecho"}
       >
         {item.done && <span className="text-sm">✓</span>}
@@ -48,23 +48,23 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
             {item.done ? "Hecho" : "Pendiente"}
           </span>
           <span
-            className={`bg-cream-50 rounded-full border-2 px-2.5 text-sm ${typeBadge[item.type]}`}
+            className={`bg-surface-50 rounded-full border-2 px-2.5 text-sm ${typeBadge[item.type]}`}
           >
             {item.type}
           </span>
         </div>
-        <p className={`text-brown-900 leading-snug break-words ${item.done ? "line-through" : ""}`}>
+        <p className={`text-ink-900 leading-snug break-words ${item.done ? "line-through" : ""}`}>
           {item.title}
         </p>
         {item.estimatedCost !== null && (
-          <p className="font-figure text-brown-900 mt-0.5 text-sm font-semibold">
+          <p className="font-figure text-ink-900 mt-0.5 text-sm font-semibold">
             {item.quantity && item.quantity > 1
               ? `${formatCLP(item.estimatedCost)} x${item.quantity} = ${formatCLP(item.estimatedCost * item.quantity)}`
               : formatCLP(item.estimatedCost)}
           </p>
         )}
         {item.description && (
-          <p className="text-brown-600 mt-1 text-sm leading-relaxed break-words">
+          <p className="text-ink-600 mt-1 text-sm leading-relaxed break-words">
             {item.description}
           </p>
         )}
@@ -73,7 +73,7 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
             href={item.purchaseUrl}
             target="_blank"
             rel="noreferrer"
-            className="hover:text-brown-900 mt-1.5 inline-block text-sm text-mist-800 underline decoration-mist-500 underline-offset-2"
+            className="hover:text-ink-900 mt-1.5 inline-block text-sm text-mist-800 underline decoration-mist-500 underline-offset-2"
             onClick={(e) => e.stopPropagation()}
           >
             Ver dónde comprarlo →

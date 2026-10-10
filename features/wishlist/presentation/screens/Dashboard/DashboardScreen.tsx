@@ -18,10 +18,10 @@ import {
 
 // Full class strings (not interpolated tone names) so Tailwind can see every one.
 const GROUPS: { key: keyof WishlistGroups; label: string; pill: string }[] = [
-  { key: "high", label: PRIORITY_LABELS.high, pill: "bg-cream-200 text-brown-700" },
-  { key: "medium", label: PRIORITY_LABELS.medium, pill: "bg-cream-200 text-brown-700" },
-  { key: "low", label: PRIORITY_LABELS.low, pill: "bg-cream-200 text-brown-700" },
-  { key: "owned", label: "Comprados", pill: "bg-cream-200 text-brown-700" },
+  { key: "high", label: PRIORITY_LABELS.high, pill: "bg-surface-200 text-ink-700" },
+  { key: "medium", label: PRIORITY_LABELS.medium, pill: "bg-surface-200 text-ink-700" },
+  { key: "low", label: PRIORITY_LABELS.low, pill: "bg-surface-200 text-ink-700" },
+  { key: "owned", label: "Comprados", pill: "bg-surface-200 text-ink-700" },
 ];
 
 interface Props {
@@ -75,7 +75,7 @@ export function DashboardScreen({
             return (
               <section key={key} className="flex flex-col gap-2">
                 <h2 className={`${pill} self-start rounded-full px-3 py-0.5 text-sm`}>{label}</h2>
-                <ul className="border-blush-300 divide-blush-300 bg-cream-50/70 divide-y-2 divide-dashed overflow-hidden rounded-2xl border-2">
+                <ul className="border-blush-300 divide-blush-300 bg-surface-50/70 divide-y-2 divide-dashed overflow-hidden rounded-2xl border-2">
                   {group.map((item, index) => (
                     <WishlistItemRow
                       key={item.id}

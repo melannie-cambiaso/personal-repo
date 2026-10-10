@@ -13,8 +13,8 @@ function formatBalance(amount: number): string {
 function Figure({ label, value, className }: { label: string; value: string; className?: string }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-brown-600">{label}</span>
-      <span className={`font-figure text-sm font-bold ${className ?? "text-brown-800"}`}>
+      <span className="text-ink-600">{label}</span>
+      <span className={`font-figure text-sm font-bold ${className ?? "text-ink-800"}`}>
         {value}
       </span>
     </div>
@@ -42,7 +42,7 @@ export function EnvelopeCard({ view, onEdit }: Props) {
           >
             ✉️
           </span>
-          <span className="text-brown-900 truncate text-2xl">
+          <span className="text-ink-900 truncate text-2xl">
             {config.name}
           </span>
         </div>
@@ -54,7 +54,7 @@ export function EnvelopeCard({ view, onEdit }: Props) {
           Editar cuenta
         </button>
       </div>
-      <div className="bg-cream-50/70 flex flex-col gap-1 rounded-2xl border-2 border-mist-300 px-4 py-3">
+      <div className="bg-surface-50/70 flex flex-col gap-1 rounded-2xl border-2 border-mist-300 px-4 py-3">
         <Figure label="Saldo inicial del mes" value={formatCLP(carriedIn)} />
         <Figure label="Transferido" value={formatCLP(flows.transferred)} />
         <Figure label="Pagado" value={formatCLP(flows.paid)} />

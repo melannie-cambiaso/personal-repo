@@ -77,13 +77,13 @@ export function HomeImprovementsScreen({
     <main className="flex flex-1 flex-col">
       <PageHeader eyebrow="Tu hogar" title="Mejoras">
         <div className="flex flex-wrap justify-center gap-3">
-          <div className="bg-cream-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 border-mist-300 px-4 py-2">
-            <span className="font-figure text-brown-900 text-lg font-semibold">{totalPending}</span>
+          <div className="bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 border-mist-300 px-4 py-2">
+            <span className="font-figure text-ink-900 text-lg font-semibold">{totalPending}</span>
             <span className="text-sm text-mist-800">pendiente{totalPending !== 1 ? "s" : ""}</span>
           </div>
           {totalCost > 0 && (
-            <div className="bg-cream-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 border-mist-300 px-4 py-2">
-              <span className="font-figure text-brown-900 text-lg font-semibold">
+            <div className="bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 border-mist-300 px-4 py-2">
+              <span className="font-figure text-ink-900 text-lg font-semibold">
                 {formatCLP(totalCost)}
               </span>
               <span className="text-sm text-mist-800">estimado</span>

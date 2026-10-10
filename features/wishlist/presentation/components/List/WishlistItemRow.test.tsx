@@ -57,7 +57,7 @@ describe("WishlistItemRow", () => {
       renderOwnerRow({ item: { ...item, tag: "Cumpleaños" }, owned: true });
 
       const tag = screen.getByText("Cumpleaños");
-      expect(tag.className).toContain("text-brown-400");
+      expect(tag.className).toContain("text-ink-400");
       expect(tag.className).not.toContain("text-brand-500");
     });
 

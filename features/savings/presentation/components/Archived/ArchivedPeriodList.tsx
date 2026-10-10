@@ -28,7 +28,7 @@ export function ArchivedPeriodList({ periods, entries }: Props) {
 
   if (closedPeriods.length === 0) {
     return (
-      <div className="text-brown-400 py-16 text-center">
+      <div className="text-ink-400 py-16 text-center">
         <p className="mb-1 text-4xl">🗄️</p>
         <p className="text-sm">Todavía no archivaste ningún período.</p>
       </div>
@@ -47,7 +47,7 @@ export function ArchivedPeriodList({ periods, entries }: Props) {
             className="flex flex-col gap-3 rounded-3xl border-2 border-mist-300 bg-mist-100 p-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-brown-900 min-w-0 text-xl break-words">
+              <h3 className="text-ink-900 min-w-0 text-xl break-words">
                 {formatPeriodRange(period)}
               </h3>
               <div className="flex flex-wrap items-center gap-2">

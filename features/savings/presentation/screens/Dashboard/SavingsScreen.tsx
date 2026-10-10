@@ -96,11 +96,11 @@ export function SavingsScreen({
     <main className="flex flex-1 flex-col">
       <PageHeader eyebrow="Tu bolsillo" title="Ahorros">
         <div className="flex justify-center">
-          <div className="border-butter-300 bg-cream-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
-            <span className="font-figure text-brown-900 text-lg font-semibold">
+          <div className="border-butter-300 bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
+            <span className="font-figure text-ink-900 text-lg font-semibold">
               {entries.length}
             </span>
-            <span className="text-brown-500 text-sm">
+            <span className="text-ink-500 text-sm">
               registro{entries.length !== 1 ? "s" : ""}
             </span>
           </div>
@@ -117,7 +117,7 @@ export function SavingsScreen({
               className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
                 activeTab === tab.key
                   ? "border-brand-500 bg-brand-100 text-brand-600"
-                  : "border-cream-300 bg-cream-50 text-brown-600 hover:bg-cream-200"
+                  : "border-surface-300 bg-surface-50 text-ink-600 hover:bg-surface-200"
               }`}
             >
               {tab.label}

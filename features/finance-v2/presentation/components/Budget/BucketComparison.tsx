@@ -39,7 +39,7 @@ export function BucketComparison({ comparison, spend }: Props) {
           spend.status === "ready" ? findBucketSpend(spend.comparison.buckets, row.key) : null;
         return (
           <div key={row.key} className="flex items-center justify-between gap-2">
-            <span className="text-brown-600">
+            <span className="text-ink-600">
               {BUCKET_LABELS[row.key]} ({row.sharePct}%)
             </span>
             <div className="flex flex-col items-end gap-0.5 text-right">
@@ -47,7 +47,7 @@ export function BucketComparison({ comparison, spend }: Props) {
                 <>
                   <SpendPairing row={bucketSpend} />
                   {bucketSpend.unassigned > 0 && (
-                    <span className="font-figure text-2xs text-brown-400">
+                    <span className="font-figure text-2xs text-ink-400">
                       incluye sin categoría: {formatCLP(bucketSpend.unassigned)}
                     </span>
                   )}
@@ -60,13 +60,13 @@ export function BucketComparison({ comparison, spend }: Props) {
         );
       })}
       <div className="border-sage-300 flex items-center justify-between gap-2 border-t-2 border-dashed pt-3">
-        <span className="text-brown-900">{TOTAL_LABEL}</span>
+        <span className="text-ink-900">{TOTAL_LABEL}</span>
         <div className="flex flex-col items-end gap-0.5 text-right">
           {spend.status === "ready" ? (
             <>
               <SpendPairing row={spend.comparison.total} />
               {spend.comparison.total.unassigned > 0 && (
-                <span className="font-figure text-2xs text-brown-400">
+                <span className="font-figure text-2xs text-ink-400">
                   incluye sin categoría: {formatCLP(spend.comparison.total.unassigned)}
                 </span>
               )}

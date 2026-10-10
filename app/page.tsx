@@ -20,13 +20,13 @@ const SHORTCUTS = FEATURE_NAV_ITEMS.filter((item) => !CARD_HREFS.has(item.href))
 // Full literal class strings so Tailwind can see them: tile fill/border and icon circle.
 const SHORTCUT_TONES: Record<string, { tile: string; icon: string }> = {
   "/home-improvements": {
-    tile: "border-cream-300 bg-cream-50 hover:border-cream-500",
-    icon: "bg-cream-200",
+    tile: "border-surface-300 bg-surface-50 hover:border-surface-500",
+    icon: "bg-surface-200",
   },
 };
 const DEFAULT_TONE = {
-  tile: "border-cream-300 bg-cream-50 hover:border-cream-500",
-  icon: "bg-cream-300",
+  tile: "border-surface-300 bg-surface-50 hover:border-surface-500",
+  icon: "bg-surface-300",
 };
 
 export default async function HomePage() {
@@ -62,7 +62,7 @@ export default async function HomePage() {
               className="aspect-[2/1] h-auto w-72 object-cover lg:w-96"
             />
           </h1>
-          <p className="text-brown-500">
+          <p className="text-ink-500">
             ¿Qué querés ver hoy?
           </p>
         </div>
@@ -96,8 +96,8 @@ export default async function HomePage() {
                 >
                   {item.icon}
                 </span>
-                <span className="text-brown-900 text-xl">{item.label}</span>
-                <span className="text-brown-500 hidden text-sm sm:block">{item.subtitle}</span>
+                <span className="text-ink-900 text-xl">{item.label}</span>
+                <span className="text-ink-500 hidden text-sm sm:block">{item.subtitle}</span>
               </Link>
             );
           })}

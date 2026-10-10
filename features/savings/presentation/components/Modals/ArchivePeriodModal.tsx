@@ -34,7 +34,7 @@ export function ArchivePeriodModal({ isOpen, entries, onClose, onConfirm }: Prop
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} title="Archivar período" disableBackdropClose>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <p className="text-brown-600 text-sm leading-relaxed">
+        <p className="text-ink-600 text-sm leading-relaxed">
           El período actual se cerrará como archivo de solo lectura y se abrirá uno nuevo. Esta
           acción no se puede deshacer.
         </p>

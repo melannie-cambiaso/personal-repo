@@ -101,7 +101,7 @@ function WeekdayField({
 // viewed month so the figure in the input is never mistaken for the monthly budget.
 function WeeklyHint({ weeks, monthlyAmount }: { weeks: number; monthlyAmount: number }) {
   return (
-    <span className="font-figure text-2xs text-brown-500 self-end">
+    <span className="font-figure text-2xs text-ink-500 self-end">
       {`por semana · × ${weeks} semanas = ${formatCLP(monthlyAmount)}`}
     </span>
   );
@@ -205,7 +205,7 @@ function InlineNameField({
       onChange={(e) => setDraft(e.target.value)}
       onBlur={commit}
       onKeyDown={handleKeyDown}
-      className={`border-cream-400 bg-cream-50 focus:ring-brand-500 min-w-0 rounded border px-1 py-0.5 focus:ring-2 focus:outline-none ${inputClassName ?? ""}`}
+      className={`border-surface-400 bg-surface-50 focus:ring-brand-500 min-w-0 rounded border px-1 py-0.5 focus:ring-2 focus:outline-none ${inputClassName ?? ""}`}
     />
   );
 }
@@ -277,17 +277,17 @@ export function BudgetCategoryCard({
   };
 
   return (
-    <div className="border-sage-300 bg-cream-50 flex flex-col gap-3 rounded-3xl border-2 p-4">
+    <div className="border-sage-300 bg-surface-50 flex flex-col gap-3 rounded-3xl border-2 p-4">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         {mode === "edit" ? (
           <InlineNameField
             savedName={category.name}
             onCommit={(name) => onRenameCategory(category.id, name)}
-            className="text-brown-900 text-lg"
-            inputClassName="text-brown-900 text-lg w-36"
+            className="text-ink-900 text-lg"
+            inputClassName="text-ink-900 text-lg w-36"
           />
         ) : (
-          <span className="text-brown-900 min-w-0 truncate text-lg">{category.name}</span>
+          <span className="text-ink-900 min-w-0 truncate text-lg">{category.name}</span>
         )}
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2 text-right">
           {view.kind === "leaf" ? (
@@ -325,7 +325,7 @@ export function BudgetCategoryCard({
               <LoadingSpend />
             )
           ) : (
-            <span className="font-figure text-brown-800 text-sm font-bold">
+            <span className="font-figure text-ink-800 text-sm font-bold">
               {formatCLP(view.total)}
             </span>
           )}
@@ -334,7 +334,7 @@ export function BudgetCategoryCard({
               type="button"
               onClick={handleDeleteCategory}
               aria-label={`Eliminar categoría ${category.name}`}
-              className="text-brown-400 cursor-pointer text-sm transition-colors hover:text-red-600"
+              className="text-ink-400 cursor-pointer text-sm transition-colors hover:text-red-600"
             >
               Eliminar
             </button>
@@ -358,11 +358,11 @@ export function BudgetCategoryCard({
                       <InlineNameField
                         savedName={sub.name}
                         onCommit={(name) => onRenameSubcategory(category.id, sub.id, name)}
-                        className="text-brown-700"
-                        inputClassName="text-brown-700 w-32"
+                        className="text-ink-700"
+                        inputClassName="text-ink-700 w-32"
                       />
                     ) : (
-                      <span className="text-brown-700 min-w-0 truncate">{sub.name}</span>
+                      <span className="text-ink-700 min-w-0 truncate">{sub.name}</span>
                     )}
                     <div className="ml-auto flex flex-wrap items-center justify-end gap-2 text-right">
                       <AmountField
@@ -394,7 +394,7 @@ export function BudgetCategoryCard({
                             type="button"
                             onClick={() => onDeleteSubcategory(category.id, sub.id)}
                             aria-label={`Eliminar ${sub.name}`}
-                            className="border-sage-300 text-brown-500 hover:border-brown-600 hover:text-brown-800 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
+                            className="border-sage-300 text-ink-500 hover:border-ink-600 hover:text-ink-800 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
                           >
                             ×
                           </button>

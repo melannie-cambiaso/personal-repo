@@ -160,7 +160,7 @@ describe("MovementSummary", () => {
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     const balance = screen.getByText("$350");
-    expect(balance.className).toContain("text-brown-800");
+    expect(balance.className).toContain("text-ink-800");
     expect(balance.className).toContain("font-bold");
     expect(balance.className).not.toContain("text-green-700");
     expect(balance.className).not.toContain("text-red-700");
@@ -180,7 +180,7 @@ describe("MovementSummary", () => {
     const breakdownLine = screen.getByText("$1.000").parentElement;
     const savingsFigures = screen.getAllByText("$250");
     const ahorro = savingsFigures.find((el) => el.parentElement !== breakdownLine)!;
-    expect(ahorro.className).toContain("text-brown-800");
+    expect(ahorro.className).toContain("text-ink-800");
     expect(ahorro.className).toContain("font-bold");
   });
 
