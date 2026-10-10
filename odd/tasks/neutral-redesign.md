@@ -116,4 +116,6 @@ Push/merge are the user's decision.
 - T10 (UNCOMMITTED): visual class/token changes with no tests on these classes. Checks: tsc OK,
   savings+shared 224/224, eslint OK.
 - Full verify over the uncommitted T5–T10 tree (verifier): tsc OK, 866/866 tests, eslint OK (only the known
-  unused-disable warning), `npm run build` OK (10/10 static pages, no Turbopack panic). Visual check pending.
+  unused-disable warning), `npm run build` OK (10/10 static pages, no Turbopack panic). User approved visually.
+- Commits (T5–T10 share files, so they are grouped by area instead of per task): `c23e0fa` theme tokens,
+  `dc41a93` home cards, `d598934` wishlist, `8689551` savings + buttons + this doc.
