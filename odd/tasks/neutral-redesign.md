@@ -16,6 +16,9 @@ dark theme, but make everything else simpler and more generic.
 - Home dog image (`/home-greeting.png`) stays. The rotated "¿Qué querés ver hoy?" sticker goes.
 - Dark theme stays (the `<html>` element is always `.dark`).
 
+- Plan change (after T3): the user wants to KEEP the hand-written font (Patrick Hand, with
+  Lexend for figures). What they dislike is the number of colors, not the font.
+
 ## Scope / constraints
 - Colors come from `@theme` tokens in `app/globals.css`. Retheme by redefining the `.dark`
   values first, so the 51 components that use the palette change without being edited.
@@ -33,8 +36,11 @@ dark theme, but make everything else simpler and more generic.
 - [x] T3 — Interactive states use the pink accent: active tabs, primary pills/buttons and focus
   rings currently on `sage-500`/`lilac`
 
+- [x] T4 — Restore Patrick Hand + Lexend (`app/layout.tsx`, `app/globals.css`) and drop the
+  faux-bold `font-semibold tracking-tight` that T2 added to headings (Patrick Hand has one weight)
+
 ## Acceptance criteria
-- No hand-written font, wavy underline or rotated element remains.
+- Hand-written font kept; no wavy underline or rotated element remains.
 - Surfaces are neutral grays, and pink is the only accent for interactive/selected states.
 - Positive/negative figures stay distinguishable.
 - `npm test`, `npx tsc --noEmit` and `npm run lint` pass.
@@ -64,4 +70,7 @@ Push/merge are the user's decision.
   left open and unapproved, and the user chose to continue.
 - T3: primary Button, Input focus, active nav, tab/mode pills, "Ver más" pills and checkbox
   accents now use `brand-*`. Semantic sage/blush/butter are unchanged. Verified (worker): tsc OK,
-  866/866 tests, eslint OK (1 pre-existing unused-disable warning).
+  866/866 tests, eslint OK (1 pre-existing unused-disable warning). Commit `afdbb00`.
+- T4: Patrick Hand + Lexend restored and the body font-size is back to 1.0625rem. The 17 faux-bold
+  heading classes from T2 were removed. Verified (verifier): tsc OK, 866/866 tests, eslint OK,
+  build OK, greps clean.

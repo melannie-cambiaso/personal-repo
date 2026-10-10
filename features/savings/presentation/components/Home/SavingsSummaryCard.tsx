@@ -23,7 +23,7 @@ export function SavingsSummaryCard({ balance, toReplenish }: Props) {
         >
           💰
         </span>
-        <h2 className="text-brown-900 text-2xl font-semibold tracking-tight">
+        <h2 className="text-brown-900 text-2xl">
           Ahorros
         </h2>
       </div>

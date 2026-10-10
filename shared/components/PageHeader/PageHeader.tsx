@@ -35,7 +35,7 @@ export function PageHeader({ eyebrow, title, children }: Props) {
           {eyebrow}
         </p>
       )}
-      <h1 className="text-brown-900 mb-8 text-6xl font-semibold tracking-tight">{title}</h1>
+      <h1 className="text-brown-900 mb-8 text-6xl">{title}</h1>
       {children}
     </header>
   );

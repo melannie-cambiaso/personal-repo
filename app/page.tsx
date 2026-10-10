@@ -96,7 +96,7 @@ export default async function HomePage() {
                 >
                   {item.icon}
                 </span>
-                <span className="text-brown-900 text-xl font-semibold tracking-tight">{item.label}</span>
+                <span className="text-brown-900 text-xl">{item.label}</span>
                 <span className="text-brown-500 hidden text-sm sm:block">{item.subtitle}</span>
               </Link>
             );

@@ -85,7 +85,7 @@
 
 @theme inline {
   --font-sans: var(--font-primary);
-  --font-figure: var(--font-primary);
+  --font-figure: var(--font-figure-src);
 }
 
 @utility font-figure {
@@ -163,4 +163,5 @@ body {
   background-attachment: fixed;
   color: var(--color-brown-900);
   font-family: var(--font-sans), Arial, sans-serif;
+  font-size: 1.0625rem;
 }

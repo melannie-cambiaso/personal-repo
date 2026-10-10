@@ -53,7 +53,7 @@ export function ModalShell({
       <div className="px-6 py-5">
         {title && (
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-brown-900 text-3xl font-semibold tracking-tight">{title}</h2>
+            <h2 className="text-brown-900 text-3xl">{title}</h2>
             <button
               type="button"
               onClick={onCancel}

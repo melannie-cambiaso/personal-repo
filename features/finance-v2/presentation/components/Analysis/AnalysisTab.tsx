@@ -71,7 +71,7 @@ function Section({
         >
           {icon}
         </span>
-        <h3 className="text-brown-900 text-2xl font-semibold tracking-tight">
+        <h3 className="text-brown-900 text-2xl">
           {title}
         </h3>
       </div>

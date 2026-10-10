@@ -23,7 +23,7 @@ export function FinanceSummaryCard({ month, balance, pending }: Props) {
         >
           💸
         </span>
-        <h2 className="text-brown-900 text-2xl font-semibold tracking-tight">
+        <h2 className="text-brown-900 text-2xl">
           Finanzas · {formatMonth(month)}
         </h2>
       </div>

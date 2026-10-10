@@ -48,7 +48,7 @@ export function ZoneCard({
           {zone.emoji || "🏠"}
         </span>
         <div className="min-w-0 flex-1">
-          <h2 className="text-brown-900 text-2xl font-semibold tracking-tight break-words">
+          <h2 className="text-brown-900 text-2xl break-words">
             {zone.name}
           </h2>
           <div className="mt-2 flex flex-wrap gap-x-3 text-sm text-mist-800">
