@@ -15,7 +15,7 @@ export function DeleteEntryConfirmModal({ entry, onConfirm, onCancel }: Props) {
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
-      <h2 className="font-dancing text-brown-900 underline-wavy mb-4 text-3xl">
+      <h2 className="text-brown-900 mb-4 text-3xl font-semibold tracking-tight">
         ¿Eliminar registro?
       </h2>
       <p className="text-brown-600 mb-5 text-sm leading-relaxed">

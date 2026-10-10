@@ -37,7 +37,7 @@ export function MonthlyBreakdown({ entries }: Props) {
           key={group.month}
           className="border-butter-300 bg-butter-100 flex flex-col gap-3 rounded-3xl border-2 p-4"
         >
-          <h3 className="font-dancing text-brown-900 underline-wavy decoration-butter-500 text-xl capitalize">
+          <h3 className="text-brown-900 text-xl font-semibold tracking-tight capitalize">
             {formatMonth(group.month)}
           </h3>
           <div className="border-butter-300 bg-cream-50/70 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">

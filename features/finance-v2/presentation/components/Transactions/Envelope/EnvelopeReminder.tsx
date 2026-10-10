@@ -14,7 +14,7 @@ export function EnvelopeReminder({ view }: Props) {
   return (
     <div
       role="status"
-      className="border-butter-300 bg-butter-100 text-butter-800 flex -rotate-1 items-start gap-2 rounded-md border-2 px-4 py-3"
+      className="border-butter-300 bg-butter-100 text-butter-800 flex items-start gap-2 rounded-md border-2 px-4 py-3"
     >
       <span aria-hidden className="shrink-0">
         📌

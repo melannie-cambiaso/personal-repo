@@ -15,7 +15,7 @@ export function WishlistSummaryCard({ pendingCount, total, topHigh }: WishlistSu
         >
           🛍️
         </span>
-        <h2 className="font-dancing text-brown-900 underline-wavy decoration-blush-500 text-2xl">
+        <h2 className="text-brown-900 text-2xl font-semibold tracking-tight">
           Wishlist
         </h2>
       </div>

@@ -42,7 +42,7 @@ export function EnvelopeCard({ view, onEdit }: Props) {
           >
             ✉️
           </span>
-          <span className="font-dancing text-brown-900 underline-wavy truncate text-2xl decoration-mist-500">
+          <span className="text-brown-900 truncate text-2xl font-semibold tracking-tight">
             {config.name}
           </span>
         </div>

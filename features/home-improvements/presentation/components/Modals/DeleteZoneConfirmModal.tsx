@@ -15,7 +15,7 @@ export function DeleteZoneConfirmModal({ zone, itemCount, onConfirm, onCancel }:
 
   return (
     <ModalShell isOpen={isOpen} onCancel={onCancel} maxWidth="sm" disableBackdropClose>
-      <h2 className="font-dancing text-brown-900 underline-wavy mb-4 text-3xl decoration-mist-500">
+      <h2 className="text-brown-900 mb-4 text-3xl font-semibold tracking-tight">
         ¿Eliminar zona?
       </h2>
       <p className="text-brown-600 mb-5 leading-relaxed">

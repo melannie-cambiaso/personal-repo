@@ -47,7 +47,7 @@ export function ArchivedPeriodList({ periods, entries }: Props) {
             className="flex flex-col gap-3 rounded-3xl border-2 border-mist-300 bg-mist-100 p-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="font-dancing text-brown-900 underline-wavy min-w-0 text-xl break-words decoration-mist-500">
+              <h3 className="text-brown-900 min-w-0 text-xl font-semibold tracking-tight break-words">
                 {formatPeriodRange(period)}
               </h3>
               <div className="flex flex-wrap items-center gap-2">

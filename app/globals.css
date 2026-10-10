@@ -85,20 +85,11 @@
 
 @theme inline {
   --font-sans: var(--font-primary);
-  --font-dancing: var(--font-primary);
   --font-figure: var(--font-primary);
 }
 
 @utility font-figure {
   font-variant-numeric: tabular-nums;
-}
-
-@utility underline-wavy {
-  text-decoration-line: underline;
-  text-decoration-style: wavy;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 6px;
-  text-decoration-color: var(--color-lilac-500);
 }
 
 :root {

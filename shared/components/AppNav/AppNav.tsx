@@ -64,7 +64,7 @@ export function AppNav() {
       >
         <div className="flex h-full flex-col px-6 py-6">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="font-dancing text-brown-900 underline-wavy text-3xl">Menú</h2>
+            <h2 className="text-brown-900 text-3xl font-semibold tracking-tight">Menú</h2>
             <button
               type="button"
               onClick={() => setOpen(false)}

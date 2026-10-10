@@ -26,7 +26,7 @@ dark theme, but make everything else simpler and more generic.
 - UI copy stays in Spanish (existing project convention).
 
 ## Tasks
-- [ ] T1 — Theme tokens: neutral dark surfaces/ink, neutralized pastel fills/borders, pink
+- [x] T1 — Theme tokens: neutral dark surfaces/ink, neutralized pastel fills/borders, pink
   accent tokens, flat gradients, and Geist sans replacing Patrick Hand (`app/globals.css`, `app/layout.tsx`)
 - [ ] T2 — Remove notebook decorations: `font-dancing`, `underline-wavy`, rotations and the home
   sticker (~30 component files plus tests that assert those classes)
@@ -50,3 +50,8 @@ Strategy: feature branch `feat/neutral-redesign`, with one work-unit commit per 
 Push/merge are the user's decision.
 
 ## Progress / evidence
+- T1 `01e444e`: `.dark` tokens are now neutral grays, with near-neutral tone fills/borders and
+  lilac → pink. `--color-brand-*` tokens were added, gradients are flat, shadows are off in
+  dark mode, and the card radius is 0.75rem. Geist replaces Patrick Hand and Lexend, and
+  `font-figure` uses Geist with tabular nums. Verified (verifier): tsc OK, 866/866 tests,
+  eslint OK, `npm run build` OK.

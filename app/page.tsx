@@ -62,7 +62,7 @@ export default async function HomePage() {
               className="aspect-[2/1] h-auto w-72 object-cover lg:w-96"
             />
           </h1>
-          <p className="border-butter-300 bg-butter-100 text-butter-800 -rotate-2 rounded-lg border-2 px-3 py-1 shadow-sm">
+          <p className="text-brown-500">
             ¿Qué querés ver hoy?
           </p>
         </div>
@@ -96,7 +96,7 @@ export default async function HomePage() {
                 >
                   {item.icon}
                 </span>
-                <span className="font-dancing text-brown-900 text-xl">{item.label}</span>
+                <span className="text-brown-900 text-xl font-semibold tracking-tight">{item.label}</span>
                 <span className="text-brown-500 hidden text-sm sm:block">{item.subtitle}</span>
               </Link>
             );

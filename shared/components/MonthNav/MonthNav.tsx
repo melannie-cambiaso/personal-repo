@@ -18,7 +18,7 @@ export function MonthNav({ label, onPrev, onNext, disabled = false }: Props) {
       >
         ← Anterior
       </button>
-      <span className="font-dancing text-brown-900 underline-wavy text-2xl capitalize">
+      <span className="text-brown-900 text-2xl font-semibold tracking-tight capitalize">
         {label}
       </span>
       <button

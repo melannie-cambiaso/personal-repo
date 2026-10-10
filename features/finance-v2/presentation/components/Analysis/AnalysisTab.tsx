@@ -34,19 +34,16 @@ const SECTION_TONES = {
   sage: {
     panel: "border-sage-300 bg-sage-100",
     circle: "bg-sage-500",
-    underline: "decoration-sage-500",
     inner: "border-sage-300",
   },
   lilac: {
     panel: "border-lilac-300 bg-lilac-100",
     circle: "bg-lilac-500",
-    underline: "decoration-lilac-500",
     inner: "border-lilac-300",
   },
   blush: {
     panel: "border-blush-300 bg-blush-100",
     circle: "bg-blush-500",
-    underline: "decoration-blush-500",
     inner: "border-blush-300",
   },
 };
@@ -74,7 +71,7 @@ function Section({
         >
           {icon}
         </span>
-        <h3 className={`font-dancing text-brown-900 underline-wavy ${classes.underline} text-2xl`}>
+        <h3 className="text-brown-900 text-2xl font-semibold tracking-tight">
           {title}
         </h3>
       </div>
