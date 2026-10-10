@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Lexend, Patrick_Hand } from "next/font/google";
+import { Geist } from "next/font/google";
 import { AppNav } from "@/shared/components/AppNav/AppNav";
 import "./globals.css";
 
-const patrickHand = Patrick_Hand({
+const geist = Geist({
   variable: "--font-primary",
-  subsets: ["latin"],
-  weight: "400",
-});
-
-const lexend = Lexend({
-  variable: "--font-figure-src",
   subsets: ["latin"],
 });
 
@@ -25,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${patrickHand.variable} ${lexend.variable} dark h-full antialiased`}>
+    <html lang="es" className={`${geist.variable} dark h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <AppNav />
         {children}

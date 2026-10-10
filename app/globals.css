@@ -47,6 +47,14 @@
   --color-butter-500: #f3d65a;
   --color-butter-800: #735c10;
 
+  /* Brand accent (Gentleman-Cute pink): 100 = selected fill, 300 = border, 400 = fill behind
+     text, 500 = main accent, 600 = hover/active */
+  --color-brand-100: #28121e;
+  --color-brand-300: #563040;
+  --color-brand-400: #c96aa2;
+  --color-brand-500: #f095c8;
+  --color-brand-600: #ffb1dd;
+
   /* Categories */
   --color-cat-food: #c4956a;
   --color-cat-sport: #7a9e7e;
@@ -71,14 +79,14 @@
   --shadow-card-hover: 0 4px 12px rgba(47, 54, 64, 0.1);
 
   /* Border radius */
-  --radius-card: 1rem;
+  --radius-card: 0.75rem;
   --radius-badge: 1.25rem;
 }
 
 @theme inline {
   --font-sans: var(--font-primary);
   --font-dancing: var(--font-primary);
-  --font-figure: var(--font-figure-src);
+  --font-figure: var(--font-primary);
 }
 
 @utility font-figure {
@@ -99,52 +107,58 @@
 }
 
 .dark {
-  --gradient-bg: linear-gradient(180deg, #1a1d23 0%, #14171c 100%);
-  --gradient-header: linear-gradient(135deg, #22202e 0%, #1c1a28 100%);
+  /* Minimal neutral: flat near-black background, no gradients */
+  --gradient-bg: linear-gradient(#0a0a0a, #0a0a0a);
+  --gradient-header: linear-gradient(#141414, #141414);
 
-  /* Paper → dark surfaces */
-  --color-cream-50: #1e2128;
-  --color-cream-100: #252830;
-  --color-cream-200: #2d3038;
-  --color-cream-300: #383c47;
-  --color-cream-400: #474c59;
-  --color-cream-500: #565c6b;
+  /* Paper → neutral gray surfaces (50 = card, 300 = border) */
+  --color-cream-50: #141414;
+  --color-cream-100: #1a1a1a;
+  --color-cream-200: #212121;
+  --color-cream-300: #2a2a2a;
+  --color-cream-400: #363636;
+  --color-cream-500: #454545;
 
-  /* Ink → light text on dark */
-  --color-brown-900: #e8eaed;
-  --color-brown-800: #d0d3d9;
-  --color-brown-700: #b8bcc4;
-  --color-brown-600: #9ea3ae;
-  --color-brown-500: #838894;
-  --color-brown-400: #686e7a;
-  --color-brown-300: #4e535d;
-  --color-brown-200: #363b44;
+  /* Ink → neutral light text */
+  --color-brown-900: #ededed;
+  --color-brown-800: #d4d4d4;
+  --color-brown-700: #b5b5b5;
+  --color-brown-600: #a1a1a1;
+  --color-brown-500: #8a8a8a;
+  --color-brown-400: #737373;
+  --color-brown-300: #525252;
+  --color-brown-200: #3a3a3a;
 
-  /* Pastels: muted, low-saturation dark variants */
-  --color-lilac-100: #252330;
-  --color-lilac-300: #3a3550;
-  --color-lilac-500: #6b5fa0;
-  --color-lilac-800: #c4b8e0;
+  /* Tones: 100/300 (panel fill/border) stay almost neutral; only 500/800 keep a hue so
+     meaning (positive, negative, pending, info) survives. Lilac becomes the pink accent. */
+  --color-lilac-100: #1f1219;
+  --color-lilac-300: #563040;
+  --color-lilac-500: #c96aa2;
+  --color-lilac-800: #ffb1dd;
 
-  --color-blush-100: #2a2020;
-  --color-blush-300: #5c3a35;
-  --color-blush-500: #a85e52;
-  --color-blush-800: #e8b0a8;
+  --color-blush-100: #191414;
+  --color-blush-300: #3a2828;
+  --color-blush-500: #a3524a;
+  --color-blush-800: #f0a8a0;
 
-  --color-mist-100: #1c2430;
-  --color-mist-300: #2a3d52;
-  --color-mist-500: #3e6888;
-  --color-mist-800: #9bbdd8;
+  --color-mist-100: #13161a;
+  --color-mist-300: #26303b;
+  --color-mist-500: #3d6687;
+  --color-mist-800: #9cc3e0;
 
-  --color-sage-100: #1e2620;
-  --color-sage-300: #2e3e30;
-  --color-sage-500: #3d6040;
-  --color-sage-800: #9dc494;
+  --color-sage-100: #131714;
+  --color-sage-300: #263029;
+  --color-sage-500: #3d7a52;
+  --color-sage-800: #8fd4a5;
 
-  --color-butter-100: #252210;
-  --color-butter-300: #4a4018;
-  --color-butter-500: #907820;
-  --color-butter-800: #d4bf60;
+  --color-butter-100: #181610;
+  --color-butter-300: #36301f;
+  --color-butter-500: #9a7d28;
+  --color-butter-800: #e6c869;
+
+  /* Shadows are invisible on near-black; borders separate surfaces instead */
+  --shadow-card: none;
+  --shadow-card-hover: 0 0 0 1px var(--color-cream-400);
 
   color: var(--color-brown-900);
 
@@ -158,5 +172,4 @@ body {
   background-attachment: fixed;
   color: var(--color-brown-900);
   font-family: var(--font-sans), Arial, sans-serif;
-  font-size: 1.0625rem;
 }
