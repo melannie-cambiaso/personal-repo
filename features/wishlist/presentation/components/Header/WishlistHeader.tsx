@@ -21,9 +21,9 @@ export function WishlistHeader({ total, pending, totalPrice }: Props) {
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="border-blush-300 bg-cream-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
+    <div className="border-cream-300 bg-cream-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
       <span className="font-figure text-brown-900 text-lg font-semibold">{value}</span>
-      <span className="text-blush-800 text-sm">{label}</span>
+      <span className="text-brown-500 text-sm">{label}</span>
     </div>
   );
 }

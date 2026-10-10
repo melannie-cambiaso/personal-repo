@@ -18,10 +18,10 @@ import {
 
 // Full class strings (not interpolated tone names) so Tailwind can see every one.
 const GROUPS: { key: keyof WishlistGroups; label: string; pill: string }[] = [
-  { key: "high", label: PRIORITY_LABELS.high, pill: "bg-blush-300 text-blush-800" },
-  { key: "medium", label: PRIORITY_LABELS.medium, pill: "bg-butter-300 text-butter-800" },
-  { key: "low", label: PRIORITY_LABELS.low, pill: "bg-mist-300 text-mist-800" },
-  { key: "owned", label: "Comprados", pill: "bg-sage-300 text-sage-800" },
+  { key: "high", label: PRIORITY_LABELS.high, pill: "bg-cream-200 text-brown-700" },
+  { key: "medium", label: PRIORITY_LABELS.medium, pill: "bg-cream-200 text-brown-700" },
+  { key: "low", label: PRIORITY_LABELS.low, pill: "bg-cream-200 text-brown-700" },
+  { key: "owned", label: "Comprados", pill: "bg-cream-200 text-brown-700" },
 ];
 
 interface Props {

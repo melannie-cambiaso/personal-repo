@@ -3,9 +3,9 @@
 import type { WishlistItem } from "@/features/wishlist/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
-// Small round buttons in the wishlist's blush tone; the row stays ~360px-friendly.
+// Small round buttons with pink glyphs; the row stays ~360px-friendly.
 const roundButton =
-  "border-blush-300 bg-cream-50 text-blush-800 hover:bg-blush-100 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
+  "border-cream-300 bg-cream-50 text-brand-500 hover:bg-cream-200 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
 const moveButton = `${roundButton} disabled:cursor-default disabled:opacity-30 disabled:hover:bg-cream-50`;
 
 interface Props {
@@ -78,7 +78,7 @@ export function WishlistItemRow({
           {item.tag && (
             <span
               className={`bg-cream-50 max-w-40 min-w-0 truncate rounded-full border-2 px-2.5 text-sm ${
-                owned ? "border-brown-200 text-brown-400" : "border-blush-300 text-blush-800"
+                owned ? "border-brown-200 text-brown-400" : "border-cream-300 text-brand-500"
               }`}
             >
               {item.tag}
@@ -99,7 +99,8 @@ export function WishlistItemRow({
             }}
             className={moveButton}
           >
-            ↑
+            {/* U+FE0E forces the text glyph so Windows does not swap in a colored emoji arrow */}
+            {"\u2191\uFE0E"}
           </button>
           <button
             type="button"
@@ -111,7 +112,7 @@ export function WishlistItemRow({
             }}
             className={moveButton}
           >
-            ↓
+            {"\u2193\uFE0E"}
           </button>
         </div>
       )}
@@ -124,7 +125,7 @@ export function WishlistItemRow({
           onClick={(e) => e.stopPropagation()}
           className={roundButton}
         >
-          ↗
+          {"\u2197\uFE0E"}
         </a>
       )}
       {onDelete && (

@@ -50,7 +50,7 @@ describe("WishlistItemRow", () => {
       expect(tag.className).toContain("rounded-full");
       // Long tags truncate instead of pushing the row past a ~360px screen.
       expect(tag.className).toContain("truncate");
-      expect(tag.className).toContain("text-blush-800");
+      expect(tag.className).toContain("text-brand-500");
     });
 
     it("is muted when the item is owned, like the price", () => {
@@ -58,7 +58,7 @@ describe("WishlistItemRow", () => {
 
       const tag = screen.getByText("Cumpleaños");
       expect(tag.className).toContain("text-brown-400");
-      expect(tag.className).not.toContain("text-blush-800");
+      expect(tag.className).not.toContain("text-brand-500");
     });
 
     it.each([
