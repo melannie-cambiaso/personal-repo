@@ -39,8 +39,18 @@ export interface BudgetCategory {
   subcategories: BudgetSubcategory[];
 }
 
+/** A budgeted income source (e.g. "Sueldo"). Monthly only: unlike expense leaves,
+ *  income has no weekly frequency (user decision). */
+export interface IncomeSource {
+  id: string;
+  name: string;
+  amount: number;
+}
+
 export interface BudgetConfig {
   categories: BudgetCategory[];
+  /** Absent on configs saved before income budgeting existed; read as `[]`. */
+  incomeSources?: IncomeSource[];
 }
 
 export const DEFAULT_BUDGET_CONFIG: BudgetConfig = { categories: [] };

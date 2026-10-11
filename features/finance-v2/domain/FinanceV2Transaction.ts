@@ -35,9 +35,11 @@ interface TransactionBase {
  *  optionally carries a `sourceCategory` snapshot (with its own `bucket`) when
  *  tagged as reallocated leftover budget — `income` never carries either.
  *  `transfer` is money moved from the main account into the envelope (see
- *  `EnvelopeConfig`): not an expense, not savings, consumes no budget leaf. */
+ *  `EnvelopeConfig`): not an expense, not savings, consumes no budget leaf.
+ *  `income` optionally carries a `source` snapshot of a budget income source;
+ *  absent means "Sin fuente" (also every income saved before sources existed). */
 export type FinanceV2Transaction =
-  | (TransactionBase & { type: "income" })
+  | (TransactionBase & { type: "income"; source?: TransactionCategoryRef })
   | (TransactionBase & { type: "savings"; sourceCategory?: TransactionSourceCategoryRef })
   | (TransactionBase & { type: "transfer" })
   | (TransactionBase & {

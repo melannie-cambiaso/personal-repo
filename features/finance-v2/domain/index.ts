@@ -5,6 +5,7 @@ export type {
   BudgetCategory,
   BudgetConfig,
   BudgetFrequency,
+  IncomeSource,
 } from "./BudgetConfig";
 export { DEFAULT_BUDGET_CONFIG } from "./BudgetConfig";
 export type { BudgetVersion } from "./budgetVersions";
@@ -34,11 +35,17 @@ export type {
   NextMonthOverrun,
 } from "./monthAnalysis";
 export { computeMonthAnalysis } from "./monthAnalysis";
+export type { IncomeComparison, IncomeRow } from "./incomeComparison";
+export { computeIncomeComparison } from "./incomeComparison";
 export {
   addCategory,
+  addIncomeSource,
   addSubcategory,
   deleteCategory,
+  deleteIncomeSource,
   deleteSubcategory,
+  renameIncomeSource,
+  setIncomeSourceAmount,
   renameCategory,
   renameSubcategory,
   setLeafAmount,

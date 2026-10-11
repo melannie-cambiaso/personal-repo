@@ -1,9 +1,15 @@
 import { describe, it, expect } from "vitest";
 import {
   addCategory,
+  addIncomeSource,
   addSubcategory,
   deleteCategory,
+  deleteIncomeSource,
   deleteSubcategory,
+  renameCategory,
+  renameIncomeSource,
+  renameSubcategory,
+  setIncomeSourceAmount,
   setLeafAmount,
   setLeafFrequency,
   setLeafWeekday,
@@ -256,5 +262,130 @@ describe("setLeafWeekday", () => {
     const next = setLeafWeekday(config, { categoryId: "missing", subcategoryId: null, weekday: 0 });
 
     expect(next).toEqual(config);
+  });
+});
+
+// Every category edit must carry the income sources through: a mutation that rebuilt
+// the config from `categories` alone would silently delete them on the next save.
+describe("category edits keep the income sources", () => {
+  const withSources: BudgetConfig = {
+    categories: [
+      {
+        id: "c1",
+        name: "Servicios",
+        bucket: "fixed",
+        amount: 0,
+        subcategories: [{ id: "s1", name: "Luz", bucket: "fixed", amount: 10 }],
+      },
+    ],
+    incomeSources: [{ id: "i1", name: "Sueldo", amount: 1_500_000 }],
+  };
+
+  const edits: [string, (c: BudgetConfig) => BudgetConfig][] = [
+    ["addCategory", (c) => addCategory(c, { id: "c2", name: "Comida", bucket: "variable" })],
+    [
+      "addSubcategory",
+      (c) => addSubcategory(c, { categoryId: "c1", id: "s2", name: "Agua", bucket: "fixed" }),
+    ],
+    ["deleteCategory", (c) => deleteCategory(c, "c1")],
+    ["deleteSubcategory", (c) => deleteSubcategory(c, { categoryId: "c1", id: "s1" })],
+    [
+      "setLeafAmount",
+      (c) => setLeafAmount(c, { categoryId: "c1", subcategoryId: "s1", amount: 5 }),
+    ],
+    [
+      "setLeafFrequency",
+      (c) => setLeafFrequency(c, { categoryId: "c1", subcategoryId: "s1", frequency: "weekly" }),
+    ],
+    [
+      "setLeafWeekday",
+      (c) => setLeafWeekday(c, { categoryId: "c1", subcategoryId: "s1", weekday: 3 }),
+    ],
+    ["renameCategory", (c) => renameCategory(c, { categoryId: "c1", name: "Casa" })],
+    [
+      "renameSubcategory",
+      (c) => renameSubcategory(c, { categoryId: "c1", id: "s1", name: "Gas" }),
+    ],
+  ];
+
+  it.each(edits)("%s keeps incomeSources", (_name, edit) => {
+    expect(edit(withSources).incomeSources).toEqual(withSources.incomeSources);
+  });
+});
+
+describe("addIncomeSource", () => {
+  it("appends a source with amount 0, creating the list when absent", () => {
+    const config: BudgetConfig = { categories: [] };
+
+    const next = addIncomeSource(config, { id: "i1", name: "Sueldo" });
+
+    expect(next).toEqual({ categories: [], incomeSources: [{ id: "i1", name: "Sueldo", amount: 0 }] });
+    expect(config).toEqual({ categories: [] }); // input untouched
+  });
+
+  it("appends after the existing sources and keeps the categories", () => {
+    const config: BudgetConfig = {
+      categories: [{ id: "c1", name: "Renta", bucket: "fixed", amount: 1, subcategories: [] }],
+      incomeSources: [{ id: "i1", name: "Sueldo", amount: 100 }],
+    };
+
+    const next = addIncomeSource(config, { id: "i2", name: "Freelance" });
+
+    expect(next.categories).toBe(config.categories);
+    expect(next.incomeSources).toEqual([
+      { id: "i1", name: "Sueldo", amount: 100 },
+      { id: "i2", name: "Freelance", amount: 0 },
+    ]);
+  });
+});
+
+describe("income source edits", () => {
+  const config: BudgetConfig = {
+    categories: [],
+    incomeSources: [
+      { id: "i1", name: "Sueldo", amount: 100 },
+      { id: "i2", name: "Freelance", amount: 50 },
+    ],
+  };
+
+  it("renameIncomeSource renames only the matching source", () => {
+    expect(renameIncomeSource(config, { id: "i2", name: "Clases" }).incomeSources).toEqual([
+      { id: "i1", name: "Sueldo", amount: 100 },
+      { id: "i2", name: "Clases", amount: 50 },
+    ]);
+  });
+
+  it("setIncomeSourceAmount sets only the matching source's amount", () => {
+    expect(setIncomeSourceAmount(config, { id: "i1", amount: 900 }).incomeSources).toEqual([
+      { id: "i1", name: "Sueldo", amount: 900 },
+      { id: "i2", name: "Freelance", amount: 50 },
+    ]);
+  });
+
+  it("deleteIncomeSource removes only the matching source", () => {
+    expect(deleteIncomeSource(config, "i1").incomeSources).toEqual([
+      { id: "i2", name: "Freelance", amount: 50 },
+    ]);
+  });
+
+  it("unknown ids leave the sources unchanged", () => {
+    expect(renameIncomeSource(config, { id: "x", name: "y" })).toEqual(config);
+    expect(setIncomeSourceAmount(config, { id: "x", amount: 1 })).toEqual(config);
+    expect(deleteIncomeSource(config, "x")).toEqual(config);
+  });
+
+  it("edits on a config without sources leave it without sources", () => {
+    const bare: BudgetConfig = { categories: [] };
+    expect(renameIncomeSource(bare, { id: "x", name: "y" })).toEqual(bare);
+    expect(setIncomeSourceAmount(bare, { id: "x", amount: 1 })).toEqual(bare);
+    expect(deleteIncomeSource(bare, "x")).toEqual(bare);
+  });
+
+  it("never mutates the input", () => {
+    const snapshot = structuredClone(config);
+    renameIncomeSource(config, { id: "i1", name: "z" });
+    setIncomeSourceAmount(config, { id: "i1", amount: 1 });
+    deleteIncomeSource(config, "i1");
+    expect(config).toEqual(snapshot);
   });
 });

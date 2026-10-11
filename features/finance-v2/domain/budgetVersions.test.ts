@@ -174,6 +174,28 @@ describe("isValidBudgetConfig", () => {
     expect(isValidBudgetConfig(configNamed("rent"))).toBe(true);
   });
 
+  it("accepts a config with income sources, and one with an empty list", () => {
+    const sources = [
+      { id: "i1", name: "Sueldo", amount: 1_500_000 },
+      { id: "i2", name: "Freelance", amount: 0 },
+    ];
+    expect(isValidBudgetConfig({ categories: [], incomeSources: sources })).toBe(true);
+    expect(isValidBudgetConfig({ categories: [], incomeSources: [] })).toBe(true);
+  });
+
+  it.each([
+    ["incomeSources is not a list", { incomeSources: "x" }],
+    ["incomeSources is null", { incomeSources: null }],
+    ["a source is null", { incomeSources: [null] }],
+    ["a source id is not a string", { incomeSources: [{ id: 1, name: "a", amount: 1 }] }],
+    ["a source name is missing", { incomeSources: [{ id: "i1", amount: 1 }] }],
+    ["a source amount is a string", { incomeSources: [{ id: "i1", name: "a", amount: "1" }] }],
+    ["a source amount is NaN", { incomeSources: [{ id: "i1", name: "a", amount: NaN }] }],
+    ["a source amount is Infinity", { incomeSources: [{ id: "i1", name: "a", amount: Infinity }] }],
+  ])("rejects a config where %s", (_label, extra) => {
+    expect(isValidBudgetConfig({ categories: [], ...extra })).toBe(false);
+  });
+
   it.each([null, {}, { categories: "x" }, { categories: [{ id: "c1" }] }])(
     "rejects %j",
     (value) => {

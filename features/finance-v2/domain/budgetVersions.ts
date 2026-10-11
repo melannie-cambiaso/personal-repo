@@ -1,4 +1,9 @@
-import type { BudgetCategory, BudgetConfig, BudgetSubcategory } from "./BudgetConfig";
+import type {
+  BudgetCategory,
+  BudgetConfig,
+  BudgetSubcategory,
+  IncomeSource,
+} from "./BudgetConfig";
 import { DEFAULT_BUDGET_CONFIG } from "./BudgetConfig";
 
 /** A budget snapshot that applies from `effectiveFrom` (`YYYY-MM`) until the next
@@ -73,9 +78,24 @@ function isValidCategory(value: unknown): value is BudgetCategory {
   );
 }
 
+function isValidIncomeSource(value: unknown): value is IncomeSource {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.name === "string" &&
+    typeof value.amount === "number" &&
+    Number.isFinite(value.amount)
+  );
+}
+
 export function isValidBudgetConfig(value: unknown): value is BudgetConfig {
   return (
-    isRecord(value) && Array.isArray(value.categories) && value.categories.every(isValidCategory)
+    isRecord(value) &&
+    Array.isArray(value.categories) &&
+    value.categories.every(isValidCategory) &&
+    // Optional: configs saved before income budgeting have no such field.
+    (value.incomeSources === undefined ||
+      (Array.isArray(value.incomeSources) && value.incomeSources.every(isValidIncomeSource)))
   );
 }
 
