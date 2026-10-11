@@ -70,4 +70,4 @@ Branch: `feat/finance-v2-income-budget` · Merge: fast-forward to `main` after t
   placed bare in the source row it took 100% and squeezed `InlineNameField` to zero width (the extra
   `w-36` lost to `w-full`). Fix: fixed-width wrapper as in `BudgetCategoryCard`. Layout is invisible to
   jsdom, so no meaningful RED test exists; tests 315/315 presentation, tsc and eslint clean; visual
-  confirmed by the user ("ahora quedó perfecto").
+  confirmed by the user ("ahora quedó perfecto"). Commit `b592d7c`.
