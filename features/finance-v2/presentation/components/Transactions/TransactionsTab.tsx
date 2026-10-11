@@ -5,6 +5,7 @@ import type {
   DayGroup,
   ExpenseCategoryOption,
   FinanceV2Transaction,
+  TransactionCategoryRef,
   TransactionTotals,
 } from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
@@ -24,6 +25,8 @@ interface Props {
   totals: TransactionTotals;
   dayGroups: DayGroup[];
   categoryOptions: ExpenseCategoryOption[];
+  /** The viewed month's budget income sources, for the income source picker. */
+  incomeSourceOptions?: TransactionCategoryRef[];
   onAdd: (input: NewTransactionInput) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, input: NewTransactionInput) => void;
@@ -63,6 +66,7 @@ export function TransactionsTab({
   totals,
   dayGroups,
   categoryOptions,
+  incomeSourceOptions,
   onAdd,
   onDelete,
   onUpdate,
@@ -116,6 +120,7 @@ export function TransactionsTab({
         isOpen={isAddOpen}
         viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
+        incomeSourceOptions={incomeSourceOptions}
         hasEnvelope={hasEnvelope}
         editingTransaction={editingTransaction}
         onClose={onCloseAdd}

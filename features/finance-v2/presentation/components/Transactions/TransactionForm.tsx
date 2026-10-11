@@ -5,6 +5,7 @@ import type {
   ExpenseBucketKey,
   ExpenseCategoryOption,
   FinanceV2Transaction,
+  TransactionCategoryRef,
 } from "@/features/finance-v2/domain";
 import { toLocalISODate } from "@/features/finance-v2/domain";
 import { monthWindow } from "@/shared/utils/monthUtils";
@@ -26,6 +27,8 @@ const MONTH_RADIUS = 3;
 interface Props {
   viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
+  /** The viewed month's budget income sources, offered for an income (optional pick). */
+  incomeSourceOptions?: TransactionCategoryRef[];
   hasEnvelope: boolean;
   /** Edit mode: seeds every field from this transaction and locks the month
    *  (editing never moves a transaction to another month). */
@@ -38,6 +41,7 @@ interface Props {
 export function TransactionForm({
   viewedMonth,
   categoryOptions: liveCategoryOptions,
+  incomeSourceOptions: liveIncomeSourceOptions = [],
   hasEnvelope,
   initialTransaction,
   onAdd,
@@ -48,6 +52,9 @@ export function TransactionForm({
   const categoryOptions = [...withSnapshotOption(liveCategoryOptions, initialTransaction)].sort(
     (a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" })
   );
+  // Same passive orphan rule for an income's source: kept in budget order, the snapshot
+  // of a source deleted from the budget is appended so editing never drops it.
+  const incomeSourceOptions = withIncomeSnapshotOption(liveIncomeSourceOptions, initialTransaction);
   const monthOptions = monthWindow(viewedMonth, MONTH_RADIUS);
   // The form only offers a transfer once an envelope exists (spec) — or when
   // editing an existing transfer.
@@ -78,7 +85,15 @@ export function TransactionForm({
       : NO_CATEGORY
   );
 
+  // Its own id, like `sourceCategoryId`: switching type never carries it into another type.
+  const [incomeSourceId, setIncomeSourceId] = useState(
+    initialTransaction?.type === "income"
+      ? (initialTransaction.source?.id ?? NO_CATEGORY)
+      : NO_CATEGORY
+  );
+
   const selectedCategory = categoryOptions.find((c) => c.id === categoryId) ?? null;
+  const selectedIncomeSource = incomeSourceOptions.find((s) => s.id === incomeSourceId) ?? null;
   const selectedSourceCategory = categoryOptions.find((c) => c.id === sourceCategoryId) ?? null;
 
   // `date` and `month` are NOT reset — sticky like `type` (design decision #6): filing
@@ -89,6 +104,7 @@ export function TransactionForm({
     setCategoryId(NO_CATEGORY);
     setBucket("fixed");
     setSourceCategoryId(NO_CATEGORY);
+    setIncomeSourceId(NO_CATEGORY);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -124,6 +140,17 @@ export function TransactionForm({
                 bucket: selectedSourceCategory.bucket,
               },
             }
+          : {}),
+      });
+    } else if (type === "income") {
+      onAdd({
+        type: "income",
+        amount: parsedAmount,
+        date,
+        month,
+        note: note.trim() || undefined,
+        ...(selectedIncomeSource
+          ? { source: { id: selectedIncomeSource.id, name: selectedIncomeSource.name } }
           : {}),
       });
     } else {
@@ -198,6 +225,20 @@ export function TransactionForm({
         </div>
       )}
 
+      {type === "income" && (
+        <div className="flex flex-wrap items-end gap-2">
+          <Select
+            aria-label="Fuente"
+            value={incomeSourceId}
+            onChange={(e) => setIncomeSourceId(e.target.value)}
+            options={[
+              { value: NO_CATEGORY, label: "Sin fuente" },
+              ...incomeSourceOptions.map((s) => ({ value: s.id, label: s.name })),
+            ]}
+          />
+        </div>
+      )}
+
       {type === "savings" && (
         <div className="flex flex-wrap items-end gap-2">
           <Select
@@ -239,6 +280,16 @@ function withSnapshotOption(
       : tx?.type === "savings"
         ? tx.sourceCategory
         : undefined;
+  if (!snapshot || options.some((o) => o.id === snapshot.id)) return options;
+  return [...options, snapshot];
+}
+
+/** `withSnapshotOption`'s counterpart for an income's `source`. */
+function withIncomeSnapshotOption(
+  options: TransactionCategoryRef[],
+  tx: FinanceV2Transaction | undefined
+): TransactionCategoryRef[] {
+  const snapshot = tx?.type === "income" ? tx.source : undefined;
   if (!snapshot || options.some((o) => o.id === snapshot.id)) return options;
   return [...options, snapshot];
 }

@@ -150,6 +150,12 @@ export function FinanceV2Screen({
   // Flows LIVE from the hoisted budget hook: a subcategory added in tab 2 is pickable in
   // tab 3 without a reload (same rationale as design decision #1).
   const categoryOptions = useMemo(() => listExpenseCategoryOptions({ categories }), [categories]);
+  // Same LIVE flow for income: a source added on Presupuesto is pickable right away. Only
+  // the snapshot fields (`id`, `name`) reach a transaction, never the budgeted amount.
+  const incomeSourceOptions = useMemo(
+    () => incomeSources.map(({ id, name }) => ({ id, name })),
+    [incomeSources]
+  );
 
   // Actuals counterpart to the budget (design D7): month-agnostic and pure, so it is
   // memoized on categories and transactions plus the viewed month.
@@ -300,6 +306,7 @@ export function FinanceV2Screen({
             totals={totals}
             dayGroups={dayGroups}
             categoryOptions={categoryOptions}
+            incomeSourceOptions={incomeSourceOptions}
             onAdd={addTransaction}
             onDelete={deleteTransaction}
             onUpdate={updateTransaction}

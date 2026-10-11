@@ -776,3 +776,30 @@ describe("FinanceV2Screen — income budget", () => {
     expect(screen.queryByLabelText("Monto de Sueldo")).toBeNull();
   });
 });
+
+describe("FinanceV2Screen — income source on Movimientos", () => {
+  it("an income tagged with a budget source on Movimientos counts toward it on Presupuesto", () => {
+    const props = {
+      ...defaultProps(),
+      initialBudgetVersions: seed({
+        categories: [],
+        incomeSources: [{ id: "i1", name: "Sueldo", amount: 1_500_000 }],
+      }),
+    };
+    render(<FinanceV2Screen {...props} />);
+
+    fireEvent.click(screen.getByText("Movimientos"));
+    fireEvent.click(screen.getByText("Nuevo movimiento"));
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "500000" } });
+    fireEvent.change(screen.getByLabelText("Fuente"), { target: { value: "i1" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(props.onSaveTransactions).toHaveBeenCalledWith("2026-07", [
+      expect.objectContaining({ type: "income", source: { id: "i1", name: "Sueldo" } }),
+    ]);
+
+    fireEvent.click(screen.getByText("Presupuesto"));
+    expect(screen.getAllByText("de $1.500.000 · faltan $1.000.000")).toHaveLength(2); // row + total
+  });
+});

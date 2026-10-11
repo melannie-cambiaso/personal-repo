@@ -28,14 +28,19 @@ Branch: `feat/finance-v2-income-budget` · Merge: fast-forward to `main` after t
   user). Evidence: RED 25 failing (missing module/functions, category edits dropping
   `incomeSources`) → GREEN domain 235/235, finance-v2 598/598, tsc clean. Every existing budget
   mutation now spreads `config`, otherwise a category edit would have deleted the income sources.
-- [ ] T2 — S1, S2 Presupuesto: budget hook mutations + income block in `BudgetTab` (view: budgeted vs
-  real per source; edit: manage sources). Route: inline, test-first. Commit: — (GREEN, waiting for the
-  user's review). Evidence: RED (hook functions missing, `IncomeBudget` missing, screen income tests)
+- [x] T2 — S1, S2 Presupuesto: budget hook mutations + income block in `BudgetTab` (view: budgeted vs
+  real per source; edit: manage sources). Route: inline, test-first. Commit: `7c91618` (reviewed by the
+  user). Evidence: RED (hook functions missing, `IncomeBudget` missing, screen income tests)
   → GREEN finance-v2 618/618, tsc clean, eslint only the known warning (moved with `InlineNameField`,
   extracted unchanged from `BudgetCategoryCard.tsx` for reuse). `BudgetTab` takes the block as an
   optional `income` slot, so its existing tests stay untouched.
 - [ ] T3 — S3 Movimientos: optional source picker for income in `TransactionForm` (create and edit).
-  Route: inline, test-first. Commit: —
+  Route: inline, test-first. Commit: — (GREEN, waiting for the user's review). Evidence: RED (no "Fuente"
+  picker; screen income-on-Movimientos test) → GREEN finance-v2 625/625, tsc clean, eslint only the known
+  warning. `incomeSourceOptions` is optional on form/modal/tab, so existing call sites and tests keep
+  working; the existing "submits an income" test (no `source` key) still passes unchanged.
+  Added on request (L5): `TransactionRow` shows an income's snapshotted source as "de <name>", like a
+  tagged savings. RED (1 failing) → GREEN finance-v2 627/627, tsc clean, eslint only the known warning.
 - [ ] T4 — S4 Análisis: income budgeted/real/difference in the summary. Route: inline, test-first. Commit: —
 - [ ] T5 — Verify: tsc, full test suite, lint, build; independent verify if the risk line calls for it.
   Route: inline + `gentle-ai-verify`. Commit: evidence only.
@@ -50,3 +55,4 @@ Branch: `feat/finance-v2-income-budget` · Merge: fast-forward to `main` after t
   "Solo mensual (recomendado)".
 - L4 (user): "quiero que revisemos los cambios de cada todo antes de commitear, para entender con calma
   lo que estás haciendo" — stop after each task for the user's review; commit only after it.
+- L5 (user, on T3's note that income rows do not show their source): "suma ese cambio".

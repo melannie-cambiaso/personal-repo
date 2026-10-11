@@ -480,3 +480,123 @@ describe("TransactionForm — edit mode", () => {
     );
   });
 });
+
+describe("TransactionForm — income source", () => {
+  const incomeSourceOptions = [
+    { id: "i1", name: "Sueldo" },
+    { id: "i2", name: "Freelance" },
+  ];
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 6, 15));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const renderForm = (props: Partial<React.ComponentProps<typeof TransactionForm>> = {}) => {
+    const onAdd = vi.fn();
+    render(
+      <TransactionForm
+        viewedMonth="2026-07"
+        categoryOptions={categoryOptions}
+        incomeSourceOptions={incomeSourceOptions}
+        hasEnvelope={false}
+        onAdd={onAdd}
+        {...props}
+      />
+    );
+    return onAdd;
+  };
+  const sourceSelect = () => screen.getByLabelText("Fuente") as HTMLSelectElement;
+
+  it("offers the source picker only for income, defaulting to 'Sin fuente'", () => {
+    renderForm();
+    expect(screen.queryByLabelText("Fuente")).toBeNull(); // expense by default
+
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
+    expect(sourceSelect().value).toBe("");
+    expect([...sourceSelect().options].map((o) => o.text)).toEqual([
+      "Sin fuente",
+      "Sueldo",
+      "Freelance",
+    ]);
+
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "savings" } });
+    expect(screen.queryByLabelText("Fuente")).toBeNull();
+  });
+
+  it("submits an income with the picked source as a snapshot and resets the picker", () => {
+    const onAdd = renderForm();
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "900" } });
+    fireEvent.change(sourceSelect(), { target: { value: "i2" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd).toHaveBeenCalledWith({
+      type: "income",
+      amount: 900,
+      date: "2026-07-15",
+      month: "2026-07",
+      note: undefined,
+      source: { id: "i2", name: "Freelance" },
+    });
+    expect(sourceSelect().value).toBe("");
+  });
+
+  it("submits an income with no source key when the picker is left on 'Sin fuente'", () => {
+    const onAdd = renderForm();
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "900" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd.mock.calls[0][0]).not.toHaveProperty("source");
+  });
+
+  it("does not leak a source pick into an expense after switching type", () => {
+    const onAdd = renderForm();
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
+    fireEvent.change(sourceSelect(), { target: { value: "i1" } });
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "expense" } });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "50" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd.mock.calls[0][0]).not.toHaveProperty("source");
+    expect(onAdd.mock.calls[0][0].type).toBe("expense");
+  });
+
+  const editedIncome: FinanceV2Transaction = {
+    id: "t9",
+    type: "income",
+    amount: 1000,
+    date: "2026-07-01",
+    month: "2026-07",
+    source: { id: "i1", name: "Sueldo" },
+  };
+
+  it("edit mode seeds the source and can change or clear it", () => {
+    const onAdd = renderForm({ initialTransaction: editedIncome });
+    expect(sourceSelect().value).toBe("i1");
+
+    fireEvent.change(sourceSelect(), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(onAdd.mock.calls[0][0]).not.toHaveProperty("source");
+  });
+
+  it("edit mode keeps a source deleted from the budget selectable and preserves it on save", () => {
+    const onAdd = renderForm({
+      initialTransaction: { ...editedIncome, source: { id: "gone", name: "Bono" } },
+    });
+    expect(sourceSelect().value).toBe("gone");
+    expect([...sourceSelect().options].map((o) => o.text)).toContain("Bono");
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "income", source: { id: "gone", name: "Bono" } })
+    );
+  });
+});

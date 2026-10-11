@@ -44,6 +44,9 @@ export function TransactionRow({ transaction, envelopeName, onDelete, onEdit }: 
             de {transaction.sourceCategory.name}
           </span>
         )}
+        {transaction.type === "income" && transaction.source && (
+          <span className="text-ink-500 truncate text-sm">de {transaction.source.name}</span>
+        )}
         {transaction.note && (
           <span className="text-ink-500 truncate text-sm">{transaction.note}</span>
         )}

@@ -246,3 +246,33 @@ describe("TransactionRow", () => {
     expect(screen.queryByText(/^desde /)).toBeNull();
   });
 });
+
+describe("TransactionRow — income source", () => {
+  const income: FinanceV2Transaction = {
+    id: "t1",
+    type: "income",
+    amount: 1_000_000,
+    date: "2026-07-01",
+    month: "2026-07",
+  };
+  const renderRow = (tx: FinanceV2Transaction) =>
+    render(
+      <TransactionRow transaction={tx} envelopeName={null} onDelete={vi.fn()} onEdit={vi.fn()} />
+    );
+
+  // Snapshot name, like the savings source: a source deleted from the budget still shows.
+  it("shows the snapshotted source as a secondary line under the type label", () => {
+    renderRow({ ...income, source: { id: "gone", name: "Sueldo" }, note: "Octubre" });
+
+    expect(screen.getByText("Ingreso")).toBeTruthy();
+    expect(screen.getByText("de Sueldo")).toBeTruthy();
+    expect(screen.getByText("Octubre")).toBeTruthy();
+  });
+
+  it("renders nothing extra for an income without a source", () => {
+    renderRow(income);
+
+    expect(screen.getByText("Ingreso")).toBeTruthy();
+    expect(screen.queryByText(/^de /)).toBeNull();
+  });
+});

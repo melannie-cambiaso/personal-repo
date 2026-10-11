@@ -1,6 +1,10 @@
 "use client";
 
-import type { ExpenseCategoryOption, FinanceV2Transaction } from "@/features/finance-v2/domain";
+import type {
+  ExpenseCategoryOption,
+  FinanceV2Transaction,
+  TransactionCategoryRef,
+} from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
 import { ModalShell } from "@/shared/components";
 import { TransactionForm } from "./TransactionForm";
@@ -9,6 +13,7 @@ interface Props {
   isOpen: boolean;
   viewedMonth: string;
   categoryOptions: ExpenseCategoryOption[];
+  incomeSourceOptions?: TransactionCategoryRef[];
   hasEnvelope: boolean;
   /** Present = edit mode: the form is seeded from it and submit calls `onUpdate`. */
   editingTransaction?: FinanceV2Transaction | null;
@@ -21,6 +26,7 @@ export function AddTransactionModal({
   isOpen,
   viewedMonth,
   categoryOptions,
+  incomeSourceOptions,
   hasEnvelope,
   editingTransaction,
   onClose,
@@ -45,6 +51,7 @@ export function AddTransactionModal({
         key={`${viewedMonth}:${editingTransaction?.id ?? "new"}`}
         viewedMonth={viewedMonth}
         categoryOptions={categoryOptions}
+        incomeSourceOptions={incomeSourceOptions}
         hasEnvelope={hasEnvelope}
         initialTransaction={editingTransaction ?? undefined}
         onAdd={handleSubmit}
