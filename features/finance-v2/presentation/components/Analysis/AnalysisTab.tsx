@@ -199,7 +199,7 @@ export function AnalysisTab({ analysis }: Props) {
     return <p className="text-ink-500 text-sm">Cargando el análisis del mes…</p>;
   }
 
-  const { summary, deviations, nextMonth } = analysis;
+  const { summary, income, deviations, nextMonth } = analysis;
 
   return (
     <div className="flex flex-col gap-4">
@@ -221,6 +221,34 @@ export function AnalysisTab({ analysis }: Props) {
             tone={summary.difference < 0 ? "text-red-600" : "text-green-700"}
           />
         </div>
+      </Section>
+
+      {/* Its own section, not more rows in the summary above: "Presupuestado" and
+          "Diferencia" there are the expense side, and mixing both would blur them. */}
+      <Section title="Ingresos del mes" icon="💰" tone="sage">
+        {income.budgeted === 0 && income.real === 0 ? (
+          <p className="text-ink-500 text-sm">No hay ingresos presupuestados ni registrados</p>
+        ) : (
+          <>
+            <SummaryRow label="Ingreso presupuestado" value={formatCLP(income.budgeted)} />
+            <SummaryRow label="Ingreso real" value={formatCLP(income.real)} />
+            {/* Same "incluye" disclosure as the spend summary: already inside the real total. */}
+            {income.unassigned > 0 && (
+              <span className="font-figure text-2xs text-ink-400 -mt-2 self-end">
+                incluye sin fuente: {formatCLP(income.unassigned)}
+              </span>
+            )}
+            <div className="border-surface-300 border-t-2 border-dashed pt-3">
+              {/* A shortfall is not shown in red, as in the Budget tab: income that has
+                  not arrived yet is not an overrun. */}
+              <SummaryRow
+                label="Diferencia de ingresos"
+                value={formatSigned(income.difference)}
+                tone={income.difference < 0 ? "text-ink-800" : "text-green-700"}
+              />
+            </div>
+          </>
+        )}
       </Section>
 
       {/* Next month comes before the deviations: it is the actionable block

@@ -480,3 +480,53 @@ describe("computeMonthAnalysis", () => {
     });
   });
 });
+
+// Composed from `computeIncomeComparison`, so the Análisis and Presupuesto tabs can
+// never disagree about income.
+describe("computeMonthAnalysis — income", () => {
+  const income = (id: string, amount: number, source?: { id: string; name: string }) =>
+    ({
+      id,
+      type: "income",
+      amount,
+      date: `${FIVE_WEEK_MONTH}-05`,
+      month: FIVE_WEEK_MONTH,
+      ...(source ? { source } : {}),
+    }) as FinanceV2Transaction;
+
+  it("reports budgeted vs real income, with untagged income disclosed", () => {
+    const config: BudgetConfig = {
+      categories: [],
+      incomeSources: [
+        { id: "i1", name: "Sueldo", amount: 1_500_000 },
+        { id: "i2", name: "Freelance", amount: 300_000 },
+      ],
+    };
+    const analysis = computeMonthAnalysis(
+      config,
+      [
+        income("a", 1_500_000, { id: "i1", name: "Sueldo" }),
+        income("b", 100_000, { id: "i2", name: "Freelance" }),
+        income("c", 50_000),
+        expense("e", 999, null),
+      ],
+      FIVE_WEEK_MONTH
+    );
+
+    expect(analysis.income).toEqual({
+      budgeted: 1_800_000,
+      real: 1_650_000,
+      difference: -150_000,
+      unassigned: 50_000,
+    });
+  });
+
+  it("is all zero for a budget without sources and a month without income", () => {
+    expect(computeMonthAnalysis(EMPTY_CONFIG, [], FIVE_WEEK_MONTH).income).toEqual({
+      budgeted: 0,
+      real: 0,
+      difference: 0,
+      unassigned: 0,
+    });
+  });
+});

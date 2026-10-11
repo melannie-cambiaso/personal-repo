@@ -3,6 +3,7 @@ import type { BudgetConfig, BudgetFrequency } from "./BudgetConfig";
 import type { FinanceV2Transaction } from "./FinanceV2Transaction";
 import { resolveLeafMonthlyAmount, resolveLeafWeeks } from "./budgetAmount";
 import { computeBudgetComparison } from "./budgetRollup";
+import { computeIncomeComparison } from "./incomeComparison";
 import { computeSpendComparison, isOverrun } from "./spendRollup";
 import { nextMonth, type Weekday } from "@/shared/utils/monthUtils";
 
@@ -75,8 +76,20 @@ export interface NextMonthProjection {
   overruns: NextMonthOverrun[];
 }
 
+/** The month's income totals, taken from `computeIncomeComparison` so they match
+ *  the Budget tab's income block. `difference` is `real - budgeted` (positive =
+ *  earned more than planned); `unassigned` is income with no budget source and is
+ *  ALREADY INCLUDED in `real`. */
+export interface MonthIncomeSummary {
+  budgeted: number;
+  real: number;
+  difference: number;
+  unassigned: number;
+}
+
 export interface MonthAnalysis {
   summary: MonthAnalysisSummary;
+  income: MonthIncomeSummary;
   /** Budget LEAVES (childless categories + subcategories), biggest overrun
    *  first down to biggest saving. A parent category never gets its own row:
    *  it holds no budget of its own (see `BudgetCategory.amount`). Leaves with
@@ -108,6 +121,7 @@ export function computeMonthAnalysis(
   month: string
 ): MonthAnalysis {
   const comparison = computeSpendComparison(config, transactions, month);
+  const income = computeIncomeComparison(config, transactions);
   const leaves = listBudgetLeaves(config);
 
   const deviations = leaves
@@ -123,6 +137,7 @@ export function computeMonthAnalysis(
       difference: comparison.total.budgeted - comparison.total.spent,
       unassigned: comparison.total.unassigned,
     },
+    income: { ...income.total, unassigned: income.unassigned },
     deviations,
     nextMonth: projectNextMonth(config, leaves, deviations, month),
   };

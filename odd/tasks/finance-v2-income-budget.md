@@ -34,14 +34,18 @@ Branch: `feat/finance-v2-income-budget` · Merge: fast-forward to `main` after t
   → GREEN finance-v2 618/618, tsc clean, eslint only the known warning (moved with `InlineNameField`,
   extracted unchanged from `BudgetCategoryCard.tsx` for reuse). `BudgetTab` takes the block as an
   optional `income` slot, so its existing tests stay untouched.
-- [ ] T3 — S3 Movimientos: optional source picker for income in `TransactionForm` (create and edit).
-  Route: inline, test-first. Commit: — (GREEN, waiting for the user's review). Evidence: RED (no "Fuente"
+- [x] T3 — S3 Movimientos: optional source picker for income in `TransactionForm` (create and edit).
+  Route: inline, test-first. Commit: `2abce91` (reviewed by the user). Evidence: RED (no "Fuente"
   picker; screen income-on-Movimientos test) → GREEN finance-v2 625/625, tsc clean, eslint only the known
   warning. `incomeSourceOptions` is optional on form/modal/tab, so existing call sites and tests keep
   working; the existing "submits an income" test (no `source` key) still passes unchanged.
   Added on request (L5): `TransactionRow` shows an income's snapshotted source as "de <name>", like a
   tagged savings. RED (1 failing) → GREEN finance-v2 627/627, tsc clean, eslint only the known warning.
 - [ ] T4 — S4 Análisis: income budgeted/real/difference in the summary. Route: inline, test-first. Commit: —
+  (GREEN, waiting for the user's review). Evidence: RED 6 failing (no `income` in `computeMonthAnalysis`,
+  no section, screen) → GREEN finance-v2 633/633, tsc clean, eslint only the known warning. Income is its
+  own "Ingresos del mes" section after "Resumen del mes", composed from `computeIncomeComparison`. The
+  existing section-order test got the new heading added; its rule (next month before deviations) is kept.
 - [ ] T5 — Verify: tsc, full test suite, lint, build; independent verify if the risk line calls for it.
   Route: inline + `gentle-ai-verify`. Commit: evidence only.
 

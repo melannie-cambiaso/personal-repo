@@ -803,3 +803,32 @@ describe("FinanceV2Screen — income source on Movimientos", () => {
     expect(screen.getAllByText("de $1.500.000 · faltan $1.000.000")).toHaveLength(2); // row + total
   });
 });
+
+describe("FinanceV2Screen — income on Análisis", () => {
+  it("analyzes the viewed month's income against the live budget sources", () => {
+    render(
+      <FinanceV2Screen
+        {...defaultProps()}
+        initialBudgetVersions={seed({
+          categories: [],
+          incomeSources: [{ id: "i1", name: "Sueldo", amount: 1_500_000 }],
+        })}
+        initialTransactions={[
+          {
+            id: "t1",
+            amount: 1_200_000,
+            date: "2026-07-05",
+            month: "2026-07",
+            type: "income",
+            source: { id: "i1", name: "Sueldo" },
+          },
+        ]}
+      />
+    );
+
+    fireEvent.click(screen.getByText("Análisis"));
+
+    expect(screen.getByText("Ingreso presupuestado").nextSibling?.textContent).toBe("$1.500.000");
+    expect(screen.getByText("Ingreso real").nextSibling?.textContent).toBe("$1.200.000");
+  });
+});

@@ -63,6 +63,7 @@ const analysis: MonthAnalysis = {
       },
     ],
   },
+  income: { budgeted: 1_800_000, real: 1_650_000, difference: -150_000, unassigned: 50_000 },
 };
 
 afterEach(cleanup);
@@ -194,6 +195,7 @@ describe("AnalysisTab", () => {
     const headings = screen.getAllByRole("heading").map((h) => h.textContent);
     expect(headings).toEqual([
       "Resumen del mes",
+      "Ingresos del mes",
       `Próximo mes · ${formatMonth("2026-10")}`,
       "Desvíos por categoría",
     ]);
@@ -292,5 +294,39 @@ describe("AnalysisTab", () => {
     expect(screen.getByText("Cargando el análisis del mes…")).toBeTruthy();
     expect(screen.queryByText("Presupuestado")).toBeNull();
     expect(screen.queryByTestId("deviation-name")).toBeNull();
+  });
+});
+
+describe("AnalysisTab — income", () => {
+  const withIncome = (income: MonthAnalysis["income"]): MonthAnalysis => ({ ...analysis, income });
+
+  it("shows budgeted vs real income and their signed difference", () => {
+    render(<AnalysisTab analysis={analysis} />);
+
+    expect(screen.getByRole("heading", { name: "Ingresos del mes" })).toBeTruthy();
+    expect(screen.getByText("Ingreso presupuestado").nextSibling?.textContent).toBe("$1.800.000");
+    expect(screen.getByText("Ingreso real").nextSibling?.textContent).toBe("$1.650.000");
+    expect(screen.getByText("Diferencia de ingresos").nextSibling?.textContent).toBe("-$150.000");
+  });
+
+  it("discloses income without a source as part of the real total, only when there is some", () => {
+    render(<AnalysisTab analysis={analysis} />);
+    expect(screen.getByText("incluye sin fuente: $50.000")).toBeTruthy();
+    cleanup();
+
+    render(
+      <AnalysisTab
+        analysis={withIncome({ budgeted: 10, real: 10, difference: 0, unassigned: 0 })}
+      />
+    );
+    expect(screen.queryByText(/incluye sin fuente/)).toBeNull();
+  });
+
+  it("says so when the month has no budgeted or real income", () => {
+    render(
+      <AnalysisTab analysis={withIncome({ budgeted: 0, real: 0, difference: 0, unassigned: 0 })} />
+    );
+    expect(screen.getByText("No hay ingresos presupuestados ni registrados")).toBeTruthy();
+    expect(screen.queryByText("Ingreso real")).toBeNull();
   });
 });

@@ -202,8 +202,8 @@ export function FinanceV2Screen({
   // `toSpendView` above, `isLoadingMonth` stays OUT of the dependency list and is
   // applied where the prop is passed.
   const monthAnalysis = useMemo(
-    () => computeMonthAnalysis({ categories }, transactions, viewedMonth),
-    [categories, transactions, viewedMonth]
+    () => computeMonthAnalysis({ categories, incomeSources }, transactions, viewedMonth),
+    [categories, incomeSources, transactions, viewedMonth]
   );
 
   // Derived on every render (cheap, no memo): the flows read the possibly-optimistic

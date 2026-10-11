@@ -29,6 +29,7 @@ export { computeSpentByCategory, computeSpendComparison, isOverrun } from "./spe
 export type {
   MonthAnalysis,
   MonthAnalysisSummary,
+  MonthIncomeSummary,
   LeafDeviation,
   LeafPerWeek,
   NextMonthProjection,
