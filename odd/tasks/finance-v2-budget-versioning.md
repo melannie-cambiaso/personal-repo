@@ -72,6 +72,6 @@ Single branch with chained work-unit commits, fast-forward to `main` when the us
     `isValidBudgetVersion`/`isValidBudgetConfig` in `domain/budgetVersions.ts` check every field the UI
     reads. Load drops broken entries; save writes them back untouched after the valid versions; a stored
     value that is not a list blocks the save; a broken legacy config seeds the default. RED (budgetVersions
-    + kvAdapter shape tests failing) → GREEN 79/79.
+    + kvAdapter shape tests failing) → GREEN 79/79. Full suite 904/904, tsc, lint, build OK; independent verify PASS. Commit `d8caf3b`.
   - R3-stale-closed-boundary: a session open across a month rollover keeps the ended month editable until reload.
 - Next: user decides on follow-ups and on fast-forwarding to `main`.
