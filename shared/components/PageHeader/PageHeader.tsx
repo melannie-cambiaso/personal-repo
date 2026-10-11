@@ -31,7 +31,7 @@ export function PageHeader({ eyebrow, title, children }: Props) {
       </div>
 
       {eyebrow && (
-        <p className="bg-lilac-500/50 text-lilac-800 mb-3 inline-block rounded-full px-3 py-0.5 text-sm">
+        <p className="bg-brand-400/50 text-brand-600 mb-3 inline-block rounded-full px-3 py-0.5 text-sm">
           {eyebrow}
         </p>
       )}

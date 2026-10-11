@@ -31,7 +31,7 @@ function primaryLabel(transaction: FinanceV2Transaction, envelopeName: string | 
 
 export function TransactionRow({ transaction, envelopeName, onDelete, onEdit }: Props) {
   return (
-    <div className="border-sage-300 flex items-center justify-between gap-2 border-t border-dashed pt-3 first:border-t-0 first:pt-0">
+    <div className="border-surface-300 flex items-center justify-between gap-2 border-t border-dashed pt-3 first:border-t-0 first:pt-0">
       <div className="flex min-w-0 flex-col">
         <span className="text-ink-900 truncate">{primaryLabel(transaction, envelopeName)}</span>
         {transaction.type === "expense" && transaction.paidFrom === "envelope" && (
@@ -56,7 +56,7 @@ export function TransactionRow({ transaction, envelopeName, onDelete, onEdit }: 
           type="button"
           onClick={() => onEdit(transaction)}
           aria-label={`Editar movimiento de ${formatCLP(transaction.amount)}`}
-          className="text-ink-400 hover:text-lilac-600 cursor-pointer text-sm transition-colors"
+          className="text-ink-400 hover:text-brand-600 cursor-pointer text-sm transition-colors"
         >
           Editar
         </button>

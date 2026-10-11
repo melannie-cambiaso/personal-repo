@@ -17,8 +17,8 @@ interface Props {
 // Still no comparison against tab 1's savings target.
 export function MovementSummary({ totals, hasEnvelope }: Props) {
   return (
-    <div className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
-      <div className="border-sage-300 bg-surface-50/70 flex flex-col gap-1 rounded-2xl border-2 px-4 py-3">
+    <div className="border-surface-300 bg-surface-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
+      <div className="border-surface-300 bg-surface-50/70 flex flex-col gap-1 rounded-2xl border-2 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
           <span className="text-ink-600">Balance</span>
           <span className="font-figure text-ink-800 text-base font-bold">

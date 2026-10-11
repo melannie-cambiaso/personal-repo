@@ -137,7 +137,7 @@ export function TransactionForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-4"
+      className="border-surface-300 bg-surface-100 flex flex-col gap-3 rounded-3xl border-2 p-4"
     >
       <div className="flex flex-wrap items-end gap-2">
         <Select

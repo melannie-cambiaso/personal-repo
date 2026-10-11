@@ -33,7 +33,7 @@ export function SavingsGoalCard({
     <div
       data-testid="savings-goal-card"
       aria-disabled={isDone}
-      className={`border-lilac-300 bg-lilac-100 flex flex-col gap-3 rounded-2xl border-2 px-4 py-3 transition-all ${isOwner ? "hover:border-lilac-500 hover:shadow-card-hover cursor-pointer" : ""} ${isDone ? "opacity-50" : ""}`}
+      className={`border-surface-300 bg-surface-100 flex flex-col gap-3 rounded-2xl border-2 px-4 py-3 transition-all ${isOwner ? "hover:border-brand-400 hover:shadow-card-hover cursor-pointer" : ""} ${isDone ? "opacity-50" : ""}`}
       onClick={() => isOwner && onEdit(goal)}
     >
       <div className="flex items-start justify-between gap-3">

@@ -8,7 +8,7 @@ import { formatCLP } from "@/shared/utils/formatCurrency";
 
 // Small round buttons in the zone's mist tone, shared with the item rows' look.
 const roundButton =
-  "border-mist-300 bg-surface-50 text-mist-800 hover:bg-mist-100 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
+  "border-surface-300 bg-surface-50 text-info-800 hover:bg-surface-100 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
 
 interface Props {
   zone: Zone;
@@ -38,12 +38,12 @@ export function ZoneCard({
   onDeleteItem,
 }: Props) {
   return (
-    <section className="flex flex-col gap-4 rounded-3xl border-2 border-mist-300 bg-mist-100 p-3 sm:p-5">
+    <section className="flex flex-col gap-4 rounded-3xl border-2 border-surface-300 bg-surface-100 p-3 sm:p-5">
       {/* Zone header */}
       <div className="flex items-center gap-3">
         <span
           aria-hidden
-          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-mist-500 text-xl"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-info-500 text-xl"
         >
           {zone.emoji || "🏠"}
         </span>
@@ -51,7 +51,7 @@ export function ZoneCard({
           <h2 className="text-ink-900 text-2xl break-words">
             {zone.name}
           </h2>
-          <div className="mt-2 flex flex-wrap gap-x-3 text-sm text-mist-800">
+          <div className="mt-2 flex flex-wrap gap-x-3 text-sm text-info-800">
             <span>
               {pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}
             </span>
@@ -87,11 +87,11 @@ export function ZoneCard({
 
       {/* Items */}
       {items.length === 0 ? (
-        <p className="bg-surface-50/70 text-ink-400 rounded-2xl border-2 border-mist-300 px-4 py-4 text-center">
+        <p className="bg-surface-50/70 text-ink-400 rounded-2xl border-2 border-surface-300 px-4 py-4 text-center">
           Todavía no hay mejoras en esta zona.
         </p>
       ) : (
-        <ul className="bg-surface-50/70 divide-y-2 divide-dashed divide-mist-300 overflow-hidden rounded-2xl border-2 border-mist-300">
+        <ul className="bg-surface-50/70 divide-y-2 divide-dashed divide-surface-300 overflow-hidden rounded-2xl border-2 border-surface-300">
           {items.map((item) => (
             <ImprovementItemCard
               key={item.id}

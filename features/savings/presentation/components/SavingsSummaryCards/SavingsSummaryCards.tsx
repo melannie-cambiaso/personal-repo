@@ -43,9 +43,9 @@ export function SavingsSummaryCards({
     balance > 0 ? "text-green-700" : balance < 0 ? "text-red-600" : "text-ink-600";
 
   return (
-    <div className="border-butter-300 bg-butter-100 flex flex-col gap-3 rounded-3xl border-2 p-4">
+    <div className="border-surface-300 bg-surface-100 flex flex-col gap-3 rounded-3xl border-2 p-4">
       {typeof initialAmount === "number" && initialAmount > 0 && (
-        <div className="border-butter-300 bg-surface-50/70 flex items-center justify-between gap-2 rounded-2xl border-2 px-4 py-2">
+        <div className="border-surface-300 bg-surface-50/70 flex items-center justify-between gap-2 rounded-2xl border-2 px-4 py-2">
           <p className="text-ink-600">Monto inicial</p>
           <p className="font-figure text-ink-900 text-lg font-bold">{formatCLP(initialAmount)}</p>
         </div>
@@ -54,26 +54,26 @@ export function SavingsSummaryCards({
         <Stat
           label="Ingresos"
           value={formatCLP(totalDepositos)}
-          border="border-sage-300"
+          border="border-surface-300"
           tone="text-green-700"
         />
         <Stat
           label="Gastos"
           value={formatCLP(totalGastos)}
-          border="border-blush-300"
+          border="border-surface-300"
           tone="text-red-700"
         />
         <Stat
           label="Balance"
           value={formatCLP(balance)}
-          border="border-butter-300"
+          border="border-surface-300"
           tone={balanceColor}
         />
         <Stat
           label="A reponer"
           value={formatCLP(totalToReplenish)}
-          border="border-blush-300"
-          tone="text-blush-800"
+          border="border-surface-300"
+          tone="text-danger-800"
         />
       </div>
     </div>

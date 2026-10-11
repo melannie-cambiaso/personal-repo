@@ -21,31 +21,18 @@
   --color-ink-300: #a3aab3;
   --color-ink-200: #c4c9cf;
 
-  /* Pastels: 100 = panel fill, 300 = panel border, 500 = pill/icon circle, 800 = text on tone */
-  --color-lilac-100: #ece6f6;
-  --color-lilac-300: #cbbfe3;
-  --color-lilac-500: #b5a3da;
-  --color-lilac-800: #574780;
+  /* Status tones: 500 = pill/icon circle, 800 = text on tone. Tone panels use surface-100/300. */
+  --color-success-500: #98c585;
+  --color-success-800: #3d6831;
 
-  --color-blush-100: #fbe3de;
-  --color-blush-300: #ecb5aa;
-  --color-blush-500: #f1a596;
-  --color-blush-800: #8a4336;
+  --color-danger-500: #f1a596;
+  --color-danger-800: #8a4336;
 
-  --color-mist-100: #e0eef7;
-  --color-mist-300: #a9cde3;
-  --color-mist-500: #8bbfdf;
-  --color-mist-800: #2e5c7a;
+  --color-warning-500: #f3d65a;
+  --color-warning-800: #735c10;
 
-  --color-sage-100: #e4f0dd;
-  --color-sage-300: #b3d1a6;
-  --color-sage-500: #98c585;
-  --color-sage-800: #3d6831;
-
-  --color-butter-100: #fcf1bf;
-  --color-butter-300: #e6cf6e;
-  --color-butter-500: #f3d65a;
-  --color-butter-800: #735c10;
+  --color-info-500: #8bbfdf;
+  --color-info-800: #2e5c7a;
 
   /* Brand accent (Gentleman-Cute pink): 100 = selected fill, 300 = border, 400 = fill behind
      text, 500 = main accent, 600 = hover/active */
@@ -124,32 +111,18 @@
   --color-ink-300: #525252;
   --color-ink-200: #3a3a3a;
 
-  /* Tones: 100/300 (panel fill/border) are plain neutral; only 500/800 keep a hue so
-     meaning (positive, negative, pending, info) survives. Lilac leans to the pink accent. */
-  --color-lilac-100: #342d34;
-  --color-lilac-300: #4a414a;
-  --color-lilac-500: #c96aa2;
-  --color-lilac-800: #ffb1dd;
+  /* Status tones keep a hue so meaning (positive, negative, pending, info) survives */
+  --color-success-500: #5f9e7b;
+  --color-success-800: #b4e7c7;
 
-  --color-blush-100: #342d34;
-  --color-blush-300: #4a414a;
-  --color-blush-500: #b86a66;
-  --color-blush-800: #ff718f;
+  --color-danger-500: #b86a66;
+  --color-danger-800: #ff718f;
 
-  --color-mist-100: #342d34;
-  --color-mist-300: #4a414a;
-  --color-mist-500: #5f84b0;
-  --color-mist-800: #a9c7ee;
+  --color-warning-500: #a8904f;
+  --color-warning-800: #f2b86d;
 
-  --color-sage-100: #342d34;
-  --color-sage-300: #4a414a;
-  --color-sage-500: #5f9e7b;
-  --color-sage-800: #b4e7c7;
-
-  --color-butter-100: #342d34;
-  --color-butter-300: #4a414a;
-  --color-butter-500: #a8904f;
-  --color-butter-800: #f2b86d;
+  --color-info-500: #5f84b0;
+  --color-info-800: #a9c7ee;
 
   /* Selected pink fill, lifted so it sits above the mauve background instead of sinking below it */
   --color-brand-100: #4a2f42;

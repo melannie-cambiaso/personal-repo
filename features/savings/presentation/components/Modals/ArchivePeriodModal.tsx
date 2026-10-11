@@ -39,7 +39,7 @@ export function ArchivePeriodModal({ isOpen, entries, onClose, onConfirm }: Prop
           acción no se puede deshacer.
         </p>
         {pendingEntries.length > 0 && (
-          <p className="border-blush-300 bg-blush-100 text-blush-800 rounded-2xl border-2 px-3 py-2 text-sm">
+          <p className="border-surface-300 bg-surface-100 text-danger-800 rounded-2xl border-2 px-3 py-2 text-sm">
             Hay {pendingEntries.length} gasto{pendingEntries.length === 1 ? "" : "s"} pendiente
             {pendingEntries.length === 1 ? "" : "s"} de reponer por{" "}
             <span className="font-figure">{formatCLP(pendingTotal)}</span>. Se archivarán junto con

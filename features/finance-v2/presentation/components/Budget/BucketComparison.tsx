@@ -33,7 +33,7 @@ function findBucketSpend(buckets: BucketSpendRow[], key: BucketKey): BucketSpend
 // feeds the "quedan"/"excedido en" suffix `SpendPairing` computes from it.
 export function BucketComparison({ comparison, spend }: Props) {
   return (
-    <div className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
+    <div className="border-surface-300 bg-surface-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
       {comparison.rows.map((row) => {
         const bucketSpend =
           spend.status === "ready" ? findBucketSpend(spend.comparison.buckets, row.key) : null;
@@ -59,7 +59,7 @@ export function BucketComparison({ comparison, spend }: Props) {
           </div>
         );
       })}
-      <div className="border-sage-300 flex items-center justify-between gap-2 border-t-2 border-dashed pt-3">
+      <div className="border-surface-300 flex items-center justify-between gap-2 border-t-2 border-dashed pt-3">
         <span className="text-ink-900">{TOTAL_LABEL}</span>
         <div className="flex flex-col items-end gap-0.5 text-right">
           {spend.status === "ready" ? (

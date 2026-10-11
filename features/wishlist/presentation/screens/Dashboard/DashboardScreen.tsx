@@ -67,7 +67,7 @@ export function DashboardScreen({
           </div>
         )}
 
-        <div className="border-blush-300 bg-blush-100 flex flex-col gap-5 rounded-3xl border-2 p-3 empty:hidden sm:p-5">
+        <div className="border-surface-300 bg-surface-100 flex flex-col gap-5 rounded-3xl border-2 p-3 empty:hidden sm:p-5">
           {GROUPS.filter(({ key }) => groups[key].length > 0).map(({ key, label, pill }) => {
             const group = groups[key];
             // Only pending items have a manual order to change; owned ones never move.
@@ -75,7 +75,7 @@ export function DashboardScreen({
             return (
               <section key={key} className="flex flex-col gap-2">
                 <h2 className={`${pill} self-start rounded-full px-3 py-0.5 text-sm`}>{label}</h2>
-                <ul className="border-blush-300 divide-blush-300 bg-surface-50/70 divide-y-2 divide-dashed overflow-hidden rounded-2xl border-2">
+                <ul className="border-surface-300 divide-surface-300 bg-surface-50/70 divide-y-2 divide-dashed overflow-hidden rounded-2xl border-2">
                   {group.map((item, index) => (
                     <WishlistItemRow
                       key={item.id}

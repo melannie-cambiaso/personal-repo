@@ -44,7 +44,7 @@ export function ArchivedPeriodList({ periods, entries }: Props) {
         return (
           <div
             key={period.id}
-            className="flex flex-col gap-3 rounded-3xl border-2 border-mist-300 bg-mist-100 p-4"
+            className="flex flex-col gap-3 rounded-3xl border-2 border-surface-300 bg-surface-100 p-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-ink-900 min-w-0 text-xl break-words">
@@ -52,12 +52,12 @@ export function ArchivedPeriodList({ periods, entries }: Props) {
               </h3>
               <div className="flex flex-wrap items-center gap-2">
                 {period.initialAmount > 0 && (
-                  <span className="font-figure rounded-full bg-mist-300 px-2 py-0.5 text-xs text-mist-800">
+                  <span className="font-figure rounded-full bg-surface-300 px-2 py-0.5 text-xs text-info-800">
                     Monto inicial: {formatCLP(period.initialAmount)}
                   </span>
                 )}
                 {toReplenish > 0 && (
-                  <span className="font-figure bg-blush-300 text-blush-800 rounded-full px-2 py-0.5 text-xs">
+                  <span className="font-figure bg-surface-300 text-danger-800 rounded-full px-2 py-0.5 text-xs">
                     Pendiente de reponer: {formatCLP(toReplenish)}
                   </span>
                 )}

@@ -40,7 +40,7 @@ export function WishlistItemRow({
 
   return (
     <li
-      className={`flex items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 ${onEdit ? "hover:bg-blush-100/50 cursor-pointer" : ""}`}
+      className={`flex items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 ${onEdit ? "hover:bg-surface-100/50 cursor-pointer" : ""}`}
       onClick={onEdit ? () => onEdit(item) : undefined}
     >
       <input

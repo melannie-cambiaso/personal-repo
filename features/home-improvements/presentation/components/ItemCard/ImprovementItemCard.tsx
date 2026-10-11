@@ -8,15 +8,15 @@ import { formatCLP } from "@/shared/utils/formatCurrency";
 
 // Type pills are outlined so they never read as the filled status pill next to them.
 const typeBadge: Record<ImprovementType, string> = {
-  Decoración: "border-lilac-300 text-lilac-800",
-  Organización: "border-sage-300 text-sage-800",
-  Reparación: "border-blush-300 text-blush-800",
-  Instalación: "border-mist-300 text-mist-800",
+  Decoración: "border-surface-300 text-brand-600",
+  Organización: "border-surface-300 text-success-800",
+  Reparación: "border-surface-300 text-danger-800",
+  Instalación: "border-surface-300 text-info-800",
   Otro: "border-surface-400 text-ink-600",
 };
 
 const roundButton =
-  "border-mist-300 bg-surface-50 text-mist-800 hover:bg-mist-100 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
+  "border-surface-300 bg-surface-50 text-info-800 hover:bg-surface-100 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 text-sm transition-colors";
 
 interface Props {
   item: ImprovementItem;
@@ -34,7 +34,7 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
       <button
         type="button"
         onClick={onToggle}
-        className={`mt-0.5 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 transition-colors ${item.done ? "border-sage-500 bg-sage-500 text-sage-800" : "bg-surface-50 border-mist-300 hover:border-mist-500"}`}
+        className={`mt-0.5 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 transition-colors ${item.done ? "border-success-500 bg-success-500 text-success-800" : "bg-surface-50 border-surface-300 hover:border-info-500"}`}
         aria-label={item.done ? "Marcar como pendiente" : "Marcar como hecho"}
       >
         {item.done && <span className="text-sm">✓</span>}
@@ -43,7 +43,7 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-1.5">
           <span
-            className={`${item.done ? "bg-sage-500 text-sage-800" : "bg-butter-500 text-butter-800"} rounded-full px-2.5 py-0.5 text-sm`}
+            className={`${item.done ? "bg-success-500 text-success-800" : "bg-warning-500 text-warning-800"} rounded-full px-2.5 py-0.5 text-sm`}
           >
             {item.done ? "Hecho" : "Pendiente"}
           </span>
@@ -73,7 +73,7 @@ export function ImprovementItemCard({ item, isOwner, onToggle, onEdit, onDelete 
             href={item.purchaseUrl}
             target="_blank"
             rel="noreferrer"
-            className="hover:text-ink-900 mt-1.5 inline-block text-sm text-mist-800 underline decoration-mist-500 underline-offset-2"
+            className="hover:text-ink-900 mt-1.5 inline-block text-sm text-info-800 underline decoration-info-500 underline-offset-2"
             onClick={(e) => e.stopPropagation()}
           >
             Ver dónde comprarlo →

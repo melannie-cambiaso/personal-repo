@@ -134,7 +134,7 @@ export function BudgetTab({
       {mode === "edit" && (
         <form
           onSubmit={handleAddCategory}
-          className="border-sage-300 bg-sage-100 flex flex-col gap-2 rounded-3xl border-2 p-4 sm:flex-row sm:items-end"
+          className="border-surface-300 bg-surface-100 flex flex-col gap-2 rounded-3xl border-2 p-4 sm:flex-row sm:items-end"
         >
           <Input
             aria-label="Nombre de la categoría"

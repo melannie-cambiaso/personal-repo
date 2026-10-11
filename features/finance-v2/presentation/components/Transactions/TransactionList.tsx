@@ -19,8 +19,8 @@ export function TransactionList({ dayGroups, onDelete, onEdit, envelopeName }: P
   return (
     <div className="flex flex-col gap-4">
       {dayGroups.map((group) => (
-        <div key={group.date} className="border-sage-300 bg-surface-50 rounded-3xl border-2 p-4">
-          <p className="bg-sage-300 text-sage-800 font-figure mb-3 w-fit rounded-full px-3 py-0.5 text-xs">
+        <div key={group.date} className="border-surface-300 bg-surface-50 rounded-3xl border-2 p-4">
+          <p className="bg-surface-300 text-success-800 font-figure mb-3 w-fit rounded-full px-3 py-0.5 text-xs">
             {group.date}
           </p>
           <div className="flex flex-col gap-3">

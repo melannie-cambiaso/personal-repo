@@ -277,7 +277,7 @@ export function BudgetCategoryCard({
   };
 
   return (
-    <div className="border-sage-300 bg-surface-50 flex flex-col gap-3 rounded-3xl border-2 p-4">
+    <div className="border-surface-300 bg-surface-50 flex flex-col gap-3 rounded-3xl border-2 p-4">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         {mode === "edit" ? (
           <InlineNameField
@@ -347,7 +347,7 @@ export function BudgetCategoryCard({
       )}
 
       {view.kind === "parent" && (
-        <div className="border-sage-300 flex flex-col gap-2 border-t border-dashed pt-3">
+        <div className="border-surface-300 flex flex-col gap-2 border-t border-dashed pt-3">
           {(mode === "edit" || subcategoriesExpanded) &&
             [...view.subcategories]
               .sort((a, b) => a.name.localeCompare(b.name))
@@ -394,7 +394,7 @@ export function BudgetCategoryCard({
                             type="button"
                             onClick={() => onDeleteSubcategory(category.id, sub.id)}
                             aria-label={`Eliminar ${sub.name}`}
-                            className="border-sage-300 text-ink-500 hover:border-ink-600 hover:text-ink-800 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
+                            className="border-surface-300 text-ink-500 hover:border-ink-600 hover:text-ink-800 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
                           >
                             ×
                           </button>
@@ -423,7 +423,7 @@ export function BudgetCategoryCard({
       {mode === "edit" && (
         <form
           onSubmit={handleAddSubcategory}
-          className="border-sage-300 flex flex-col gap-2 border-t border-dashed pt-3 sm:flex-row sm:items-end"
+          className="border-surface-300 flex flex-col gap-2 border-t border-dashed pt-3 sm:flex-row sm:items-end"
         >
           <Input
             aria-label="Nombre de la subcategoría"

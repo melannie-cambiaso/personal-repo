@@ -16,14 +16,14 @@ export function SavingsEntryCard({ entry, isOwner, onEdit, onMarkReplenished, on
   // Full class strings (not interpolated tone names) so Tailwind can see every one.
   const tone = isDeposito
     ? {
-        card: "border-sage-300 bg-sage-100",
-        hover: "hover:border-sage-500",
-        pill: "bg-sage-300 text-sage-800",
+        card: "border-surface-300 bg-surface-100",
+        hover: "hover:border-success-500",
+        pill: "bg-surface-300 text-success-800",
       }
     : {
-        card: "border-blush-300 bg-blush-100",
-        hover: "hover:border-blush-500",
-        pill: "bg-blush-300 text-blush-800",
+        card: "border-surface-300 bg-surface-100",
+        hover: "hover:border-danger-500",
+        pill: "bg-surface-300 text-danger-800",
       };
 
   return (
@@ -44,7 +44,7 @@ export function SavingsEntryCard({ entry, isOwner, onEdit, onMarkReplenished, on
                 e.stopPropagation();
                 onMarkReplenished(entry.id);
               }}
-              className="border-blush-500 bg-surface-50 text-blush-800 hover:bg-blush-300 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
+              className="border-danger-500 bg-surface-50 text-danger-800 hover:bg-surface-300 cursor-pointer rounded-full border-2 px-2 py-0.5 text-xs transition-colors"
             >
               A reponer ✓
             </button>

@@ -36,7 +36,7 @@ export function SavingsSummaryCard({ balance, toReplenish }: Props) {
         </div>
         <div className="flex items-center justify-between gap-2">
           <span className="text-ink-600">A reponer</span>
-          <span className="font-figure text-blush-800 text-sm font-semibold">
+          <span className="font-figure text-danger-800 text-sm font-semibold">
             {formatCLP(toReplenish)}
           </span>
         </div>

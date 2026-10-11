@@ -96,7 +96,7 @@ export function SavingsScreen({
     <main className="flex flex-1 flex-col">
       <PageHeader eyebrow="Tu bolsillo" title="Ahorros">
         <div className="flex justify-center">
-          <div className="border-butter-300 bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
+          <div className="border-surface-300 bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
             <span className="font-figure text-ink-900 text-lg font-semibold">
               {entries.length}
             </span>

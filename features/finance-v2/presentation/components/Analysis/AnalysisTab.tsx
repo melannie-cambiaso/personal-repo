@@ -32,19 +32,19 @@ function leafLabel(leaf: { name: string; parentName?: string }): string {
 // Full class strings (not interpolated tone names) so Tailwind can see every one.
 const SECTION_TONES = {
   sage: {
-    panel: "border-sage-300 bg-sage-100",
-    circle: "bg-sage-500",
-    inner: "border-sage-300",
+    panel: "border-surface-300 bg-surface-100",
+    circle: "bg-success-500",
+    inner: "border-surface-300",
   },
   lilac: {
-    panel: "border-lilac-300 bg-lilac-100",
-    circle: "bg-lilac-500",
-    inner: "border-lilac-300",
+    panel: "border-surface-300 bg-surface-100",
+    circle: "bg-brand-400",
+    inner: "border-surface-300",
   },
   blush: {
-    panel: "border-blush-300 bg-blush-100",
-    circle: "bg-blush-500",
-    inner: "border-blush-300",
+    panel: "border-surface-300 bg-surface-100",
+    circle: "bg-danger-500",
+    inner: "border-surface-300",
   },
 };
 
@@ -156,7 +156,7 @@ function DeviationList({ deviations }: { deviations: LeafDeviation[] }) {
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className="bg-blush-300 text-blush-800 hover:bg-blush-500 cursor-pointer self-start rounded-full px-3 py-0.5 text-sm transition-colors"
+          className="bg-surface-300 text-danger-800 hover:bg-danger-500 cursor-pointer self-start rounded-full px-3 py-0.5 text-sm transition-colors"
         >
           {expanded ? "Ver menos" : `Ver más (${hidden})`}
         </button>
@@ -214,7 +214,7 @@ export function AnalysisTab({ analysis }: Props) {
             incluye sin categoría: {formatCLP(summary.unassigned)}
           </span>
         )}
-        <div className="border-sage-300 border-t-2 border-dashed pt-3">
+        <div className="border-surface-300 border-t-2 border-dashed pt-3">
           <SummaryRow
             label="Diferencia"
             value={formatSigned(summary.difference)}
@@ -227,7 +227,7 @@ export function AnalysisTab({ analysis }: Props) {
           (what to cut), and the deviation list is the longer one. */}
       <Section title={`Próximo mes · ${formatMonth(nextMonth.month)}`} icon="🔮" tone="lilac">
         <SummaryRow label="Presupuesto proyectado" value={formatCLP(nextMonth.budgeted)} />
-        <div className="border-lilac-300 flex flex-col gap-3 border-t-2 border-dashed pt-3">
+        <div className="border-surface-300 flex flex-col gap-3 border-t-2 border-dashed pt-3">
           {nextMonth.overruns.length === 0 ? (
             <p className="text-ink-500 text-sm">Ninguna categoría se pasó del presupuesto</p>
           ) : (

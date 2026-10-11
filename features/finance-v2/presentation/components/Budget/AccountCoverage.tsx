@@ -18,7 +18,7 @@ export function AccountCoverage({ coverage }: Props) {
   const diff = figures ? figures.balance - figures.pending : null;
 
   return (
-    <div className="border-sage-300 bg-sage-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
+    <div className="border-surface-300 bg-surface-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
       <div className="flex items-center justify-between gap-2">
         <span className="text-ink-600">Pendiente por categoría</span>
         {figures ? (
@@ -49,7 +49,7 @@ export function AccountCoverage({ coverage }: Props) {
           <LoadingSpend />
         )}
       </div>
-      <div className="border-sage-300 flex flex-col items-end gap-0.5 border-t-2 border-dashed pt-3 text-right">
+      <div className="border-surface-300 flex flex-col items-end gap-0.5 border-t-2 border-dashed pt-3 text-right">
         {diff === null ? (
           <LoadingSpend />
         ) : diff >= 0 ? (

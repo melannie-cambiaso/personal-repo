@@ -33,12 +33,12 @@ export function EnvelopeCard({ view, onEdit }: Props) {
   const isNegative = endOfMonth < 0;
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl border-2 border-mist-300 bg-mist-100 p-5">
+    <div className="flex flex-col gap-4 rounded-3xl border-2 border-surface-300 bg-surface-100 p-5">
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-3">
           <span
             aria-hidden
-            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-mist-500 text-xl"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-info-500 text-xl"
           >
             ✉️
           </span>
@@ -49,12 +49,12 @@ export function EnvelopeCard({ view, onEdit }: Props) {
         <button
           type="button"
           onClick={onEdit}
-          className="shrink-0 cursor-pointer rounded-full bg-mist-300 px-3 py-0.5 text-sm text-mist-800 transition-colors hover:bg-mist-500"
+          className="shrink-0 cursor-pointer rounded-full bg-surface-300 px-3 py-0.5 text-sm text-info-800 transition-colors hover:bg-info-500"
         >
           Editar cuenta
         </button>
       </div>
-      <div className="bg-surface-50/70 flex flex-col gap-1 rounded-2xl border-2 border-mist-300 px-4 py-3">
+      <div className="bg-surface-50/70 flex flex-col gap-1 rounded-2xl border-2 border-surface-300 px-4 py-3">
         <Figure label="Saldo inicial del mes" value={formatCLP(carriedIn)} />
         <Figure label="Transferido" value={formatCLP(flows.transferred)} />
         <Figure label="Pagado" value={formatCLP(flows.paid)} />

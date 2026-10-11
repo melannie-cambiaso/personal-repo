@@ -38,7 +38,7 @@ export function EditItemModal({ item, zones, onClose, onSave }: Props) {
   return (
     <ModalShell isOpen={isOpen} onCancel={onClose} maxWidth="lg" title="Editar mejora">
       {zone && (
-        <p className="mb-4 inline-block rounded-full border-2 border-mist-300 bg-mist-100 px-3 py-0.5 text-sm text-mist-800">
+        <p className="mb-4 inline-block rounded-full border-2 border-surface-300 bg-surface-100 px-3 py-0.5 text-sm text-info-800">
           Zona: {zone.emoji ? `${zone.emoji} ` : ""}
           {zone.name}
         </p>
