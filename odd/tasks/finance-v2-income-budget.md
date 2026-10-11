@@ -22,14 +22,18 @@ Branch: `feat/finance-v2-income-budget` · Merge: fast-forward to `main` after t
   the budget makes its incomes count as "Sin fuente" (snapshot name kept on the transaction).
 
 ## Tasks
-- [ ] T1 — S1, S3, S5 domain: `IncomeSource` + optional `incomeSources` on `BudgetConfig`, shape
+- [x] T1 — S1, S3, S5 domain: `IncomeSource` + optional `incomeSources` on `BudgetConfig`, shape
   validator, add/rename/set-amount/delete mutations, optional `source` snapshot on income
-  transactions, `computeIncomeComparison`. Route: inline, test-first. Commit: — (GREEN, waiting for the
-  user's review). Evidence: RED 25 failing (missing module/functions, category edits dropping
+  transactions, `computeIncomeComparison`. Route: inline, test-first. Commit: `bb54275` (reviewed by the
+  user). Evidence: RED 25 failing (missing module/functions, category edits dropping
   `incomeSources`) → GREEN domain 235/235, finance-v2 598/598, tsc clean. Every existing budget
   mutation now spreads `config`, otherwise a category edit would have deleted the income sources.
 - [ ] T2 — S1, S2 Presupuesto: budget hook mutations + income block in `BudgetTab` (view: budgeted vs
-  real per source; edit: manage sources). Route: inline, test-first. Commit: —
+  real per source; edit: manage sources). Route: inline, test-first. Commit: — (GREEN, waiting for the
+  user's review). Evidence: RED (hook functions missing, `IncomeBudget` missing, screen income tests)
+  → GREEN finance-v2 618/618, tsc clean, eslint only the known warning (moved with `InlineNameField`,
+  extracted unchanged from `BudgetCategoryCard.tsx` for reuse). `BudgetTab` takes the block as an
+  optional `income` slot, so its existing tests stay untouched.
 - [ ] T3 — S3 Movimientos: optional source picker for income in `TransactionForm` (create and edit).
   Route: inline, test-first. Commit: —
 - [ ] T4 — S4 Análisis: income budgeted/real/difference in the summary. Route: inline, test-first. Commit: —

@@ -8,6 +8,7 @@ import type {
   FinanceV2Transaction,
 } from "@/features/finance-v2/domain";
 import {
+  computeIncomeComparison,
   computeMonthAnalysis,
   computePendingByCategory,
   computePendingFromMain,
@@ -19,6 +20,7 @@ import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
 import { useFinanceV2Envelope } from "../../hooks/useFinanceV2Envelope";
 import { useFinanceV2Transactions } from "../../hooks/useFinanceV2Transactions";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
+import { IncomeBudget } from "../../components/Budget/IncomeBudget";
 import { AnalysisTab } from "../../components/Analysis/AnalysisTab";
 import { TransactionsTab } from "../../components/Transactions/TransactionsTab";
 import type { BudgetMode } from "../../components/Budget/budgetMode";
@@ -80,6 +82,11 @@ export function FinanceV2Screen({
 
   const {
     categories,
+    incomeSources,
+    addIncomeSource,
+    renameIncomeSource,
+    handleIncomeAmountBlur,
+    deleteIncomeSource,
     addCategory,
     addSubcategory,
     deleteCategory,
@@ -167,6 +174,14 @@ export function FinanceV2Screen({
     () => computePendingByCategory({ categories }, transactions, viewedMonth, envelopeConfig),
     [categories, transactions, viewedMonth, envelopeConfig]
   );
+  // Same viewed month and transaction list as `spendComparison`, so income and spend on
+  // the Presupuesto tab always describe one month. `isLoadingMonth` is applied where the
+  // prop is passed, as with `toSpendView`.
+  const incomeComparison = useMemo(
+    () => computeIncomeComparison({ categories, incomeSources }, transactions),
+    [categories, incomeSources, transactions]
+  );
+
   const coverage = toAccountCoverageView({
     isLoadingMonth,
     pendingByCategory,
@@ -252,6 +267,17 @@ export function FinanceV2Screen({
             month={viewedMonth}
             spend={spend}
             coverage={coverage}
+            income={
+              <IncomeBudget
+                mode={isClosedMonth ? "view" : budgetMode}
+                sources={incomeSources}
+                income={isLoadingMonth ? null : incomeComparison}
+                onAdd={addIncomeSource}
+                onRename={renameIncomeSource}
+                onAmountBlur={handleIncomeAmountBlur}
+                onDelete={deleteIncomeSource}
+              />
+            }
             onAmountBlur={handleAmountBlur}
             onAddCategory={addCategory}
             onAddSubcategory={addSubcategory}

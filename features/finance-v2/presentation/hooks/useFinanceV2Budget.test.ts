@@ -384,3 +384,86 @@ describe("useFinanceV2Budget", () => {
     expect(result.current.comparison.rows.find((r) => r.key === "variable")?.budgeted).toBe(80_000);
   });
 });
+
+describe("useFinanceV2Budget — income sources", () => {
+  beforeEach(() => {
+    onSave.mockReset();
+  });
+
+  const MONTH = "2026-10";
+  const withSalary: BudgetConfig = {
+    categories: [],
+    incomeSources: [{ id: "i1", name: "Sueldo", amount: 1_000 }],
+  };
+  const render = (config: BudgetConfig) =>
+    renderHook(() => useFinanceV2Budget({ initialVersions: seed(config), month: MONTH, onSave }));
+
+  it("exposes [] for a budget saved before income sources existed", () => {
+    const { result } = render({ categories: [] });
+    expect(result.current.incomeSources).toEqual([]);
+  });
+
+  it("addIncomeSource appends a trimmed source with amount 0 and saves the month's config", () => {
+    const { result } = render({ categories: [] });
+
+    act(() => result.current.addIncomeSource("  Sueldo  "));
+
+    expect(result.current.incomeSources).toEqual([
+      { id: expect.any(String), name: "Sueldo", amount: 0 },
+    ]);
+    expect(onSave).toHaveBeenCalledOnce();
+    expect(onSave).toHaveBeenCalledWith(MONTH, {
+      categories: [],
+      incomeSources: [{ id: expect.any(String), name: "Sueldo", amount: 0 }],
+    });
+  });
+
+  it("addIncomeSource with a blank name does nothing and does not save", () => {
+    const { result } = render({ categories: [] });
+    act(() => result.current.addIncomeSource("   "));
+    expect(result.current.incomeSources).toEqual([]);
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("renameIncomeSource trims the name and saves; a blank name does nothing", () => {
+    const { result } = render(withSalary);
+
+    act(() => result.current.renameIncomeSource("i1", "   "));
+    expect(onSave).not.toHaveBeenCalled();
+
+    act(() => result.current.renameIncomeSource("i1", " Sueldo base "));
+    expect(result.current.incomeSources).toEqual([{ id: "i1", name: "Sueldo base", amount: 1_000 }]);
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+
+  it("handleIncomeAmountBlur clamps the raw value via clampAmount and saves", () => {
+    const { result } = render(withSalary);
+
+    act(() => result.current.handleIncomeAmountBlur("i1", "-5"));
+    expect(result.current.incomeSources[0].amount).toBe(0);
+
+    act(() => result.current.handleIncomeAmountBlur("i1", "1500000"));
+    expect(result.current.incomeSources[0].amount).toBe(1_500_000);
+    expect(onSave).toHaveBeenCalledTimes(2);
+    expect(onSave).toHaveBeenLastCalledWith(MONTH, {
+      categories: [],
+      incomeSources: [{ id: "i1", name: "Sueldo", amount: 1_500_000 }],
+    });
+  });
+
+  it("deleteIncomeSource removes the source and saves", () => {
+    const { result } = render(withSalary);
+    act(() => result.current.deleteIncomeSource("i1"));
+    expect(result.current.incomeSources).toEqual([]);
+    expect(onSave).toHaveBeenCalledWith(MONTH, { categories: [], incomeSources: [] });
+  });
+
+  it("a category edit keeps the income sources in the saved config", () => {
+    const { result } = render(withSalary);
+    act(() => result.current.addCategory("Renta", "fixed"));
+    expect(onSave).toHaveBeenCalledWith(
+      MONTH,
+      expect.objectContaining({ incomeSources: withSalary.incomeSources })
+    );
+  });
+});

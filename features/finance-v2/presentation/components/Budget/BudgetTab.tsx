@@ -28,6 +28,9 @@ interface Props {
   spend: SpendView;
   /** Derived in `FinanceV2Screen` for the same viewed month and transactions as `spend`. */
   coverage: AccountCoverageView;
+  /** The income block (`IncomeBudget`), built by the screen with the same `mode`. A slot
+   *  rather than a dozen pass-through props; absent renders nothing. */
+  income?: React.ReactNode;
   onAmountBlur: (categoryId: string, subcategoryId: string | null, raw: string) => void;
   onAddCategory: (name: string, bucket: BucketKey) => void;
   onAddSubcategory: (categoryId: string, name: string, bucket: BucketKey) => void;
@@ -58,6 +61,7 @@ export function BudgetTab({
   month,
   spend,
   coverage,
+  income,
   onAmountBlur,
   onAddCategory,
   onAddSubcategory,
@@ -102,6 +106,9 @@ export function BudgetTab({
           </button>
         )}
       </div>
+
+      {/* Income first: it is what the rest of the month's plan is spent from. */}
+      {income}
 
       <AccountCoverage coverage={coverage} />
 

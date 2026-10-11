@@ -715,3 +715,64 @@ describe("FinanceV2Screen", () => {
     });
   });
 });
+
+describe("FinanceV2Screen — income budget", () => {
+  const incomeProps = () => ({
+    ...defaultProps(),
+    initialBudgetVersions: seed({
+      categories: [],
+      incomeSources: [{ id: "i1", name: "Sueldo", amount: 1_500_000 }],
+    }),
+    initialTransactions: [
+      {
+        id: "t1",
+        amount: 1_200_000,
+        date: "2026-07-05",
+        month: "2026-07",
+        type: "income" as const,
+        source: { id: "i1", name: "Sueldo" },
+      },
+      { id: "t2", amount: 30_000, date: "2026-07-06", month: "2026-07", type: "income" as const },
+    ],
+  });
+
+  it("shows the viewed month's real income per source against its budget on Presupuesto", () => {
+    render(<FinanceV2Screen {...incomeProps()} />);
+
+    expect(screen.getByRole("heading", { name: "Ingresos" })).toBeTruthy();
+    expect(screen.getByText("de $1.500.000 · faltan $300.000")).toBeTruthy();
+    expect(screen.getByText("$30.000")).toBeTruthy(); // "Sin fuente"
+    expect(screen.getByText("de $1.500.000 · faltan $270.000")).toBeTruthy(); // total
+  });
+
+  it("adding a source in edit mode saves it as the month's budget and survives a tab switch", () => {
+    const props = defaultProps();
+    render(<FinanceV2Screen {...props} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    fireEvent.change(screen.getByLabelText("Nombre de la fuente"), {
+      target: { value: "Freelance" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Agregar fuente" }));
+
+    expect(props.onSaveBudget).toHaveBeenCalledWith("2026-07", {
+      categories: [],
+      incomeSources: [{ id: expect.any(String), name: "Freelance", amount: 0 }],
+    });
+
+    fireEvent.click(screen.getByText("Movimientos"));
+    fireEvent.click(screen.getByText("Presupuesto"));
+    expect(screen.getByLabelText("Monto de Freelance")).toBeTruthy();
+  });
+
+  it("a past month shows its income read-only", () => {
+    render(<FinanceV2Screen {...incomeProps()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
+    expect(screen.getByLabelText("Nombre de la fuente")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /Anterior/ }));
+
+    expect(screen.queryByLabelText("Nombre de la fuente")).toBeNull();
+    expect(screen.queryByLabelText("Monto de Sueldo")).toBeNull();
+  });
+});

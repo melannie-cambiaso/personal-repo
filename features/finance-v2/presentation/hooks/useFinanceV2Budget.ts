@@ -6,23 +6,31 @@ import type {
   BudgetConfig,
   BudgetFrequency,
   BudgetVersion,
+  IncomeSource,
   Weekday,
 } from "@/features/finance-v2/domain";
 import {
   addCategory as domainAddCategory,
+  addIncomeSource as domainAddIncomeSource,
   addSubcategory as domainAddSubcategory,
   clampAmount,
   computeBudgetComparison,
   deleteCategory as domainDeleteCategory,
+  deleteIncomeSource as domainDeleteIncomeSource,
   deleteSubcategory as domainDeleteSubcategory,
   renameCategory as domainRenameCategory,
+  renameIncomeSource as domainRenameIncomeSource,
   renameSubcategory as domainRenameSubcategory,
   resolveBudgetForMonth,
+  setIncomeSourceAmount,
   setLeafAmount,
   setLeafFrequency,
   setLeafWeekday,
   upsertBudgetVersion,
 } from "@/features/finance-v2/domain";
+
+// One shared instance, so memos keyed on `incomeSources` stay stable for legacy budgets.
+const EMPTY_INCOME_SOURCES: IncomeSource[] = [];
 
 interface Params {
   initialVersions: BudgetVersion[];
@@ -120,8 +128,30 @@ export function useFinanceV2Budget({ initialVersions, month, onSave }: Params) {
     persist((current) => setLeafWeekday(current, { categoryId, subcategoryId, weekday }));
   };
 
+  const addIncomeSource = (name: string) => {
+    if (!name.trim()) return;
+    persist((current) =>
+      domainAddIncomeSource(current, { id: crypto.randomUUID(), name: name.trim() })
+    );
+  };
+
+  const renameIncomeSource = (id: string, name: string) => {
+    if (!name.trim()) return;
+    persist((current) => domainRenameIncomeSource(current, { id, name: name.trim() }));
+  };
+
+  const handleIncomeAmountBlur = (id: string, raw: string) => {
+    persist((current) => setIncomeSourceAmount(current, { id, amount: clampAmount(raw) }));
+  };
+
+  const deleteIncomeSource = (id: string) => {
+    persist((current) => domainDeleteIncomeSource(current, id));
+  };
+
   return {
     categories: config.categories,
+    // A budget saved before income budgeting has no field; consumers always get a list.
+    incomeSources: config.incomeSources ?? EMPTY_INCOME_SOURCES,
     comparison,
     addCategory,
     addSubcategory,
@@ -132,5 +162,9 @@ export function useFinanceV2Budget({ initialVersions, month, onSave }: Params) {
     handleAmountBlur,
     handleFrequencyChange,
     handleWeekdayChange,
+    addIncomeSource,
+    renameIncomeSource,
+    handleIncomeAmountBlur,
+    deleteIncomeSource,
   };
 }
