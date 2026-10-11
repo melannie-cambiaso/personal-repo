@@ -63,4 +63,4 @@ is the user's decision (no PRs in this repo).
   no duplicate classes. Light-mode values of the panels change, but light mode is unreachable
   (`app/layout.tsx:28` hard-codes `dark`). `lilac-600` → `brand-600` turns on the formerly dead hover in
   `TransactionRow.tsx` (the only intended visual change). tsc OK, 866/866 tests, eslint OK (the known
-  warning), build OK.
+  warning), build OK. Commit `c3379db`.
