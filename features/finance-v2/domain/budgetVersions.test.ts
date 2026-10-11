@@ -2,7 +2,12 @@ import { describe, it, expect } from "vitest";
 import type { BudgetConfig } from "./BudgetConfig";
 import { DEFAULT_BUDGET_CONFIG } from "./BudgetConfig";
 import type { BudgetVersion } from "./budgetVersions";
-import { resolveBudgetForMonth, upsertBudgetVersion } from "./budgetVersions";
+import {
+  isValidBudgetConfig,
+  isValidBudgetVersion,
+  resolveBudgetForMonth,
+  upsertBudgetVersion,
+} from "./budgetVersions";
 
 const configNamed = (name: string): BudgetConfig => ({
   categories: [{ id: name, name, bucket: "fixed", amount: 100, subcategories: [] }],
@@ -83,4 +88,96 @@ describe("upsertBudgetVersion", () => {
     upsertBudgetVersion(input, "2026-10", configNamed("oct"), NOW);
     expect(input).toHaveLength(1);
   });
+});
+
+// Stored values come back from redis untyped, so every field the UI and the rollups
+// read is checked at runtime.
+describe("isValidBudgetVersion", () => {
+  const fullVersion = () => ({
+    effectiveFrom: "2026-10",
+    updatedAt: "2026-10-01T00:00:00.000Z",
+    config: {
+      categories: [
+        { id: "c1", name: "Renta", bucket: "fixed", amount: 500_000, subcategories: [] },
+        {
+          id: "c2",
+          name: "Comida",
+          bucket: "variable",
+          amount: 0,
+          frequency: "monthly",
+          subcategories: [
+            {
+              id: "s1",
+              name: "Feria",
+              bucket: "variable",
+              amount: 20_000,
+              frequency: "weekly",
+              weekday: 6,
+            },
+            { id: "s2", name: "Super", bucket: "savings", amount: 1.5, frequency: "monthly" },
+          ],
+        },
+      ],
+    },
+  });
+
+  it("accepts a complete version, optional fields included", () => {
+    expect(isValidBudgetVersion(fullVersion())).toBe(true);
+  });
+
+  it("accepts the legacy 0000-00 version and an empty config", () => {
+    expect(
+      isValidBudgetVersion({ effectiveFrom: "0000-00", updatedAt: "x", config: { categories: [] } })
+    ).toBe(true);
+  });
+
+  type Version = ReturnType<typeof fullVersion>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type Breaker = (v: any) => void;
+  const cases: [string, Breaker][] = [
+    ["effectiveFrom is missing", (v) => delete v.effectiveFrom],
+    ["effectiveFrom is not YYYY-MM", (v) => (v.effectiveFrom = "2026-1")],
+    ["updatedAt is not a string", (v) => (v.updatedAt = 123)],
+    ["config is null", (v) => (v.config = null)],
+    ["categories is not a list", (v) => (v.config.categories = "x")],
+    ["a category is null", (v) => (v.config.categories[0] = null)],
+    ["a category id is not a string", (v) => (v.config.categories[0].id = 1)],
+    ["a category name is not a string", (v) => (v.config.categories[0].name = undefined)],
+    ["a category bucket is unknown", (v) => (v.config.categories[0].bucket = "other")],
+    ["a category amount is a string", (v) => (v.config.categories[0].amount = "500")],
+    ["a category amount is NaN", (v) => (v.config.categories[0].amount = NaN)],
+    ["a category amount is Infinity", (v) => (v.config.categories[0].amount = Infinity)],
+    ["a category frequency is unknown", (v) => (v.config.categories[0].frequency = "daily")],
+    ["a category weekday is 7", (v) => (v.config.categories[0].weekday = 7)],
+    ["subcategories is not a list", (v) => (v.config.categories[0].subcategories = null)],
+    ["a subcategory is null", (v) => (v.config.categories[1].subcategories[0] = null)],
+    ["a subcategory bucket is unknown", (v) => (v.config.categories[1].subcategories[0].bucket = 2)],
+    ["a subcategory amount is NaN", (v) => (v.config.categories[1].subcategories[0].amount = NaN)],
+    ["a subcategory weekday is not whole", (v) => (v.config.categories[1].subcategories[0].weekday = 1.5)],
+    ["a subcategory weekday is negative", (v) => (v.config.categories[1].subcategories[0].weekday = -1)],
+    ["a subcategory frequency is unknown", (v) => (v.config.categories[1].subcategories[1].frequency = "yearly")],
+  ];
+
+  it.each(cases)("rejects a version where %s", (_label, breakIt) => {
+    const v: Version = fullVersion();
+    breakIt(v);
+    expect(isValidBudgetVersion(v)).toBe(false);
+  });
+
+  it.each([null, undefined, "x", 42, []])("rejects a non-object value %j", (value) => {
+    expect(isValidBudgetVersion(value)).toBe(false);
+  });
+});
+
+describe("isValidBudgetConfig", () => {
+  it("accepts a config with categories", () => {
+    expect(isValidBudgetConfig(configNamed("rent"))).toBe(true);
+  });
+
+  it.each([null, {}, { categories: "x" }, { categories: [{ id: "c1" }] }])(
+    "rejects %j",
+    (value) => {
+      expect(isValidBudgetConfig(value)).toBe(false);
+    }
+  );
 });

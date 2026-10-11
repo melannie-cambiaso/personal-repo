@@ -1,6 +1,11 @@
 import "server-only";
 import { redis } from "@/shared/kv";
-import { DEFAULT_BUDGET_CONFIG, upsertBudgetVersion } from "@/features/finance-v2/domain";
+import {
+  DEFAULT_BUDGET_CONFIG,
+  isValidBudgetConfig,
+  isValidBudgetVersion,
+  upsertBudgetVersion,
+} from "@/features/finance-v2/domain";
 import type {
   BudgetConfig,
   BudgetVersion,
@@ -37,11 +42,25 @@ export const transactionsKey = (month: string): string => `finance-v2-transactio
 // Legacy backfill on read: a missing versions key becomes one `"0000-00"` version
 // holding the legacy config, so every existing month keeps the budget it showed before.
 // The seed is persisted only by the first `saveVersion` call.
-async function readBudgetVersions(): Promise<BudgetVersion[]> {
-  const stored = await redis.get<BudgetVersion[]>(BUDGET_VERSIONS_KEY);
-  if (stored) return stored;
-  const legacy = (await redis.get<BudgetConfig>(BUDGET_CONFIG_KEY)) ?? DEFAULT_BUDGET_CONFIG;
-  return [{ effectiveFrom: "0000-00", config: legacy, updatedAt: new Date().toISOString() }];
+// Shape check: entries with a broken shape are returned apart in `broken`, so loads hide
+// them and saves write them back untouched (repairable by hand, never silently deleted).
+// A stored value that is not a list throws: it cannot be upserted into, and replacing it
+// would wipe whatever it holds.
+async function readBudgetVersions(): Promise<{ valid: BudgetVersion[]; broken: unknown[] }> {
+  const stored = await redis.get<unknown>(BUDGET_VERSIONS_KEY);
+  if (stored !== null && stored !== undefined) {
+    if (!Array.isArray(stored)) throw new Error(`${BUDGET_VERSIONS_KEY} is not a list`);
+    return {
+      valid: stored.filter(isValidBudgetVersion),
+      broken: stored.filter((entry) => !isValidBudgetVersion(entry)),
+    };
+  }
+  const legacy = await redis.get<unknown>(BUDGET_CONFIG_KEY);
+  const config = isValidBudgetConfig(legacy) ? legacy : DEFAULT_BUDGET_CONFIG;
+  return {
+    valid: [{ effectiveFrom: "0000-00", config, updatedAt: new Date().toISOString() }],
+    broken: [],
+  };
 }
 
 // Legacy backfill: a record saved before the `month` field existed is treated as
@@ -65,7 +84,7 @@ function backfillMonth(list: FinanceV2Transaction[], month: string): FinanceV2Tr
 export const BudgetKvAdapter = {
   async loadVersions(): Promise<BudgetVersion[]> {
     try {
-      return await readBudgetVersions();
+      return (await readBudgetVersions()).valid;
     } catch {
       return []; // every month resolves to DEFAULT_BUDGET_CONFIG
     }
@@ -74,11 +93,11 @@ export const BudgetKvAdapter = {
   /** Read-upsert-write of `month`'s version only; every other version is kept. */
   async saveVersion(month: string, config: BudgetConfig): Promise<void> {
     try {
-      const versions = await readBudgetVersions();
-      await redis.set(
-        BUDGET_VERSIONS_KEY,
-        upsertBudgetVersion(versions, month, config, new Date().toISOString())
-      );
+      const { valid, broken } = await readBudgetVersions();
+      await redis.set(BUDGET_VERSIONS_KEY, [
+        ...upsertBudgetVersion(valid, month, config, new Date().toISOString()),
+        ...broken,
+      ]);
     } catch {
       // swallow — caller has no recovery path; versions revert to in-memory state on next load
     }

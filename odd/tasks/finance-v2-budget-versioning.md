@@ -68,6 +68,10 @@ Single branch with chained work-unit commits, fast-forward to `main` when the us
   - R3-server-readonly-unenforced: FIXED (T5, user-requested 2026-10-06) — `handleSaveBudgetVersion`
     rejects `month < currentMonth()`. RED (past-month test) → GREEN; finance-v2 517/517, tsc clean.
   - R3-lost-update-rmw: `saveBudgetVersion` read-modify-write is not atomic across tabs/devices.
-  - R3-unvalidated-stored-shape: stored versions value is not shape-checked.
+  - R3-unvalidated-stored-shape: FIXED (user-requested 2026-10-11, "Descartar lo roto y seguir") —
+    `isValidBudgetVersion`/`isValidBudgetConfig` in `domain/budgetVersions.ts` check every field the UI
+    reads. Load drops broken entries; save writes them back untouched after the valid versions; a stored
+    value that is not a list blocks the save; a broken legacy config seeds the default. RED (budgetVersions
+    + kvAdapter shape tests failing) → GREEN 79/79.
   - R3-stale-closed-boundary: a session open across a month rollover keeps the ended month editable until reload.
 - Next: user decides on follow-ups and on fast-forwarding to `main`.

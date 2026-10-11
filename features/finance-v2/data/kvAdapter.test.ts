@@ -70,6 +70,36 @@ describe("loadBudgetVersions", () => {
     const result = await loadBudgetVersions();
     expect(result).toEqual([]);
   });
+
+  it("drops stored versions with a broken shape and keeps the valid ones, without writing", async () => {
+    stageKeys({
+      "finance-v2-budget-versions": [
+        storedVersions[0],
+        { effectiveFrom: "2026-11", updatedAt: "2026-11-01T00:00:00.000Z" },
+        null,
+        storedVersions[1],
+        { effectiveFrom: "2026-12", config: { categories: "x" }, updatedAt: "x" },
+      ],
+    });
+    const result = await loadBudgetVersions();
+    expect(result).toEqual(storedVersions);
+    expect(redisMock.set).not.toHaveBeenCalled();
+  });
+
+  it("returns [] when the stored value is not a list, without writing", async () => {
+    stageKeys({ "finance-v2-budget-versions": { effectiveFrom: "2026-10" } });
+    const result = await loadBudgetVersions();
+    expect(result).toEqual([]);
+    expect(redisMock.set).not.toHaveBeenCalled();
+  });
+
+  it("seeds from the default config when the legacy config has a broken shape", async () => {
+    stageKeys({ "finance-v2-budget-config": { categories: [{ id: "c1" }] } });
+    const result = await loadBudgetVersions();
+    expect(result).toEqual([
+      { effectiveFrom: "0000-00", config: DEFAULT_BUDGET_CONFIG, updatedAt: expect.any(String) },
+    ]);
+  });
 });
 
 describe("saveBudgetVersion", () => {
@@ -106,6 +136,33 @@ describe("saveBudgetVersion", () => {
     redisMock.get.mockRejectedValue(new Error("connection lost"));
     await expect(saveBudgetVersion("2026-10", { categories: [] })).resolves.toBeUndefined();
     expect(redisMock.set).not.toHaveBeenCalled();
+  });
+
+  // Same guard as a failed read: a value that is not a list cannot be upserted into,
+  // and replacing it would wipe whatever it holds.
+  it("writes nothing when the stored value is not a list", async () => {
+    stageKeys({ "finance-v2-budget-versions": "corrupted" });
+    await expect(saveBudgetVersion("2026-11", { categories: [] })).resolves.toBeUndefined();
+    expect(redisMock.set).not.toHaveBeenCalled();
+  });
+
+  // Broken entries are hidden on load but never deleted, so they stay repairable by hand.
+  it("keeps broken stored entries untouched after the valid versions", async () => {
+    const broken = { effectiveFrom: "2026-09", config: null, updatedAt: "x" };
+    stageKeys({ "finance-v2-budget-versions": [storedVersions[0], broken, storedVersions[1]] });
+    const config: BudgetConfig = { categories: [] };
+
+    await saveBudgetVersion("2026-11", config);
+
+    expect(redisMock.set).toHaveBeenCalledOnce();
+    const [key, saved] = redisMock.set.mock.calls[0] as [string, unknown[]];
+    expect(key).toBe("finance-v2-budget-versions");
+    expect(saved).toEqual([
+      storedVersions[0],
+      storedVersions[1],
+      { effectiveFrom: "2026-11", config, updatedAt: expect.any(String) },
+      broken,
+    ]);
   });
 
   it("swallows redis errors on save", async () => {
