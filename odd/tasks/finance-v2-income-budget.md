@@ -41,13 +41,18 @@ Branch: `feat/finance-v2-income-budget` · Merge: fast-forward to `main` after t
   working; the existing "submits an income" test (no `source` key) still passes unchanged.
   Added on request (L5): `TransactionRow` shows an income's snapshotted source as "de <name>", like a
   tagged savings. RED (1 failing) → GREEN finance-v2 627/627, tsc clean, eslint only the known warning.
-- [ ] T4 — S4 Análisis: income budgeted/real/difference in the summary. Route: inline, test-first. Commit: —
-  (GREEN, waiting for the user's review). Evidence: RED 6 failing (no `income` in `computeMonthAnalysis`,
+- [x] T4 — S4 Análisis: income budgeted/real/difference in the summary. Route: inline, test-first. Commit:
+  `377dabb` (reviewed by the user). Evidence: RED 6 failing (no `income` in `computeMonthAnalysis`,
   no section, screen) → GREEN finance-v2 633/633, tsc clean, eslint only the known warning. Income is its
   own "Ingresos del mes" section after "Resumen del mes", composed from `computeIncomeComparison`. The
   existing section-order test got the new heading added; its rule (next month before deviations) is kept.
-- [ ] T5 — Verify: tsc, full test suite, lint, build; independent verify if the risk line calls for it.
-  Route: inline + `gentle-ai-verify`. Commit: evidence only.
+- [x] T5 — Verify: tsc, full test suite, lint, build; independent verify if the risk line calls for it.
+  Route: inline + `gentle-ai-verify`. Commit: evidence only. Evidence: tsc clean, `npm test` 88 files /
+  971 tests, lint 0 errors (the known warning), build OK. Risk: item 1 (stored budget and transaction
+  shapes gain optional fields; every budget mutation changed) → independent verify on `main..HEAD`: PASS
+  S1-S5 and the four risk checks (data safety, Presupuesto/Análisis consistency, closed months, test
+  observability), finance-v2 633/633. Non-blocking notes: an unchanged amount blur still saves a version
+  (same as category amounts); no end-to-end screen test edits an income (covered by form + hook tests).
 
 ## Log
 - L1 (2026-10-11, user): "quiero que en presupuesto tengamos lo presupuestado de ingreo, es decir que
@@ -60,3 +65,9 @@ Branch: `feat/finance-v2-income-budget` · Merge: fast-forward to `main` after t
 - L4 (user): "quiero que revisemos los cambios de cada todo antes de commitear, para entender con calma
   lo que estás haciendo" — stop after each task for the user's review; commit only after it.
 - L5 (user, on T3's note that income rows do not show their source): "suma ese cambio".
+- L6 (user, manual test after T5): "ya lo probé, al editar salen los montos solamente, no los nombres"
+  (screenshot: edit mode shows only full-width amount inputs). Cause: the shared `Input` is `w-full`;
+  placed bare in the source row it took 100% and squeezed `InlineNameField` to zero width (the extra
+  `w-36` lost to `w-full`). Fix: fixed-width wrapper as in `BudgetCategoryCard`. Layout is invisible to
+  jsdom, so no meaningful RED test exists; tests 315/315 presentation, tsc and eslint clean; visual
+  confirmed by the user ("ahora quedó perfecto").

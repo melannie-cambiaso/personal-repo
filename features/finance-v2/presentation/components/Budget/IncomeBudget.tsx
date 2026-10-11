@@ -111,25 +111,32 @@ export function IncomeBudget({
           <ul className="flex flex-col gap-2">
             {sources.map((source) => (
               <li key={source.id} className="flex items-center gap-2">
-                <InlineNameField
-                  savedName={source.name}
-                  onCommit={(next) => onRename(source.id, next)}
-                  className="text-ink-700 flex-1"
-                  inputClassName="flex-1"
-                />
-                <Input
-                  // Re-keyed on the amount so a value saved elsewhere (another month's
-                  // version, a reload) never leaves a stale uncontrolled figure behind.
-                  key={`${source.id}-${source.amount}`}
-                  type="number"
-                  min="0"
-                  aria-label={`Monto de ${source.name}`}
-                  defaultValue={source.amount || ""}
-                  placeholder="0"
-                  autoComplete="off"
-                  className="w-36"
-                  onBlur={(e) => onAmountBlur(source.id, e.target.value)}
-                />
+                <div className="flex min-w-0 flex-1">
+                  <InlineNameField
+                    savedName={source.name}
+                    onCommit={(next) => onRename(source.id, next)}
+                    className="text-ink-700"
+                    inputClassName="text-ink-700 w-full"
+                  />
+                </div>
+                {/* Fixed-width wrapper, as in `BudgetCategoryCard`: the shared `Input` is
+                    `w-full`, so placed bare in this row it took the whole width and
+                    squeezed the name to nothing. */}
+                <div className="w-32 shrink-0">
+                  <Input
+                    // Re-keyed on the amount so a value saved elsewhere (another month's
+                    // version, a reload) never leaves a stale uncontrolled figure behind.
+                    key={`${source.id}-${source.amount}`}
+                    type="number"
+                    min="0"
+                    aria-label={`Monto de ${source.name}`}
+                    defaultValue={source.amount || ""}
+                    placeholder="0"
+                    autoComplete="off"
+                    className="text-right"
+                    onBlur={(e) => onAmountBlur(source.id, e.target.value)}
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => onDelete(source.id)}
