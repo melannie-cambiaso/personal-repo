@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll } from "vitest";
+import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import { FinanceV2Screen } from "./FinanceV2Screen";
 import { DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
@@ -10,9 +10,45 @@ import type {
 } from "@/features/finance-v2/domain";
 import { formatMonth } from "@/shared/utils/formatMonth";
 
+// The section lives in `?section=` (switched from the app menu), so the mock is a tiny
+// external store: changing it re-renders the mounted screen, the same way a
+// `history.pushState` does, which lets tests prove state survives a section switch.
+const { searchParamsStore } = vi.hoisted(() => {
+  let params = new URLSearchParams();
+  const listeners = new Set<() => void>();
+  return {
+    searchParamsStore: {
+      get: () => params,
+      set: (next: URLSearchParams) => {
+        params = next;
+        listeners.forEach((l) => l());
+      },
+      subscribe: (l: () => void) => {
+        listeners.add(l);
+        return () => listeners.delete(l);
+      },
+    },
+  };
+});
+
+vi.mock("next/navigation", async () => {
+  const { useSyncExternalStore } = await import("react");
+  return {
+    useSearchParams: () => useSyncExternalStore(searchParamsStore.subscribe, searchParamsStore.get),
+  };
+});
+
+const SECTION_BY_LABEL = { Presupuesto: "budget", Movimientos: "movements", Análisis: "analysis" };
+const goTo = (label: keyof typeof SECTION_BY_LABEL) =>
+  act(() => searchParamsStore.set(new URLSearchParams({ section: SECTION_BY_LABEL[label] })));
+
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
   HTMLDialogElement.prototype.close = vi.fn();
+});
+
+beforeEach(() => {
+  searchParamsStore.set(new URLSearchParams());
 });
 
 const UPDATED_AT = "2026-01-01T00:00:00.000Z";
@@ -46,10 +82,30 @@ describe("FinanceV2Screen", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
     expect(screen.queryByText("Distribución")).toBeNull();
-    expect(screen.getByText("Presupuesto")).toBeTruthy();
     expect(screen.queryByText("Pendientes")).toBeNull();
-    expect(screen.getByText("Movimientos")).toBeTruthy();
-    expect(screen.getByText("Análisis")).toBeTruthy();
+  });
+
+  it("renders no in-page section switcher (sections live in the app menu)", () => {
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    expect(screen.queryByRole("button", { name: "Presupuesto" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Movimientos" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Análisis" })).toBeNull();
+  });
+
+  it("opens the section named by the param", () => {
+    searchParamsStore.set(new URLSearchParams({ section: "movements" }));
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    expect(screen.queryByText("Pendiente por categoría")).toBeNull();
+    expect(screen.getByText("Balance")).toBeTruthy();
+  });
+
+  it("falls back to Presupuesto for an unknown section param", () => {
+    searchParamsStore.set(new URLSearchParams({ section: "nope" }));
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    expect(screen.getByText("Pendiente por categoría")).toBeTruthy();
   });
 
   describe("Análisis tab", () => {
@@ -71,7 +127,7 @@ describe("FinanceV2Screen", () => {
     it("is reachable and replaces the Presupuesto view", () => {
       render(<FinanceV2Screen {...defaultProps()} />);
 
-      fireEvent.click(screen.getByText("Análisis"));
+      goTo("Análisis");
 
       expect(screen.getByText("Resumen del mes")).toBeTruthy();
       expect(screen.queryByText("Pendiente por categoría")).toBeNull();
@@ -82,7 +138,7 @@ describe("FinanceV2Screen", () => {
     it("summarizes the budget it was given", () => {
       render(<FinanceV2Screen {...budgetedProps()} />);
 
-      fireEvent.click(screen.getByText("Análisis"));
+      goTo("Análisis");
 
       expect(screen.getByText("Presupuestado").nextSibling?.textContent).toBe("$350.000");
     });
@@ -96,7 +152,7 @@ describe("FinanceV2Screen", () => {
       render(<FinanceV2Screen {...budgetedProps()} initialMonth="2026-07" />);
 
       fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
-      fireEvent.click(screen.getByText("Análisis"));
+      goTo("Análisis");
       expect(screen.getByText("Cargando el análisis del mes…")).toBeTruthy();
 
       const heading = await screen.findByText(/Próximo mes/);
@@ -107,7 +163,7 @@ describe("FinanceV2Screen", () => {
   it("switches to the Movimientos tab, hiding the Presupuesto view", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
 
     expect(screen.queryByText("Pendiente por categoría")).toBeNull();
     expect(screen.getByText("Balance")).toBeTruthy();
@@ -123,8 +179,8 @@ describe("FinanceV2Screen", () => {
     fireEvent.click(screen.getByText("Agregar categoría"));
     expect(screen.getByText("Arriendo")).toBeTruthy();
 
-    fireEvent.click(screen.getByText("Movimientos"));
-    fireEvent.click(screen.getByText("Presupuesto"));
+    goTo("Movimientos");
+    goTo("Presupuesto");
 
     expect(screen.getByText("Arriendo")).toBeTruthy();
   });
@@ -181,7 +237,7 @@ describe("FinanceV2Screen", () => {
       render(<FinanceV2Screen {...versionedProps()} />);
 
       goPrev();
-      fireEvent.click(screen.getByText("Movimientos"));
+      goTo("Movimientos");
       const options = Array.from(
         (screen.getByLabelText("Subcategoría") as HTMLSelectElement).options
       ).map((o) => o.text);
@@ -244,8 +300,8 @@ describe("FinanceV2Screen", () => {
     fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
 
-    fireEvent.click(screen.getByText("Movimientos"));
-    fireEvent.click(screen.getByText("Presupuesto"));
+    goTo("Movimientos");
+    goTo("Presupuesto");
 
     expect(screen.getByLabelText("Nombre de la categoría")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Listo" })).toBeTruthy();
@@ -266,7 +322,7 @@ describe("FinanceV2Screen", () => {
   it("the Movimientos tab is reachable independently of the Presupuesto tab, without affecting its state", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
 
     expect(screen.getByText("Balance")).toBeTruthy();
     expect(screen.getByText(/no hay movimientos/i)).toBeTruthy();
@@ -275,7 +331,7 @@ describe("FinanceV2Screen", () => {
   it("a transaction added on the Movimientos tab survives switching away and back", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
     fireEvent.click(screen.getByText("Nuevo movimiento"));
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
@@ -285,8 +341,8 @@ describe("FinanceV2Screen", () => {
     expect(screen.getAllByText("$1.000")).toHaveLength(3);
     expect(screen.getByLabelText("Eliminar movimiento de $1.000")).toBeTruthy();
 
-    fireEvent.click(screen.getByText("Presupuesto"));
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Presupuesto");
+    goTo("Movimientos");
 
     expect(screen.getAllByText("$1.000")).toHaveLength(3);
     expect(screen.getByLabelText("Eliminar movimiento de $1.000")).toBeTruthy();
@@ -301,7 +357,7 @@ describe("FinanceV2Screen", () => {
   it("shows a single shared MonthNav on the Movimientos tab", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
 
     expect(screen.getByRole("button", { name: "← Anterior" })).toBeTruthy();
   });
@@ -309,10 +365,10 @@ describe("FinanceV2Screen", () => {
   it("switching the month from the shared MonthNav is reflected immediately when switching to the Presupuesto tab", () => {
     render(<FinanceV2Screen {...defaultProps()} initialMonth="2026-07" />);
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
     fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
 
-    fireEvent.click(screen.getByText("Presupuesto"));
+    goTo("Presupuesto");
 
     expect(screen.getByText(formatMonth("2026-08"), { selector: "span" })).toBeTruthy();
   });
@@ -320,10 +376,10 @@ describe("FinanceV2Screen", () => {
   it("clicking ← Anterior on the shared MonthNav decrements the viewed month", () => {
     render(<FinanceV2Screen {...defaultProps()} initialMonth="2026-07" />);
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
     fireEvent.click(screen.getByRole("button", { name: "← Anterior" }));
 
-    fireEvent.click(screen.getByText("Presupuesto"));
+    goTo("Presupuesto");
 
     expect(screen.getByText(formatMonth("2026-06"), { selector: "span" })).toBeTruthy();
   });
@@ -331,7 +387,7 @@ describe("FinanceV2Screen", () => {
   it("opening the Add-Transaction modal disables the shared MonthNav (lifted isAddOpen guard)", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
     fireEvent.click(screen.getByText("Nuevo movimiento"));
 
     expect((screen.getByRole("button", { name: "← Anterior" }) as HTMLButtonElement).disabled).toBe(
@@ -349,7 +405,7 @@ describe("FinanceV2Screen", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
     fireEvent.click(screen.getByRole("button", { name: "Editar movimiento de $1.000" }));
 
     expect(screen.getByText("Editar movimiento")).toBeTruthy();
@@ -375,7 +431,7 @@ describe("FinanceV2Screen", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
     fireEvent.change(screen.getByLabelText("Mes"), { target: { value: "2026-08" } });
@@ -407,7 +463,7 @@ describe("FinanceV2Screen", () => {
     };
 
     const addExpense = (categoryId: string, month?: string) => {
-      fireEvent.click(screen.getByText("Movimientos"));
+      goTo("Movimientos");
       fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "43000" } });
       fireEvent.change(screen.getByLabelText("Subcategoría"), { target: { value: categoryId } });
       if (month) fireEvent.change(screen.getByLabelText("Mes"), { target: { value: month } });
@@ -492,7 +548,7 @@ describe("FinanceV2Screen", () => {
         target: { value: "Luz" },
       });
       fireEvent.click(screen.getByText("Agregar subcategoría"));
-      fireEvent.click(screen.getByText("Movimientos"));
+      goTo("Movimientos");
       const categorySelect = screen.getByLabelText("Subcategoría") as HTMLSelectElement;
       const luzId = Array.from(categorySelect.options).find((o) => o.text === "Luz")!.value;
 
@@ -567,7 +623,7 @@ describe("FinanceV2Screen", () => {
         />
       );
 
-      fireEvent.click(screen.getByText("Movimientos"));
+      goTo("Movimientos");
 
       expect(screen.getByText("Saldo inicial del mes").nextSibling?.textContent).toBe("$7.000");
     });
@@ -587,7 +643,7 @@ describe("FinanceV2Screen", () => {
         />
       );
 
-      fireEvent.click(screen.getByText("Movimientos"));
+      goTo("Movimientos");
       fireEvent.click(screen.getByText("Configurar cuenta separada"));
       fireEvent.change(screen.getByLabelText("Nombre de la cuenta"), {
         target: { value: "Servicios" },
@@ -706,7 +762,7 @@ describe("FinanceV2Screen", () => {
     it("opening the envelope config modal disables the shared MonthNav", () => {
       render(<FinanceV2Screen {...defaultProps()} initialBudgetVersions={seed(cuentasWithLuz)} />);
 
-      fireEvent.click(screen.getByText("Movimientos"));
+      goTo("Movimientos");
       fireEvent.click(screen.getByText("Configurar cuenta separada"));
 
       expect(
@@ -760,8 +816,8 @@ describe("FinanceV2Screen — income budget", () => {
       incomeSources: [{ id: expect.any(String), name: "Freelance", amount: 0 }],
     });
 
-    fireEvent.click(screen.getByText("Movimientos"));
-    fireEvent.click(screen.getByText("Presupuesto"));
+    goTo("Movimientos");
+    goTo("Presupuesto");
     expect(screen.getByLabelText("Monto de Freelance")).toBeTruthy();
   });
 
@@ -788,7 +844,7 @@ describe("FinanceV2Screen — income source on Movimientos", () => {
     };
     render(<FinanceV2Screen {...props} />);
 
-    fireEvent.click(screen.getByText("Movimientos"));
+    goTo("Movimientos");
     fireEvent.click(screen.getByText("Nuevo movimiento"));
     fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "500000" } });
@@ -799,7 +855,7 @@ describe("FinanceV2Screen — income source on Movimientos", () => {
       expect.objectContaining({ type: "income", source: { id: "i1", name: "Sueldo" } }),
     ]);
 
-    fireEvent.click(screen.getByText("Presupuesto"));
+    goTo("Presupuesto");
     expect(screen.getAllByText("de $1.500.000 · faltan $1.000.000")).toHaveLength(2); // row + total
   });
 });
@@ -826,7 +882,7 @@ describe("FinanceV2Screen — income on Análisis", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Análisis"));
+    goTo("Análisis");
 
     expect(screen.getByText("Ingreso presupuestado").nextSibling?.textContent).toBe("$1.500.000");
     expect(screen.getByText("Ingreso real").nextSibling?.textContent).toBe("$1.200.000");

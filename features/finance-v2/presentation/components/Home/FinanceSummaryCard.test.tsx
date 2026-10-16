@@ -36,9 +36,11 @@ describe("FinanceSummaryCard", () => {
     expect(screen.queryByText(/Te faltan/)).toBeNull();
   });
 
-  it("links to the finance dashboard", () => {
+  // Navigation lives in the app sidebar; the card is a glance only.
+  it("renders no Ver más link", () => {
     render(<FinanceSummaryCard month="2026-10" balance={0} pending={0} />);
 
-    expect(screen.getByRole("link", { name: /Ver más/ }).getAttribute("href")).toBe("/finance-v2");
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.queryByText(/Ver más/)).toBeNull();
   });
 });

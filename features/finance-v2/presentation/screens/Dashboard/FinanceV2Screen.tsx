@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type {
   BudgetConfig,
   BudgetVersion,
@@ -28,16 +29,9 @@ import { toSpendView } from "../../components/Budget/spendView";
 import { toAccountCoverageView } from "../../components/Budget/accountCoverageView";
 import { toEnvelopeView } from "../../components/Transactions/Envelope/envelopeView";
 import { PageHeader, MonthNav } from "@/shared/components";
+import { FINANCE_V2_SECTIONS, SECTION_PARAM, resolveSection } from "@/shared/navigation/features";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { prevMonth, nextMonth } from "@/shared/utils/monthUtils";
-
-type TabKey = "budget" | "movements" | "analysis";
-
-const TABS: { key: TabKey; label: string }[] = [
-  { key: "budget", label: "Presupuesto" },
-  { key: "movements", label: "Movimientos" },
-  { key: "analysis", label: "Análisis" },
-];
 
 interface Props {
   initialBudgetVersions: BudgetVersion[];
@@ -217,7 +211,12 @@ export function FinanceV2Screen({
     month: viewedMonth,
   });
 
-  const [activeTab, setActiveTab] = useState<TabKey>("budget");
+  // The section is chosen from the app menu (`AppNav`) and lives in the URL, so it
+  // survives a reload and can be linked to. Missing or unknown values fall back to
+  // Presupuesto.
+  const activeTab = resolveSection(FINANCE_V2_SECTIONS, useSearchParams().get(SECTION_PARAM));
+  const activeSection =
+    FINANCE_V2_SECTIONS.find((s) => s.key === activeTab) ?? FINANCE_V2_SECTIONS[0];
   // Hoisted beside `useFinanceV2Budget` (same remount rationale as design decision #1):
   // the Budget tab is conditionally rendered, so mode state must live here, not inside
   // `BudgetTab`, to survive a switch away and back. Default lives ONLY here — `mode` is
@@ -236,32 +235,19 @@ export function FinanceV2Screen({
 
   return (
     <main className="flex flex-1 flex-col">
-      <PageHeader eyebrow="Gestioná tu presupuesto" title="Finanzas v2" />
-
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap gap-2">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
-                activeTab === tab.key
-                  ? "border-brand-500 bg-brand-100 text-brand-600"
-                  : "border-surface-300 bg-surface-50 text-ink-600 hover:bg-surface-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+      <PageHeader eyebrow="Finanzas v2" title={activeSection.label}>
+        {/* Full width on phones, where the header wraps it under the title. */}
+        <div className="w-full sm:w-auto">
+          <MonthNav
+            label={formatMonth(viewedMonth)}
+            onPrev={() => setViewedMonth(prevMonth(viewedMonth))}
+            onNext={() => setViewedMonth(nextMonth(viewedMonth))}
+            disabled={isAddOpen || isEnvelopeConfigOpen}
+          />
         </div>
+      </PageHeader>
 
-        <MonthNav
-          label={formatMonth(viewedMonth)}
-          onPrev={() => setViewedMonth(prevMonth(viewedMonth))}
-          onNext={() => setViewedMonth(nextMonth(viewedMonth))}
-          disabled={isAddOpen || isEnvelopeConfigOpen}
-        />
-
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 pt-6 pb-10 sm:px-6">
         {activeTab === "budget" && (
           <BudgetTab
             // A closed month forces view mode; `budgetMode` itself is kept, so moving

@@ -60,7 +60,7 @@ export function DashboardScreen({
     <main className="flex flex-1 flex-col">
       <WishlistHeader total={items.length} pending={pending} totalPrice={totalPrice} />
 
-      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-2xl px-4 pt-6 pb-10 sm:px-6">
         {isOwner && (
           <div className="mb-6 flex items-center justify-end">
             <AddButton onClick={() => setIsOpen(true)} />
