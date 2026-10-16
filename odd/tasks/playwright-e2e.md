@@ -22,7 +22,7 @@ Branch: `feat/playwright-e2e` (stacked on `feat/sidebar-nav`)
   README documents how to run and update baselines.
 
 ## Tasks
-- T1. S2 · inline · in-memory KV + production guard, unit-tested · commit: pending
+- T1. S2 · inline · in-memory KV + production guard, unit-tested · commit: 1ede4f7 (994/994 vitest)
 - T2. S1, S3, S6 · inline · Playwright install, config, auth fixture, scripts, Vitest exclude · commit: pending
 - T3. S4 · inline · layout specs · commit: pending
 - T4. S5 · inline · screenshot specs + baselines · commit: pending
@@ -38,3 +38,6 @@ Branch: `feat/playwright-e2e` (stacked on `feat/sidebar-nav`)
 - L4. Evidence: adapters only call `redis.get`, `redis.set`, `redis.mget`; auth cookie
   `wishlist_auth` = HMAC-SHA256(secret, secret) hex; `currentMonth()` uses the server clock.
 - L5. Baselines are generated on Windows; CI (none today) would need its own Linux baselines.
+- L6. User (2026-10-16): "recuerda que antes de cada commit quiero revisar los archivos y darte
+  luz verde para seguir porque revisar todo al final es too much". Commits b0d2841, d068f3b and
+  1ede4f7 were made before this request, without review; every later commit waits for approval.

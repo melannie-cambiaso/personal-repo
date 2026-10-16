@@ -1,0 +1,134 @@
+{
+  "finance-v2-budget-versions": [
+    {
+      "effectiveFrom": "0000-00",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "config": {
+        "incomeSources": [
+          { "id": "inc-salary", "name": "Sueldo", "amount": 1500000 },
+          { "id": "inc-freelance", "name": "Freelance", "amount": 300000 }
+        ],
+        "categories": [
+          {
+            "id": "cat-home",
+            "name": "Hogar",
+            "bucket": "fixed",
+            "amount": 0,
+            "subcategories": [
+              { "id": "sub-rent", "name": "Arriendo", "bucket": "fixed", "amount": 600000 },
+              { "id": "sub-utilities", "name": "Cuentas", "bucket": "fixed", "amount": 120000 }
+            ]
+          },
+          {
+            "id": "cat-food",
+            "name": "Comida",
+            "bucket": "variable",
+            "amount": 0,
+            "subcategories": [
+              {
+                "id": "sub-market",
+                "name": "Supermercado",
+                "bucket": "variable",
+                "amount": 60000,
+                "frequency": "weekly"
+              },
+              { "id": "sub-delivery", "name": "Delivery", "bucket": "variable", "amount": 50000 }
+            ]
+          },
+          {
+            "id": "cat-savings",
+            "name": "Ahorro",
+            "bucket": "savings",
+            "amount": 200000,
+            "subcategories": []
+          }
+        ]
+      }
+    }
+  ],
+  "finance-v2-transactions:{{MONTH}}": [
+    {
+      "id": "tx-1",
+      "type": "income",
+      "amount": 1500000,
+      "date": "{{MONTH}}-01",
+      "month": "{{MONTH}}",
+      "source": { "id": "inc-salary", "name": "Sueldo" }
+    },
+    {
+      "id": "tx-2",
+      "type": "expense",
+      "amount": 600000,
+      "date": "{{MONTH}}-02",
+      "month": "{{MONTH}}",
+      "bucket": "fixed",
+      "category": { "id": "sub-rent", "name": "Arriendo" }
+    },
+    {
+      "id": "tx-3",
+      "type": "expense",
+      "amount": 45000,
+      "date": "{{MONTH}}-05",
+      "month": "{{MONTH}}",
+      "bucket": "variable",
+      "category": { "id": "sub-market", "name": "Supermercado" },
+      "note": "Compra semanal"
+    },
+    {
+      "id": "tx-4",
+      "type": "savings",
+      "amount": 200000,
+      "date": "{{MONTH}}-06",
+      "month": "{{MONTH}}"
+    }
+  ],
+  "savings-entries": [
+    {
+      "id": "sav-1",
+      "type": "deposito",
+      "amount": 500000,
+      "date": "2026-01-10",
+      "toReplenish": false,
+      "createdAt": "2026-01-10T12:00:00.000Z"
+    },
+    {
+      "id": "sav-2",
+      "type": "gasto",
+      "amount": 80000,
+      "date": "2026-02-03",
+      "notes": "Dentista",
+      "toReplenish": true,
+      "createdAt": "2026-02-03T12:00:00.000Z"
+    }
+  ],
+  "wishlist-items": [
+    { "id": "wish-1", "title": "Audífonos", "price": 89990, "priority": "high" },
+    { "id": "wish-2", "title": "Lámpara de escritorio", "price": 24990, "priority": "medium" },
+    { "id": "wish-3", "title": "Libro de cocina", "price": null, "priority": "low" }
+  ],
+  "wishlist-owned": ["wish-2"],
+  "home-improvements-zones": [
+    { "id": "zone-living", "name": "Living", "emoji": "🛋️" },
+    { "id": "zone-kitchen", "name": "Cocina", "emoji": "🍳" }
+  ],
+  "home-improvements-items": [
+    {
+      "id": "hi-1",
+      "zoneId": "zone-living",
+      "title": "Repisa flotante",
+      "type": "Decoración",
+      "estimatedCost": 35000,
+      "done": false,
+      "createdAt": "2026-01-05T12:00:00.000Z"
+    },
+    {
+      "id": "hi-2",
+      "zoneId": "zone-kitchen",
+      "title": "Cambiar llave del lavaplatos",
+      "type": "Reparación",
+      "estimatedCost": 45000,
+      "done": true,
+      "createdAt": "2026-01-06T12:00:00.000Z"
+    }
+  ]
+}
