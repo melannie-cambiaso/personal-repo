@@ -24,6 +24,13 @@ export const FINANCE_V2_SECTIONS = [
 
 export type FinanceV2SectionKey = (typeof FINANCE_V2_SECTIONS)[number]["key"];
 
+export const SAVINGS_SECTIONS = [
+  { key: "history", label: "Historial", icon: "📜" },
+  { key: "goals", label: "Metas", icon: "🎯" },
+  { key: "monthly", label: "Por mes", icon: "🗓️" },
+  { key: "archived", label: "Archivados", icon: "🗄️" },
+] as const satisfies readonly FeatureNavSection[];
+
 /** The section a raw param names, or the first section when it is missing or unknown. */
 export function resolveSection<K extends string>(
   sections: readonly FeatureNavSection<K>[],
@@ -46,6 +53,7 @@ export const FEATURE_NAV_ITEMS: FeatureNavItem[] = [
     label: "Ahorros",
     icon: "💰",
     subtitle: "Tu registro financiero",
+    sections: SAVINGS_SECTIONS,
   },
   { href: "/wishlist", label: "Wishlist", icon: "🛍️", subtitle: "Tus cosas deseadas" },
 ];

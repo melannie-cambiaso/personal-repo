@@ -106,6 +106,25 @@ describe("AppNav", () => {
       expect(link(/análisis/i).getAttribute("href")).toBe("/finance-v2?section=analysis");
     });
 
+    it("lists the Ahorros sections as links carrying the section param", () => {
+      render(<AppNav />);
+      expect(link(/historial/i).getAttribute("href")).toBe("/savings?section=history");
+      expect(link(/metas/i).getAttribute("href")).toBe("/savings?section=goals");
+      expect(link(/por mes/i).getAttribute("href")).toBe("/savings?section=monthly");
+      expect(link(/archivados/i).getAttribute("href")).toBe("/savings?section=archived");
+      const group = screen.getByRole("list", { name: /ahorros/i });
+      expect(group.contains(link(/archivados/i))).toBe(true);
+    });
+
+    it("marks the Ahorros section named by the param active", () => {
+      usePathname.mockReturnValue("/savings");
+      useSearchParams.mockReturnValue(new URLSearchParams("section=goals"));
+      render(<AppNav />);
+      expect(link(/metas/i).getAttribute("aria-current")).toBe("page");
+      expect(link(/historial/i).getAttribute("aria-current")).toBeNull();
+      expect(link(/presupuesto/i).getAttribute("aria-current")).toBeNull();
+    });
+
     it("groups the sections under their feature", () => {
       render(<AppNav />);
       const group = screen.getByRole("list", { name: /finanzas v2/i });

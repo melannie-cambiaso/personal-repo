@@ -1,13 +1,23 @@
-import { describe, it, expect, vi, beforeAll } from "vitest";
+import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { SavingsScreen } from "./SavingsScreen";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
 import type { SavingsPeriod } from "@/features/savings/domain/SavingsPeriod";
 
+// The section lives in `?section=`, chosen from the app sidebar (`AppNav`).
+const { useSearchParams } = vi.hoisted(() => ({ useSearchParams: vi.fn() }));
+vi.mock("next/navigation", () => ({ useSearchParams }));
+const openSection = (section: string) =>
+  useSearchParams.mockReturnValue(new URLSearchParams({ section }));
+
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = vi.fn();
   HTMLDialogElement.prototype.close = vi.fn();
+});
+
+beforeEach(() => {
+  useSearchParams.mockReturnValue(new URLSearchParams());
 });
 
 describe("SavingsScreen", () => {
@@ -49,7 +59,25 @@ describe("SavingsScreen", () => {
     expect(optionLabels).not.toContain("Done Goal");
   });
 
-  it("selecting the Archivados tab renders the archived period list", () => {
+  it("opens Historial by default, titled after the section", () => {
+    render(<SavingsScreen initialEntries={[]} isOwner={true} onSave={vi.fn()} />);
+    expect(screen.getByRole("heading", { level: 1, name: "Historial" })).toBeTruthy();
+  });
+
+  it("falls back to Historial for an unknown section param", () => {
+    openSection("nope");
+    render(<SavingsScreen initialEntries={[]} isOwner={true} onSave={vi.fn()} />);
+    expect(screen.getByRole("heading", { level: 1, name: "Historial" })).toBeTruthy();
+  });
+
+  it("renders no in-page section switcher (sections live in the app sidebar)", () => {
+    render(<SavingsScreen initialEntries={[]} isOwner={true} onSave={vi.fn()} />);
+    for (const name of ["Historial", "Metas", "Por mes", "Archivados"]) {
+      expect(screen.queryByRole("button", { name })).toBeNull();
+    }
+  });
+
+  it("the Archivados section renders the archived period list", () => {
     const periods: SavingsPeriod[] = [
       {
         id: "p1",
@@ -71,6 +99,7 @@ describe("SavingsScreen", () => {
       },
     ];
 
+    openSection("archived");
     render(
       <SavingsScreen
         initialEntries={[]}
@@ -81,7 +110,7 @@ describe("SavingsScreen", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Archivados" }));
+    expect(screen.getByRole("heading", { level: 1, name: "Archivados" })).toBeTruthy();
     expect(screen.getByRole("heading", { level: 3, name: "Enero" })).toBeTruthy();
   });
 
