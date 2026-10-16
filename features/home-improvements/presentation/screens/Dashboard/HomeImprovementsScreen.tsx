@@ -75,24 +75,24 @@ export function HomeImprovementsScreen({
 
   return (
     <main className="flex flex-1 flex-col">
-      <PageHeader eyebrow="Tu hogar" title="Mejoras">
+      <PageHeader eyebrow="Tu hogar" title="Mejoras" wide>
         <div className="flex flex-wrap justify-center gap-3">
-          <div className="bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 border-surface-300 px-4 py-2">
+          <div className="bg-surface-50/70 border-surface-300 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
             <span className="font-figure text-ink-900 text-lg font-semibold">{totalPending}</span>
-            <span className="text-sm text-info-800">pendiente{totalPending !== 1 ? "s" : ""}</span>
+            <span className="text-info-800 text-sm">pendiente{totalPending !== 1 ? "s" : ""}</span>
           </div>
           {totalCost > 0 && (
-            <div className="bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 border-surface-300 px-4 py-2">
+            <div className="bg-surface-50/70 border-surface-300 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
               <span className="font-figure text-ink-900 text-lg font-semibold">
                 {formatCLP(totalCost)}
               </span>
-              <span className="text-sm text-info-800">estimado</span>
+              <span className="text-info-800 text-sm">estimado</span>
             </div>
           )}
         </div>
       </PageHeader>
 
-      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 pt-6 pb-10 sm:px-6">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           {/* The shared Select is full-width; the wrapper keeps it a compact control. */}
           <div className="w-full max-w-48">

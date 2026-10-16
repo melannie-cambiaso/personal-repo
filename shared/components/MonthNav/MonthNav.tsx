@@ -9,7 +9,7 @@ interface Props {
 
 export function MonthNav({ label, onPrev, onNext, disabled = false }: Props) {
   return (
-    <div className="mb-6 flex items-center justify-between">
+    <div className="flex items-center justify-between gap-4">
       <button
         type="button"
         onClick={onPrev}
@@ -18,9 +18,7 @@ export function MonthNav({ label, onPrev, onNext, disabled = false }: Props) {
       >
         ← Anterior
       </button>
-      <span className="text-ink-900 text-2xl capitalize">
-        {label}
-      </span>
+      <span className="text-ink-900 text-2xl capitalize">{label}</span>
       <button
         type="button"
         onClick={onNext}

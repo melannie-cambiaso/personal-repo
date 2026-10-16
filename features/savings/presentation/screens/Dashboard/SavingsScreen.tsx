@@ -97,17 +97,13 @@ export function SavingsScreen({
       <PageHeader eyebrow="Tu bolsillo" title="Ahorros">
         <div className="flex justify-center">
           <div className="border-surface-300 bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
-            <span className="font-figure text-ink-900 text-lg font-semibold">
-              {entries.length}
-            </span>
-            <span className="text-ink-500 text-sm">
-              registro{entries.length !== 1 ? "s" : ""}
-            </span>
+            <span className="font-figure text-ink-900 text-lg font-semibold">{entries.length}</span>
+            <span className="text-ink-500 text-sm">registro{entries.length !== 1 ? "s" : ""}</span>
           </div>
         </div>
       </PageHeader>
 
-      <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6">
+      <div className="mx-auto w-full max-w-2xl px-4 pt-6 pb-10 sm:px-6">
         <div className="mb-8 flex flex-wrap gap-2">
           {TABS.map((tab) => (
             <button

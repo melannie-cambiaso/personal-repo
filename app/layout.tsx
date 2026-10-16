@@ -25,10 +25,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${patrickHand.variable} ${lexend.variable} dark h-full antialiased`}>
-      <body className="flex min-h-full flex-col">
+    <html
+      lang="es"
+      className={`${patrickHand.variable} ${lexend.variable} dark h-full antialiased`}
+    >
+      {/* Column on mobile (top bar above the page), row from `lg` (sidebar beside it). */}
+      <body className="flex min-h-full flex-col lg:flex-row">
         <AppNav />
-        {children}
+        <div className="flex min-w-0 flex-1 flex-col">{children}</div>
       </body>
     </html>
   );
