@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import type { SavingsEntry } from "@/features/savings/domain/SavingsEntry";
 import type { SavingsGoal } from "@/features/savings/domain/SavingsGoal";
 import type { SavingsPeriod } from "@/features/savings/domain/SavingsPeriod";
@@ -22,15 +23,7 @@ import {
   ArchivePeriodModal,
 } from "../../components";
 import { PageHeader, AddButton, Button } from "@/shared/components";
-
-type TabKey = "history" | "goals" | "monthly" | "archived";
-
-const TABS: { key: TabKey; label: string }[] = [
-  { key: "history", label: "Historial" },
-  { key: "goals", label: "Metas" },
-  { key: "monthly", label: "Por mes" },
-  { key: "archived", label: "Archivados" },
-];
+import { SAVINGS_SECTIONS, SECTION_PARAM, resolveSection } from "@/shared/navigation/features";
 
 interface Props {
   initialEntries: SavingsEntry[];
@@ -77,7 +70,10 @@ export function SavingsScreen({
 
   const activeGoals = distributed.filter((g) => g.isDone !== true);
 
-  const [activeTab, setActiveTab] = useState<TabKey>("history");
+  // The section is chosen from the app sidebar (`AppNav`) and lives in the URL; missing or
+  // unknown values fall back to Historial.
+  const activeTab = resolveSection(SAVINGS_SECTIONS, useSearchParams().get(SECTION_PARAM));
+  const activeSection = SAVINGS_SECTIONS.find((s) => s.key === activeTab) ?? SAVINGS_SECTIONS[0];
 
   // Entry modal state
   const [addOpen, setAddOpen] = useState(false);
@@ -94,7 +90,7 @@ export function SavingsScreen({
 
   return (
     <main className="flex flex-1 flex-col">
-      <PageHeader eyebrow="Tu bolsillo" title="Ahorros">
+      <PageHeader eyebrow="Ahorros" title={activeSection.label}>
         <div className="flex justify-center">
           <div className="border-surface-300 bg-surface-50/70 flex min-w-24 flex-col items-center rounded-2xl border-2 px-4 py-2">
             <span className="font-figure text-ink-900 text-lg font-semibold">{entries.length}</span>
@@ -104,23 +100,6 @@ export function SavingsScreen({
       </PageHeader>
 
       <div className="mx-auto w-full max-w-2xl px-4 pt-6 pb-10 sm:px-6">
-        <div className="mb-8 flex flex-wrap gap-2">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={`cursor-pointer rounded-full border-2 px-4 py-1.5 transition-colors ${
-                activeTab === tab.key
-                  ? "border-brand-500 bg-brand-100 text-brand-600"
-                  : "border-surface-300 bg-surface-50 text-ink-600 hover:bg-surface-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
         {activeTab === "history" && (
           <>
             <div className="mb-8">
