@@ -16,8 +16,10 @@ export default defineConfig({
     timezoneId: "America/Santiago",
   },
   expect: {
-    // Absorbs anti-aliasing noise; a real layout change moves far more pixels.
-    toHaveScreenshot: { maxDiffPixelRatio: 0.01, animations: "disabled" },
+    // A fixed pixel budget, not a ratio: 1% of a desktop capture is ~10k pixels, enough to
+    // hide a changed amount or label. `threshold` (per-pixel color distance) absorbs
+    // anti-aliasing so runs stay stable.
+    toHaveScreenshot: { maxDiffPixels: 100, threshold: 0.2, animations: "disabled" },
   },
   projects: [
     {

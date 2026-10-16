@@ -49,6 +49,8 @@ test.describe("desktop", () => {
   test("the sidebar stays in view after scrolling", async ({ page }) => {
     await page.goto("/finance-v2");
     await page.mouse.wheel(0, 2000);
+    // Without this, a page no taller than the viewport would pass without scrolling.
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
     await expect(sidebar(page)).toBeInViewport();
   });
 

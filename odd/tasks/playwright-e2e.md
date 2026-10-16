@@ -28,7 +28,14 @@ Branch: `feat/playwright-e2e` (stacked on `feat/sidebar-nav`)
 - T4. S5 · inline · screenshot specs + baselines · commit: bd76ba4 (17 passed twice in a row; user-approved)
 - T4a. S4 · inline · fix found by T4: MonthNav wrapped on 390px · commit: 7e090e2 (RED "← Anterior wraps", then GREEN; user-approved)
 - T5. S6 · inline · README docs · commit: pending
-- V. S1-S6 · gentle-ai-verify (risk items 1 and 5: data-layer switch, new dependency) · pending
+- V. S1-S6 · gentle-ai-verify (risk items 1 and 5: data-layer switch, new dependency) · done:
+  S1-S4, S6 PASS; S5 PARTIAL. vitest 997/997, tsc clean, playwright 44 passed / 8 project-skipped.
+  Open findings (await user decision): F1 screenshot tolerance 1% too loose
+  (playwright.config.ts:20); F2 smoke `getByText("Audífonos")` also matches the adapter's default
+  item "Audífonos W800BT Pro", so it does not prove the seed is read (confirmed by spot check);
+  F3 scroll test never asserts it scrolled (layout.spec.ts:49-53); F4 viewport-only captures miss
+  content below the fold (documented choice).
+- T6. S2, S4, S5 · inline · fix verify findings F1-F3 (F4 kept by user decision) · commit: pending
 
 ## Log
 - L1. User (2026-10-16): "podríamos implementar playwright para testear que las cosas se vean
@@ -47,3 +54,4 @@ Branch: `feat/playwright-e2e` (stacked on `feat/sidebar-nav`)
 - L8. (agent design) S5 changed from masking the month label to freezing the server clock: the
   month also shows in the home finance card and in transaction dates, so masking was fragile.
   `currentMonth()` is the only server clock read that reaches the rendered pages.
+- L9. User: "Si, hazlo" — fix F1-F3; F4 stays as documented.

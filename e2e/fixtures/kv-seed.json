@@ -102,7 +102,7 @@
     }
   ],
   "wishlist-items": [
-    { "id": "wish-1", "title": "Audífonos", "price": 89990, "priority": "high" },
+    { "id": "wish-1", "title": "Audífonos de la semilla e2e", "price": 89990, "priority": "high" },
     { "id": "wish-2", "title": "Lámpara de escritorio", "price": 24990, "priority": "medium" },
     { "id": "wish-3", "title": "Libro de cocina", "price": null, "priority": "low" }
   ],

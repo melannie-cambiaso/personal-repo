@@ -6,9 +6,10 @@ anonymous("redirects to /login without the owner cookie", async ({ page }) => {
   await expect(page).toHaveURL(/\/login$/);
 });
 
-// The seed's high-priority wishlist item only exists in e2e/fixtures/kv-seed.json, so
-// seeing it proves the app reads the in-memory store, not the real database.
+// This title only exists in e2e/fixtures/kv-seed.json: not in the real database, and not
+// in the defaults the wishlist adapter writes into an empty store. Seeing it (exactly)
+// proves the app reads the seeded in-memory store.
 test("serves the seeded in-memory data to the owner", async ({ page }) => {
   await page.goto("/wishlist");
-  await expect(page.getByText("Audífonos")).toBeVisible();
+  await expect(page.getByText("Audífonos de la semilla e2e", { exact: true })).toBeVisible();
 });
