@@ -20,6 +20,37 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Testing
+
+| Command                   | What it runs                                                             |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `npm test`                | Unit and component tests (Vitest, jsdom).                                |
+| `npm run test:e2e`        | End-to-end tests (Playwright): layout checks and screenshot comparisons. |
+| `npm run test:e2e:update` | Same, but rewrites the screenshot baselines.                             |
+
+First time only: `npx playwright install chromium`.
+
+### How the end-to-end run works
+
+- **No real data.** Playwright builds and starts the app on port 3100 with `E2E=1`, which swaps
+  Upstash for an in-memory store seeded from `e2e/fixtures/kv-seed.json`. Writes are thrown away
+  when the server stops. `E2E=1` refuses to start on Vercel.
+- **Logged in.** Tests set the owner cookie for an e2e-only secret; `e2e/fixtures/auth.ts`
+  exports a `test` that does it. Use `@playwright/test` directly for logged-out pages.
+- **Frozen clock.** The server reads `E2E_NOW` (`e2e/fixtures/clock.ts`) as "now", so pages
+  always open on the same month. In the seed, `{{MONTH}}` becomes that month.
+- **Two screens.** Every spec runs on `desktop` (1280×800) and `mobile` (390×844).
+
+### When a screenshot test fails
+
+1. Open the report: `npx playwright show-report`. It shows the expected image, the actual one
+   and their diff.
+2. If the change is a bug, fix the code.
+3. If the change is intended, run `npm run test:e2e:update`, open the changed PNGs in
+   `e2e/visual.spec.ts-snapshots/` and commit them with the change.
+
+Baselines are named per OS (`*-win32.png`). A different OS needs its own set, generated there.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

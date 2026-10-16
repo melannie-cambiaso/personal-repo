@@ -25,7 +25,8 @@ Branch: `feat/playwright-e2e` (stacked on `feat/sidebar-nav`)
 - T1. S2 · inline · in-memory KV + production guard, unit-tested · commit: 1ede4f7 (994/994 vitest)
 - T2. S1, S3, S6 · inline · Playwright install, config, auth fixture, scripts, Vitest exclude · commit: 3c5f76d (smoke 4/4, user-approved)
 - T3. S4 · inline · layout specs · commit: 309e178 (22 passed, 6 project-skipped; mutation check: 3 desktop specs fail when the sidebar is hidden; user-approved)
-- T4. S5 · inline · screenshot specs + baselines · commit: pending
+- T4. S5 · inline · screenshot specs + baselines · commit: bd76ba4 (17 passed twice in a row; user-approved)
+- T4a. S4 · inline · fix found by T4: MonthNav wrapped on 390px · commit: 7e090e2 (RED "← Anterior wraps", then GREEN; user-approved)
 - T5. S6 · inline · README docs · commit: pending
 - V. S1-S6 · gentle-ai-verify (risk items 1 and 5: data-layer switch, new dependency) · pending
 
