@@ -1,5 +1,33 @@
-import { describe, it, expect } from "vitest";
-import { countWeekdayInMonth, getWeeksInMonth, monthWindow } from "./monthUtils";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { countWeekdayInMonth, currentMonth, getWeeksInMonth, monthWindow } from "./monthUtils";
+
+describe("currentMonth", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllEnvs();
+  });
+
+  it("reads the system clock", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 9, 16));
+    expect(currentMonth()).toBe("2026-10");
+  });
+
+  it("uses E2E_NOW during an e2e run (E2E=1)", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 9, 16));
+    vi.stubEnv("E2E", "1");
+    vi.stubEnv("E2E_NOW", "2026-03-15T12:00:00");
+    expect(currentMonth()).toBe("2026-03");
+  });
+
+  it("ignores E2E_NOW outside an e2e run", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 9, 16));
+    vi.stubEnv("E2E_NOW", "2026-03-15T12:00:00");
+    expect(currentMonth()).toBe("2026-10");
+  });
+});
 
 describe("monthWindow", () => {
   it("returns 7 months, ascending, centered on `center` at index `radius`", () => {

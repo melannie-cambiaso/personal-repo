@@ -1,5 +1,13 @@
+// End-to-end runs pin the clock so screenshots show the same month on every run. Gated
+// on `E2E=1` like the in-memory KV (see shared/kvMemory.ts); in the browser bundle both
+// are undefined, so the real clock always wins there.
+function clockNow(): Date {
+  const frozen = process.env.E2E === "1" ? process.env.E2E_NOW : undefined;
+  return frozen ? new Date(frozen) : new Date();
+}
+
 export function currentMonth(): string {
-  const now = new Date();
+  const now = clockNow();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
