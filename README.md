@@ -30,6 +30,10 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 First time only: `npx playwright install chromium`.
 
+**CI.** Every pull request and every push to `main` runs typecheck, lint, unit tests and the
+production build on GitHub Actions (`.github/workflows/ci.yml`). End-to-end tests run only
+locally: their screenshot baselines are Windows-specific.
+
 ### How the end-to-end run works
 
 - **No real data.** Playwright builds and starts the app on port 3100 with `E2E=1`, which swaps
