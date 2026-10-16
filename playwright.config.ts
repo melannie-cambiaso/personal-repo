@@ -1,6 +1,7 @@
 import path from "path";
 import { defineConfig } from "@playwright/test";
 import { E2E_SECRET } from "./e2e/fixtures/auth";
+import { FROZEN_NOW } from "./e2e/fixtures/clock";
 
 const PORT = 3100;
 
@@ -44,6 +45,7 @@ export default defineConfig({
     env: {
       E2E: "1",
       E2E_KV_SEED: path.resolve("e2e/fixtures/kv-seed.json"),
+      E2E_NOW: FROZEN_NOW,
       WISHLIST_SECRET: E2E_SECRET,
       // Process env wins over `.env`, so a stray real-KV call fails instead of
       // reaching the real database.
