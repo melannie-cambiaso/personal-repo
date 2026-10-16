@@ -23,7 +23,7 @@ Branch: `feat/playwright-e2e` (stacked on `feat/sidebar-nav`)
 
 ## Tasks
 - T1. S2 · inline · in-memory KV + production guard, unit-tested · commit: 1ede4f7 (994/994 vitest)
-- T2. S1, S3, S6 · inline · Playwright install, config, auth fixture, scripts, Vitest exclude · commit: pending
+- T2. S1, S3, S6 · inline · Playwright install, config, auth fixture, scripts, Vitest exclude · commit: 3c5f76d (smoke 4/4, user-approved)
 - T3. S4 · inline · layout specs · commit: pending
 - T4. S5 · inline · screenshot specs + baselines · commit: pending
 - T5. S6 · inline · README docs · commit: pending
