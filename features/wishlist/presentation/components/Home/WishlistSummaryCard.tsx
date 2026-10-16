@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { WishlistSummary } from "@/features/wishlist/domain";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
@@ -15,9 +14,7 @@ export function WishlistSummaryCard({ pendingCount, total, topHigh }: WishlistSu
         >
           🛍️
         </span>
-        <h2 className="text-ink-900 text-2xl">
-          Wishlist
-        </h2>
+        <h2 className="text-ink-900 text-2xl">Wishlist</h2>
       </div>
       <div className="border-surface-300 bg-surface-100 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
@@ -26,9 +23,7 @@ export function WishlistSummaryCard({ pendingCount, total, topHigh }: WishlistSu
         </div>
         <div className="flex items-center justify-between gap-2">
           <span className="text-ink-600">Total aprox.</span>
-          <span className="font-figure text-ink-900 text-sm font-semibold">
-            {formatCLP(total)}
-          </span>
+          <span className="font-figure text-ink-900 text-sm font-semibold">{formatCLP(total)}</span>
         </div>
       </div>
       <div className="flex flex-col gap-2">
@@ -54,14 +49,6 @@ export function WishlistSummaryCard({ pendingCount, total, topHigh }: WishlistSu
             ))}
           </ul>
         )}
-      </div>
-      <div className="mt-auto flex items-center justify-between gap-2">
-        <Link
-          href="/wishlist"
-          className="bg-brand-100 text-brand-600 hover:bg-brand-300 rounded-full px-3 py-0.5 transition-colors"
-        >
-          Ver más →
-        </Link>
       </div>
     </div>
   );

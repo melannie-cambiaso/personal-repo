@@ -52,9 +52,11 @@ describe("WishlistSummaryCard", () => {
     expect(screen.getByText("Nada con prioridad alta")).toBeTruthy();
   });
 
-  it("links to the wishlist", () => {
+  // Navigation lives in the app sidebar; the card is a glance only.
+  it("renders no Ver más link", () => {
     render(<WishlistSummaryCard pendingCount={0} total={0} topHigh={[]} />);
 
-    expect(screen.getByRole("link", { name: /Ver más/ }).getAttribute("href")).toBe("/wishlist");
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.queryByText(/Ver más/)).toBeNull();
   });
 });

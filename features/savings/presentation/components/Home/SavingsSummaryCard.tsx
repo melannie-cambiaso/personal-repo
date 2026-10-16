@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatCLP } from "@/shared/utils/formatCurrency";
 
 interface Props {
@@ -23,9 +22,7 @@ export function SavingsSummaryCard({ balance, toReplenish }: Props) {
         >
           💰
         </span>
-        <h2 className="text-ink-900 text-2xl">
-          Ahorros
-        </h2>
+        <h2 className="text-ink-900 text-2xl">Ahorros</h2>
       </div>
       <div className="border-surface-300 bg-surface-100 flex flex-col gap-2 rounded-2xl border-2 px-4 py-3">
         <div className="flex items-center justify-between gap-2">
@@ -40,14 +37,6 @@ export function SavingsSummaryCard({ balance, toReplenish }: Props) {
             {formatCLP(toReplenish)}
           </span>
         </div>
-      </div>
-      <div className="mt-auto flex items-center justify-between gap-2">
-        <Link
-          href="/savings"
-          className="bg-brand-100 text-brand-600 hover:bg-brand-300 rounded-full px-3 py-0.5 transition-colors"
-        >
-          Ver más →
-        </Link>
       </div>
     </div>
   );

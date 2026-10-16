@@ -32,9 +32,11 @@ describe("SavingsSummaryCard", () => {
     expect(value.className).toContain("text-ink-600");
   });
 
-  it("links to savings", () => {
+  // Navigation lives in the app sidebar; the card is a glance only.
+  it("renders no Ver más link", () => {
     render(<SavingsSummaryCard balance={0} toReplenish={0} />);
 
-    expect(screen.getByRole("link", { name: /Ver más/ }).getAttribute("href")).toBe("/savings");
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(screen.queryByText(/Ver más/)).toBeNull();
   });
 });
