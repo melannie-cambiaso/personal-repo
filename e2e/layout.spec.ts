@@ -82,6 +82,28 @@ test.describe("mobile", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Análisis" })).toBeVisible();
   });
 
+  test("the month controls fit on one line in the header", async ({ page }) => {
+    await page.goto("/finance-v2");
+    const header = page.locator("main header");
+    for (const control of [
+      header.getByRole("button", { name: "← Anterior" }),
+      header.getByText(/^octubre de 2026$/i),
+      header.getByRole("button", { name: "Siguiente →" }),
+    ]) {
+      const lines = await control.evaluate((el) => {
+        const style = getComputedStyle(el);
+        const contentHeight =
+          el.getBoundingClientRect().height -
+          parseFloat(style.paddingTop) -
+          parseFloat(style.paddingBottom) -
+          parseFloat(style.borderTopWidth) -
+          parseFloat(style.borderBottomWidth);
+        return Math.round(contentHeight / parseFloat(style.lineHeight));
+      });
+      expect(lines, `${await control.textContent()} wraps`).toBe(1);
+    }
+  });
+
   test("tapping outside closes the drawer", async ({ page }) => {
     await page.goto("/");
     await menuButton(page).click();
