@@ -35,7 +35,7 @@ Branch: `feat/playwright-e2e` (stacked on `feat/sidebar-nav`)
   item "Audífonos W800BT Pro", so it does not prove the seed is read (confirmed by spot check);
   F3 scroll test never asserts it scrolled (layout.spec.ts:49-53); F4 viewport-only captures miss
   content below the fold (documented choice).
-- T6. S2, S4, S5 · inline · fix verify findings F1-F3 (F4 kept by user decision) · commit: pending
+- T6. S2, S4, S5 · inline · fix verify findings F1-F3 (F4 kept by user decision) · commit: 2e190d5 (F2 RED then GREEN; F1 caught exactly the 4 changed captures; visual 17/17 twice; user-approved)
 
 ## Log
 - L1. User (2026-10-16): "podríamos implementar playwright para testear que las cosas se vean
