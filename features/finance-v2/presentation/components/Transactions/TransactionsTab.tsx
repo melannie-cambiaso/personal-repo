@@ -10,6 +10,7 @@ import type {
 } from "@/features/finance-v2/domain";
 import type { NewTransactionInput } from "../../hooks/useFinanceV2Transactions";
 import type { EnvelopeConfigInput } from "../../hooks/useFinanceV2Envelope";
+import type { SavingsFundConfigInput } from "../../hooks/useFinanceV2SavingsFund";
 import { Button } from "@/shared/components";
 import { formatMonth } from "@/shared/utils/formatMonth";
 import { AddTransactionModal } from "./AddTransactionModal";
@@ -19,6 +20,9 @@ import { EnvelopeCard } from "./Envelope/EnvelopeCard";
 import { EnvelopeConfigModal } from "./Envelope/EnvelopeConfigModal";
 import { EnvelopeReminder } from "./Envelope/EnvelopeReminder";
 import type { EnvelopeView } from "./Envelope/envelopeView";
+import { SavingsFundCard } from "./SavingsFund/SavingsFundCard";
+import { SavingsFundConfigModal } from "./SavingsFund/SavingsFundConfigModal";
+import type { SavingsFundView } from "./SavingsFund/savingsFundView";
 
 interface Props {
   viewedMonth: string;
@@ -50,6 +54,15 @@ interface Props {
   isEnvelopeConfigOpen: boolean;
   onOpenEnvelopeConfig: () => void;
   onCloseEnvelopeConfig: () => void;
+  /** `null` = no savings fund configured (see `toSavingsFundView`). Independent of the
+   *  envelope: either, both or neither can be configured. */
+  savingsFund: SavingsFundView | null;
+  onSaveSavingsFundConfig: (input: SavingsFundConfigInput) => void;
+  /** Hoisted like `isEnvelopeConfigOpen`: `MonthNav` must be disabled while it is open,
+   *  because creating the fund stamps `openingMonth` from `viewedMonth`. */
+  isSavingsFundConfigOpen: boolean;
+  onOpenSavingsFundConfig: () => void;
+  onCloseSavingsFundConfig: () => void;
 }
 
 // Pure composition (math-free), consuming `useFinanceV2Transactions`'s hoisted state via
@@ -83,6 +96,11 @@ export function TransactionsTab({
   isEnvelopeConfigOpen,
   onOpenEnvelopeConfig,
   onCloseEnvelopeConfig,
+  savingsFund,
+  onSaveSavingsFundConfig,
+  isSavingsFundConfigOpen,
+  onOpenSavingsFundConfig,
+  onCloseSavingsFundConfig,
 }: Props) {
   const hasEnvelope = envelope !== null;
 
@@ -106,6 +124,13 @@ export function TransactionsTab({
       )}
       {envelope && <EnvelopeReminder view={envelope} />}
       <MovementSummary totals={totals} hasEnvelope={hasEnvelope} />
+      {savingsFund ? (
+        <SavingsFundCard view={savingsFund} onEdit={onOpenSavingsFundConfig} />
+      ) : (
+        <Button type="button" variant="secondary" onPress={onOpenSavingsFundConfig}>
+          Configurar ahorros
+        </Button>
+      )}
       {envelope ? (
         <EnvelopeCard view={envelope} onEdit={onOpenEnvelopeConfig} />
       ) : (
@@ -133,6 +158,12 @@ export function TransactionsTab({
         categories={budgetCategories}
         onClose={onCloseEnvelopeConfig}
         onSave={onSaveEnvelopeConfig}
+      />
+      <SavingsFundConfigModal
+        isOpen={isSavingsFundConfigOpen}
+        config={savingsFund?.config ?? null}
+        onClose={onCloseSavingsFundConfig}
+        onSave={onSaveSavingsFundConfig}
       />
       <TransactionList
         dayGroups={dayGroups}
