@@ -10,11 +10,13 @@ import type {
   BudgetConfig,
   BudgetVersion,
   EnvelopeConfig,
+  SavingsFundConfig,
   FinanceV2Transaction,
 } from "@/features/finance-v2/domain";
 import type {
   IBudgetRepository,
   IEnvelopeRepository,
+  ISavingsFundRepository,
   ITransactionRepository,
 } from "@/features/finance-v2/domain/ports";
 
@@ -28,6 +30,8 @@ const BUDGET_CONFIG_KEY = "finance-v2-budget-config";
 const BUDGET_VERSIONS_KEY = "finance-v2-budget-versions";
 // Single optional global envelope configuration.
 const ENVELOPE_CONFIG_KEY = "finance-v2-envelope-config";
+// Single optional global savings fund configuration (independent of the envelope).
+const SAVINGS_FUND_CONFIG_KEY = "finance-v2-savings-fund-config";
 // Month-scoped transaction list. The only place this key pattern is built.
 // Exported for tests that need to assert on stored keys.
 export const transactionsKey = (month: string): string => `finance-v2-transactions:${month}`;
@@ -173,6 +177,28 @@ export const EnvelopeKvAdapter = {
 } satisfies IEnvelopeRepository;
 
 // ---------------------------------------------------------------------------
+// Adapter: ISavingsFundRepository
+// ---------------------------------------------------------------------------
+
+export const SavingsFundKvAdapter = {
+  async load(): Promise<SavingsFundConfig | null> {
+    try {
+      return (await redis.get<SavingsFundConfig>(SAVINGS_FUND_CONFIG_KEY)) ?? null;
+    } catch {
+      return null;
+    }
+  },
+
+  async save(config: SavingsFundConfig): Promise<void> {
+    try {
+      await redis.set(SAVINGS_FUND_CONFIG_KEY, config);
+    } catch {
+      // swallow — same contract as the envelope adapter
+    }
+  },
+} satisfies ISavingsFundRepository;
+
+// ---------------------------------------------------------------------------
 // Legacy function aliases
 // ---------------------------------------------------------------------------
 // These thin wrappers preserve the function-based call sites used by:
@@ -199,3 +225,7 @@ export const appendTransactionToMonth = (month: string, tx: FinanceV2Transaction
 
 export const loadEnvelopeConfig = () => EnvelopeKvAdapter.load();
 export const saveEnvelopeConfig = (config: EnvelopeConfig) => EnvelopeKvAdapter.save(config);
+
+export const loadSavingsFundConfig = () => SavingsFundKvAdapter.load();
+export const saveSavingsFundConfig = (config: SavingsFundConfig) =>
+  SavingsFundKvAdapter.save(config);

@@ -13,6 +13,8 @@ import {
   appendTransactionToMonth,
   loadEnvelopeConfig,
   saveEnvelopeConfig,
+  loadSavingsFundConfig,
+  saveSavingsFundConfig,
   loadTransactionsForMonths,
 } from "./kvAdapter";
 import { DEFAULT_BUDGET_CONFIG } from "@/features/finance-v2/domain";
@@ -21,6 +23,7 @@ import type {
   BudgetVersion,
   EnvelopeConfig,
   FinanceV2Transaction,
+  SavingsFundConfig,
 } from "@/features/finance-v2/domain";
 
 const legacyConfig: BudgetConfig = {
@@ -420,5 +423,34 @@ describe("loadTransactionsForMonths", () => {
     redisMock.mget.mockRejectedValue(new Error("connection lost"));
     const result = await loadTransactionsForMonths(["2026-10"]);
     expect(result).toEqual([]);
+  });
+});
+
+const savingsFundConfig: SavingsFundConfig = {
+  name: "Ahorros",
+  openingBalance: 500_000,
+  openingMonth: "2026-10",
+};
+
+describe("savings fund config", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns null when the key is missing (the fund is optional)", async () => {
+    redisMock.get.mockResolvedValue(null);
+    expect(await loadSavingsFundConfig()).toBeNull();
+  });
+
+  it("returns null when redis throws", async () => {
+    redisMock.get.mockRejectedValue(new Error("down"));
+    expect(await loadSavingsFundConfig()).toBeNull();
+  });
+
+  it("stores the config under its own key, apart from the envelope config", async () => {
+    await saveSavingsFundConfig(savingsFundConfig);
+
+    expect(redisMock.set).toHaveBeenCalledWith("finance-v2-savings-fund-config", savingsFundConfig);
+    expect(redisMock.set).not.toHaveBeenCalledWith("finance-v2-envelope-config", expect.anything());
   });
 });

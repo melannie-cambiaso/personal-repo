@@ -78,4 +78,9 @@ export { listExpenseCategoryOptions } from "./expenseCategoryOptions";
 
 // Ports — interfaces the domain requires from infrastructure.
 // Adapters live in data/ and must satisfy these contracts.
-export type { IBudgetRepository, ITransactionRepository, IEnvelopeRepository } from "./ports";
+export type {
+  IBudgetRepository,
+  ITransactionRepository,
+  IEnvelopeRepository,
+  ISavingsFundRepository,
+} from "./ports";

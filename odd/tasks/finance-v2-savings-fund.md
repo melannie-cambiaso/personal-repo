@@ -16,8 +16,8 @@ Branch: `feat/finance-v2-savings-fund`
 ## Tasks
 
 - [x] T1 — S2 S4 S5 S6 S7 — Domain: `SavingsFundConfig`, `withdrawal` type, `paidFrom` union, `computeSavingsFundFlows`, totals + spendRollup exhaustiveness + label. RED (savingsFund import + totals unhandled `withdrawal`) → GREEN; finance-v2 640/640, tsc + prettier clean. pendingFromMain/homeFinanceSummary need no change (S6). Commit: see git log.
-- [ ] T2 — S2 S7 — Data: repository port, kv adapter key `finance-v2-savings-fund-config`, carried-in balance, server actions, `page.tsx` props + tests — route: inline — commit: pending
-- [ ] T3 — S2 S5 — Hook + screen + `SavingsFundCard` + config modal + view derivation + tests — route: inline — commit: pending
+- [x] T2 — S2 S7 — Data: `ISavingsFundRepository` port, kv adapter key `finance-v2-savings-fund-config`, `loadSavingsFundCarriedBalance`, validated server actions + barrel + tests. RED (15 failing) → GREEN; finance-v2 655/655, tsc + eslint + prettier clean. `page.tsx` wiring moved to T3 (the screen must accept the props first). Commit: see git log.
+- [ ] T3 — S2 S5 — `page.tsx` props + hook + screen + `SavingsFundCard` + config modal + view derivation + tests — route: inline — commit: pending
 - [ ] T4 — S3 S4 — Form/row/summary: "pagar desde ahorros" control on expenses, `withdrawal` type option, row labels, hook stamping + tests — route: inline — commit: pending
 - [ ] T5 — S1-S7 — Verify: full test suite, tsc, eslint, build; independent verify per-S# (data format touched) — route: gentle-ai-verify — commit: n/a
 

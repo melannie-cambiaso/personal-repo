@@ -3,6 +3,7 @@ import type {
   BudgetConfig,
   EnvelopeConfig,
   FinanceV2Transaction,
+  SavingsFundConfig,
 } from "@/features/finance-v2/domain";
 
 const cookiesGetMock = vi.hoisted(() => vi.fn());
@@ -12,6 +13,8 @@ const appendTransactionToMonthMock = vi.hoisted(() => vi.fn());
 const loadTransactionsMock = vi.hoisted(() => vi.fn());
 const saveEnvelopeConfigMock = vi.hoisted(() => vi.fn());
 const loadEnvelopeConfigMock = vi.hoisted(() => vi.fn());
+const saveSavingsFundConfigMock = vi.hoisted(() => vi.fn());
+const loadSavingsFundConfigMock = vi.hoisted(() => vi.fn());
 // Now mocked as a method on TransactionKvAdapter (the port adapter object), because
 // envelopeCarriedBalance receives the repo by parameter and calls loadForMonths on it.
 const loadForMonthsMock = vi.hoisted(() => vi.fn());
@@ -29,6 +32,8 @@ vi.mock("./kvAdapter", async (importOriginal) => {
     loadTransactions: loadTransactionsMock,
     saveEnvelopeConfig: saveEnvelopeConfigMock,
     loadEnvelopeConfig: loadEnvelopeConfigMock,
+    saveSavingsFundConfig: saveSavingsFundConfigMock,
+    loadSavingsFundConfig: loadSavingsFundConfigMock,
     TransactionKvAdapter: {
       ...actual.TransactionKvAdapter,
       loadForMonths: loadForMonthsMock,
@@ -43,6 +48,8 @@ import {
   handleLoadTransactions,
   handleSaveEnvelopeConfig,
   handleLoadEnvelopeCarriedBalance,
+  handleSaveSavingsFundConfig,
+  handleLoadSavingsFundCarriedBalance,
 } from "./financeV2Actions";
 import { generateToken } from "@/shared/auth";
 
@@ -433,5 +440,102 @@ describe("handleLoadEnvelopeCarriedBalance", () => {
 
     expect(loadForMonthsMock).toHaveBeenCalledWith(["2026-11", "2026-12"]);
     expect(result).toBe(30_000 + 200_000 - 80_000);
+  });
+});
+
+const fundConfig: SavingsFundConfig = {
+  name: "Ahorros",
+  openingBalance: 500_000,
+  openingMonth: "2026-10",
+};
+
+describe("handleSaveSavingsFundConfig", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does not save without a valid session", async () => {
+    withoutAuth();
+    await handleSaveSavingsFundConfig(fundConfig);
+    expect(saveSavingsFundConfigMock).not.toHaveBeenCalled();
+  });
+
+  it("saves a valid config, including a zero or negative opening balance", async () => {
+    withAuth();
+    await handleSaveSavingsFundConfig(fundConfig);
+    await handleSaveSavingsFundConfig({ ...fundConfig, openingBalance: 0 });
+    expect(saveSavingsFundConfigMock).toHaveBeenCalledTimes(2);
+    expect(saveSavingsFundConfigMock).toHaveBeenCalledWith(fundConfig);
+  });
+
+  it.each([
+    ["a blank name", { ...fundConfig, name: "   " }],
+    ["a non-string name", { ...fundConfig, name: 42 }],
+    ["a NaN openingBalance", { ...fundConfig, openingBalance: NaN }],
+    ["a numeric-string openingBalance", { ...fundConfig, openingBalance: "500000" }],
+    ["a malformed openingMonth", { ...fundConfig, openingMonth: "2026-13" }],
+    ["a missing openingMonth", { ...fundConfig, openingMonth: undefined }],
+  ])("drops a config with %s", async (_label, config) => {
+    withAuth();
+    await handleSaveSavingsFundConfig(config as unknown as SavingsFundConfig);
+    expect(saveSavingsFundConfigMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleLoadSavingsFundCarriedBalance", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns null without a valid session or for a malformed month", async () => {
+    withoutAuth();
+    expect(await handleLoadSavingsFundCarriedBalance("2026-11")).toBeNull();
+    withAuth();
+    expect(await handleLoadSavingsFundCarriedBalance("2026-13")).toBeNull();
+    expect(loadSavingsFundConfigMock).not.toHaveBeenCalled();
+  });
+
+  it("returns null when no fund is configured or the month predates it", async () => {
+    withAuth();
+    loadSavingsFundConfigMock.mockResolvedValue(null);
+    expect(await handleLoadSavingsFundCarriedBalance("2026-11")).toBeNull();
+    loadSavingsFundConfigMock.mockResolvedValue(fundConfig);
+    expect(await handleLoadSavingsFundCarriedBalance("2026-09")).toBeNull();
+  });
+
+  it("returns the opening balance for the opening month without reading transactions", async () => {
+    withAuth();
+    loadSavingsFundConfigMock.mockResolvedValue(fundConfig);
+    expect(await handleLoadSavingsFundCarriedBalance("2026-10")).toBe(500_000);
+    expect(loadForMonthsMock).not.toHaveBeenCalled();
+  });
+
+  it("adds deposits and subtracts withdrawals and fund-paid expenses of earlier months", async () => {
+    withAuth();
+    loadSavingsFundConfigMock.mockResolvedValue(fundConfig);
+    loadForMonthsMock.mockResolvedValue([
+      { id: "t1", type: "savings", amount: 100_000, date: "2026-10-01", month: "2026-10" },
+      { id: "t2", type: "withdrawal", amount: 30_000, date: "2026-10-02", month: "2026-10" },
+      {
+        id: "t3",
+        type: "expense",
+        amount: 20_000,
+        date: "2026-10-03",
+        month: "2026-10",
+        bucket: "variable",
+        category: { id: "super", name: "Supermercado" },
+        paidFrom: "savingsFund",
+      },
+      {
+        id: "t4",
+        type: "expense",
+        amount: 9_999,
+        date: "2026-10-04",
+        month: "2026-10",
+        bucket: "variable",
+        category: null,
+      },
+    ] satisfies FinanceV2Transaction[]);
+
+    const result = await handleLoadSavingsFundCarriedBalance("2026-11");
+
+    expect(loadForMonthsMock).toHaveBeenCalledWith(["2026-10"]);
+    expect(result).toBe(550_000);
   });
 });
