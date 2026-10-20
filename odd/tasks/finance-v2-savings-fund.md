@@ -17,7 +17,8 @@ Branch: `feat/finance-v2-savings-fund`
 
 - [x] T1 — S2 S4 S5 S6 S7 — Domain: `SavingsFundConfig`, `withdrawal` type, `paidFrom` union, `computeSavingsFundFlows`, totals + spendRollup exhaustiveness + label. RED (savingsFund import + totals unhandled `withdrawal`) → GREEN; finance-v2 640/640, tsc + prettier clean. pendingFromMain/homeFinanceSummary need no change (S6). Commit: see git log.
 - [x] T2 — S2 S7 — Data: `ISavingsFundRepository` port, kv adapter key `finance-v2-savings-fund-config`, `loadSavingsFundCarriedBalance`, validated server actions + barrel + tests. RED (15 failing) → GREEN; finance-v2 655/655, tsc + eslint + prettier clean. `page.tsx` wiring moved to T3 (the screen must accept the props first). Commit: see git log.
-- [ ] T3 — S2 S5 — `page.tsx` props + hook + screen + `SavingsFundCard` + config modal + view derivation + tests — route: inline — commit: pending
+- [x] T3a — S2 S5 — `useFinanceV2SavingsFund` hook (mirror copy, L5a) + `toSavingsFundView` + `SavingsFundCard` + `SavingsFundConfigModal` + tests. RED (missing modules) → GREEN 25/25; tsc + prettier clean; each piece reviewed with the user (L5). Commit: see git log.
+- [ ] T3b — S2 S5 — wiring: `TransactionsTab`, `FinanceV2Screen`, `page.tsx` props + tests — route: inline — commit: pending
 - [ ] T4 — S3 S4 — Form/row/summary: "pagar desde ahorros" control on expenses, `withdrawal` type option, row labels, hook stamping + tests — route: inline — commit: pending
 - [ ] T5 — S1-S7 — Verify: full test suite, tsc, eslint, build; independent verify per-S# (data format touched) — route: gentle-ai-verify — commit: n/a
 
@@ -26,3 +27,6 @@ Branch: `feat/finance-v2-savings-fund`
 - L1 — quiero incorporar ahorros en presupuesto, de modo que pueda hacer un tracking mas preciso de lo que se saca del ahorro hacia la cuenta y en qué se está gastando (sería como un nuevo envelope)
 - L2 — Será conveniente que los dos features queden tan acoplados? quizás podrímos hacer algo separado con un monto inicial y ya de apoco ir deprecando savings
 - L3 — Si, me parece la primera opcion
+- L4 — no estás escribiendo las cosas con write y no veo los cambios
+- L5a — (decision, user-confirmed) `useFinanceV2SavingsFund` is a deliberate mirror copy of `useFinanceV2Envelope`, not a shared generic hook. Follow-up debt: unify both into one generic carried-balance hook in a separate change, once the fund works.
+- L5 — también quiero que revisemos los cambios antes de continuar y que me los vayas explicando y los vayamos entendiendo y que guardes eso en memoria
