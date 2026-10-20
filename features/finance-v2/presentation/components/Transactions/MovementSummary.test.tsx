@@ -10,6 +10,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -32,6 +33,7 @@ describe("MovementSummary", () => {
       expense: 0,
       savings: 0,
       transfer: 0,
+      withdrawn: 0,
       balance: 0,
     };
 
@@ -46,6 +48,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -67,6 +70,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -82,6 +86,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -97,6 +102,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -116,6 +122,7 @@ describe("MovementSummary", () => {
       expense: 500,
       savings: 0,
       transfer: 0,
+      withdrawn: 0,
       balance: 300,
     };
 
@@ -133,6 +140,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -154,6 +162,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -172,6 +181,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -190,6 +200,7 @@ describe("MovementSummary", () => {
       expense: 20_000,
       savings: 0,
       transfer: 116_000,
+      withdrawn: 0,
       balance: 864_000,
     };
 
@@ -212,6 +223,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 

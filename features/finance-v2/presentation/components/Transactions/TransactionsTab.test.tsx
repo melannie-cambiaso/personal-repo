@@ -22,6 +22,7 @@ describe("TransactionsTab", () => {
     expense: 400,
     savings: 250,
     transfer: 0,
+    withdrawn: 0,
     balance: 350,
   };
   const categoryOptions: ExpenseCategoryOption[] = [];

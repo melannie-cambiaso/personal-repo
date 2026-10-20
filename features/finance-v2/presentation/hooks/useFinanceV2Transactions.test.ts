@@ -56,6 +56,7 @@ describe("useFinanceV2Transactions", () => {
       expense: 400,
       savings: 0,
       transfer: 0,
+      withdrawn: 0,
       balance: 600,
     });
     expect(result.current.dayGroups.map((g) => g.date)).toEqual(["2026-07-02", "2026-07-01"]);
@@ -327,6 +328,7 @@ describe("useFinanceV2Transactions", () => {
       expense: 500,
       savings: 0,
       transfer: 0,
+      withdrawn: 0,
       balance: 1500,
     });
     expect(result.current.dayGroups.map((g) => g.date)).toEqual(["2026-08-02", "2026-08-01"]);

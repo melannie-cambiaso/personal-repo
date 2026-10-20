@@ -36,18 +36,22 @@ interface TransactionBase {
  *  tagged as reallocated leftover budget — `income` never carries either.
  *  `transfer` is money moved from the main account into the envelope (see
  *  `EnvelopeConfig`): not an expense, not savings, consumes no budget leaf.
+ *  `withdrawal` is money moved from the savings fund (see `SavingsFundConfig`)
+ *  back into the main account: not an expense, consumes no budget leaf.
  *  `income` optionally carries a `source` snapshot of a budget income source;
  *  absent means "Sin fuente" (also every income saved before sources existed). */
 export type FinanceV2Transaction =
   | (TransactionBase & { type: "income"; source?: TransactionCategoryRef })
   | (TransactionBase & { type: "savings"; sourceCategory?: TransactionSourceCategoryRef })
   | (TransactionBase & { type: "transfer" })
+  | (TransactionBase & { type: "withdrawal" })
   | (TransactionBase & {
       type: "expense";
       bucket: ExpenseBucketKey;
       category: TransactionCategoryRef | null;
       /** Snapshot at creation (see `resolvePaidFrom`), never recomputed from the
-       *  current envelope/budget config. Absent = paid from the main account —
+       *  current envelope/budget/fund config. `"savingsFund"` can stamp ANY
+       *  category (unlike `"envelope"`). Absent = paid from the main account —
        *  also every legacy record persisted before the envelope existed. */
-      paidFrom?: "envelope";
+      paidFrom?: "envelope" | "savingsFund";
     });
