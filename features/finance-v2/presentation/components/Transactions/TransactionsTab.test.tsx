@@ -269,6 +269,54 @@ describe("TransactionsTab", () => {
     ).toBe(true);
   });
 
+  it("with a savings fund, the add form offers 'Pagar desde ahorros' and the withdrawal type", () => {
+    renderTab({ isAddOpen: true, savingsFund });
+
+    expect(screen.getByLabelText("Pagar desde ahorros")).toBeTruthy();
+    const types = (screen.getByLabelText("Tipo de movimiento") as HTMLSelectElement).options;
+    expect([...types].map((o) => o.text)).toContain("Retiro de ahorros");
+  });
+
+  it("without a savings fund, the add form offers neither", () => {
+    renderTab({ isAddOpen: true });
+
+    expect(screen.queryByLabelText("Pagar desde ahorros")).toBeNull();
+    const types = (screen.getByLabelText("Tipo de movimiento") as HTMLSelectElement).options;
+    expect([...types].map((o) => o.text)).not.toContain("Retiro de ahorros");
+  });
+
+  it("with a savings fund, labels fund movements with its name and shows the withdrawals row", () => {
+    const dayGroups: DayGroup[] = [
+      {
+        date: "2026-07-02",
+        transactions: [
+          { id: "w1", type: "withdrawal", amount: 20_000, date: "2026-07-02", month: "2026-07" },
+          {
+            id: "e1",
+            type: "expense",
+            amount: 7_000,
+            date: "2026-07-02",
+            month: "2026-07",
+            bucket: "variable",
+            category: { id: "super", name: "Supermercado" },
+            paidFrom: "savingsFund",
+          },
+        ],
+      },
+    ];
+    renderTab({ savingsFund, dayGroups });
+
+    expect(screen.getByText("Retiro de Ahorros")).toBeTruthy();
+    expect(screen.getByText("desde Ahorros")).toBeTruthy();
+    expect(screen.getByText("Retiros de ahorros")).toBeTruthy();
+  });
+
+  it("without a savings fund, shows no withdrawals row", () => {
+    renderTab();
+
+    expect(screen.queryByText("Retiros de ahorros")).toBeNull();
+  });
+
   it("keeps the envelope and the savings fund independent: both can be configured at once", () => {
     renderTab({ envelope, savingsFund });
 

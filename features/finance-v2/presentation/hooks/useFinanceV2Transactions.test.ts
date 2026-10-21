@@ -1017,4 +1017,108 @@ describe("useFinanceV2Transactions", () => {
       expect(onCrossMonthSaved).not.toHaveBeenCalled();
     });
   });
+
+  // The fund is an explicit per-expense choice made in the form (any category can use
+  // it), unlike the envelope, which the resolver derives from the category.
+  describe("savings fund funding stamp (explicit paidFrom)", () => {
+    const fundInput = (overrides: Record<string, unknown> = {}) => ({
+      type: "expense" as const,
+      amount: 7_000,
+      date: "2026-07-05",
+      month: "2026-07",
+      bucket: "variable" as const,
+      category: { id: "super", name: "Supermercado" },
+      paidFrom: "savingsFund" as const,
+      ...overrides,
+    });
+
+    const renderWith = (
+      initialTransactions: FinanceV2Transaction[],
+      resolvePaidFrom?: (categoryId: string | null) => "envelope" | undefined
+    ) =>
+      renderHook(() =>
+        useFinanceV2Transactions({
+          initialTransactions,
+          viewedMonth: "2026-07",
+          onSave,
+          onSaveToOtherMonth,
+          onLoad,
+          resolvePaidFrom,
+        })
+      );
+
+    it("keeps an explicit savingsFund stamp on a new expense without consulting the resolver", () => {
+      const resolvePaidFrom = vi.fn().mockReturnValue(undefined);
+      const { result } = renderWith([], resolvePaidFrom);
+
+      act(() => result.current.addTransaction(fundInput()));
+
+      expect(resolvePaidFrom).not.toHaveBeenCalled();
+      expect(result.current.transactions[0]).toMatchObject({ paidFrom: "savingsFund" });
+      expect(onSave.mock.calls[0][1][0]).toMatchObject({ paidFrom: "savingsFund" });
+    });
+
+    // paidFrom holds one funding source, so the user's explicit choice has to beat the
+    // category-derived envelope default.
+    it("lets an explicit savingsFund choice win over an envelope-bound category", () => {
+      const resolvePaidFrom = vi.fn().mockReturnValue("envelope");
+      const { result } = renderWith([], resolvePaidFrom);
+
+      act(() => result.current.addTransaction(fundInput({ category: { id: "luz", name: "Luz" } })));
+
+      expect(result.current.transactions[0]).toMatchObject({ paidFrom: "savingsFund" });
+    });
+
+    it("keeps savingsFund through an edit that still asks for it", () => {
+      const fundExpense: FinanceV2Transaction = {
+        id: "f1",
+        type: "expense",
+        amount: 7_000,
+        date: "2026-07-05",
+        month: "2026-07",
+        bucket: "variable",
+        category: { id: "super", name: "Supermercado" },
+        paidFrom: "savingsFund",
+      };
+      const { result } = renderWith([fundExpense]);
+
+      act(() => result.current.updateTransaction("f1", fundInput({ amount: 9_000 })));
+
+      expect(result.current.transactions[0]).toMatchObject({
+        amount: 9_000,
+        paidFrom: "savingsFund",
+      });
+    });
+
+    // Unchecking the box in the edit form must really clear the funding, even though
+    // the category did not change (otherwise the old snapshot would be kept forever).
+    it("drops savingsFund when an edit no longer asks for it, and re-resolves the funding", () => {
+      const fundExpense: FinanceV2Transaction = {
+        id: "f1",
+        type: "expense",
+        amount: 7_000,
+        date: "2026-07-05",
+        month: "2026-07",
+        bucket: "variable",
+        category: { id: "super", name: "Supermercado" },
+        paidFrom: "savingsFund",
+      };
+      const resolvePaidFrom = vi.fn().mockReturnValue(undefined);
+      const { result } = renderWith([fundExpense], resolvePaidFrom);
+
+      act(() =>
+        result.current.updateTransaction("f1", {
+          type: "expense",
+          amount: 7_000,
+          date: "2026-07-05",
+          month: "2026-07",
+          bucket: "variable",
+          category: { id: "super", name: "Supermercado" },
+        })
+      );
+
+      expect(resolvePaidFrom).toHaveBeenCalledWith("super");
+      expect("paidFrom" in result.current.transactions[0]).toBe(false);
+    });
+  });
 });

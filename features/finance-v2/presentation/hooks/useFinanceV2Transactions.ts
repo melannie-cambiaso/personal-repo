@@ -113,15 +113,23 @@ export function useFinanceV2Transactions({
     void onSave(loadedMonthRef.current, next);
   };
 
-  // Funding is a creation-time snapshot (design D1). An edit keeps it while the
-  // category is unchanged; a new category is resolved again exactly like a new expense.
-  // Stamped ONLY when envelope-paid: a main-account expense keeps no `paidFrom` key,
-  // exactly like every legacy record.
+  // Funding is a creation-time snapshot (design D1). Two sources, one field:
+  //  - `savingsFund` is an explicit choice made in the form, so it arrives on the input and
+  //    wins over the category-derived envelope default;
+  //  - the envelope is derived: an edit keeps it while the category is unchanged, a new
+  //    category is resolved again exactly like a new expense. A previous `savingsFund`
+  //    stamp is NOT carried over by an edit: if the input no longer asks for it, the user
+  //    unchecked it, so the funding is resolved afresh.
+  // Stamped ONLY when paid from the envelope or the fund: a main-account expense keeps no
+  // `paidFrom` key, exactly like every legacy record.
   const withFunding = (input: NewTransactionInput, previous?: FinanceV2Transaction) => {
     if (input.type !== "expense") return input;
+    if (input.paidFrom === "savingsFund") return input;
     const categoryId = input.category?.id ?? null;
     const paidFrom =
-      previous?.type === "expense" && (previous.category?.id ?? null) === categoryId
+      previous?.type === "expense" &&
+      previous.paidFrom !== "savingsFund" &&
+      (previous.category?.id ?? null) === categoryId
         ? previous.paidFrom
         : resolvePaidFrom?.(categoryId);
     return paidFrom === "envelope" ? { ...input, paidFrom } : input;

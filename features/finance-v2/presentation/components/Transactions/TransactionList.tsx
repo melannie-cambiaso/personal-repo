@@ -6,12 +6,19 @@ interface Props {
   onDelete: (id: string) => void;
   onEdit: (transaction: FinanceV2Transaction) => void;
   envelopeName: string | null;
+  savingsFundName?: string | null;
 }
 
 // Purely presentational — renders `dayGroups` in the order given. Ordering (day desc,
 // reverse insertion order within a day) is entirely `groupTransactionsByDay`'s job; this
 // component never re-sorts.
-export function TransactionList({ dayGroups, onDelete, onEdit, envelopeName }: Props) {
+export function TransactionList({
+  dayGroups,
+  onDelete,
+  onEdit,
+  envelopeName,
+  savingsFundName,
+}: Props) {
   if (dayGroups.length === 0) {
     return <p className="text-ink-500 text-sm">No hay movimientos este mes</p>;
   }
@@ -29,6 +36,7 @@ export function TransactionList({ dayGroups, onDelete, onEdit, envelopeName }: P
                 key={transaction.id}
                 transaction={transaction}
                 envelopeName={envelopeName}
+                savingsFundName={savingsFundName}
                 onDelete={onDelete}
                 onEdit={onEdit}
               />

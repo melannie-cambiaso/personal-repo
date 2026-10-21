@@ -30,6 +30,9 @@ interface Props {
   /** The viewed month's budget income sources, offered for an income (optional pick). */
   incomeSourceOptions?: TransactionCategoryRef[];
   hasEnvelope: boolean;
+  /** A savings fund is configured: offers the withdrawal type and, on an expense, the
+   *  "Pagar desde ahorros" choice. Optional so callers without a fund stay unchanged. */
+  hasSavingsFund?: boolean;
   /** Edit mode: seeds every field from this transaction and locks the month
    *  (editing never moves a transaction to another month). */
   initialTransaction?: FinanceV2Transaction;
@@ -43,6 +46,7 @@ export function TransactionForm({
   categoryOptions: liveCategoryOptions,
   incomeSourceOptions: liveIncomeSourceOptions = [],
   hasEnvelope,
+  hasSavingsFund = false,
   initialTransaction,
   onAdd,
 }: Props) {
@@ -58,10 +62,19 @@ export function TransactionForm({
   const monthOptions = monthWindow(viewedMonth, MONTH_RADIUS);
   // The form only offers a transfer once an envelope exists (spec) — or when
   // editing an existing transfer.
-  const typeOptions: TransactionType[] =
-    hasEnvelope || initialTransaction?.type === "transfer"
-      ? [...TRANSACTION_TYPE_ORDER, "transfer"]
-      : TRANSACTION_TYPE_ORDER;
+  const typeOptions: TransactionType[] = [
+    ...TRANSACTION_TYPE_ORDER,
+    ...(hasEnvelope || initialTransaction?.type === "transfer" ? (["transfer"] as const) : []),
+    // Same rule for the fund's withdrawal: offered once a fund exists, or while editing one.
+    ...(hasSavingsFund || initialTransaction?.type === "withdrawal"
+      ? (["withdrawal"] as const)
+      : []),
+  ];
+  // The checkbox follows the passive-orphan rule too: an already fund-paid expense keeps it
+  // (checked) even if the fund config is gone, so saving an unrelated field never drops it.
+  const showPayFromSavings =
+    hasSavingsFund ||
+    (initialTransaction?.type === "expense" && initialTransaction.paidFrom === "savingsFund");
 
   const [type, setType] = useState<TransactionType>(initialTransaction?.type ?? "expense");
   const [amount, setAmount] = useState(initialTransaction ? String(initialTransaction.amount) : "");
@@ -75,6 +88,11 @@ export function TransactionForm({
     initialTransaction?.type === "expense"
       ? (initialTransaction.category?.id ?? NO_CATEGORY)
       : NO_CATEGORY
+  );
+  // An explicit per-expense choice (any category can use the fund); seeded from the stored
+  // funding when editing and cleared on submit like the other expense-only fields.
+  const [payFromSavings, setPayFromSavings] = useState(
+    initialTransaction?.type === "expense" && initialTransaction.paidFrom === "savingsFund"
   );
   // Separate from `categoryId` on purpose (design D3): `type` switching does NOT
   // reset either id, only submit does — sharing one id would let an expense pick
@@ -105,6 +123,7 @@ export function TransactionForm({
     setBucket("fixed");
     setSourceCategoryId(NO_CATEGORY);
     setIncomeSourceId(NO_CATEGORY);
+    setPayFromSavings(false);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -124,6 +143,7 @@ export function TransactionForm({
         category: selectedCategory
           ? { id: selectedCategory.id, name: selectedCategory.name }
           : null,
+        ...(payFromSavings ? { paidFrom: "savingsFund" as const } : {}),
       });
     } else if (type === "savings") {
       onAdd({
@@ -221,6 +241,17 @@ export function TransactionForm({
                 { value: "variable", label: BUCKET_LABELS.variable },
               ]}
             />
+          )}
+          {showPayFromSavings && (
+            <label className="text-ink-700 flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={payFromSavings}
+                onChange={(e) => setPayFromSavings(e.target.checked)}
+                className="accent-brand-500 h-4 w-4"
+              />
+              Pagar desde ahorros
+            </label>
           )}
         </div>
       )}

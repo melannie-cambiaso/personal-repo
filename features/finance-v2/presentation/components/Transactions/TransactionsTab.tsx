@@ -123,7 +123,11 @@ export function TransactionsTab({
         </div>
       )}
       {envelope && <EnvelopeReminder view={envelope} />}
-      <MovementSummary totals={totals} hasEnvelope={hasEnvelope} />
+      <MovementSummary
+        totals={totals}
+        hasEnvelope={hasEnvelope}
+        hasSavingsFund={savingsFund !== null}
+      />
       {savingsFund ? (
         <SavingsFundCard view={savingsFund} onEdit={onOpenSavingsFundConfig} />
       ) : (
@@ -147,6 +151,7 @@ export function TransactionsTab({
         categoryOptions={categoryOptions}
         incomeSourceOptions={incomeSourceOptions}
         hasEnvelope={hasEnvelope}
+        hasSavingsFund={savingsFund !== null}
         editingTransaction={editingTransaction}
         onClose={onCloseAdd}
         onAdd={onAdd}
@@ -170,6 +175,7 @@ export function TransactionsTab({
         onDelete={onDelete}
         onEdit={onEdit}
         envelopeName={envelope?.config.name ?? null}
+        savingsFundName={savingsFund?.config.name ?? null}
       />
     </div>
   );
