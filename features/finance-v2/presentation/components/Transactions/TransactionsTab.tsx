@@ -25,6 +25,8 @@ import { SavingsFundConfigModal } from "./SavingsFund/SavingsFundConfigModal";
 import type { SavingsFundView } from "./SavingsFund/savingsFundView";
 
 interface Props {
+  /** Which half of the movements area to show: the month's summary and cards, or the list. */
+  view: "summary" | "list";
   viewedMonth: string;
   totals: TransactionTotals;
   dayGroups: DayGroup[];
@@ -75,6 +77,7 @@ interface Props {
 // change under an open modal would retarget the save). The add-transaction form lives in a
 // modal (not inline) so the movement list stays the main use of screen space.
 export function TransactionsTab({
+  view,
   viewedMonth,
   totals,
   dayGroups,
@@ -122,29 +125,35 @@ export function TransactionsTab({
           </button>
         </div>
       )}
-      {envelope && <EnvelopeReminder view={envelope} />}
-      <MovementSummary
-        totals={totals}
-        hasEnvelope={hasEnvelope}
-        hasSavingsFund={savingsFund !== null}
-      />
-      {savingsFund ? (
-        <SavingsFundCard view={savingsFund} onEdit={onOpenSavingsFundConfig} />
-      ) : (
-        <Button type="button" variant="secondary" onPress={onOpenSavingsFundConfig}>
-          Configurar ahorros
+      {view === "summary" && (
+        <>
+          {envelope && <EnvelopeReminder view={envelope} />}
+          <MovementSummary
+            totals={totals}
+            hasEnvelope={hasEnvelope}
+            hasSavingsFund={savingsFund !== null}
+          />
+          {savingsFund ? (
+            <SavingsFundCard view={savingsFund} onEdit={onOpenSavingsFundConfig} />
+          ) : (
+            <Button type="button" variant="secondary" onPress={onOpenSavingsFundConfig}>
+              Configurar ahorros
+            </Button>
+          )}
+          {envelope ? (
+            <EnvelopeCard view={envelope} onEdit={onOpenEnvelopeConfig} />
+          ) : (
+            <Button type="button" variant="secondary" onPress={onOpenEnvelopeConfig}>
+              Configurar cuenta separada
+            </Button>
+          )}
+        </>
+      )}
+      {view === "list" && (
+        <Button type="button" variant="primary" onPress={onOpenAdd}>
+          Nuevo movimiento
         </Button>
       )}
-      {envelope ? (
-        <EnvelopeCard view={envelope} onEdit={onOpenEnvelopeConfig} />
-      ) : (
-        <Button type="button" variant="secondary" onPress={onOpenEnvelopeConfig}>
-          Configurar cuenta separada
-        </Button>
-      )}
-      <Button type="button" variant="primary" onPress={onOpenAdd}>
-        Nuevo movimiento
-      </Button>
       <AddTransactionModal
         isOpen={isAddOpen}
         viewedMonth={viewedMonth}
@@ -170,13 +179,15 @@ export function TransactionsTab({
         onClose={onCloseSavingsFundConfig}
         onSave={onSaveSavingsFundConfig}
       />
-      <TransactionList
-        dayGroups={dayGroups}
-        onDelete={onDelete}
-        onEdit={onEdit}
-        envelopeName={envelope?.config.name ?? null}
-        savingsFundName={savingsFund?.config.name ?? null}
-      />
+      {view === "list" && (
+        <TransactionList
+          dayGroups={dayGroups}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          envelopeName={envelope?.config.name ?? null}
+          savingsFundName={savingsFund?.config.name ?? null}
+        />
+      )}
     </div>
   );
 }

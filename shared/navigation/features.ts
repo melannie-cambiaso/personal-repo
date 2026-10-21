@@ -18,6 +18,7 @@ export interface FeatureNavItem {
 
 export const FINANCE_V2_SECTIONS = [
   { key: "budget", label: "Presupuesto", icon: "🧾" },
+  { key: "summary", label: "Resumen", icon: "📋" },
   { key: "movements", label: "Movimientos", icon: "💸" },
   { key: "analysis", label: "Análisis", icon: "📊" },
 ] as const satisfies readonly FeatureNavSection[];

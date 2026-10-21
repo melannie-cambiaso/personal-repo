@@ -2,6 +2,7 @@
 export const PAGES = [
   { name: "inicio", path: "/" },
   { name: "finanzas-presupuesto", path: "/finance-v2" },
+  { name: "finanzas-resumen", path: "/finance-v2?section=summary" },
   { name: "finanzas-movimientos", path: "/finance-v2?section=movements" },
   { name: "finanzas-analisis", path: "/finance-v2?section=analysis" },
   { name: "ahorros-historial", path: "/savings" },

@@ -39,7 +39,12 @@ vi.mock("next/navigation", async () => {
   };
 });
 
-const SECTION_BY_LABEL = { Presupuesto: "budget", Movimientos: "movements", Análisis: "analysis" };
+const SECTION_BY_LABEL = {
+  Presupuesto: "budget",
+  Resumen: "summary",
+  Movimientos: "movements",
+  Análisis: "analysis",
+};
 const goTo = (label: keyof typeof SECTION_BY_LABEL) =>
   act(() => searchParamsStore.set(new URLSearchParams({ section: SECTION_BY_LABEL[label] })));
 
@@ -99,11 +104,20 @@ describe("FinanceV2Screen", () => {
   });
 
   it("opens the section named by the param", () => {
-    searchParamsStore.set(new URLSearchParams({ section: "movements" }));
+    searchParamsStore.set(new URLSearchParams({ section: "summary" }));
     render(<FinanceV2Screen {...defaultProps()} />);
 
     expect(screen.queryByText("Pendiente por categoría")).toBeNull();
     expect(screen.getByText("Balance")).toBeTruthy();
+    expect(screen.queryByText(/no hay movimientos/i)).toBeNull();
+  });
+
+  it("the movements section shows the list, not the summary", () => {
+    searchParamsStore.set(new URLSearchParams({ section: "movements" }));
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    expect(screen.getByText(/no hay movimientos/i)).toBeTruthy();
+    expect(screen.queryByText("Balance")).toBeNull();
   });
 
   it("falls back to Presupuesto for an unknown section param", () => {
@@ -165,10 +179,10 @@ describe("FinanceV2Screen", () => {
     });
   });
 
-  it("switches to the Movimientos tab, hiding the Presupuesto view", () => {
+  it("switches to the Resumen tab, hiding the Presupuesto view", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    goTo("Movimientos");
+    goTo("Resumen");
 
     expect(screen.queryByText("Pendiente por categoría")).toBeNull();
     expect(screen.getByText("Balance")).toBeTruthy();
@@ -327,9 +341,10 @@ describe("FinanceV2Screen", () => {
   it("the Movimientos tab is reachable independently of the Presupuesto tab, without affecting its state", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    goTo("Movimientos");
-
+    goTo("Resumen");
     expect(screen.getByText("Balance")).toBeTruthy();
+
+    goTo("Movimientos");
     expect(screen.getByText(/no hay movimientos/i)).toBeTruthy();
   });
 
@@ -342,15 +357,19 @@ describe("FinanceV2Screen", () => {
     fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "1000" } });
     fireEvent.click(screen.getByText("Agregar movimiento"));
 
-    // "$1.000" appears three times: the balance total, its income breakdown figure, and the row's own amount.
-    expect(screen.getAllByText("$1.000")).toHaveLength(3);
+    // The list view has no summary, so the amount appears once: the row's own figure.
+    expect(screen.getAllByText("$1.000")).toHaveLength(1);
     expect(screen.getByLabelText("Eliminar movimiento de $1.000")).toBeTruthy();
 
     goTo("Presupuesto");
     goTo("Movimientos");
 
-    expect(screen.getAllByText("$1.000")).toHaveLength(3);
+    expect(screen.getAllByText("$1.000")).toHaveLength(1);
     expect(screen.getByLabelText("Eliminar movimiento de $1.000")).toBeTruthy();
+
+    // The summary view shows the balance total and its income breakdown figure.
+    goTo("Resumen");
+    expect(screen.getAllByText("$1.000")).toHaveLength(2);
   });
 
   it("shows the shared MonthNav on first render, since Presupuesto is the default tab", () => {
@@ -618,7 +637,7 @@ describe("FinanceV2Screen", () => {
       await waitFor(() => expect(onLoadEnvelopeCarriedBalance).toHaveBeenCalledWith("2026-08"));
     });
 
-    it("shows the envelope card with the server-loaded carried-in balance on the Movimientos tab", () => {
+    it("shows the envelope card with the server-loaded carried-in balance on the Resumen tab", () => {
       render(
         <FinanceV2Screen
           {...defaultProps()}
@@ -628,13 +647,13 @@ describe("FinanceV2Screen", () => {
         />
       );
 
-      goTo("Movimientos");
+      goTo("Resumen");
 
       expect(screen.getByText("Saldo inicial del mes").nextSibling?.textContent).toBe("$7.000");
     });
 
     // Spec: `openingMonth` is set once, on creation, to the viewed month.
-    it("creating the envelope from the Movimientos tab saves it with openingMonth = the viewed month", () => {
+    it("creating the envelope from the Resumen tab saves it with openingMonth = the viewed month", () => {
       const onSaveEnvelopeConfig = vi.fn();
       render(
         <FinanceV2Screen
@@ -648,7 +667,7 @@ describe("FinanceV2Screen", () => {
         />
       );
 
-      goTo("Movimientos");
+      goTo("Resumen");
       fireEvent.click(screen.getByText("Configurar cuenta separada"));
       fireEvent.change(screen.getByLabelText("Nombre de la cuenta"), {
         target: { value: "Servicios" },
@@ -767,7 +786,7 @@ describe("FinanceV2Screen", () => {
     it("opening the envelope config modal disables the shared MonthNav", () => {
       render(<FinanceV2Screen {...defaultProps()} initialBudgetVersions={seed(cuentasWithLuz)} />);
 
-      goTo("Movimientos");
+      goTo("Resumen");
       fireEvent.click(screen.getByText("Configurar cuenta separada"));
 
       expect(
@@ -784,7 +803,7 @@ describe("FinanceV2Screen — savings fund wiring", () => {
     openingMonth: "2026-05",
   };
 
-  it("shows the fund card with the server-loaded carried-in balance on the Movimientos tab", () => {
+  it("shows the fund card with the server-loaded carried-in balance on the Resumen tab", () => {
     render(
       <FinanceV2Screen
         {...defaultProps()}
@@ -793,7 +812,7 @@ describe("FinanceV2Screen — savings fund wiring", () => {
       />
     );
 
-    goTo("Movimientos");
+    goTo("Resumen");
 
     expect(screen.getByText("Retirado a la cuenta")).toBeTruthy();
     expect(screen.getByText("Saldo inicial del mes").nextSibling?.textContent).toBe("$480.000");
@@ -822,7 +841,7 @@ describe("FinanceV2Screen — savings fund wiring", () => {
       />
     );
 
-    goTo("Movimientos");
+    goTo("Resumen");
 
     expect(screen.getByText("Depositado").nextSibling?.textContent).toBe("$50.000");
     expect(screen.getByText("Retirado a la cuenta").nextSibling?.textContent).toBe("$20.000");
@@ -852,7 +871,7 @@ describe("FinanceV2Screen — savings fund wiring", () => {
       <FinanceV2Screen {...defaultProps()} onSaveSavingsFundConfig={onSaveSavingsFundConfig} />
     );
 
-    goTo("Movimientos");
+    goTo("Resumen");
     fireEvent.click(screen.getByText("Configurar ahorros"));
     fireEvent.change(screen.getByLabelText("Nombre del fondo"), { target: { value: "Ahorros" } });
     fireEvent.change(screen.getByLabelText("Saldo inicial"), { target: { value: "500000" } });
@@ -885,7 +904,7 @@ describe("FinanceV2Screen — savings fund wiring", () => {
   it("opening the fund config modal disables the shared MonthNav", () => {
     render(<FinanceV2Screen {...defaultProps()} />);
 
-    goTo("Movimientos");
+    goTo("Resumen");
     fireEvent.click(screen.getByText("Configurar ahorros"));
 
     expect(

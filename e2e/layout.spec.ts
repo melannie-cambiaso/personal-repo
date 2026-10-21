@@ -60,6 +60,19 @@ test.describe("desktop", () => {
     await expect(page).toHaveURL(/section=movements/);
     await expect(page.getByRole("heading", { level: 1, name: "Movimientos" })).toBeVisible();
   });
+
+  test("Resumen and Movimientos split the summary from the list", async ({ page }) => {
+    await page.goto("/finance-v2");
+    await sidebar(page).getByRole("link", { name: "Resumen" }).click();
+    await expect(page).toHaveURL(/section=summary/);
+    await expect(page.getByRole("heading", { level: 1, name: "Resumen" })).toBeVisible();
+    await expect(page.getByText("Balance")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Nuevo movimiento" })).toHaveCount(0);
+
+    await sidebar(page).getByRole("link", { name: "Movimientos" }).click();
+    await expect(page.getByRole("button", { name: "Nuevo movimiento" })).toBeVisible();
+    await expect(page.getByText("Balance")).toHaveCount(0);
+  });
 });
 
 test.describe("mobile", () => {
