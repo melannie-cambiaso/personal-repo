@@ -15,6 +15,7 @@ interface Props {
   categoryOptions: ExpenseCategoryOption[];
   incomeSourceOptions?: TransactionCategoryRef[];
   hasEnvelope: boolean;
+  hasSavingsFund?: boolean;
   /** Present = edit mode: the form is seeded from it and submit calls `onUpdate`. */
   editingTransaction?: FinanceV2Transaction | null;
   onClose: () => void;
@@ -28,6 +29,7 @@ export function AddTransactionModal({
   categoryOptions,
   incomeSourceOptions,
   hasEnvelope,
+  hasSavingsFund,
   editingTransaction,
   onClose,
   onAdd,
@@ -53,6 +55,7 @@ export function AddTransactionModal({
         categoryOptions={categoryOptions}
         incomeSourceOptions={incomeSourceOptions}
         hasEnvelope={hasEnvelope}
+        hasSavingsFund={hasSavingsFund}
         initialTransaction={editingTransaction ?? undefined}
         onAdd={handleSubmit}
       />

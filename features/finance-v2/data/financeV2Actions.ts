@@ -6,6 +6,7 @@ import type {
   BudgetConfig,
   EnvelopeConfig,
   FinanceV2Transaction,
+  SavingsFundConfig,
 } from "@/features/finance-v2/domain";
 import { isTransactionMonth } from "@/features/finance-v2/domain";
 import {
@@ -15,9 +16,12 @@ import {
   loadTransactions,
   saveEnvelopeConfig,
   loadEnvelopeConfig,
+  saveSavingsFundConfig,
+  loadSavingsFundConfig,
   TransactionKvAdapter,
 } from "./kvAdapter";
 import { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
+import { loadSavingsFundCarriedBalance } from "./savingsFundCarriedBalance";
 import { currentMonth } from "@/shared/utils/monthUtils";
 
 // Saves the budget version effective from `month` (the viewed month being edited).
@@ -100,4 +104,34 @@ export async function handleLoadEnvelopeCarriedBalance(month: string): Promise<n
   if (!isAuthorized(cookieStore)) return null;
   if (!isTransactionMonth(month)) return null;
   return loadEnvelopeCarriedBalance(await loadEnvelopeConfig(), month, TransactionKvAdapter);
+}
+
+// Same validation stance as the envelope config: every field feeds arithmetic or a month
+// comparison later, so a malformed config is dropped rather than persisted.
+export async function handleSaveSavingsFundConfig(config: SavingsFundConfig): Promise<void> {
+  const cookieStore = await cookies();
+  if (!isAuthorized(cookieStore)) return;
+  if (!isValidSavingsFundConfig(config)) return;
+  await saveSavingsFundConfig(config);
+}
+
+function isValidSavingsFundConfig(config: SavingsFundConfig | null): boolean {
+  if (typeof config !== "object" || config === null) return false;
+  return (
+    typeof config.name === "string" &&
+    config.name.trim() !== "" &&
+    typeof config.openingBalance === "number" &&
+    Number.isFinite(config.openingBalance) &&
+    typeof config.openingMonth === "string" &&
+    isTransactionMonth(config.openingMonth)
+  );
+}
+
+// Client-hook entry point on every month change: gates auth and validates `month` itself,
+// like `handleLoadEnvelopeCarriedBalance`.
+export async function handleLoadSavingsFundCarriedBalance(month: string): Promise<number | null> {
+  const cookieStore = await cookies();
+  if (!isAuthorized(cookieStore)) return null;
+  if (!isTransactionMonth(month)) return null;
+  return loadSavingsFundCarriedBalance(await loadSavingsFundConfig(), month, TransactionKvAdapter);
 }

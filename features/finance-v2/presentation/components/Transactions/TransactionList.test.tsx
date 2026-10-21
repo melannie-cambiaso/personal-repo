@@ -44,4 +44,25 @@ describe("TransactionList", () => {
     const amounts = screen.getAllByText(/\$\d/).map((el) => el.textContent);
     expect(amounts).toEqual(["$300", "$200", "$100"]);
   });
+
+  it("passes the savings fund name down to the rows", () => {
+    render(
+      <TransactionList
+        dayGroups={[
+          {
+            date: "2026-07-02",
+            transactions: [
+              { id: "w1", type: "withdrawal", amount: 20000, date: "2026-07-02", month: "2026-07" },
+            ],
+          },
+        ]}
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+        envelopeName={null}
+        savingsFundName="Ahorros"
+      />
+    );
+
+    expect(screen.getByText("Retiro de Ahorros")).toBeTruthy();
+  });
 });

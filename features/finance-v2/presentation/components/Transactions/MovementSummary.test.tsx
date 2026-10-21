@@ -10,6 +10,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -32,6 +33,7 @@ describe("MovementSummary", () => {
       expense: 0,
       savings: 0,
       transfer: 0,
+      withdrawn: 0,
       balance: 0,
     };
 
@@ -46,6 +48,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -67,6 +70,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -82,6 +86,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -97,6 +102,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -116,6 +122,7 @@ describe("MovementSummary", () => {
       expense: 500,
       savings: 0,
       transfer: 0,
+      withdrawn: 0,
       balance: 300,
     };
 
@@ -133,6 +140,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -154,6 +162,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -172,6 +181,7 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
@@ -190,6 +200,7 @@ describe("MovementSummary", () => {
       expense: 20_000,
       savings: 0,
       transfer: 116_000,
+      withdrawn: 0,
       balance: 864_000,
     };
 
@@ -212,11 +223,42 @@ describe("MovementSummary", () => {
       expense: 400,
       savings: 250,
       transfer: 0,
+      withdrawn: 0,
       balance: 350,
     };
 
     render(<MovementSummary totals={totals} hasEnvelope={false} />);
 
     expect(screen.queryByText("Transferencias")).toBeNull();
+  });
+
+  describe("with a savings fund", () => {
+    const totals: TransactionTotals = {
+      income: 1_000_000,
+      expense: 20_000,
+      savings: 0,
+      transfer: 0,
+      withdrawn: 30_000,
+      balance: 1_010_000,
+    };
+
+    it("adds the withdrawals to the breakdown and shows a Retiros de ahorros row", () => {
+      render(<MovementSummary totals={totals} hasEnvelope={false} hasSavingsFund />);
+
+      expect(screen.getByText("Retiros de ahorros").nextSibling?.textContent).toBe("$30.000");
+      expect(screen.getByText("$1.010.000")).toBeTruthy();
+
+      const breakdownLine = screen.getByText("$1.000.000").parentElement;
+      const plus = screen.getByText("+");
+      expect(plus.parentElement).toBe(breakdownLine);
+      expect(plus.nextSibling?.textContent).toBe("$30.000");
+    });
+
+    it("without a fund, renders no withdrawals row and no plus term", () => {
+      render(<MovementSummary totals={totals} hasEnvelope={false} />);
+
+      expect(screen.queryByText("Retiros de ahorros")).toBeNull();
+      expect(screen.queryByText("+")).toBeNull();
+    });
   });
 });

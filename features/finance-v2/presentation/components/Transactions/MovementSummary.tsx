@@ -4,6 +4,8 @@ import { formatCLP } from "@/shared/utils/formatCurrency";
 interface Props {
   totals: TransactionTotals;
   hasEnvelope: boolean;
+  /** A savings fund is configured: its withdrawals come back into the account. */
+  hasSavingsFund?: boolean;
 }
 
 // Balance is `income - expense - savings - transfer` (savings and transfers leave the
@@ -15,7 +17,10 @@ interface Props {
 // computeTransactionTotals. The standalone "Ahorro" row stays as its own plain monthly
 // sum, which is why the savings figure intentionally appears twice in this tree.
 // Still no comparison against tab 1's savings target.
-export function MovementSummary({ totals, hasEnvelope }: Props) {
+// A savings-fund withdrawal is the one term that ADDS to the balance (money returns to the
+// account), so with a fund the breakdown ends in `+ withdrawn` and a row repeats it, exactly
+// like the transfer. Fund-paid expenses are already excluded from `expense`.
+export function MovementSummary({ totals, hasEnvelope, hasSavingsFund = false }: Props) {
   return (
     <div className="border-surface-300 bg-surface-100 flex flex-col gap-3 rounded-3xl border-2 p-5">
       <div className="border-surface-300 bg-surface-50/70 flex flex-col gap-1 rounded-2xl border-2 px-4 py-3">
@@ -39,6 +44,14 @@ export function MovementSummary({ totals, hasEnvelope }: Props) {
               </span>
             </>
           )}
+          {hasSavingsFund && (
+            <>
+              <span className="text-ink-400">+</span>
+              <span className="font-figure font-bold text-green-700">
+                {formatCLP(totals.withdrawn)}
+              </span>
+            </>
+          )}
         </div>
       </div>
       <div className="flex items-center justify-between gap-2 px-1">
@@ -52,6 +65,14 @@ export function MovementSummary({ totals, hasEnvelope }: Props) {
           <span className="text-ink-600">Transferencias</span>
           <span className="font-figure text-ink-800 text-sm font-bold">
             {formatCLP(totals.transfer)}
+          </span>
+        </div>
+      )}
+      {hasSavingsFund && (
+        <div className="flex items-center justify-between gap-2 px-1">
+          <span className="text-ink-600">Retiros de ahorros</span>
+          <span className="font-figure text-ink-800 text-sm font-bold">
+            {formatCLP(totals.withdrawn)}
           </span>
         </div>
       )}

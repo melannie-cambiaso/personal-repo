@@ -66,6 +66,9 @@ export { computeTransactionTotals } from "./transactionTotals";
 export type { EnvelopeConfig } from "./EnvelopeConfig";
 export type { EnvelopeFlows } from "./envelope";
 export { computeEnvelopeFlows, monthsFromTo, resolvePaidFrom, suggestedTransfer } from "./envelope";
+export type { SavingsFundConfig } from "./SavingsFundConfig";
+export type { SavingsFundFlows } from "./savingsFund";
+export { computeSavingsFundFlows } from "./savingsFund";
 export { computePendingFromMain } from "./pendingFromMain";
 export { computePendingByCategory } from "./pendingByCategory";
 export type { DayGroup } from "./groupTransactionsByDay";
@@ -75,4 +78,9 @@ export { listExpenseCategoryOptions } from "./expenseCategoryOptions";
 
 // Ports — interfaces the domain requires from infrastructure.
 // Adapters live in data/ and must satisfy these contracts.
-export type { IBudgetRepository, ITransactionRepository, IEnvelopeRepository } from "./ports";
+export type {
+  IBudgetRepository,
+  ITransactionRepository,
+  IEnvelopeRepository,
+  ISavingsFundRepository,
+} from "./ports";

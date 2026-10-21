@@ -7,6 +7,8 @@ interface Props {
   transaction: FinanceV2Transaction;
   /** The configured envelope's name; `null` when none is configured. */
   envelopeName: string | null;
+  /** The configured savings fund's name; `null`/absent when none is configured. */
+  savingsFundName?: string | null;
   onDelete: (id: string) => void;
   onEdit: (transaction: FinanceV2Transaction) => void;
 }
@@ -16,12 +18,20 @@ interface Props {
  *  snapshot taken at creation time. There is structurally no way for it to
  *  perform a live lookup, so a deleted Budget-tab subcategory can never break
  *  this row (locked design decision). `envelopeName` does not break that rule: it
- *  is config (a display name for the single envelope), not a category snapshot. */
-function primaryLabel(transaction: FinanceV2Transaction, envelopeName: string | null): string {
+ *  is config (a display name for the single envelope), not a category snapshot. The
+ *  savings fund's name follows the same rule. */
+function primaryLabel(
+  transaction: FinanceV2Transaction,
+  envelopeName: string | null,
+  savingsFundName: string | null
+): string {
   if (transaction.type === "transfer") {
     return envelopeName
       ? `${TRANSACTION_TYPE_LABELS.transfer} → ${envelopeName}`
       : TRANSACTION_TYPE_LABELS.transfer;
+  }
+  if (transaction.type === "withdrawal") {
+    return savingsFundName ? `Retiro de ${savingsFundName}` : TRANSACTION_TYPE_LABELS.withdrawal;
   }
   if (transaction.type !== "expense") {
     return TRANSACTION_TYPE_LABELS[transaction.type];
@@ -29,14 +39,27 @@ function primaryLabel(transaction: FinanceV2Transaction, envelopeName: string | 
   return transaction.category ? transaction.category.name : BUCKET_LABELS[transaction.bucket];
 }
 
-export function TransactionRow({ transaction, envelopeName, onDelete, onEdit }: Props) {
+export function TransactionRow({
+  transaction,
+  envelopeName,
+  savingsFundName = null,
+  onDelete,
+  onEdit,
+}: Props) {
   return (
     <div className="border-surface-300 flex items-center justify-between gap-2 border-t border-dashed pt-3 first:border-t-0 first:pt-0">
       <div className="flex min-w-0 flex-col">
-        <span className="text-ink-900 truncate">{primaryLabel(transaction, envelopeName)}</span>
+        <span className="text-ink-900 truncate">
+          {primaryLabel(transaction, envelopeName, savingsFundName)}
+        </span>
         {transaction.type === "expense" && transaction.paidFrom === "envelope" && (
           <span className="text-ink-500 truncate text-sm">
             desde {envelopeName ?? "cuenta separada"}
+          </span>
+        )}
+        {transaction.type === "expense" && transaction.paidFrom === "savingsFund" && (
+          <span className="text-ink-500 truncate text-sm">
+            desde {savingsFundName ?? "ahorros"}
           </span>
         )}
         {transaction.type === "savings" && transaction.sourceCategory && (

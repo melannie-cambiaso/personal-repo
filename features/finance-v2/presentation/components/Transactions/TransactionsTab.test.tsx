@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { TransactionsTab } from "./TransactionsTab";
 import type { EnvelopeView } from "./Envelope/envelopeView";
+import type { SavingsFundView } from "./SavingsFund/savingsFundView";
 import type {
   DayGroup,
   ExpenseCategoryOption,
@@ -22,6 +23,7 @@ describe("TransactionsTab", () => {
     expense: 400,
     savings: 250,
     transfer: 0,
+    withdrawn: 0,
     balance: 350,
   };
   const categoryOptions: ExpenseCategoryOption[] = [];
@@ -47,6 +49,11 @@ describe("TransactionsTab", () => {
     isEnvelopeConfigOpen: false,
     onOpenEnvelopeConfig: vi.fn(),
     onCloseEnvelopeConfig: vi.fn(),
+    savingsFund: null,
+    onSaveSavingsFundConfig: vi.fn(),
+    isSavingsFundConfigOpen: false,
+    onOpenSavingsFundConfig: vi.fn(),
+    onCloseSavingsFundConfig: vi.fn(),
     ...overrides,
   });
 
@@ -63,6 +70,12 @@ describe("TransactionsTab", () => {
     carriedIn: 7_000,
     flows: { transferred: 0, paid: 0 },
     suggestedTransfer: 116_000,
+  };
+
+  const savingsFund: SavingsFundView = {
+    config: { name: "Ahorros", openingBalance: 500_000, openingMonth: "2026-07" },
+    carriedIn: 480_000,
+    flows: { deposited: 0, withdrawn: 0, spent: 0 },
   };
 
   it("wires the summary — shows balance and savings from the given totals", () => {
@@ -204,5 +217,110 @@ describe("TransactionsTab", () => {
     renderTab({ isEnvelopeConfigOpen: true });
 
     expect(screen.getByLabelText("Nombre de la cuenta")).toBeTruthy();
+  });
+
+  it("with no savings fund, offers 'Configurar ahorros' and shows no fund card", () => {
+    const onOpenSavingsFundConfig = vi.fn();
+    renderTab({ onOpenSavingsFundConfig });
+
+    fireEvent.click(screen.getByRole("button", { name: "Configurar ahorros" }));
+
+    expect(onOpenSavingsFundConfig).toHaveBeenCalledOnce();
+    expect(screen.queryByText("Retirado a la cuenta")).toBeNull();
+  });
+
+  it("with a savings fund, shows its card, and the card's edit button opens the config", () => {
+    const onOpenSavingsFundConfig = vi.fn();
+    renderTab({ savingsFund, onOpenSavingsFundConfig });
+
+    expect(screen.getByText("Retirado a la cuenta")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Configurar ahorros" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar ahorros" }));
+
+    expect(onOpenSavingsFundConfig).toHaveBeenCalledOnce();
+  });
+
+  it("renders the savings fund config modal open when isSavingsFundConfigOpen is true", () => {
+    renderTab({ isSavingsFundConfigOpen: true });
+
+    expect(screen.getByLabelText("Nombre del fondo")).toBeTruthy();
+  });
+
+  it("places the savings fund above the envelope, whether configured or not", () => {
+    const precedes = (first: HTMLElement, second: HTMLElement) =>
+      Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING);
+
+    const { unmount } = renderTab({ envelope, savingsFund });
+    expect(
+      precedes(
+        screen.getByRole("button", { name: "Editar ahorros" }),
+        screen.getByRole("button", { name: "Editar cuenta" })
+      )
+    ).toBe(true);
+    unmount();
+
+    renderTab();
+    expect(
+      precedes(
+        screen.getByRole("button", { name: "Configurar ahorros" }),
+        screen.getByRole("button", { name: "Configurar cuenta separada" })
+      )
+    ).toBe(true);
+  });
+
+  it("with a savings fund, the add form offers 'Pagar desde ahorros' and the withdrawal type", () => {
+    renderTab({ isAddOpen: true, savingsFund });
+
+    expect(screen.getByLabelText("Pagar desde ahorros")).toBeTruthy();
+    const types = (screen.getByLabelText("Tipo de movimiento") as HTMLSelectElement).options;
+    expect([...types].map((o) => o.text)).toContain("Retiro de ahorros");
+  });
+
+  it("without a savings fund, the add form offers neither", () => {
+    renderTab({ isAddOpen: true });
+
+    expect(screen.queryByLabelText("Pagar desde ahorros")).toBeNull();
+    const types = (screen.getByLabelText("Tipo de movimiento") as HTMLSelectElement).options;
+    expect([...types].map((o) => o.text)).not.toContain("Retiro de ahorros");
+  });
+
+  it("with a savings fund, labels fund movements with its name and shows the withdrawals row", () => {
+    const dayGroups: DayGroup[] = [
+      {
+        date: "2026-07-02",
+        transactions: [
+          { id: "w1", type: "withdrawal", amount: 20_000, date: "2026-07-02", month: "2026-07" },
+          {
+            id: "e1",
+            type: "expense",
+            amount: 7_000,
+            date: "2026-07-02",
+            month: "2026-07",
+            bucket: "variable",
+            category: { id: "super", name: "Supermercado" },
+            paidFrom: "savingsFund",
+          },
+        ],
+      },
+    ];
+    renderTab({ savingsFund, dayGroups });
+
+    expect(screen.getByText("Retiro de Ahorros")).toBeTruthy();
+    expect(screen.getByText("desde Ahorros")).toBeTruthy();
+    expect(screen.getByText("Retiros de ahorros")).toBeTruthy();
+  });
+
+  it("without a savings fund, shows no withdrawals row", () => {
+    renderTab();
+
+    expect(screen.queryByText("Retiros de ahorros")).toBeNull();
+  });
+
+  it("keeps the envelope and the savings fund independent: both can be configured at once", () => {
+    renderTab({ envelope, savingsFund });
+
+    expect(screen.getByRole("button", { name: "Editar cuenta" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Editar ahorros" })).toBeTruthy();
   });
 });

@@ -7,6 +7,7 @@ import type {
   BudgetVersion,
   EnvelopeConfig,
   FinanceV2Transaction,
+  SavingsFundConfig,
 } from "@/features/finance-v2/domain";
 import {
   computeIncomeComparison,
@@ -19,6 +20,7 @@ import {
 } from "@/features/finance-v2/domain";
 import { useFinanceV2Budget } from "../../hooks/useFinanceV2Budget";
 import { useFinanceV2Envelope } from "../../hooks/useFinanceV2Envelope";
+import { useFinanceV2SavingsFund } from "../../hooks/useFinanceV2SavingsFund";
 import { useFinanceV2Transactions } from "../../hooks/useFinanceV2Transactions";
 import { BudgetTab } from "../../components/Budget/BudgetTab";
 import { IncomeBudget } from "../../components/Budget/IncomeBudget";
@@ -28,6 +30,7 @@ import type { BudgetMode } from "../../components/Budget/budgetMode";
 import { toSpendView } from "../../components/Budget/spendView";
 import { toAccountCoverageView } from "../../components/Budget/accountCoverageView";
 import { toEnvelopeView } from "../../components/Transactions/Envelope/envelopeView";
+import { toSavingsFundView } from "../../components/Transactions/SavingsFund/savingsFundView";
 import { PageHeader, MonthNav } from "@/shared/components";
 import { FINANCE_V2_SECTIONS, SECTION_PARAM, resolveSection } from "@/shared/navigation/features";
 import { formatMonth } from "@/shared/utils/formatMonth";
@@ -47,6 +50,10 @@ interface Props {
   initialCarriedIn: number | null;
   onSaveEnvelopeConfig: (config: EnvelopeConfig) => Promise<void> | void;
   onLoadEnvelopeCarriedBalance: (month: string) => Promise<number | null>;
+  initialSavingsFundConfig: SavingsFundConfig | null;
+  initialSavingsFundCarriedIn: number | null;
+  onSaveSavingsFundConfig: (config: SavingsFundConfig) => Promise<void> | void;
+  onLoadSavingsFundCarriedBalance: (month: string) => Promise<number | null>;
 }
 
 // `useFinanceV2Budget` and `useFinanceV2Transactions` stay hoisted here (design decision
@@ -68,6 +75,10 @@ export function FinanceV2Screen({
   initialCarriedIn,
   onSaveEnvelopeConfig,
   onLoadEnvelopeCarriedBalance,
+  initialSavingsFundConfig,
+  initialSavingsFundCarriedIn,
+  onSaveSavingsFundConfig,
+  onLoadSavingsFundCarriedBalance,
 }: Props) {
   // Hoisted (design decision #1): tabs are conditionally rendered, so month state must
   // survive a tab switch. `setViewedMonth` is wired into `TransactionsTab`'s
@@ -116,6 +127,22 @@ export function FinanceV2Screen({
     onLoadCarriedBalance: onLoadEnvelopeCarriedBalance,
   });
 
+  // Same hoisting rationale as the envelope. Independent of it: the fund binds to no
+  // category, so it plays no part in `resolvePaidFrom` or the pending figures.
+  const {
+    config: savingsFundConfig,
+    saveConfig: saveSavingsFundConfig,
+    carriedIn: savingsFundCarriedIn,
+    isLoadingCarried: isLoadingSavingsFundCarried,
+    refreshCarried: refreshSavingsFundCarried,
+  } = useFinanceV2SavingsFund({
+    initialConfig: initialSavingsFundConfig,
+    initialCarriedIn: initialSavingsFundCarriedIn,
+    viewedMonth,
+    onSaveConfig: onSaveSavingsFundConfig,
+    onLoadCarriedBalance: onLoadSavingsFundCarriedBalance,
+  });
+
   const {
     transactions,
     totals,
@@ -137,7 +164,10 @@ export function FinanceV2Screen({
     resolvePaidFrom: (categoryId) => resolvePaidFrom(envelopeConfig, { categories }, categoryId),
     // Only an earlier month feeds the viewed month's carried-in balance.
     onCrossMonthSaved: (month) => {
-      if (month < viewedMonth) refreshCarried();
+      if (month < viewedMonth) {
+        refreshCarried();
+        refreshSavingsFundCarried();
+      }
     },
   });
 
@@ -211,6 +241,13 @@ export function FinanceV2Screen({
     month: viewedMonth,
   });
 
+  const savingsFund = toSavingsFundView({
+    config: savingsFundConfig,
+    carriedIn: savingsFundCarriedIn,
+    isLoading: isLoadingMonth || isLoadingSavingsFundCarried,
+    transactions,
+  });
+
   // The section is chosen from the app menu (`AppNav`) and lives in the URL, so it
   // survives a reload and can be linked to. Missing or unknown values fall back to
   // Presupuesto.
@@ -232,6 +269,8 @@ export function FinanceV2Screen({
   const [editingTransaction, setEditingTransaction] = useState<FinanceV2Transaction | null>(null);
   // Same guard: creating the envelope stamps `openingMonth` from `viewedMonth`.
   const [isEnvelopeConfigOpen, setIsEnvelopeConfigOpen] = useState(false);
+  // Same guard for the fund: creating it also stamps `openingMonth` from `viewedMonth`.
+  const [isSavingsFundConfigOpen, setIsSavingsFundConfigOpen] = useState(false);
 
   return (
     <main className="flex flex-1 flex-col">
@@ -242,7 +281,7 @@ export function FinanceV2Screen({
             label={formatMonth(viewedMonth)}
             onPrev={() => setViewedMonth(prevMonth(viewedMonth))}
             onNext={() => setViewedMonth(nextMonth(viewedMonth))}
-            disabled={isAddOpen || isEnvelopeConfigOpen}
+            disabled={isAddOpen || isEnvelopeConfigOpen || isSavingsFundConfigOpen}
           />
         </div>
       </PageHeader>
@@ -318,6 +357,11 @@ export function FinanceV2Screen({
             isEnvelopeConfigOpen={isEnvelopeConfigOpen}
             onOpenEnvelopeConfig={() => setIsEnvelopeConfigOpen(true)}
             onCloseEnvelopeConfig={() => setIsEnvelopeConfigOpen(false)}
+            savingsFund={savingsFund}
+            onSaveSavingsFundConfig={saveSavingsFundConfig}
+            isSavingsFundConfigOpen={isSavingsFundConfigOpen}
+            onOpenSavingsFundConfig={() => setIsSavingsFundConfigOpen(true)}
+            onCloseSavingsFundConfig={() => setIsSavingsFundConfigOpen(false)}
           />
         )}
       </div>

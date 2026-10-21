@@ -7,6 +7,7 @@ import type {
   BudgetVersion,
   EnvelopeConfig,
   FinanceV2Transaction,
+  SavingsFundConfig,
 } from "@/features/finance-v2/domain";
 import { formatMonth } from "@/shared/utils/formatMonth";
 
@@ -69,6 +70,10 @@ const defaultProps = () => ({
   initialCarriedIn: null as number | null,
   onSaveEnvelopeConfig: vi.fn(),
   onLoadEnvelopeCarriedBalance: vi.fn().mockResolvedValue(null),
+  initialSavingsFundConfig: null as SavingsFundConfig | null,
+  initialSavingsFundCarriedIn: null as number | null,
+  onSaveSavingsFundConfig: vi.fn(),
+  onLoadSavingsFundCarriedBalance: vi.fn().mockResolvedValue(null),
 });
 
 describe("FinanceV2Screen", () => {
@@ -769,6 +774,123 @@ describe("FinanceV2Screen", () => {
         (screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled
       ).toBe(true);
     });
+  });
+});
+
+describe("FinanceV2Screen — savings fund wiring", () => {
+  const fund: SavingsFundConfig = {
+    name: "Ahorros",
+    openingBalance: 500_000,
+    openingMonth: "2026-05",
+  };
+
+  it("shows the fund card with the server-loaded carried-in balance on the Movimientos tab", () => {
+    render(
+      <FinanceV2Screen
+        {...defaultProps()}
+        initialSavingsFundConfig={fund}
+        initialSavingsFundCarriedIn={480_000}
+      />
+    );
+
+    goTo("Movimientos");
+
+    expect(screen.getByText("Retirado a la cuenta")).toBeTruthy();
+    expect(screen.getByText("Saldo inicial del mes").nextSibling?.textContent).toBe("$480.000");
+  });
+
+  it("adds the viewed month's own deposits, withdrawals and fund-paid expenses to the card", () => {
+    render(
+      <FinanceV2Screen
+        {...defaultProps()}
+        initialSavingsFundConfig={fund}
+        initialSavingsFundCarriedIn={480_000}
+        initialTransactions={[
+          { id: "d", type: "savings", amount: 50_000, date: "2026-07-01", month: "2026-07" },
+          { id: "w", type: "withdrawal", amount: 20_000, date: "2026-07-02", month: "2026-07" },
+          {
+            id: "e",
+            type: "expense",
+            amount: 7_000,
+            date: "2026-07-03",
+            month: "2026-07",
+            bucket: "variable",
+            category: { id: "super", name: "Supermercado" },
+            paidFrom: "savingsFund",
+          },
+        ]}
+      />
+    );
+
+    goTo("Movimientos");
+
+    expect(screen.getByText("Depositado").nextSibling?.textContent).toBe("$50.000");
+    expect(screen.getByText("Retirado a la cuenta").nextSibling?.textContent).toBe("$20.000");
+    expect(screen.getByText("Gastado").nextSibling?.textContent).toBe("$7.000");
+    expect(screen.getByText("Saldo").nextSibling?.textContent).toBe("$503.000");
+  });
+
+  it("shows no fund card and no fund load when no fund is configured", () => {
+    const onLoadSavingsFundCarriedBalance = vi.fn().mockResolvedValue(0);
+    render(
+      <FinanceV2Screen
+        {...defaultProps()}
+        onLoadSavingsFundCarriedBalance={onLoadSavingsFundCarriedBalance}
+      />
+    );
+
+    goTo("Movimientos");
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
+
+    expect(screen.queryByText("Retirado a la cuenta")).toBeNull();
+    expect(onLoadSavingsFundCarriedBalance).not.toHaveBeenCalled();
+  });
+
+  it("creating the fund saves it with openingMonth = the viewed month", () => {
+    const onSaveSavingsFundConfig = vi.fn();
+    render(
+      <FinanceV2Screen {...defaultProps()} onSaveSavingsFundConfig={onSaveSavingsFundConfig} />
+    );
+
+    goTo("Movimientos");
+    fireEvent.click(screen.getByText("Configurar ahorros"));
+    fireEvent.change(screen.getByLabelText("Nombre del fondo"), { target: { value: "Ahorros" } });
+    fireEvent.change(screen.getByLabelText("Saldo inicial"), { target: { value: "500000" } });
+    fireEvent.click(screen.getByText("Guardar ahorros"));
+
+    expect(onSaveSavingsFundConfig).toHaveBeenCalledWith({
+      name: "Ahorros",
+      openingBalance: 500_000,
+      openingMonth: "2026-07",
+    });
+  });
+
+  it("re-fetches the fund's carried-in balance when the viewed month changes", async () => {
+    const onLoadSavingsFundCarriedBalance = vi.fn().mockResolvedValue(0);
+    render(
+      <FinanceV2Screen
+        {...defaultProps()}
+        initialSavingsFundConfig={fund}
+        initialSavingsFundCarriedIn={480_000}
+        onLoadSavingsFundCarriedBalance={onLoadSavingsFundCarriedBalance}
+      />
+    );
+
+    goTo("Movimientos");
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente →" }));
+
+    await waitFor(() => expect(onLoadSavingsFundCarriedBalance).toHaveBeenCalledWith("2026-08"));
+  });
+
+  it("opening the fund config modal disables the shared MonthNav", () => {
+    render(<FinanceV2Screen {...defaultProps()} />);
+
+    goTo("Movimientos");
+    fireEvent.click(screen.getByText("Configurar ahorros"));
+
+    expect(
+      (screen.getByRole("button", { name: "Siguiente →" }) as HTMLButtonElement).disabled
+    ).toBe(true);
   });
 });
 

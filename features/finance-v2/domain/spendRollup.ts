@@ -176,6 +176,7 @@ function spendLeafRef(tx: FinanceV2Transaction): { id: string; bucket: ExpenseBu
         : null;
     case "income":
     case "transfer":
+    case "withdrawal":
       return null;
   }
 }

@@ -9,6 +9,7 @@ describe("computeTransactionTotals", () => {
       expense: 0,
       savings: 0,
       transfer: 0,
+      withdrawn: 0,
       balance: 0,
     });
   });
@@ -30,7 +31,14 @@ describe("computeTransactionTotals", () => {
 
     const totals = computeTransactionTotals(list);
 
-    expect(totals).toEqual({ income: 1000, expense: 400, savings: 250, transfer: 0, balance: 350 });
+    expect(totals).toEqual({
+      income: 1000,
+      expense: 400,
+      savings: 250,
+      transfer: 0,
+      withdrawn: 0,
+      balance: 350,
+    });
   });
 
   it("sums multiple transactions of the same type", () => {
@@ -62,6 +70,7 @@ describe("computeTransactionTotals", () => {
       expense: 150,
       savings: 0,
       transfer: 0,
+      withdrawn: 0,
       balance: 650,
     });
   });
@@ -96,6 +105,7 @@ describe("computeTransactionTotals", () => {
       expense: 20000,
       savings: 0,
       transfer: 116000,
+      withdrawn: 0,
       balance: 864000,
     });
   });
@@ -113,6 +123,7 @@ describe("computeTransactionTotals", () => {
       expense: 0,
       savings: 200,
       transfer: 400,
+      withdrawn: 0,
       balance: 400,
     });
   });
@@ -135,5 +146,35 @@ describe("computeTransactionTotals", () => {
 
     expect(totals.expense).toBe(43000);
     expect(totals.balance).toBe(1000 - 43000);
+  });
+});
+
+describe("computeTransactionTotals with the savings fund", () => {
+  const base = { date: "2026-10-05", month: "2026-10" };
+
+  it("keeps fund-paid expenses out of the main expense and adds withdrawals to the balance", () => {
+    const list: FinanceV2Transaction[] = [
+      { id: "1", type: "income", amount: 1000, ...base },
+      { id: "2", type: "withdrawal", amount: 300, ...base },
+      {
+        id: "3",
+        type: "expense",
+        amount: 200,
+        bucket: "variable",
+        category: null,
+        paidFrom: "savingsFund",
+        ...base,
+      },
+      { id: "4", type: "expense", amount: 100, bucket: "variable", category: null, ...base },
+    ];
+
+    expect(computeTransactionTotals(list)).toEqual({
+      income: 1000,
+      expense: 100,
+      savings: 0,
+      transfer: 0,
+      withdrawn: 300,
+      balance: 1200,
+    });
   });
 });

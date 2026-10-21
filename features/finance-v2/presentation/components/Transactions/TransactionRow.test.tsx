@@ -276,3 +276,73 @@ describe("TransactionRow — income source", () => {
     expect(screen.queryByText(/^de /)).toBeNull();
   });
 });
+
+describe("TransactionRow — savings fund", () => {
+  const fundExpense: FinanceV2Transaction = {
+    id: "f1",
+    type: "expense",
+    amount: 7000,
+    date: "2026-07-03",
+    month: "2026-07",
+    bucket: "variable",
+    category: { id: "super", name: "Supermercado" },
+    paidFrom: "savingsFund",
+  };
+  const withdrawal: FinanceV2Transaction = {
+    id: "w1",
+    type: "withdrawal",
+    amount: 20000,
+    date: "2026-07-02",
+    month: "2026-07",
+  };
+  const renderRow = (tx: FinanceV2Transaction, savingsFundName?: string | null) =>
+    render(
+      <TransactionRow
+        transaction={tx}
+        envelopeName={null}
+        savingsFundName={savingsFundName}
+        onDelete={vi.fn()}
+        onEdit={vi.fn()}
+      />
+    );
+
+  it("shows 'desde <fund name>' under a fund-paid expense, keeping its category as the label", () => {
+    renderRow(fundExpense, "Ahorros");
+
+    expect(screen.getByText("Supermercado")).toBeTruthy();
+    expect(screen.getByText("desde Ahorros")).toBeTruthy();
+  });
+
+  it("falls back to a generic name when the fund config is gone, so the stamp never vanishes", () => {
+    renderRow(fundExpense, null);
+
+    expect(screen.getByText("desde ahorros")).toBeTruthy();
+  });
+
+  it("does not mark a main-account expense as fund-paid", () => {
+    renderRow(
+      {
+        id: "m1",
+        type: "expense",
+        amount: 7000,
+        date: "2026-07-03",
+        month: "2026-07",
+        bucket: "variable",
+        category: { id: "super", name: "Supermercado" },
+      },
+      "Ahorros"
+    );
+
+    expect(screen.queryByText(/^desde /)).toBeNull();
+  });
+
+  it("labels a withdrawal with the fund name, or generically without one", () => {
+    renderRow(withdrawal, "Ahorros");
+    expect(screen.getByText("Retiro de Ahorros")).toBeTruthy();
+  });
+
+  it("labels a withdrawal generically when no fund name is known", () => {
+    renderRow(withdrawal, null);
+    expect(screen.getByText("Retiro de ahorros")).toBeTruthy();
+  });
+});

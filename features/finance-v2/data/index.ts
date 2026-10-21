@@ -9,9 +9,11 @@ export {
   loadBudgetVersions,
   loadTransactions,
   loadEnvelopeConfig,
+  loadSavingsFundConfig,
   TransactionKvAdapter,
 } from "./kvAdapter";
 export { loadEnvelopeCarriedBalance } from "./envelopeCarriedBalance";
+export { loadSavingsFundCarriedBalance } from "./savingsFundCarriedBalance";
 export { loadHomeFinanceSummary } from "./homeFinanceSummary";
 export type { HomeFinanceSummary } from "./homeFinanceSummary";
 export {
@@ -21,4 +23,6 @@ export {
   handleLoadTransactions,
   handleSaveEnvelopeConfig,
   handleLoadEnvelopeCarriedBalance,
+  handleSaveSavingsFundConfig,
+  handleLoadSavingsFundCarriedBalance,
 } from "./financeV2Actions";

@@ -600,3 +600,164 @@ describe("TransactionForm — income source", () => {
     );
   });
 });
+
+describe("TransactionForm — savings fund", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 6, 15)); // 2026-07-15, local time
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const fundExpense: FinanceV2Transaction = {
+    id: "f1",
+    type: "expense",
+    amount: 7000,
+    date: "2026-07-03",
+    month: "2026-07",
+    bucket: "variable",
+    category: { id: "s2", name: "Ocio" },
+    paidFrom: "savingsFund",
+  };
+
+  const renderFundForm = (props: Partial<React.ComponentProps<typeof TransactionForm>> = {}) => {
+    const onAdd = vi.fn();
+    render(
+      <TransactionForm
+        viewedMonth="2026-07"
+        categoryOptions={categoryOptions}
+        hasEnvelope={false}
+        hasSavingsFund
+        onAdd={onAdd}
+        {...props}
+      />
+    );
+    return onAdd;
+  };
+
+  const payFromSavings = () => screen.queryByLabelText("Pagar desde ahorros") as HTMLInputElement;
+  const typeOptionLabels = () =>
+    [...(screen.getByLabelText("Tipo de movimiento") as HTMLSelectElement).options].map(
+      (o) => o.text
+    );
+
+  it("offers neither the checkbox nor the withdrawal type when no fund is configured", () => {
+    renderFundForm({ hasSavingsFund: false });
+
+    expect(payFromSavings()).toBeNull();
+    expect(typeOptionLabels()).not.toContain("Retiro de ahorros");
+  });
+
+  it("offers the checkbox on an expense and the withdrawal type once a fund exists", () => {
+    renderFundForm();
+
+    expect(payFromSavings()).not.toBeNull();
+    expect(payFromSavings().checked).toBe(false);
+    expect(typeOptionLabels()).toContain("Retiro de ahorros");
+  });
+
+  it("shows the checkbox only for expenses", () => {
+    renderFundForm();
+
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), { target: { value: "income" } });
+
+    expect(payFromSavings()).toBeNull();
+  });
+
+  it("stamps paidFrom savingsFund on an expense only when the box is checked", () => {
+    const onAdd = renderFundForm();
+
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "7000" } });
+    fireEvent.click(payFromSavings());
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "expense", amount: 7000, paidFrom: "savingsFund" })
+    );
+  });
+
+  it("leaves the paidFrom key out of an expense when the box is not checked", () => {
+    const onAdd = renderFundForm();
+
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "7000" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd.mock.calls[0][0]).not.toHaveProperty("paidFrom");
+  });
+
+  it("unchecks the box after adding, so the next expense is not silently fund-paid", () => {
+    renderFundForm();
+
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "7000" } });
+    fireEvent.click(payFromSavings());
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(payFromSavings().checked).toBe(false);
+  });
+
+  it("submits a withdrawal with no extra fields", () => {
+    const onAdd = renderFundForm();
+
+    fireEvent.change(screen.getByLabelText("Tipo de movimiento"), {
+      target: { value: "withdrawal" },
+    });
+    fireEvent.change(screen.getByLabelText("Monto"), { target: { value: "20000" } });
+    fireEvent.click(screen.getByText("Agregar movimiento"));
+
+    expect(onAdd).toHaveBeenCalledWith({
+      type: "withdrawal",
+      amount: 20000,
+      date: "2026-07-15",
+      month: "2026-07",
+      note: undefined,
+    });
+  });
+
+  it("edit mode seeds the box from the stored funding and unchecking drops it", () => {
+    const onAdd = renderFundForm({ initialTransaction: fundExpense });
+    expect(payFromSavings().checked).toBe(true);
+
+    fireEvent.click(payFromSavings());
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(onAdd.mock.calls[0][0]).not.toHaveProperty("paidFrom");
+  });
+
+  it("edit mode keeps savingsFund when the box is left checked", () => {
+    const onAdd = renderFundForm({ initialTransaction: fundExpense });
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "expense", paidFrom: "savingsFund" })
+    );
+  });
+
+  // Same passive-orphan idea as a deleted category: the fund config may be gone, but an
+  // already fund-paid expense (or a withdrawal) must stay editable without losing its stamp.
+  it("keeps the box and the stamp for an already fund-paid expense even if the fund is gone", () => {
+    const onAdd = renderFundForm({ hasSavingsFund: false, initialTransaction: fundExpense });
+    expect(payFromSavings().checked).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    expect(onAdd).toHaveBeenCalledWith(expect.objectContaining({ paidFrom: "savingsFund" }));
+  });
+
+  it("keeps the withdrawal type selectable when editing a withdrawal and the fund is gone", () => {
+    renderFundForm({
+      hasSavingsFund: false,
+      initialTransaction: {
+        id: "w1",
+        type: "withdrawal",
+        amount: 20000,
+        date: "2026-07-02",
+        month: "2026-07",
+      },
+    });
+
+    expect(typeOptionLabels()).toContain("Retiro de ahorros");
+  });
+});

@@ -12,6 +12,10 @@ import {
   loadEnvelopeCarriedBalance,
   handleSaveEnvelopeConfig,
   handleLoadEnvelopeCarriedBalance,
+  loadSavingsFundConfig,
+  loadSavingsFundCarriedBalance,
+  handleSaveSavingsFundConfig,
+  handleLoadSavingsFundCarriedBalance,
   TransactionKvAdapter,
 } from "@/features/finance-v2/data";
 import { FinanceV2Screen } from "@/features/finance-v2/presentation/screens/Dashboard/FinanceV2Screen";
@@ -24,18 +28,23 @@ export default async function FinanceV2Page() {
 
   const month = currentMonth();
 
-  const [initialBudgetVersions, initialTransactions, initialEnvelopeConfig] = await Promise.all([
+  const [
+    initialBudgetVersions,
+    initialTransactions,
+    initialEnvelopeConfig,
+    initialSavingsFundConfig,
+  ] = await Promise.all([
     loadBudgetVersions(),
     loadTransactions(month),
     loadEnvelopeConfig(),
+    loadSavingsFundConfig(),
   ]);
   // Sequential on purpose: it needs the config's opening month/balance. Loaded here so the
   // envelope's first render needs no client fetch.
-  const initialCarriedIn = await loadEnvelopeCarriedBalance(
-    initialEnvelopeConfig,
-    month,
-    TransactionKvAdapter
-  );
+  const [initialCarriedIn, initialSavingsFundCarriedIn] = await Promise.all([
+    loadEnvelopeCarriedBalance(initialEnvelopeConfig, month, TransactionKvAdapter),
+    loadSavingsFundCarriedBalance(initialSavingsFundConfig, month, TransactionKvAdapter),
+  ]);
 
   return (
     <FinanceV2Screen
@@ -50,6 +59,10 @@ export default async function FinanceV2Page() {
       initialCarriedIn={initialCarriedIn}
       onSaveEnvelopeConfig={handleSaveEnvelopeConfig}
       onLoadEnvelopeCarriedBalance={handleLoadEnvelopeCarriedBalance}
+      initialSavingsFundConfig={initialSavingsFundConfig}
+      initialSavingsFundCarriedIn={initialSavingsFundCarriedIn}
+      onSaveSavingsFundConfig={handleSaveSavingsFundConfig}
+      onLoadSavingsFundCarriedBalance={handleLoadSavingsFundCarriedBalance}
     />
   );
 }
