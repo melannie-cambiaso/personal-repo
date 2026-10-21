@@ -19,8 +19,8 @@ Branch: `feat/finance-v2-savings-fund`
 - [x] T2 — S2 S7 — Data: `ISavingsFundRepository` port, kv adapter key `finance-v2-savings-fund-config`, `loadSavingsFundCarriedBalance`, validated server actions + barrel + tests. RED (15 failing) → GREEN; finance-v2 655/655, tsc + eslint + prettier clean. `page.tsx` wiring moved to T3 (the screen must accept the props first). Commit: see git log.
 - [x] T3a — S2 S5 — `useFinanceV2SavingsFund` hook (mirror copy, L5a) + `toSavingsFundView` + `SavingsFundCard` + `SavingsFundConfigModal` + tests. RED (missing modules) → GREEN 25/25; tsc + prettier clean; each piece reviewed with the user (L5). Commit: see git log.
 - [x] T3b — S2 S5 — wiring: `TransactionsTab` (fund above envelope, user-chosen order), `FinanceV2Screen` (hook, view, MonthNav guard, cross-month refresh), `page.tsx` props + tests. RED (4 tab + 5 screen failing) → GREEN; finance-v2 691/691, tsc + eslint + prettier clean. Commit: see git log. — route: inline — commit: pending
-- [ ] T4 — S3 S4 — Form/row/summary: "pagar desde ahorros" control on expenses, `withdrawal` type option, row labels, hook stamping + tests — route: inline — commit: pending
-- [ ] T5 — S1-S7 — Verify: full test suite, tsc, eslint, build; independent verify per-S# (data format touched) — route: gentle-ai-verify — commit: n/a
+- [x] T4 — S3 S4 — Form/row/summary: "pagar desde ahorros" control on expenses, `withdrawal` type option, row labels, hook stamping + tests. finance-v2 718/718, tsc + eslint + prettier clean; reviewed piece by piece with the user. Commit: 1b445e2. — route: inline
+- [x] T5 — S1-S7 — Verify: tsc 0, eslint 0 errors (1 pre-existing warning), vitest 1084/1084, next build ok; gentle-ai-verify: S1-S7 all pass, no blockers. Note: kv `load()` does not re-validate the stored shape on read (mirrors the envelope adapter). — route: gentle-ai-verify — commit: n/a
 
 ## Log
 
