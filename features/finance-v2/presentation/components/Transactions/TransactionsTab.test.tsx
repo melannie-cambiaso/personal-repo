@@ -29,6 +29,7 @@ describe("TransactionsTab", () => {
   const categoryOptions: ExpenseCategoryOption[] = [];
 
   const tabProps = (overrides: Partial<Props> = {}): Props => ({
+    view: "summary",
     viewedMonth: "2026-07",
     lastCrossMonthSave: null,
     onDismissCrossMonthSave: vi.fn(),
@@ -113,7 +114,7 @@ describe("TransactionsTab", () => {
       },
     ];
 
-    renderTab({ dayGroups, onDelete });
+    renderTab({ view: "list", dayGroups, onDelete });
 
     fireEvent.click(screen.getByRole("button", { name: /eliminar/i }));
 
@@ -121,7 +122,7 @@ describe("TransactionsTab", () => {
   });
 
   it("shows the empty-state message from the list when there are no transactions", () => {
-    renderTab();
+    renderTab({ view: "list" });
 
     expect(screen.getByText(/no hay movimientos/i)).toBeTruthy();
   });
@@ -151,7 +152,7 @@ describe("TransactionsTab", () => {
 
   it("clicking 'Nuevo movimiento' calls onOpenAdd instead of owning its own open state", () => {
     const onOpenAdd = vi.fn();
-    renderTab({ onOpenAdd });
+    renderTab({ view: "list", onOpenAdd });
 
     fireEvent.click(screen.getByText("Nuevo movimiento"));
 
@@ -304,10 +305,15 @@ describe("TransactionsTab", () => {
         ],
       },
     ];
-    renderTab({ savingsFund, dayGroups });
+    renderTab({ view: "list", savingsFund, dayGroups });
 
     expect(screen.getByText("Retiro de Ahorros")).toBeTruthy();
     expect(screen.getByText("desde Ahorros")).toBeTruthy();
+  });
+
+  it("with a savings fund, the summary view shows the withdrawals row", () => {
+    renderTab({ savingsFund });
+
     expect(screen.getByText("Retiros de ahorros")).toBeTruthy();
   });
 
@@ -315,6 +321,62 @@ describe("TransactionsTab", () => {
     renderTab();
 
     expect(screen.queryByText("Retiros de ahorros")).toBeNull();
+  });
+
+  describe("split between the summary and the list", () => {
+    const dayGroups: DayGroup[] = [
+      {
+        date: "2026-07-01",
+        transactions: [
+          { id: "t1", type: "income", amount: 1000, date: "2026-07-01", month: "2026-07" },
+        ],
+      },
+    ];
+
+    it("the summary view shows the summary and the cards but not the list", () => {
+      renderTab({ envelope, savingsFund, dayGroups });
+
+      expect(screen.getByText("Balance")).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Editar ahorros" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Editar cuenta" })).toBeTruthy();
+      expect(screen.queryByRole("button", { name: /eliminar/i })).toBeNull();
+      expect(screen.queryByText(/no hay movimientos/i)).toBeNull();
+    });
+
+    it("the list view shows the list but not the summary nor the cards", () => {
+      renderTab({ view: "list", envelope, savingsFund, dayGroups });
+
+      expect(screen.getByRole("button", { name: /eliminar/i })).toBeTruthy();
+      expect(screen.queryByText("Balance")).toBeNull();
+      expect(screen.queryByRole("button", { name: "Editar ahorros" })).toBeNull();
+      expect(screen.queryByRole("button", { name: "Editar cuenta" })).toBeNull();
+      expect(screen.queryByText("Todavía no transferiste", { exact: false })).toBeNull();
+    });
+
+    it("only the list view offers 'Nuevo movimiento'", () => {
+      const onOpenAdd = vi.fn();
+      const { unmount } = renderTab({ view: "summary", onOpenAdd });
+      expect(screen.queryByText("Nuevo movimiento")).toBeNull();
+      unmount();
+      renderTab({ view: "list", onOpenAdd });
+      fireEvent.click(screen.getByText("Nuevo movimiento"));
+
+      expect(onOpenAdd).toHaveBeenCalledOnce();
+    });
+
+    it("both views show the cross-month confirmation banner", () => {
+      const { unmount } = renderTab({ view: "summary", lastCrossMonthSave: "2026-08" });
+      expect(screen.getByRole("status").textContent).toMatch(/Guardado en/);
+      unmount();
+      renderTab({ view: "list", lastCrossMonthSave: "2026-08" });
+      expect(screen.getByRole("status").textContent).toMatch(/Guardado en/);
+    });
+
+    it("the add form works from either view (the modal is mounted in both)", () => {
+      renderTab({ view: "list", isAddOpen: true });
+
+      expect(screen.getByLabelText("Tipo de movimiento")).toBeTruthy();
+    });
   });
 
   it("keeps the envelope and the savings fund independent: both can be configured at once", () => {

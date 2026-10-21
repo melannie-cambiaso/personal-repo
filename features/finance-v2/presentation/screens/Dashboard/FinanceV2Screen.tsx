@@ -325,8 +325,9 @@ export function FinanceV2Screen({
           <AnalysisTab analysis={isLoadingMonth ? null : monthAnalysis} />
         )}
 
-        {activeTab === "movements" && (
+        {(activeTab === "summary" || activeTab === "movements") && (
           <TransactionsTab
+            view={activeTab === "summary" ? "summary" : "list"}
             viewedMonth={viewedMonth}
             totals={totals}
             dayGroups={dayGroups}
